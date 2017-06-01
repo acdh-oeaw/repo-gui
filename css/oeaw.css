@@ -1,0 +1,19 @@
+.search-form .contextual-region .block .block-oeaw .block-searchsb-block {
+    background-color: red;
+    
+}
+
+.search-form, 
+.class-form {   
+    -webkit-box-shadow: 0px 5px 8px 2px rgba(0,0,0,0.86)!important;
+    -moz-box-shadow: 0px 5px 8px 2px rgba(0,0,0,0.86)!important;
+    box-shadow: 0px 5px 8px 2px rgba(0,0,0,0.86)!important;
+
+}
+
+.search-form input {
+    max-width: 200px!important;
+}
+.depagree-form input{
+    width: 100%!important;
+}

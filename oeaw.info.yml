@@ -1,0 +1,10 @@
+name: oeaw
+description: 'oeaw Fedora module.'
+core: 8.x
+package: oeaw
+dependencies:
+- node
+- block
+type: module
+libraries:
+    - oeaw/mylibrary

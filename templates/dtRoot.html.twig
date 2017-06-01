@@ -1,0 +1,31 @@
+
+{% if errorMSG %}
+    {{ errorMSG }}
+
+{% else %}
+    <table id="" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>Title</th>
+                {% if userid != 0  %}
+                <th>Edit</th>
+                {% endif %}
+                <th>Fedora</th>
+            </tr>
+        </thead>
+
+            <tbody>  
+                   {% for item in result %}
+                   <tr>    
+                       <td><a href="{{ item.detail }}">{{ item.title }}</a></td>
+                       {% if userid != 0  %}
+                           <td width="50px"><a href="{{ item.edit }}"><center><i class="fa fa-pencil-square-o fa-2x"></i></center></a></td>
+                       {% endif %}
+                       <td width="50px"><a href="{{ item.uri }}" target="_blank"><center><i class="fa fa-database fa-2x" aria-hidden="true" ></i></center></a></td>
+                   </tr>
+               {% endfor %}                                          
+           </tbody>
+        
+
+    </table>
+{% endif %}

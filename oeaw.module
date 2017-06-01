@@ -1,0 +1,57 @@
+<?php
+
+function oeaw_theme() {
+  $theme['oeaw_detail_dt'] = [
+    'variables' => ['result' => NULL, 'childResult' => NULL, 'editResData' => NULL, 'userid' => NULL, 'hasBinary' => NULL, 'errorMSG' => null],
+    'template' => 'dtDetail',
+  ];  
+  
+  $theme['oeaw_root_dt'] = [
+    'variables' => ['result' => NULL, 'header' => NULL, 'userid' => NULL, 'errorMSG' => null],
+    'template' => 'dtRoot',
+  ];
+  
+  $theme['oeaw_success'] = [
+    'variables' => ['result' => NULL, 'userid' => NULL, 'errorMSG' => null],
+    'template' => 'success',
+  ];
+  
+  $theme['oeaw_success_resource'] = [
+    'variables' => ['result' => NULL, 'userid' => NULL, 'errorMSG' => null],
+    'template' => 'success_res',
+  ];
+  
+  
+  $theme['oeaw_form_resource'] = [
+    'variables' => ['result' => NULL, 'userid' => NULL, 'errorMSG' => null],
+    'template' => 'form_res',
+  ];
+  
+  $theme['oeaw_search_res_dt'] = [
+    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null],
+    'template' => 'search_res',
+  ];
+  
+  $theme['oeaw_search_class_res_dt'] = [
+    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null],
+    'template' => 'search_class_res',
+  ];
+
+  return $theme;
+}
+
+
+/*
+ * Create a hook for the admin form page to we can use an external javascript file
+ * 
+ */
+function oeaw_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id){
+ 
+    $form['#attached']['library'][] = 'oeaw/mylibrary';
+    $form['#attached']['drupalSettings']['oeaw']['mylibrary']['variable'] = 'value';
+
+    return $form;
+
+}
+
+

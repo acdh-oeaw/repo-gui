@@ -1,0 +1,5 @@
+services:
+    example_mod_subscriber:
+        class: Drupal\oeaw\EventSubscriber\MyExampleSubscriber
+        tags:
+            - { name: event_subscriber }
