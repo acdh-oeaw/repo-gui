@@ -33,23 +33,22 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
         for($i=0; $i<=$max; $i++) {
             if (!isset($form['fields']['creators'][$i])) {
                 
-                $form['fields']['creators']['creator_title_'.$i] = array(
-                    '#type' => 'textfield',
-                    '#title' => t('Name Title:'),
-                    '#prefix' => t('<h2><b>Creator '.($i+1).' data</b></h2>')
-                );
-                
                 $form['fields']['creators']['creator_l_name_'.$i] = array(
                     '#type' => 'textfield',
                     '#title' => t('Last Name:'),
-                    '#required' => TRUE,
+                    '#required' => FALSE,
                     '#default_value' => $this->store->get('creator_l_name_'.$i) ? $this->store->get('creator_l_name_'.$i) : '',
+                    '#prefix' => t('<h2><b>Creator '.($i+1).' data</b></h2>')
                 );
                 $form['fields']['creators']['creator_f_name_'.$i] = array(
                     '#type' => 'textfield',
                     '#title' => t('First Name:'),
-                    '#required' => TRUE,
+                    '#required' => FALSE,
                     '#default_value' => $this->store->get('creator_f_name_'.$i) ? $this->store->get('creator_f_name_'.$i) : '',
+                );
+                $form['fields']['creators']['creator_title_'.$i] = array(
+                    '#type' => 'textfield',
+                    '#title' => t('Title:')                    
                 );
                 $form['fields']['creators']['creator_institution_'.$i] = array(
                     '#type' => 'textfield',

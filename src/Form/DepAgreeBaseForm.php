@@ -11,6 +11,7 @@ use Drupal\file\Entity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use TCPDF;
+use TCPDF_FONTS;
 
 
 abstract class DepAgreeBaseForm extends FormBase {
@@ -94,25 +95,65 @@ abstract class DepAgreeBaseForm extends FormBase {
         $form4 = $this->store->get('form4Val');
      
         $fileMetaData = $this->store->get('material_metadata_file');
-        $fileNameScheme = $this->store->get('material_name_scheme');
-        $filePreview = $this->store->get('material_preview');
-        
-        $fileMetaData = $fileMetaData[0];
-        $fileNameScheme = $fileNameScheme[0];
-        $filePreview = $filePreview[0];
-        
-        $fmdObj = file_load($fileMetaData);
-        $form2['material_metadata_file'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$fmdObj->getFilename();        
-        
-        $fnsObj = file_load($fileNameScheme);
-        $form2['material_name_scheme'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$fnsObj->getFilename();
-        
-        $fpObj = file_load($filePreview);
-        $form2['material_preview'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$fpObj->getFilename();
+        $fileNameScheme = $this->store->get('material_name_scheme');        
+        $fileMatTitle = $this->store->get('diss_material_title');
+        $fileMatSub = $this->store->get('diss_material_sub_images');
+        $fileMatLogo = $this->store->get('diss_material_logos');
+        $fileMatBagit = $this->store->get('material_bagit_file');
+        $fileMatArr = $this->store->get('material_arrangement_file');
+                
+        if($fileMetaData){
+            $fileMetaData = $fileMetaData[0];
+            if($fileMetaData[0]){
+                $fmdObj = file_load($fileMetaData);
+                $form2['material_metadata_file'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$fmdObj->getFilename();
+            }
+        }
+        if($fileNameScheme){
+            $fileNameScheme = $fileNameScheme[0];
+            if($fileNameScheme[0]){
+                $fnsObj = file_load($fileNameScheme);
+                $form2['material_name_scheme'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$fnsObj->getFilename();
+            }
+        }
+        if($fileMatTitle){
+            $fileMatTitle = $fileMatTitle[0];
+            if($fileMatTitle[0]){
+                $mtdObj = file_load($fileMatTitle);
+                $form2['diss_material_title'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$mtdObj->getFilename();
+            }
+        }
+        if($fileMatSub){
+            $fileMatSub = $fileMatSub[0];
+            if($fileMatSub[0]){
+                $msdObj = file_load($fileMatSub);
+                $form2['diss_material_sub_images'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$msdObj->getFilename();
+            }
+        }        
+        if($fileMatLogo){
+            $fileMatLogo = $fileMatLogo[0];
+            if($fileMatLogo[0]){
+                $mlObj = file_load($fileMatLogo);
+                $form2['diss_material_logos'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$mlObj->getFilename();
+            }
+        }        
+        if($fileMatBagit){
+            $fileMatBagit = $fileMatBagit[0];
+            if($fileMatBagit[0]){
+                $mbObj = file_load($fileMatBagit);
+                $form2['material_bagit_file'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$mbObj->getFilename();
+            }
+        }        
+        if($fileMatArr){
+            $fileMatArr = $fileMatArr[0];
+            if($fileMatArr[0]){
+                $maObj = file_load($fileMatArr);
+                $form2['material_arrangement_file'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$maObj->getFilename();
+            }
+        }
         
         $dv = \Drupal\oeaw\ConnData::getDataValidation();
-        $form3['data_validation'] = $dv[$form3['data_validation']];
-                
+        $form3['data_validation'] = $dv[$form3['data_validation']];                
         
         $tcpdf = new \Drupal\oeaw\deppPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         $tcpdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE, PDF_HEADER_STRING);
@@ -132,16 +173,56 @@ abstract class DepAgreeBaseForm extends FormBase {
         $tcpdf->SetAuthor('ACDH');
         $tcpdf->SetTitle('Deposition Agreement');
         $tcpdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-        $tcpdf->setPrintHeader(true);
+        $tcpdf->setPrintHeader(false);
         $tcpdf->setPrintFooter(true);
-        $tcpdf->SetFont('times', 'r', 14);
         
+        $fontname = \TCPDF_FONTS::addTTFfont('modules/oeaw/fonts/Brandon_reg.ttf');
+        $fontnameBold = \TCPDF_FONTS::addTTFfont('modules/oeaw/fonts/Brandon_bld.ttf');        
+        
+        $tcpdf->SetFont($fontname, 'BI', 14);
+        $tcpdf->AddPage();
+
+        $tcpdf->SetLineWidth(0.7);
+        $tcpdf->setCellHeightRatio(3);
+        $style2 = array('width' => 0.3, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 71, 187));
+        // Line
+        $tcpdf->Line(10, 10, 200, 10, $style2);
+        $tcpdf->Line(10, 285, 200, 285, $style2);
+
+        $tcpdf->SetLineStyle(array('width' => 0.5, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 71, 187)));
+        $tcpdf->Rect(10, 10, 8, 90, 'DF', $style2, array(0, 71, 187));
+        $tcpdf->Rect(192, 100, 8, 185, 'DF', $style2, array(0, 71, 187));
+        $tcpdf->SetFont($fontname, '', 7);
+        $tcpdf->Image('modules/oeaw/images/oeaw.png', 35, 30, 60, 26, 'PNG', '', '', true, 150, '', false, false, 0, false, false, false);
+
+        $tcpdf->SetFont($fontnameBold, 'b', 60);
+        $tcpdf->SetXY(30,50);
+        $tcpdf->SetTextColor(0,0,0);
+        $tcpdf->Cell(0,0,'DEPOSITION',0,0,'L',0,'');
+        $tcpdf->SetXY(30,70);
+        $tcpdf->Cell(0,0,'AGREEMENT',0,0,'L',0,'');
+
+
+        $tcpdf->SetFont($fontnameBold, '', 7, '', false);
+        $tcpdf->SetXY(10, 45);
+        $tcpdf->Rotate(90);
+        $tcpdf->SetTextColor(255,255,255);
+        $tcpdf->Cell(0,0,'WWW.OEAW.AC.AT',0,0,'L',0,'');
+        $tcpdf->StopTransform();
+        $tcpdf->Rotate(0);
+        $tcpdf->SetLineWidth(0.5);
+        $tcpdf->setCellHeightRatio(1.5);
       
+        $tcpdf->SetFont($fontname, '', 14);        
+        $tcpdf->SetTextColor(0,0,0);
+        
+        $fontnames = array('normal' => $fontname, 'bold' => $fontnameBold);
+        
        //generate the pages
-        $this->generatePdfPage($tcpdf, $form1, "Depositor", \Drupal\oeaw\ConnData::$depTXT);
-        $this->generatePdfPage($tcpdf, $form2, "Description Of Material, Extent, Files", \Drupal\oeaw\ConnData::$descTXT);
-        $this->generatePdfPage($tcpdf, $form3, "Transfer Procedures", \Drupal\oeaw\ConnData::$transferTXT);
-        $this->generatePdfPage($tcpdf, $form4, "Creators");       
+        $this->generatePdfPage($tcpdf, $form1, "DEPOSITOR", \Drupal\oeaw\ConnData::$depTXT, $fontnames);
+        $this->generatePdfPage($tcpdf, $form2, "DESCRIPTION OF MATERIAL, EXTENT, FILES", \Drupal\oeaw\ConnData::$descTXT, $fontnames);
+        $this->generatePdfPage($tcpdf, $form3, "TRANSFER PROCEDURES", \Drupal\oeaw\ConnData::$transferTXT, $fontnames);
+        $this->generatePdfPage($tcpdf, $form4, "CREATORS", \Drupal\oeaw\ConnData::$lastTXT, $fontnames);
  
         $tcpdf->AddPage();
         $signTXT = '
@@ -162,6 +243,7 @@ abstract class DepAgreeBaseForm extends FormBase {
                         <td align="center">Date, Signature</td>
                 </tr>
             </table>';
+        
         $tcpdf->writeHTML($signTXT, true, false, false, false, '');
          //Close and output PDF document
         $tcpdf->Output($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$form2['material_acdh_repo_id'].'.pdf', 'F');
@@ -180,14 +262,55 @@ abstract class DepAgreeBaseForm extends FormBase {
         return;
     }
     
-    public function generatePdfPage(TCPDF $tcpdf, array $formData, string $title, string $ftrTXT = "" ): TCPDF{
+    public function generatePdfPage(TCPDF $tcpdf, array $formData, string $title, string $ftrTXT = "", array $fontnames): TCPDF{
         
          // add a page
         $tcpdf->AddPage();
+        $tcpdf->SetLineWidth(0.5);
+        $tcpdf->setCellHeightRatio(1.5);
+        $style = array('width' => 3, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => array(0, 71, 187));
+        $tcpdf->Line(150, 11, 200, 11, $style);
+
+        $tcpdf->SetXY(110, 9);
+        $tcpdf->SetFont($fontnames['normal'], '', 8, '', false);
+        $tcpdf->SetTextColor(0, 71, 187);
+        $tcpdf->Cell(0,0,'DEPOSITION AGREEMENT',0,0,'L',0,'');
+        $tcpdf->StopTransform();
         
-        // set some text to print
-        $txt = "<h1>".$title."</h1><br/>";
+        $tcpdf->SetTextColor(0,0,0);
+        $tcpdf->SetFont($fontnames['normal'], '', 12, '', false);
+        $tcpdf->SetXY(10, 20);
+        
        
+       $txt = "<style>
+   
+    td.title {        
+        border-right: 1px solid #0047BB;
+        border-top: 1px solid #0047BB;
+        border-bottom: 1px solid #0047BB;
+        color:#0047BB;
+        align:left;
+        padding-left: 5px;
+    }
+	
+    td.value {
+	border-left: 1px solid black;
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+        color: black;
+        align: right:
+        padding-right: 5px;
+    }
+</style>";
+       
+        // set some text to print
+        $tcpdf->SetFont($fontnames['bold'], '', 20, '', false);
+        $tcpdf->SetTextColor(0,0,0);
+        $tcpdf->Cell(0,0,$title,0,0,'L',0,'');
+        //$txt .= "<h1>".$title."</h1><br/>";
+        $tcpdf->SetXY(10, 40);
+        $tcpdf->SetTextColor(0,0,0);
+        $tcpdf->SetFont($fontnames['normal'], '', 12, '', false);
         foreach($formData as $k => $v){
             
             if(\Drupal\oeaw\ConnData::getPDFLng($k)){
@@ -201,28 +324,29 @@ abstract class DepAgreeBaseForm extends FormBase {
             }
             
             if(is_array($v)){
-                $txt .= '<table cellspacing="0" cellpadding="1" border="1">
+                $txt .= '<table cellspacing="0" cellpadding="0" border="0">
                     <tr>
-                        <td>'.$text.'</td><td>';
+                        <td class="title" align="left">&nbsp;&nbsp;'.$text.'</td><td class="value" align="right">&nbsp;&nbsp;';
                         foreach($v as $key => $val) {
                             if($val){
-                                $txt .= $key.'<br />';
+                                $txt .= $key.'&nbsp;&nbsp;<br />';
                             }
                         }
                     $txt .= '</td></tr>
                     </table>';
             }else {
                 $txt .= '
-                <table cellspacing="0" cellpadding="1" border="1">
+                <table cellspacing="0" cellpadding="0" border="0">
                     <tr>
-                        <td>'.$text.'</td>
-                        <td>'.$v.'</td>        
+                        <td class="title" align="left">&nbsp;&nbsp;'.$text.'&nbsp;&nbsp;</td>
+                        <td class="value" align="right">&nbsp;&nbsp;'.$v.'&nbsp;&nbsp;</td>        
                     </tr>
                 </table>';
             }      
         }
         $tcpdf->writeHTML($txt, true, false, false, false, '');
         
+        $tcpdf->Line(8, 280, 60, 280, $style);
         if($ftrTXT){
             $tcpdf->writeHTML($ftrTXT, true, false, false, false, '');
         }

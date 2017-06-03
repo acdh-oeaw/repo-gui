@@ -27,13 +27,6 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
             '#collapsible' => TRUE,
             '#collapsed' => FALSE,  
         );
-
-        $form['depositor']['title'] = array(
-            '#type' => 'textfield',
-            '#title' => t('Name Title:'),
-            '#required' => FALSE,
-            '#default_value' => $this->store->get('title') ? $this->store->get('title') : '',
-        );
         
         $form['depositor']['l_name'] = array(
             '#type' => 'textfield',
@@ -47,6 +40,13 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
             '#title' => t('First Name:'),
             '#required' => TRUE,
             '#default_value' => $this->store->get('f_name') ? $this->store->get('f_name') : '',
+        );
+        
+        $form['depositor']['title'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Title:'),
+            '#required' => FALSE,
+            '#default_value' => $this->store->get('title') ? $this->store->get('title') : '',
         );
         
         $form['depositor']['institution'] = array(
@@ -102,10 +102,10 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
    // drupal_set_message($this->t('@can_name ,Your application is being submitted!', array('@can_name' => $form_state->getValue('candidate_name'))));
     
     $form1Val = array();
-    //get the class and root values from the form
-    $form1Val['title'] = $form_state->getValue('title');
+    //get the class and root values from the form    
     $form1Val['l_name'] = $form_state->getValue('l_name');
     $form1Val['f_name'] = $form_state->getValue('f_name');
+    $form1Val['title'] = $form_state->getValue('title');
     $form1Val['institution'] = $form_state->getValue('institution');
     $form1Val['city'] = $form_state->getValue('city');
     $form1Val['address'] = $form_state->getValue('address');
