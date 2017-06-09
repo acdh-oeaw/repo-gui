@@ -51,14 +51,13 @@ class OeawStorage {
         
     private $titleProp;    
     private $OeawFunctions;    
-    private $fedora;
+    private $fedora;    
     
-    public function __construct() {  
-        
+    public function __construct() {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-        /* $this->apiUrl = preg_replace('|/$|', '', $cfg->get('fedoraApiUrl')); */
+                
         $this->OeawFunctions = new OeawFunctions();
-        $this->fedora = new Fedora();
+        $this->fedora = new Fedora();        
         
         //blazegraph bugfix. Add missing namespace
         $blazeGraphNamespaces = \EasyRdf\RdfNamespace::namespaces();
@@ -452,7 +451,7 @@ class OeawStorage {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
         }
         
-        if($property == null){ $property = RC::get('idProp'); }                
+        if($property == null){ $property = RC::idProp(); }                
         $res = array();
 
         try{            

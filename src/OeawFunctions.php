@@ -7,8 +7,15 @@ use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ChangedCommand;
 use Drupal\Core\Ajax\CssCommand;
 use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Entity\Exception;
 use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Component\Render\MarkupInterface;
+
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+
 
 use Drupal\oeaw\OeawStorage;
 use Drupal\oeaw\ConnData;
@@ -25,8 +32,7 @@ use EasyRdf\Resource;
  
 class OeawFunctions {
             
-    public function __construct(){        
-     //   $this->config = new Config($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');     
+    public function __construct(){
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
     }
         
@@ -62,6 +68,7 @@ class OeawFunctions {
         $meta = $fedora->getResourceByUri($uri)->getMetadata();
         return $meta;
     }
+    
     
     /**
      * Creates the EasyRdf_Graph by uri
