@@ -345,7 +345,7 @@ class OeawFunctions {
                         
             //check the thumbnail
             if($imageThumbnail){
-                //$imgUri = $imageThumbnail->getUri();
+                $imgUri = $imageThumbnail->getUri();
                 if(!empty($imgUri)){
                     $OeawStorage = new OeawStorage();
                     $childThumb = $OeawStorage->getImage($imgUri);
@@ -354,17 +354,15 @@ class OeawFunctions {
                         $childResult[$i]['thumbnail'] = $childThumb[0];
                     }
                 }
-            }
-                
-            //if there is an rdf type with foaf image property, then the resource is an image
-            if(!empty($imageRdfType)){
+            }else if(!empty($imageRdfType)){
+                //if we dont have a thumbnail then maybe it is an IMAGE Resource                
                 foreach($imageRdfType as $rdfVal){
                     if($rdfVal->getUri() == \Drupal\oeaw\ConnData::$imageProperty){
                         $childResult[$i]['thumbnail'] = $r->getUri();
                     }
                 }
             }
-              
+            
             $decUrlChild = $this->isURL($r->getUri(), "decode");
 
             $childResult[$i]['detail'] = "/oeaw_detail/".$decUrlChild;
@@ -413,9 +411,7 @@ class OeawFunctions {
                                 $results[$i]["image"] = $imgData[0];
                             }
                         }
-                    }
-
-                    if($v == \Drupal\oeaw\ConnData::$rdfType){
+                    }else if($v == \Drupal\oeaw\ConnData::$rdfType){
                         if($item == \Drupal\oeaw\ConnData::$imageProperty){
                             $hasImage = $uri;
                             $results[$i]["image"] = $uri;
@@ -429,14 +425,24 @@ class OeawFunctions {
                         
                         //check the title based on the acdh id                       
                         if($item->getUri()){
+                            
                             $resVal = $item->getUri();
+                            //get the resource title
                             if($this->getTitleByTheFedIdNameSpace($resVal)){
-                                $resVal = $this->getTitleByTheFedIdNameSpace($resVal);
+                                $resValTitle = "";
+                                $resValTitle = $this->getTitleByTheFedIdNameSpace($resVal);
+                                if($resValTitle){
+                                    $results[$i]["val_title"][] = $resValTitle;                                    
+                                }
                             }
-                            $results[$i]["value"][] = $resVal;                        
+                            
+                            $results[$i]["value"][] = $resVal;                            
                             $results[$i]["property"] = $this->createPrefixesFromString($v);
+                            //create the HASH URL for the table value
+                            if($this->getFedoraUrlHash($resVal)){
+                                $results[$i]["inside_url"][] = $this->getFedoraUrlHash($resVal);
+                            }
                         }
-                        
                         
                         if($item->getUri() == \Drupal\oeaw\ConnData::$fedoraBinary){ $results["hasBinary"] = $uri; }
 
@@ -453,12 +459,13 @@ class OeawFunctions {
                         }
                         $results[$i]["property"] = $this->createPrefixesFromString($v);
                         $results[$i]["value"][] = $item;
+                        
                     }
                 }
                 $i++;                    
             } 
         }
-        
+       
         return $results;
     }
     /**
@@ -468,28 +475,61 @@ class OeawFunctions {
      * @param string $string
      * @return string
      */
-    function getTitleByTheFedIdNameSpace(string $string): string{
+    public function getTitleByTheFedIdNameSpace(string $string): string{
         
         if(!$string) { return false; }
         
         $return = "";
         $OeawStorage = new OeawStorage();
-                
-        if (strpos($string, RC::get('fedoraIdNamespace')) !== false) {            
+        
+        if (strpos($string, 'https://id.acdh.oeaw.ac.at/') !== false) {
+            
             $itemRes = $OeawStorage->getDataByProp(RC::get('fedoraIdProp'), $string);
             if(count($itemRes) > 0){
                 if($itemRes[0]["title"]){
-                    $return = $itemRes[0]["title"].' : '.$string;
+                    $return = $itemRes[0]["title"];
                 }else if($itemRes[0]["label"]){
-                    $return = $itemRes[0]["label"].' : '.$string;
+                    $return = $itemRes[0]["label"];
                 }else if($itemRes[0]["name"]){
-                    $return = $itemRes[0]["name"].' : '.$string;
+                    $return = $itemRes[0]["name"];
                 }
             }
         }        
         return $return;
     }
-       
+     
+    /**
+     * Get the urls from the Table Detail View, and make an inside URL if it is possible
+     * 
+     * @param string $string
+     * @return string
+     */
+    public function getFedoraUrlHash(string $string): string{
+        if(!$string) { return false; }
+        
+        $return = "";        
+        $OeawStorage = new OeawStorage();
+        $urls = array('https://fedora', 'https://id.acdh.oeaw.ac.at/');
+        
+        foreach($urls as $url){            
+            if (strpos($string, $url) !== false) {
+                
+                $itemRes = $OeawStorage->getDataByProp(RC::get('fedoraIdProp'), $string);
+                if(count($itemRes) > 0){
+                    if($itemRes[0]['uri']){
+                        $fedoraUrl = RC::get('fedoraApiUrl');
+                        $url = str_replace($fedoraUrl."/", "", $itemRes[0]['uri']);
+                        if($url){
+                            $return = $this->createDetailsUrl($url);
+                        }
+                    }
+                    
+                }
+            }
+        }
+        return $return;
+    }
+    
     /**
      * 
      * check that the string is URL

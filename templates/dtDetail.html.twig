@@ -29,14 +29,46 @@
                     <tr>                
                         <td>{{ item.property }}</td>
                         <td>
-                            {% if item.value is iterable %}
-                                {% for value in item.value %}
-                                    {{ value }}
-                                    <br>
-                               {% endfor %}     
-                            {% else %}                        
-                                {{ item.value }}                        
+                            
+                            {% if item.inside_url is iterable %}
+                                {% set counter = 0 %}    
+                                                                
+                                {% for key, inside_url in item.inside_url %}
+                                    {% set counter = counter + 1 %}
+                                    <a href="{{ inside_url }}" target="_blank">
+                                        {% if item.val_title[key] %}                                            
+                                            {{ item.val_title[key] }}
+                                            <br>
+                                        {% else %}
+                                            {{ item.value[key] }}
+                                            <br>
+                                        {% endif %}
+                                    </a>
+                                {% endfor %}
+                                
+                            {% else %}
+                                {% if item.value is iterable %}
+                                
+                                    {% for value in item.value %}
+                                        {% if 'http' in value %}
+                                            <a href="{{ value }}" target="_blank">{{ value }}</a>
+                                        {% else %}
+                                            {{ value }}
+                                        {% endif %}
+                                        <br>
+                                   {% endfor %}
+
+                                {% else %}                                    
+                                    {% if 'http' in item.value %}
+                                        <a href="{{ item.value }}" target="_blank">{{ item.value }}</a>
+                                    {% else %}
+                                        {{ item.value }}
+                                    {% endif %}
+
+                                {% endif %}  
                             {% endif %}
+                                
+                                                      
                         </td>
                     </tr>
                     {% endif %}
