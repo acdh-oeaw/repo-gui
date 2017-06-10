@@ -18,6 +18,8 @@ use acdhOeaw\fedora\metadataQuery\Query;
 use acdhOeaw\fedora\metadataQuery\QueryParameter;
 
 
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 use acdhOeaw\util\SparqlEndpoint;
 //use zozlak\util\Config;
 use acdhOeaw\util\RepoConfig as RC;;
@@ -39,6 +41,8 @@ class OeawStorage {
         'rdfType' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
         'rdfsLabel' => 'http://www.w3.org/2000/01/rdf-schema#label',
         'foafName' => 'http://xmlns.com/foaf/0.1/name',
+        'foafImage' => 'http://xmlns.com/foaf/0.1/Image',
+        'foafThumbnail' => 'http://xmlns.com/foaf/0.1/thumbnail',
         'rdfsSubClass' => 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
         'owlClass' => 'http://www.w3.org/2002/07/owl#Class',
         'rdfsDomain' => 'http://www.w3.org/2000/01/rdf-schema#domain',
@@ -78,12 +82,14 @@ class OeawStorage {
      */
     public function getRootFromDB(): array {
           
-        $dcTitle = RC::titleProp();
-        $isPartOf = RC::relProp();
+        
         
         $getResult = array();
         
         try {
+            
+            $dcTitle = RC::titleProp();
+            $isPartOf = RC::relProp();
           
             $q = new Query();
             $q->addParameter(new HasTriple('?uri', $dcTitle, '?title'));    
@@ -104,7 +110,15 @@ class OeawStorage {
             return $getResult;
             
         } catch (Exception $ex) {            
-            return drupal_set_message(t('There was an error in the function: '.__FUNCTION__), 'error');
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;            
+        }catch (\InvalidArgumentException $ex){            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
         }
     }
 
@@ -135,9 +149,11 @@ class OeawStorage {
 
             return $getResult;                
             
-        } catch (Exception $ex) {
-            
-            return drupal_set_message(t('There was an error in the function: '.__FUNCTION__), 'error');
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
         }        
     }
        
@@ -444,7 +460,7 @@ class OeawStorage {
      * 
      */
     
-    public function getImage(string $value, string $property = null ): array
+    public function getImage(string $value, string $property = null ): string
     {         
         
         if (empty($value)) {
@@ -452,7 +468,7 @@ class OeawStorage {
         }
         
         if($property == null){ $property = RC::idProp(); }                
-        $res = array();
+        $res = "";
 
         try{            
             $q = new Query();
@@ -461,12 +477,12 @@ class OeawStorage {
             $query = $q->getQuery();
             $result = $this->fedora->runSparql($query);
             
-            $fields = $result->getFields(); 
-            $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
-           
-            if(count($getResult) > 0){
-                $res[] = $getResult[0]["res"];
-            }            
+            foreach($result as $r){
+                if($r->res){
+                    $res = $r->res->getUri();
+                }                
+            }
+            
             return $res;         
         } catch (Exception $ex) {
             return drupal_set_message(t('There was an error in the function: '.__FUNCTION__), 'error');
@@ -492,12 +508,14 @@ class OeawStorage {
                 
         $dcTitle = RC::titleProp();
         $rdfsLabel = self::$sparqlPref["rdfsLabel"];
+        $rdfType = self::$sparqlPref["rdfType"];
+        $foafThumbnail = self::$sparqlPref["foafThumbnail"];
         $getResult = array();
         
         try {
            
             $q = new Query();            
-            $q->setSelect(array('?res', '?property', '?value', '?title', '?label'));            
+            $q->setSelect(array('?res', '?property', '?value', '?title', '?label', '?thumb'));            
             //$q->addParameter(new HasTriple('?uri', $property, '?value'));            
             $q->addParameter(new MatchesRegEx($property, $value), 'i');
             
@@ -510,14 +528,18 @@ class OeawStorage {
             $q3->addParameter((new HasTriple('?res', $rdfsLabel, '?label')));
             $q3->setJoinClause('optional');
             $q->addSubquery($q3);
-         
+            
+            $q4 = new Query();
+            $q4->addParameter((new HasTriple('?res', $foafThumbnail, '?thumb')));
+            $q4->setJoinClause('optional');
+            $q->addSubquery($q4);
             $query = $q->getQuery();
          
             $result = $this->fedora->runSparql($query);
             
             $fields = $result->getFields(); 
             $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
-            
+           
             return $getResult;
 
         } catch (Exception $ex) {

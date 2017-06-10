@@ -3,6 +3,7 @@
 namespace Drupal\oeaw\Form;
 
 use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class NewResourceOneForm extends NewResourceFormBase {
 
@@ -15,7 +16,7 @@ class NewResourceOneForm extends NewResourceFormBase {
     public function getFormId() {
         return 'newresource_form_one';
     }
-
+    
     /* 
      *
      * drupal core buildForm function, to create the form what the user will see
@@ -26,14 +27,21 @@ class NewResourceOneForm extends NewResourceFormBase {
      * @return void
     */
     public function buildForm(array $form, FormStateInterface $form_state) {
+                
+        $roots = array();
+        $rootSelect = array();
+        // get the root resources to we can show it on the select element                
+        $roots = $this->OeawStorage->getRootFromDB();        
+        
+        $classes = array();
+        //get the class resources to we can show it on the select element        
+        $classes = $this->OeawStorage->getClass();
+        
         
         $form = parent::buildForm($form, $form_state);
         // we need to add this attribute because of the file uploading
         $form['#attributes']['enctype'] = "multipart/form-data";
-        $roots = array();
-        // get the root resources to we can show it on the select element        
-        $roots = $this->OeawStorage->getRootFromDB();
-       
+        
         if(count($roots) > 0 ){
             //create the root option values
             foreach($roots as $r){
@@ -53,9 +61,7 @@ class NewResourceOneForm extends NewResourceFormBase {
             '#default_value' => $this->store->get('roots') ? $this->store->get('roots') : '',
         );
         
-        $classes = array();
-        //get the class resources to we can show it on the select element
-        $classes = $this->OeawStorage->getClass();
+        
         
         if(count($classes) > 0){
             foreach($classes as $c){

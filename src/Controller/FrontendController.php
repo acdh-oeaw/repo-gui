@@ -248,7 +248,26 @@ class FrontendController extends ControllerBase {
     }
         
     
-    public function oeaw_new_res_success(string $uri){
+    public function oeaw_error_page(string $errorMSG){
+        if (empty($errorMSG)) {
+           return drupal_set_message(t('The $errorMSG is missing!'), 'error');
+        }
+        $errorMSG = base64_decode($errorMSG);
+        
+        $datatable = array(
+            '#theme' => 'oeaw_errorPage',
+            '#errorMSG' => $errorMSG,            
+            '#attached' => [
+                'library' => [
+                'oeaw/oeaw-styles', 
+                ]
+            ]
+        );
+        
+        return $datatable;
+    }
+    
+    public function oeaw_new_success(string $uri){
         
         if (empty($uri)) {
            return drupal_set_message(t('The uri is missing!'), 'error');
@@ -426,6 +445,7 @@ class FrontendController extends ControllerBase {
         }
     
         $stringSearch = $this->OeawStorage->searchForData($metaValue, $metaKey);            
+        
         $fedora = new Fedora();
         
         //we will search in the title, name, fedoraid
@@ -439,8 +459,7 @@ class FrontendController extends ControllerBase {
         $data = array();
         $datatable = array();
         
-        foreach ($idSearch as $i) {
-            
+        foreach ($idSearch as $i) {            
             foreach ($i as $j) {
                 //if there is any property which contains the searched value then
                 // we get the uri and 
@@ -455,7 +474,7 @@ class FrontendController extends ControllerBase {
                         $ids = $this->OeawStorage->searchForData($identifier, $metaKey);
                         
                         //generate the result array
-                        foreach($ids as $v){
+                        foreach($ids as $v){                            
                             if(!$v["uri"]){
                                 break;
                             }
@@ -467,7 +486,7 @@ class FrontendController extends ControllerBase {
                             $data[$x]["title"] = $v["title"];
                             $x++;
                         }
-                    }else {
+                    }else {                       
                         $data[$x]["uri"] = $j->getUri();
                         $data[$x]["value"] = $metaValue;
                         $data[$x]["title"] = $j->getMetadata()->label()->__toString();
@@ -482,13 +501,15 @@ class FrontendController extends ControllerBase {
         }elseif (empty($data)) {
             $data = $stringSearch;
         }
-   
+        
+
+
         if(count($data) > 0){
             $i = 0;            
           
             foreach($data as $value){
+                                
                 // check that the value is an Url or not
-                
                 if($value["res"]){
                     $decodeUrl = $this->OeawFunctions->isURL($value["res"], "decode");
                 
@@ -503,6 +524,12 @@ class FrontendController extends ControllerBase {
                     $res[$i]["uri"] = $value["res"];
                 }
                 
+                if($value["thumb"]){
+                    if($this->OeawStorage->getImage($value["thumb"])){
+                        $res[$i]['thumb'] = $this->OeawStorage->getImage($value["thumb"]);
+                    }
+                }
+                
                 $res[$i]["title"] = $value["title"];
                 $i++;
             }
@@ -515,8 +542,7 @@ class FrontendController extends ControllerBase {
         }else {
             $errorMSG = drupal_set_message(t('There is no data -> Search'), 'error');    
         }
-
-
+       
         $searchArray = array(
             "metaKey" => $metaKey,
             "metaValue" => $metaValue            
@@ -531,7 +557,7 @@ class FrontendController extends ControllerBase {
                 ]
             ]
         );
-        
+     
         if(isset($res) && $res !== null && !empty($res)){
             $datatable['#theme'] = 'oeaw_search_res_dt';
             $datatable['#result'] = $res;

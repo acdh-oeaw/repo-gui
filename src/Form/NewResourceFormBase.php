@@ -173,10 +173,8 @@ abstract class NewResourceFormBase extends FormBase {
             $response->send();
             return;
             
-        } catch (Exception $ex) {
-            
-            $fedora->rollback();            
-            
+        } catch (Exception $ex) {            
+            $fedora->rollback(); 
             return drupal_set_message($this->t('Error during the saving process'), 'error');
         }
     }

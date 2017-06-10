@@ -36,6 +36,12 @@ function oeaw_theme() {
     'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null],
     'template' => 'search_class_res',
   ];
+  
+  $theme['oeaw_errorPage'] = [
+    'variables' => ['errorMSG' => null],
+    'template' => 'errorPage',
+  ];
+  
 
   return $theme;
 }

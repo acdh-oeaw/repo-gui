@@ -126,9 +126,13 @@ class EditForm extends FormBase {
        
         if (!empty($classVal)) {
             foreach ($classVal as $cval) {
-                $res = $fedora->getResourcesByProperty(RC::get('fedoraIdProp'), $cval);
+               $res = $fedora->getResourcesByProperty(RC::get('fedoraIdProp'), $cval);
                 // this will contains the onotology uri, what will helps to use to know
                 // which fields we need to show in the editing form
+                echo "<pre>";
+                var_dump($cval);
+                echo "</pre>";
+
                 if(count($res) > 0){
                     $editUriClass = $res[0]->getUri();
                     $actualClassUri = $cval;
@@ -140,7 +144,10 @@ class EditForm extends FormBase {
         }
         
         if (empty($editUriClass)) {
-            return drupal_set_message($this->t('URI Class is empty!!'), 'error');
+            $msg = base64_encode("There is no valid RDF:TYPE for the URI Class!!");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
         }
         
         //the actual fields for the editing form based on the editUriClass variable

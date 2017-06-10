@@ -108,7 +108,15 @@ oeaw.autocomplete:
 oeaw_new_success:
   path: '/new_res_success/{uri}'
   defaults:
-    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_new_res_success'
+    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_new_success'
+  requirements:
+    _permission: 'access content'
+    _access: 'TRUE'
+
+oeaw_error_page:
+  path: '/oeaw_error_page/{errorMSG}'
+  defaults:
+    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_error_page'
   requirements:
     _permission: 'access content'
     _access: 'TRUE'

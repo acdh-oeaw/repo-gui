@@ -342,20 +342,25 @@ class OeawFunctions {
                 
             $imageThumbnail = $r->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
             $imageRdfType = $r->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
-                        
+
+            
             //check the thumbnail
-            if($imageThumbnail){
-                $imgUri = $imageThumbnail->getUri();
+            if($imageThumbnail && $imageThumbnail !== NULL){
+                //check the resource type
+                if(get_class($imageThumbnail) == "EasyRdf\Resource"){
+                    $imgUri = $imageThumbnail->getUri();
+                }
+                
                 if(!empty($imgUri)){
                     $OeawStorage = new OeawStorage();
                     $childThumb = $OeawStorage->getImage($imgUri);
                     
-                    if(count($childThumb) > 0){
-                        $childResult[$i]['thumbnail'] = $childThumb[0];
+                    if(!empty($childThumb)){
+                        $childResult[$i]['thumbnail'] = $childThumb;
                     }
                 }
             }else if(!empty($imageRdfType)){
-                //if we dont have a thumbnail then maybe it is an IMAGE Resource                
+                //if we dont have a thumbnail then maybe it is an IMAGE Resource
                 foreach($imageRdfType as $rdfVal){
                     if($rdfVal->getUri() == \Drupal\oeaw\ConnData::$imageProperty){
                         $childResult[$i]['thumbnail'] = $r->getUri();
@@ -406,9 +411,8 @@ class OeawFunctions {
                     if($v == \Drupal\oeaw\ConnData::$imageThumbnail){
                         if($item){                                                    
                             $imgData = $OeawStorage->getImage($item);
-                            if(count($imgData) > 0){
-                                $hasImage = $imgData[0];
-                                $results[$i]["image"] = $imgData[0];
+                            if($imgData){                                
+                                $results[$i]["image"] = $imgData;
                             }
                         }
                     }else if($v == \Drupal\oeaw\ConnData::$rdfType){
@@ -419,11 +423,11 @@ class OeawFunctions {
                     }
                     
                     if(get_class($item) == "EasyRdf\Resource"){
-                        if($this->createPrefixesFromString($v) === false){
+                        if($this->createPrefixesFromString($v) === false){                            
                             return drupal_set_message(t('Error in function: createPrefixesFromString'), 'error');
                         }
                         
-                        //check the title based on the acdh id                       
+                        //check the title based on the acdh id
                         if($item->getUri()){
                             
                             $resVal = $item->getUri();
@@ -431,8 +435,9 @@ class OeawFunctions {
                             if($this->getTitleByTheFedIdNameSpace($resVal)){
                                 $resValTitle = "";
                                 $resValTitle = $this->getTitleByTheFedIdNameSpace($resVal);
+                                //we have a title for the resource
                                 if($resValTitle){
-                                    $results[$i]["val_title"][] = $resValTitle;                                    
+                                    $results[$i]["val_title"][] = $resValTitle;
                                 }
                             }
                             
@@ -465,9 +470,11 @@ class OeawFunctions {
                 $i++;                    
             } 
         }
-       
+
+
         return $results;
     }
+        
     /**
      * Get the title if the url contains the fedoraIDNamespace
      * 
@@ -509,7 +516,7 @@ class OeawFunctions {
         
         $return = "";        
         $OeawStorage = new OeawStorage();
-        $urls = array('https://fedora', 'https://id.acdh.oeaw.ac.at/');
+        $urls = array('https://fedora', 'https://id.acdh.oeaw.ac.at/', 'https://redmine.acdh.oeaw.ac.at/');
         
         foreach($urls as $url){            
             if (strpos($string, $url) !== false) {

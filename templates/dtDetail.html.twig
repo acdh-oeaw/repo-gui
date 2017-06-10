@@ -5,7 +5,11 @@
     <div class="vcenter" style="height:100px;">
         <div style="float:left; width: 50%; font-size: 20px; font-weight: bold;">
                 {{ editResData.title }} |  <a href="/oeaw_edit/{{ editResData.editUrl }}"><i class="fa fa-pencil-square-o fa-1x"></i></a>
-                 {% if hasBinary %} | <a href="{{ hasBinary }}"><i class="fa fa-download" aria-hidden="true"></i></a>  {% endif %}
+                {% if userid != 0  %}                    
+                     | <a href="/#" id="delete-root" data-resourceid="{{ editResData.editUrl }}" class="use-ajax" data-dialog-type="modal"><i class="fa fa-trash fa-1x"></i></a>
+                {% endif %}
+                {% if hasBinary %} | <a href="{{ hasBinary }}"><i class="fa fa-download" aria-hidden="true"></i></a>  {% endif %}
+                
         </div>
         <div style="float:right; width: 50%; max-height:100px; ">
             {% for item in result %}
@@ -13,6 +17,9 @@
                     <a href="{{ item.image }}" data-lightbox="{{ editResData.title }}" data-title="{{ editResData.title }}"><img src="{{ item.image }}" height="80px;"></a>
                 {% endif %}
             {% endfor %}
+            
+            
+            
         </div>    
     </div>    
 
@@ -26,23 +33,27 @@
         <tbody>  
                 {% for item in result %}
                     {%  if item.property != "" %}    
-                    <tr>                
+                    <tr data-resourceid="{{ item.delete }}">
                         <td>{{ item.property }}</td>
                         <td>
                             
                             {% if item.inside_url is iterable %}
-                                {% set counter = 0 %}    
+                                {% set counter = 0 %}
                                                                 
                                 {% for key, inside_url in item.inside_url %}
                                     {% set counter = counter + 1 %}
                                     <a href="{{ inside_url }}" target="_blank">
-                                        {% if item.val_title[key] %}                                            
-                                            {{ item.val_title[key] }}
-                                            <br>
-                                        {% else %}
-                                            {{ item.value[key] }}
-                                            <br>
-                                        {% endif %}
+                                        {% if item.property == "dcterm:identifier" %}                                            
+                                            {{  item.value[key] }}
+                                        {% else %}                                            
+                                            {% if item.val_title[key] %}
+                                                {{ item.val_title[key] }}
+                                                <br>
+                                            {% else %}
+                                                {{ item.value[key] }}
+                                                <br>
+                                            {% endif %}
+                                        {% endif %}    
                                     </a>
                                 {% endfor %}
                                 
@@ -97,7 +108,7 @@
         </thead>
         <tbody>
             {% for cItem in childResult %}
-                <tr data-resourceid="{{ cItem.delete }}">                
+                <tr data-resourceid="{{ cItem.delete }}">
                     <td  width="70px">
                         <center>
                         {% if cItem.thumbnail != ""  %}

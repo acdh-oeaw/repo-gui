@@ -7,7 +7,8 @@
     </div>    
     <table id="" class="display" cellspacing="0" width="100%">
         <thead>
-            <tr>            
+            <tr>
+                <th>Thumbnail</th>
                 <th>Title</th>
                 {% if userid != 0  %}
                     <th width="50px">Edit</th>
@@ -19,6 +20,13 @@
                 {% for item in result %}
 
                 <tr>
+                    <td  width="70px">
+                        <center>                            
+                        {% if item.thumb != ""  %}
+                            <a href="{{ item.thumb }}" data-lightbox="{{ item.title }}" data-title="{{ item.title }}"><img src="{{ item.thumb }}" height="50px;"></a>
+                        {% endif %}
+                        </center>
+                    </td>
                     <td><a href="{{ item.detail }}" >
                             {% if item.title %}
                                 {{item.title}}
