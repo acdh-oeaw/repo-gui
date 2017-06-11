@@ -36,7 +36,15 @@ class SearchForm extends FormBase
     {   
         $propertys = array();
         $searchTerms = array();
-        $propertys = $this->OeawStorage->getAllPropertyForSearch();
+        
+        try{
+            $propertys = $this->OeawStorage->getAllPropertyForSearch();
+        } catch (Exception $ex) {
+            echo "itt2t";
+        } catch (\ClientException $ex){
+            echo "ittt";
+        }
+        
         
         if(empty($propertys)){
              drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SearchForm '), 'error');

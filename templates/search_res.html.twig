@@ -24,6 +24,8 @@
                         <center>                            
                         {% if item.thumb != ""  %}
                             <a href="{{ item.thumb }}" data-lightbox="{{ item.title }}" data-title="{{ item.title }}"><img src="{{ item.thumb }}" height="50px;"></a>
+                        {% elseif item.image != ""  %}
+                            <a href="{{ item.image }}" data-lightbox="{{ item.title }}" data-title="{{ item.title }}"><img src="{{ item.image }}" height="50px;"></a>
                         {% endif %}
                         </center>
                     </td>

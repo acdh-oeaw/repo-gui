@@ -82,8 +82,6 @@ class OeawStorage {
      */
     public function getRootFromDB(): array {
           
-        
-        
         $getResult = array();
         
         try {
@@ -103,11 +101,13 @@ class OeawStorage {
             $query= $q->getQuery();
             
             $result = $this->fedora->runSparql($query);
-            $fields = $result->getFields(); 
-            
-            $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
-        
-            return $getResult;
+            if(count($result) > 0){
+                $fields = $result->getFields();             
+                $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);        
+                return $getResult;
+            }else {                
+                return $getResult;
+            }
             
         } catch (Exception $ex) {            
             $msg = base64_encode($ex->getMessage());
@@ -154,7 +154,12 @@ class OeawStorage {
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
-        }        
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }
     }
        
     
@@ -193,7 +198,6 @@ class OeawStorage {
 
         $getResult = array();
 
-
         try {        
             
             $dcTitle = RC::titleProp();
@@ -225,8 +229,16 @@ class OeawStorage {
             return $getResult;                
         
         } catch (Exception $ex) {            
-            return drupal_set_message(t('There was an error in the function: '.__FUNCTION__), 'error');
-        }
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }  
     }
     
     /* 
@@ -257,9 +269,17 @@ class OeawStorage {
 
             return $getResult; 
             
-        } catch (Exception $ex) {
-            return drupal_set_message(t('There was an error in the function: '.__FUNCTION__), 'error');
-        }
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }  
     }
    
     /* 
@@ -347,8 +367,16 @@ class OeawStorage {
             return $getResult;
             
         } catch (Exception $ex) {            
-             return drupal_set_message(t('There was an error in the function: '.__FUNCTION__), 'error');
-        }
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }  
     }
     
     
@@ -443,10 +471,17 @@ class OeawStorage {
             return $getResult;    
             
             
-        } catch (Exception $ex) {
-            return drupal_set_message(t('There was an error in the function: '.__FUNCTION__), 'error');
-        }
-      
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }  
     }
     
     /*
@@ -467,16 +502,20 @@ class OeawStorage {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
         }
         
-        if($property == null){ $property = RC::idProp(); }                
+        if($property == null){ $property = RC::idProp(); } 
+        $rdfType = self::$sparqlPref["rdfType"];
+        $foafImage = self::$sparqlPref["foafImage"];
+        
         $res = "";
 
         try{            
             $q = new Query();
             $q->setSelect(array('?res'));
             $q->addParameter((new HasValue($property, $value)));
+           
             $query = $q->getQuery();
             $result = $this->fedora->runSparql($query);
-            
+
             foreach($result as $r){
                 if($r->res){
                     $res = $r->res->getUri();
@@ -484,9 +523,17 @@ class OeawStorage {
             }
             
             return $res;         
-        } catch (Exception $ex) {
-            return drupal_set_message(t('There was an error in the function: '.__FUNCTION__), 'error');
-        }
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }  
     }
     
     /*
@@ -498,8 +545,7 @@ class OeawStorage {
      * 
      * @return array
      * 
-     */
-    
+     */    
     public function searchForData(string $value, string $property): array{
         
         if (empty($value) || empty($property)) {
@@ -510,12 +556,16 @@ class OeawStorage {
         $rdfsLabel = self::$sparqlPref["rdfsLabel"];
         $rdfType = self::$sparqlPref["rdfType"];
         $foafThumbnail = self::$sparqlPref["foafThumbnail"];
+        $foafImage = self::$sparqlPref["foafImage"];
         $getResult = array();
         
+        //we need to extend the Filter options in the DB class, to we can use the
+        // Filter =  value
         try {
            
             $q = new Query();            
-            $q->setSelect(array('?res', '?property', '?value', '?title', '?label', '?thumb'));            
+            $q->setSelect(array('?res', '?property', '?value', '?title', '?label', '?thumb', '?image'));
+            $q->setDistinct(true);     
             //$q->addParameter(new HasTriple('?uri', $property, '?value'));            
             $q->addParameter(new MatchesRegEx($property, $value), 'i');
             
@@ -533,17 +583,37 @@ class OeawStorage {
             $q4->addParameter((new HasTriple('?res', $foafThumbnail, '?thumb')));
             $q4->setJoinClause('optional');
             $q->addSubquery($q4);
+            
+            $q5 = new Query();
+            $q5->addParameter((new HasTriple('?res', $rdfType, '?type')));
+            $q5->setJoinClause('optional');
+            $q->addSubquery($q5);
+            
+            $q6 = new Query();
+            $q6->addParameter((new HasValue('?image', $foafImage ))->setSubVar('?res'));
+            //$q6->addParameter((new HasTriple('?res', '?image', $foafImage)));
+            $q6->setJoinClause('optional');
+            $q->addSubquery($q6);
+            
             $query = $q->getQuery();
          
             $result = $this->fedora->runSparql($query);
-            
+           
             $fields = $result->getFields(); 
             $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
            
             return $getResult;
 
-        } catch (Exception $ex) {
-            return drupal_set_message(t('There was an error in the function: '.__FUNCTION__), 'error');
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
         }        
     }
     /*
@@ -579,9 +649,17 @@ class OeawStorage {
 
             return $getResult;
 
-        } catch (Exception $ex) {
-            return drupal_set_message(t('There was an error in the function: '.__FUNCTION__), 'error');
-        }        
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }  
     }
 
 } 

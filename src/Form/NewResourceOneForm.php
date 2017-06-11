@@ -30,8 +30,18 @@ class NewResourceOneForm extends NewResourceFormBase {
                 
         $roots = array();
         $rootSelect = array();
-        // get the root resources to we can show it on the select element                
-        $roots = $this->OeawStorage->getRootFromDB();        
+        // get the root resources to we can show it on the select element
+        $roots = $this->OeawStorage->getRootFromDB();
+        
+        if(count($roots) > 0 ){
+            //create the root option values
+            foreach($roots as $r){
+                $rootSelect[$r["uri"]] = t($r["title"]);
+            }
+        }else{
+            drupal_set_message($this->t('There is no root element!'), 'error');                
+            return false;
+        }       
         
         $classes = array();
         //get the class resources to we can show it on the select element        
@@ -42,14 +52,7 @@ class NewResourceOneForm extends NewResourceFormBase {
         // we need to add this attribute because of the file uploading
         $form['#attributes']['enctype'] = "multipart/form-data";
         
-        if(count($roots) > 0 ){
-            //create the root option values
-            foreach($roots as $r){
-                $rootSelect[$r["uri"]] = t($r["title"]);
-            }
-        }else{
-            return drupal_set_message($this->t('There is no root element!'), 'error');    
-        }       
+        
         
         // create the root form element with the values        
         $form["roots"] = array(
@@ -61,14 +64,13 @@ class NewResourceOneForm extends NewResourceFormBase {
             '#default_value' => $this->store->get('roots') ? $this->store->get('roots') : '',
         );
         
-        
-        
         if(count($classes) > 0){
             foreach($classes as $c){
                 $classesSelect[$c["uri"]] = t($c["title"]);
             }
         }else {
-            return drupal_set_message($this->t('There is no class element!'), 'error');    
+            drupal_set_message($this->t('There is no class element!'), 'error');    
+            return;
         }
         
         //create the class form element with the values

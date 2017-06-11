@@ -495,14 +495,12 @@ class FrontendController extends ControllerBase {
                 }
             }
         }
-
+       
         if(!empty($data) && !empty($stringSearch)){
             $data = array_merge($data, $stringSearch);
         }elseif (empty($data)) {
             $data = $stringSearch;
         }
-        
-
 
         if(count($data) > 0){
             $i = 0;            
@@ -530,6 +528,10 @@ class FrontendController extends ControllerBase {
                     }
                 }
                 
+                if($value["image"]){                    
+                    $res[$i]['image'] = $value["res"];
+                }
+                
                 $res[$i]["title"] = $value["title"];
                 $i++;
             }
@@ -542,7 +544,7 @@ class FrontendController extends ControllerBase {
         }else {
             $errorMSG = drupal_set_message(t('There is no data -> Search'), 'error');    
         }
-       
+      
         $searchArray = array(
             "metaKey" => $metaKey,
             "metaValue" => $metaValue            
