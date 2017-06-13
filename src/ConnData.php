@@ -30,7 +30,7 @@ class ConnData
         "http://www.w3.org/ns/ldp#" => "ldp",
         "http://www.iana.org/assignments/relation/" => "iana",
         "https://vocabs.acdh.oeaw.ac.at/#" => "acdh",
-        "https://id.acdh.oeaw.ac.at/#" => "acdhID",
+        "https://id.acdh.oeaw.ac.at/" => "acdhID",
         "http://purl.org/dc/elements/1.1/" => "dc",
         "http://purl.org/dc/terms/" => "dct",
         "http://purl.org/dc/terms/" => "dcterms",
