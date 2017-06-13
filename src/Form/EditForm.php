@@ -129,10 +129,6 @@ class EditForm extends FormBase {
                $res = $fedora->getResourcesByProperty(RC::get('fedoraIdProp'), $cval);
                 // this will contains the onotology uri, what will helps to use to know
                 // which fields we need to show in the editing form
-                echo "<pre>";
-                var_dump($cval);
-                echo "</pre>";
-
                 if(count($res) > 0){
                     $editUriClass = $res[0]->getUri();
                     $actualClassUri = $cval;
