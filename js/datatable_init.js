@@ -2,8 +2,6 @@ var jq2 = jQuery;
 jQuery.noConflict(true);
 jq2(function( $ ) {
     
-        console.log("itt");
-    
        var table = jq2('table.display').DataTable({
             "pageLength": 25
         });
