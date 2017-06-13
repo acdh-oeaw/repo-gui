@@ -14,6 +14,7 @@ namespace Drupal\oeaw;
  * @author nczirjak
  */
 class DepAgreeConstants {
+    
      public static $depTXT = "This agreement is between the organisation or person(s) authorised to transfer and deposit digital resources 
         (hereinafter ‘the Depositor’) and ACDH-repo (hereinafter ‘the Repository’), which is run and represented by the Austrian Centre for 
         Digital Humanities of the Austrian Academy of Sciences. The agreement concerns transfer, curation, archival, and dissemination of 

@@ -13,6 +13,8 @@ use Drupal\Component\Render\MarkupInterface;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
@@ -65,7 +67,16 @@ class OeawFunctions {
         $meta = array();
        // setup fedora
         $fedora = new Fedora();
-        $meta = $fedora->getResourceByUri($uri)->getMetadata();
+         try{
+            $meta = $fedora->getResourceByUri($uri);
+            $meta = $meta->getMetadata();
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+            $msg = base64_encode("URI NOT EXISTS");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }    
+        
         return $meta;
     }
     
@@ -82,8 +93,17 @@ class OeawFunctions {
         $graph = array();
         // setup fedora        
         $fedora = new Fedora();
+        
         //create and load the data to the graph
-        $graph = $fedora->getResourceByUri($uri)->getMetadata()->getGraph();
+        try{
+            $graph = $fedora->getResourceByUri($uri);
+            $graph = $graph->getMetadata()->getGraph();
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+            $msg = base64_encode("URI NOT EXISTS");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }    
         
         return $graph;
     }

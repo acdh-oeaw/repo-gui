@@ -31,7 +31,7 @@ use TCPDF;
 //autocomplete
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class FrontendController extends ControllerBase {
     
@@ -328,7 +328,10 @@ class FrontendController extends ControllerBase {
         drupal_get_messages('error', TRUE);
         
         if (empty($uri)) {
-           return drupal_set_message(t('The uri is missing!'), 'error');
+           $msg = base64_encode("The URI is missing");
+                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+                $response->send();
+                return;            
         }
         
         $hasBinary = "";        
@@ -341,21 +344,27 @@ class FrontendController extends ControllerBase {
  
         $uid = \Drupal::currentUser()->id();
         
-        $rootGraph = $this->OeawFunctions->makeGraph($uri); 
+        $rootGraph = $this->OeawFunctions->makeGraph($uri);         
         $rootMeta =  $this->OeawFunctions->makeMetaData($uri);
 
         if(count($rootMeta) > 0){
             $results = array();
             //get the root table data
             $results = $this->OeawFunctions->createDetailTableData($uri);        
-            if(empty($results)){
-                return drupal_set_message(t('The resource has no metadata!'), 'error');
+            if(empty($results)){                
+                $msg = base64_encode("The resource has no metadata!");
+                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+                $response->send();
+                return;            
             }           
-        } else {
-            return drupal_set_message(t('The resource has no metadata!'), 'error');
+        } else {            
+            $msg = base64_encode("The resource has no metadata!");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;            
         }
 
-        try{
+        try{            
             if( $fedora->getResourceByUri($uri)->getChildren()){
                 $childF = $fedora->getResourceByUri($uri)->getChildren();                 
                 //get the childrens table data
@@ -364,7 +373,10 @@ class FrontendController extends ControllerBase {
                 }
             }
         } catch (\Exception $ex) {
-            return drupal_set_message(t('There was a runtime error during the getChildren method!'), 'error');
+            $msg = base64_encode("There was a runtime error during the getChildren method!");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;            
         }
         
         $resTitle = $rootGraph->label($uri);
