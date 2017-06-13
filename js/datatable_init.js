@@ -1,10 +1,14 @@
 var jq2 = jQuery;
 jQuery.noConflict(true);
 jq2(function( $ ) {
+    
+        console.log("itt");
+    
        var table = jq2('table.display').DataTable({
             "pageLength": 25
         });
-        console.log("dt ben");
+        
+        
         jq2('a#delete').click(function(e){ //on add input button click
             e.preventDefault();
             var deleteVal = jq2(this).data('resourceid');
@@ -30,6 +34,29 @@ jq2(function( $ ) {
             }
         });
         
-         
+        jq2('a#delete-root').click(function(e){ //on add input button click
+            e.preventDefault();
+            var deleteVal = jq2(this).data('resourceid');
+            
+            var confirmation = confirm("Are you sure?");
+            
+            if (confirmation == true) {
+                jq2.ajax({
+                    url: '/oeaw_delete/'+deleteVal,
+                    data: deleteVal,
+                    success: function(data) {
+                        if(data.result == true){
+                            alert("Delete done!")
+                            window.location = "/";
+                        }                    
+                        if(data.result == false){
+                            alert(data.error_msg);
+                        }
+                    }
+                });
+            }else {
+                alert("Delete cancelled");
+            }
+        });
         
 });

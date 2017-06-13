@@ -77,6 +77,10 @@ abstract class DepAgreeBaseForm extends FormBase {
             '#value' => $this->t('Submit'),
             '#button_type' => 'primary',
             '#weight' => 10,
+            '#attributes' => array(
+                'class' => array('btn'),
+                'style' => 'margin:10px; color:white;'
+            ),
         );
 
         return $form;        

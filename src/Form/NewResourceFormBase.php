@@ -86,7 +86,11 @@ abstract class NewResourceFormBase extends FormBase {
             '#type' => 'submit',
             '#value' => $this->t('Submit'),
             '#button_type' => 'primary',
-            '#weight' => 10,
+            '#weight' => 20,
+            '#attributes' => array(
+                'class' => array('btn'),
+                'style' => 'margin:10px; color:white;'
+            ),
         );
 
         return $form;        

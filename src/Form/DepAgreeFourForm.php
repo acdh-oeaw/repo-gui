@@ -121,7 +121,8 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
             '#type' => 'link',
             '#title' => $this->t('Previous'),
             '#attributes' => array(
-                'class' => array('button'),
+                'class' => array('btn'),
+                'style' => 'margin:10px; color:white;'
             ),
             '#weight' => 0,
             '#url' => Url::fromRoute('oeaw_depagree_three'),

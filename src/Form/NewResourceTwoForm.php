@@ -260,9 +260,10 @@ class NewResourceTwoForm extends NewResourceFormBase  {
             '#type' => 'link',
             '#title' => $this->t('Previous'),
             '#attributes' => array(
-                'class' => array('button'),
+                'class' => array('btn'),
+                'style' => 'margin:10px; color:white;'
             ),
-            '#weight' => 0,
+            '#weight' => 10,
             '#url' => Url::fromRoute('oeaw_newresource_one'),
         );
         return $form;

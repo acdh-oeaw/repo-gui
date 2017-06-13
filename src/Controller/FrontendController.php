@@ -328,10 +328,10 @@ class FrontendController extends ControllerBase {
         drupal_get_messages('error', TRUE);
         
         if (empty($uri)) {
-           $msg = base64_encode("The URI is missing");
-                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-                $response->send();
-                return;            
+            $msg = base64_encode("The URI is missing");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;            
         }
         
         $hasBinary = "";        
@@ -344,7 +344,7 @@ class FrontendController extends ControllerBase {
  
         $uid = \Drupal::currentUser()->id();
         
-        $rootGraph = $this->OeawFunctions->makeGraph($uri);         
+        $rootGraph = $this->OeawFunctions->makeGraph($uri);                 
         $rootMeta =  $this->OeawFunctions->makeMetaData($uri);
 
         if(count($rootMeta) > 0){

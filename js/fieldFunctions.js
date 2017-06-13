@@ -3,6 +3,8 @@
         attach: function (context, settings) {
 
             $(document).ready(function () {
+                
+                console.log("field func");
                 //get the actual page
                 var url = window.location.href;
                 //if the user is on the edit view then

@@ -103,8 +103,19 @@ class OeawFunctions {
         try{
             $graph = $fedora->getResourceByUri($uri);
             $graph = $graph->getMetadata()->getGraph();
-        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+        }catch (\Exception $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }     
+        catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
             $msg = base64_encode("URI NOT EXISTS");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\acdhOeaw\fedora\exceptions\Deleted $ex){
+            $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
@@ -113,7 +124,7 @@ class OeawFunctions {
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
-        }       
+        }          
         
         return $graph;
     }
