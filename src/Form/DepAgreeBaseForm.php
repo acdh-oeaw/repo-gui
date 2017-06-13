@@ -152,7 +152,7 @@ abstract class DepAgreeBaseForm extends FormBase {
             }
         }
         
-        $dv = \Drupal\oeaw\ConnData::getDataValidation();
+        $dv = \Drupal\oeaw\DepAgreeConstants::getDataValidation();
         $form3['data_validation'] = $dv[$form3['data_validation']];                
         
         $tcpdf = new \Drupal\oeaw\deppPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
@@ -219,10 +219,10 @@ abstract class DepAgreeBaseForm extends FormBase {
         $fontnames = array('normal' => $fontname, 'bold' => $fontnameBold);
         
        //generate the pages
-        $this->generatePdfPage($tcpdf, $form1, "DEPOSITOR", \Drupal\oeaw\ConnData::$depTXT, $fontnames);
-        $this->generatePdfPage($tcpdf, $form2, "DESCRIPTION OF MATERIAL, EXTENT, FILES", \Drupal\oeaw\ConnData::$descTXT, $fontnames);
-        $this->generatePdfPage($tcpdf, $form3, "TRANSFER PROCEDURES", \Drupal\oeaw\ConnData::$transferTXT, $fontnames);
-        $this->generatePdfPage($tcpdf, $form4, "CREATORS", \Drupal\oeaw\ConnData::$lastTXT, $fontnames);
+        $this->generatePdfPage($tcpdf, $form1, "DEPOSITOR", \Drupal\oeaw\DepAgreeConstants::$depTXT, $fontnames);
+        $this->generatePdfPage($tcpdf, $form2, "DESCRIPTION OF MATERIAL, EXTENT, FILES", \Drupal\oeaw\DepAgreeConstants::$descTXT, $fontnames);
+        $this->generatePdfPage($tcpdf, $form3, "TRANSFER PROCEDURES", \Drupal\oeaw\DepAgreeConstants::$transferTXT, $fontnames);
+        $this->generatePdfPage($tcpdf, $form4, "CREATORS", \Drupal\oeaw\DepAgreeConstants::$lastTXT, $fontnames);
  
         $tcpdf->AddPage();
         $signTXT = '
@@ -313,8 +313,8 @@ abstract class DepAgreeBaseForm extends FormBase {
         $tcpdf->SetFont($fontnames['normal'], '', 12, '', false);
         foreach($formData as $k => $v){
             
-            if(\Drupal\oeaw\ConnData::getPDFLng($k)){
-                $text = \Drupal\oeaw\ConnData::getPDFLng($k);
+            if(\Drupal\oeaw\DepAgreeConstants::getPDFLng($k)){
+                $text = \Drupal\oeaw\DepAgreeConstants::getPDFLng($k);
             }else {
                 $text = $k;
             }

@@ -85,7 +85,7 @@ class DepAgreeTwoForm extends DepAgreeBaseForm{
         
         $form['material']['material_mat_licence'] = array(
             '#type' => 'select',            
-            '#options' => \Drupal\oeaw\ConnData::getMaterialLicences(),            
+            '#options' => \Drupal\oeaw\DepAgreeConstants::getMaterialLicences(),            
             '#title' => t('Licence:'),
             '#required' => TRUE,
             '#default_value' => $this->store->get('material_mat_licence') ? $this->store->get('material_mat_licence') : 'CC-BY',
@@ -324,7 +324,7 @@ class DepAgreeTwoForm extends DepAgreeBaseForm{
         $form['material_file_types'] = array(
             '#type' => 'checkboxes',
             '#title' => t('List of file types included:'),            
-            '#options' => \Drupal\oeaw\ConnData::getFileTypes(),
+            '#options' => \Drupal\oeaw\DepAgreeConstants::getFileTypes(),
             '#description' => $this->t(''),
             '#required' => TRUE        
         );
@@ -343,7 +343,7 @@ class DepAgreeTwoForm extends DepAgreeBaseForm{
             '#type' => 'checkboxes',
             '#title' => t('List of file formats included:'),
             '#required' => TRUE,
-            '#options' => \Drupal\oeaw\ConnData::getFileFormats(),            
+            '#options' => \Drupal\oeaw\DepAgreeConstants::getFileFormats(),            
             '#description' => $this->t(''),
         );
         

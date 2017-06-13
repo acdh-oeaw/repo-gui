@@ -39,7 +39,7 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
         $form['transfer']['transfer_method'] = array(
             '#type' => 'radios',
             '#title' => t('Transfer medium and method:'),
-            '#options' => \Drupal\oeaw\ConnData::getTransferMedium(),
+            '#options' => \Drupal\oeaw\DepAgreeConstants::getTransferMedium(),
             '#description' => $this->t('e.g. hard drive, CD, DVD, USB stick, network transfer'),    
             '#required' => TRUE,
             '#default_value' => $this->store->get('transfer_method') ? $this->store->get('transfer_method') : '',
@@ -49,7 +49,7 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
         $form['transfer']['data_validation'] = array(
             '#type' => 'radios',
             '#title' => t('Data Validation:'),
-            '#options' => \Drupal\oeaw\ConnData::getDataValidation(),
+            '#options' => \Drupal\oeaw\DepAgreeConstants::getDataValidation(),
             '#description' => $this->t(''),
             '#required' => TRUE,
             '#default_value' => $this->store->get('data_validation') ? $this->store->get('data_validation') : '',
