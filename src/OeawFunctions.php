@@ -75,7 +75,12 @@ class OeawFunctions {
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
-        }    
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }         
         
         return $meta;
     }
@@ -103,7 +108,12 @@ class OeawFunctions {
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
-        }    
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }       
         
         return $graph;
     }
