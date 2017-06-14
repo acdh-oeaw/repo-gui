@@ -433,38 +433,35 @@ class FrontendController extends ControllerBase {
      * 
      * @return array
      */
-    public function oeaw_resources():array {
+    public function oeaw_resources(string $metakey, string $metavalue):array {
 
         drupal_get_messages('error', TRUE);
         
-        $url = Url::fromRoute('<current>');
-        $internalPath = $url->getInternalPath();
-        $interPathArray = explode("/", $internalPath);
         $errorMSG = array();
         
-        if($interPathArray[0] == "oeaw_resources"){            
-            $metaKey = urldecode($interPathArray[1]);
-            $metaValue = urldecode($interPathArray[2]);            
-        }else{
+        if(empty($metakey) || empty($metavalue)){
             return drupal_set_message(t('There is no data -> Search'), 'error');        
         }
+        
         $uid = \Drupal::currentUser()->id();
         //normal string seacrh
-
-        $metaKey = $this->OeawFunctions->createUriFromPrefix($metaKey);
-        if($metaKey === false){
-            return drupal_set_message(t('Error in function: createUriFromPrefix '), 'error'); 
+        $metakey = base64_decode($metakey);
+        $metavalue = base64_decode($metavalue);
+        $metakey = $this->OeawFunctions->createUriFromPrefix($metakey);
+        if($metakey === false){
+            drupal_set_message(t('Error in function: createUriFromPrefix '), 'error'); 
+            return;
         }
     
-        $stringSearch = $this->OeawStorage->searchForData($metaValue, $metaKey);            
+        $stringSearch = $this->OeawStorage->searchForData($metavalue, $metakey);            
         
         $fedora = new Fedora();
         
         //we will search in the title, name, fedoraid
         $idSearch = array(
-            'title'  => $fedora->getResourcesByPropertyRegEx('http://purl.org/dc/elements/1.1/title', $metaValue),
-            'name'   => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$foafName, $metaValue),
-            'acdhId' => $fedora->getResourcesByPropertyRegEx(RC::get('fedoraIdProp'), $metaValue),
+            'title'  => $fedora->getResourcesByPropertyRegEx('http://purl.org/dc/elements/1.1/title', $metavalue),
+            'name'   => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$foafName, $metavalue),
+            'acdhId' => $fedora->getResourcesByPropertyRegEx(RC::get('fedoraIdProp'), $metavalue),
         );
 
         $x = 0;
@@ -483,7 +480,7 @@ class FrontendController extends ControllerBase {
                         //get the resources which is part of this identifier
                         $identifier = $identifier->getUri();                        
 
-                        $ids = $this->OeawStorage->searchForData($identifier, $metaKey);
+                        $ids = $this->OeawStorage->searchForData($identifier, $metakey);
                         
                         //generate the result array
                         foreach($ids as $v){                            
@@ -500,7 +497,7 @@ class FrontendController extends ControllerBase {
                         }
                     }else {                       
                         $data[$x]["uri"] = $j->getUri();
-                        $data[$x]["value"] = $metaValue;
+                        $data[$x]["value"] = $metavalue;
                         $data[$x]["title"] = $j->getMetadata()->label()->__toString();
                         $x++;
                     }
@@ -548,8 +545,8 @@ class FrontendController extends ControllerBase {
                 $i++;
             }
              $searchArray = array(
-                "metaKey" => $metaKey,
-                "metaValue" => $metaValue
+                "metaKey" => $metakey,
+                "metaValue" => $metavalue
             );
             $decodeUrl = "";
             
@@ -558,8 +555,8 @@ class FrontendController extends ControllerBase {
         }
       
         $searchArray = array(
-            "metaKey" => $metaKey,
-            "metaValue" => $metaValue            
+            "metaKey" => $metakey,
+            "metaValue" => $metavalue            
         );
         
         $datatable = array(

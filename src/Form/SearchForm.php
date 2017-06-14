@@ -36,20 +36,14 @@ class SearchForm extends FormBase
     {   
         $propertys = array();
         $searchTerms = array();
-        
-        try{
-            $propertys = $this->OeawStorage->getAllPropertyForSearch();
-        } catch (Exception $ex) {
-            echo "itt2t";
-        } catch (\ClientException $ex){
-            echo "ittt";
-        }
-        
-        
-        if(empty($propertys)){
+                
+        $propertys = $this->OeawStorage->getAllPropertyForSearch();
+                
+        if(count($propertys) < 0){
              drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SearchForm '), 'error');
              return;
         }
+        
         $fields = array();
         // get the fields from the sparql query 
         $fields = array_keys($propertys[0]);        
@@ -106,8 +100,8 @@ class SearchForm extends FormBase
         
         $metakey = $form_state->getValue('metakey');
         $metavalue = $form_state->getValue('metavalue');
-        $metakey = urlencode($metakey);
-        $metavalue = urlencode($metavalue);
+        $metakey = base64_encode($metakey);
+        $metavalue = base64_encode($metavalue);
         
         $form_state->setRedirect('oeaw_resources', ["metakey" => $metakey, "metavalue" => $metavalue]); 
     
