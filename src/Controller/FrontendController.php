@@ -690,7 +690,7 @@ class FrontendController extends ControllerBase {
                 $value = $val[0];
             }
         }
-        echo $value;
+        
         $uid = \Drupal::currentUser()->id();
         if(!empty($property) && !empty($value)){
             $result = $this->OeawStorage->getDataByProp('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property.':'.$value);

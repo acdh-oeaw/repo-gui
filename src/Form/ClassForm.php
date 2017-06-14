@@ -60,15 +60,19 @@ class ClassForm extends FormBase
         foreach($searchClasses as $value){
             foreach($value as $k => $v){
                 
-                if($k == "type"){ $lbl = $v; }                
-                if($k == "value"){ $count = $v; }
+                if($k == "type"){ $lbl = $v; }
+                if($k == "value"){ $count = $v; }                
                 
                 $form[$lbl] = array(
-                    '#type' => 'submit',
+                    '#type' => 'link',
+                    '#attributes' => array(
+                        'class' => array('btn'),
+                        'style' => 'margin:10px; color:white;'
+                    ),
+                    '#title' => $this->t($lbl." (".$count.")"),
                     '#name' => 'class',
-                    '#value' => $this->t($lbl." (".$count.")"),                    
-                    '#button_type' => 'primary',
-                    '#prefix' => "<br/>",
+                    '#value' => $this->t($lbl." (".$count.")"),
+                    '#url' => Url::fromRoute('oeaw_classes_result', ['data' => base64_encode($lbl)])
                 );
             }            
             $i++;
@@ -91,7 +95,7 @@ class ClassForm extends FormBase
   
     public function submitForm(array &$form, FormStateInterface $form_state) {
         
-        $classes = $form_state->getValue('class');
+        /*$classes = $form_state->getValue('class');
         //$classes = urlencode($classes);
         $msg = base64_encode($classes);
         $response = new RedirectResponse(\Drupal::url('oeaw_classes_result', ['data' => $msg]));
@@ -99,6 +103,8 @@ class ClassForm extends FormBase
         return;            
         //$form_state->setRedirect('oeaw_classes_result', ["search_classes" => base64_encode($classes])); 
         //$form_state->setRedirectUrl($url);
+         * 
+         */
     }
   
 }
