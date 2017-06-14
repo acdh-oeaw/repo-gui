@@ -92,7 +92,7 @@ oeaw_admin_form:
         _admin_route: TRUE
 
 oeaw_classes_result:    
-    path: '/oeaw_classes_result/{search_classes}'
+    path: '/oeaw_classes_result/{data}'
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_classes_result'
     requirements:        

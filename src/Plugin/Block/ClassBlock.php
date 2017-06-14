@@ -23,7 +23,7 @@ class ClassBlock extends BlockBase {
     * {@inheritdoc}
     */
     public function build() {
-        
+                
         $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\ClassForm');
          
         return $form;

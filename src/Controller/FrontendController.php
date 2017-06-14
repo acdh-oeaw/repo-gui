@@ -665,39 +665,38 @@ class FrontendController extends ControllerBase {
      * 
      * @return array
      */
-    public function oeaw_classes_result(): array{
+    public function oeaw_classes_result(string $data): array{
         drupal_get_messages('error', TRUE);
+        
+        if(empty($data)){
+            drupal_set_message(t('There is no data -> Search'), 'error');
+            return;
+        }
+
+
         $datatable = array();
-        $data = array();
+        
         $interPathArray = array();
         $classesArr = array();
-        $res = array();
+        $res = array();        
         $errorMSG = array();
-        
-        $url = Url::fromRoute('<current>');
-        $internalPath = $url->getInternalPath();
-        $interPathArray = explode("/", $internalPath);
-        
-        if($interPathArray[0] == "oeaw_classes_result"){
-            
-            $searchResult = urldecode($interPathArray[1]);
-            $classesArr = explode(":", $searchResult);        
-            $property = $classesArr[0];
-            $value =  $classesArr[1];
-            $uid = \Drupal::currentUser()->id();
-        
-            if (strpos($value, '(') !== false) {
-                $val = explode(' (', $value);
-                if(count($val) > 0){
-                    $value = $val[0];
-                }                
+
+        $classesArr = explode(":", base64_decode($data));
+        $property = $classesArr[0];
+        $value =  $classesArr[1];
+        if (strpos($value, '(') !== false) {
+            $val = explode(' (', $value);
+            if(count($val) > 0){
+                $value = $val[0];
             }
-            
-            $data = $this->OeawStorage->getDataByProp('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property.':'.$value);
-        
-            if(count($data) > 0){
+        }
+        echo $value;
+        $uid = \Drupal::currentUser()->id();
+        if(!empty($property) && !empty($value)){
+            $result = $this->OeawStorage->getDataByProp('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property.':'.$value);
+            if(count($result) > 0){
                 $i = 0;
-                foreach($data as $value){
+                foreach($result as $value){
                     // check that the value is an Url or not
                     $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");
 
@@ -720,9 +719,8 @@ class FrontendController extends ControllerBase {
                 $decodeUrl = "";
 
             }else {
-                $errorMSG = drupal_set_message(t('There is no data -> Class List Search'), 'error');
+                $errorMSG = drupal_set_message(t('There is no data -> Class List Search'), 'error');                
             }
-            
         }else {
             $searchArray = array();
             $res = array();
@@ -744,7 +742,7 @@ class FrontendController extends ControllerBase {
             $datatable['#searchedValues'] = $searchArray;                
         }
         
-        return $datatable;       
+        return $datatable;     
     } 
     
     

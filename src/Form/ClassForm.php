@@ -6,66 +6,20 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
-use Drupal\Core\Session\AccountInterface;
-use Drupal\Core\Session\SessionManagerInterface;
-use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\oeaw\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ClassForm extends FormBase
 {
-    
-    
-   /**
-    * @var \Drupal\user\PrivateTempStoreFactory
-    */
-    protected $tempStoreFactory;
-
-    /**
-    * @var \Drupal\Core\Session\SessionManagerInterface
-    */
-    private $sessionManager;
-
-    /**
-    * @var \Drupal\Core\Session\AccountInterface
-    */
-    private $currentUser;
-
-    /**
-    * @var \Drupal\user\PrivateTempStore
-    */
-    protected $store;    
-    
+  
     private $OeawStorage;    
     private $OeawFunctions;
     
-    /**
-   * Constructs a Multi step form Base.
-   *
-   * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
-   * @param \Drupal\Core\Session\SessionManagerInterface $session_manager
-   * @param \Drupal\Core\Session\AccountInterface $current_user
-   */
-    
-    public function __construct(PrivateTempStoreFactory $temp_store_factory, SessionManagerInterface $session_manager, AccountInterface $current_user) {
-    
-        $this->tempStoreFactory = $temp_store_factory;
-        $this->sessionManager = $session_manager;
-        $this->currentUser = $current_user;
-        
-        $this->store = $this->tempStoreFactory->get('class_search_data');
-        
+    public function __construct() {
         $this->OeawStorage = new OeawStorage();
         $this->OeawFunctions = new OeawFunctions();
-    }
-    
-    public static function create(ContainerInterface $container){
-        return new static(
-                $container->get('user.private_tempstore'),
-                $container->get('session_manager'),
-                $container->get('current_user')
-        );
     }
     
     public function getFormId()
@@ -138,8 +92,12 @@ class ClassForm extends FormBase
     public function submitForm(array &$form, FormStateInterface $form_state) {
         
         $classes = $form_state->getValue('class');
-        $classes = urlencode($classes);
-        $form_state->setRedirect('oeaw_classes_result', ["search_classes" => $classes]); 
+        //$classes = urlencode($classes);
+        $msg = base64_encode($classes);
+        $response = new RedirectResponse(\Drupal::url('oeaw_classes_result', ['data' => $msg]));
+        $response->send();
+        return;            
+        //$form_state->setRedirect('oeaw_classes_result', ["search_classes" => base64_encode($classes])); 
         //$form_state->setRedirectUrl($url);
     }
   
