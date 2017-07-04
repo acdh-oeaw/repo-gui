@@ -39,14 +39,17 @@ class SearchForm extends FormBase
                 
         $propertys = $this->OeawStorage->getAllPropertyForSearch();
                 
-        if(count($propertys) < 0){
+        if(count($propertys) == 0){
              drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SearchForm '), 'error');
              return;
         }
-        
+     
+
+
+
         $fields = array();
         // get the fields from the sparql query 
-        $fields = array_keys($propertys[0]);        
+        $fields = array_keys($propertys[0]);
         $searchTerms = $this->OeawFunctions->createPrefixesFromArray($propertys, $fields);
         
         $searchTerms = $searchTerms["p"];

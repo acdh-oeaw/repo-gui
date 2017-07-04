@@ -35,7 +35,7 @@ class ClassForm extends FormBase
         $data = $this->OeawStorage->getClassesForSideBar();
         $searchClasses = array();
         
-        if(empty($data)){
+        if(count($data) == 0){
             drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys'), 'error');
             return $form;            
         }
