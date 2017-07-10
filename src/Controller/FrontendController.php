@@ -342,6 +342,10 @@ class FrontendController extends ControllerBase {
         // decode the uri hash
         $uri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');
  
+        
+
+
+
         $uid = \Drupal::currentUser()->id();
         
         $rootGraph = $this->OeawFunctions->makeGraph($uri);                 
@@ -365,7 +369,8 @@ class FrontendController extends ControllerBase {
         }
 
         try{            
-            if( $fedora->getResourceByUri($uri)->getChildren()){
+            if( 
+                $fedora->getResourceByUri($uri)->getChildren()){
                 $childF = $fedora->getResourceByUri($uri)->getChildren();                 
                 //get the childrens table data
                 if(count($childF) > 0){            
@@ -373,7 +378,7 @@ class FrontendController extends ControllerBase {
                 }
             }
         } catch (\Exception $ex) {
-            $msg = base64_encode("There was a runtime error during the getChildren method!");
+            $msg = base64_encode("There was a runtime error during the getChildren method! Error message: ".$ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;            
