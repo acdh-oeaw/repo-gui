@@ -38,52 +38,63 @@ class SearchForm extends FormBase
         $searchTerms = array();
                 
         $propertys = $this->OeawStorage->getAllPropertyForSearch();
-                
-        if(count($propertys) < 0){
+  
+        if(empty($propertys)){
              drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SearchForm '), 'error');
-             return;
-        }
-        
-        $fields = array();
-        // get the fields from the sparql query 
-        $fields = array_keys($propertys[0]);        
-        $searchTerms = $this->OeawFunctions->createPrefixesFromArray($propertys, $fields);
-        
-        $searchTerms = $searchTerms["p"];
-        asort($searchTerms);
-        
-        if(count($searchTerms) > 0) {
-        
-            foreach($searchTerms as $terms){
-                $select[$terms] = t($terms);
+             return $form;
+        }else {
+            $fields = array();
+            // get the fields from the sparql query 
+            $fields = array_keys($propertys[0]);        
+            $searchTerms = $this->OeawFunctions->createPrefixesFromArray($propertys, $fields);
+
+            $searchTerms = $searchTerms["p"];
+            asort($searchTerms);
+
+            if(count($searchTerms) > 0) {
+
+                foreach($searchTerms as $terms){
+                    $select[$terms] = t($terms);
+                }
+
+                $form['metakey'] = array (
+                  '#type' => 'select',
+                  '#title' => ('MetaKey'),
+                  '#required' => TRUE,
+                  '#attributes' => array(
+                    'class' => array('form-control')
+				  ),                  
+                  '#options' => 
+                      $select
+                );
+
+                $form['metavalue'] = array(
+                  '#type' => 'textfield',
+                  '#title' => ('MetaValue'),
+                  '#attributes' => array(
+                    'class' => array('form-control')
+				  ),                             
+                  '#required' => TRUE,
+                );
+
+                $form['actions']['#type'] = 'actions';
+                $form['actions']['submit'] = array(
+                  '#type' => 'submit',
+                  '#value' => $this->t('Search'),
+                  '#attributes' => array(
+                    'class' => array('btn')
+				  ),                   
+                  '#button_type' => 'primary',
+                );
+
+                return $form;
+            } else {            
+                drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SearchForm'), 'error');
+                return $form;
             }
-
-            $form['metakey'] = array (
-              '#type' => 'select',
-              '#title' => ('MetaKey'),
-              '#required' => TRUE,
-              '#options' => 
-                  $select
-            );
-
-            $form['metavalue'] = array(
-              '#type' => 'textfield',
-              '#title' => ('MetaValue'),          
-              '#required' => TRUE,
-            );
-
-            $form['actions']['#type'] = 'actions';
-            $form['actions']['submit'] = array(
-              '#type' => 'submit',
-              '#value' => $this->t('Search'),
-              '#button_type' => 'primary',
-            );
-            
-            return $form;
-        } else {            
-            drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SearchForm'), 'error');
-            return $form;
         }
+        
+        
     }
     
     
