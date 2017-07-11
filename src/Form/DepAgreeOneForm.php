@@ -31,6 +31,9 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor']['l_name'] = array(
             '#type' => 'textfield',
             '#title' => t('Last Name:'),
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),
             '#required' => TRUE,
             '#default_value' => $this->store->get('l_name') ? $this->store->get('l_name') : '',
         );
@@ -38,6 +41,9 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor']['f_name'] = array(
             '#type' => 'textfield',
             '#title' => t('First Name:'),
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),
             '#required' => TRUE,
             '#default_value' => $this->store->get('f_name') ? $this->store->get('f_name') : '',
         );
@@ -45,6 +51,9 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor']['title'] = array(
             '#type' => 'textfield',
             '#title' => t('Title:'),
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),
             '#required' => FALSE,
             '#default_value' => $this->store->get('title') ? $this->store->get('title') : '',
         );
@@ -52,6 +61,9 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor']['institution'] = array(
             '#type' => 'textfield',
             '#title' => t('Institution:'),
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),
             '#required' => TRUE,
             '#default_value' => $this->store->get('institution') ? $this->store->get('institution') : '',
         );
@@ -59,6 +71,9 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor']['city'] = array(
             '#type' => 'textfield',
             '#title' => t('City:'),
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),
             '#required' => TRUE,
             '#default_value' => $this->store->get('city') ? $this->store->get('city') : '',
         );
@@ -66,6 +81,9 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor']['address'] = array(
             '#type' => 'textfield',
             '#title' => t('Address:'),
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),
             '#required' => TRUE,
             '#default_value' => $this->store->get('address') ? $this->store->get('address') : '',
         );
@@ -73,6 +91,9 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor']['zipcode'] = array(
             '#type' => 'textfield',
             '#title' => t('Zipcode:'),
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),
             '#required' => TRUE,
             '#default_value' => $this->store->get('zipcode') ? $this->store->get('zipcode') : '',
         );
@@ -80,6 +101,9 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor']['email'] = array(
             '#type' => 'email',
             '#title' => t('Email:'),
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),
             '#required' => TRUE,
             '#default_value' => $this->store->get('email') ? $this->store->get('email') : '',
         );
@@ -87,13 +111,25 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor']['phone'] = array (
             '#type' => 'tel',
             '#title' => t('Phone'),
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),
             '#required' => TRUE,
             '#default_value' => $this->store->get('phone') ? $this->store->get('phone') : '',
         );
        
         
         //create the next button to the form second page
-        $form['actions']['submit']['#value'] = $this->t('Next');
+        $form['actions']['#type'] = 'actions';
+        $form['actions']['submit'] = array(
+          '#type' => 'submit',
+          '#value' => $this->t('Next'),
+          '#attributes' => array(
+            'class' => array('btn')
+		  ),                   
+          '#button_type' => 'primary',
+        );
+
         
         return $form;
   }
