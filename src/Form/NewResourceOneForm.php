@@ -59,6 +59,9 @@ class NewResourceOneForm extends NewResourceFormBase {
             "#type" => "select",
             "#title" => t("SELECT YOUR ROOT ELEMENT"),
             '#required' => TRUE,
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),
             "#options" =>
             $rootSelect,
             '#default_value' => $this->store->get('roots') ? $this->store->get('roots') : '',
@@ -77,13 +80,26 @@ class NewResourceOneForm extends NewResourceFormBase {
         $form['class'] = array(
             '#type' => 'select',
             '#title' => $this->t('SELECT YOUR CLASS'),
+            '#attributes' => array(
+		        'class' => array('form-control')
+			),            
             '#required' => TRUE,
             "#options" =>
             $classesSelect,
             '#default_value' => $this->store->get('class') ? $this->store->get('class') : '',
         );
         //create the next button to the form second page
-        $form['actions']['submit']['#value'] = $this->t('Next');
+        $form['actions']['#type'] = 'actions';
+        $form['actions']['submit'] = array(
+          '#type' => 'submit',
+          '#value' => $this->t('Next'),
+          '#attributes' => array(
+            'class' => array('btn')
+		  ),                   
+          '#button_type' => 'primary',
+        );
+
+
 
         return $form;
     }
