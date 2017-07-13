@@ -622,6 +622,52 @@ class OeawStorage {
             return;
         }        
     }
+    
+    public function checkValueToAutocomplete(string $string, string $property): array{
+        
+        if (empty($string) || empty($property)) {
+            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+        }
+        
+        $dcTitle = RC::titleProp();
+        $rdfsLabel = self::$sparqlPref["rdfsLabel"];
+        $getResult = array();
+        
+        //we need to extend the Filter options in the DB class, to we can use the
+        // Filter =  value
+        try {
+           
+            $q = new Query();
+            $q->setSelect(array('?res'));
+            $q->setDistinct(true);
+            $q->addParameter((new HasValue('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property))->setSubVar('?res'));
+            $q->addParameter(new MatchesRegEx($dcTitle, $string), 'i');
+            
+            $query = $q->getQuery();
+
+            $result = $this->fedora->runSparql($query);
+           
+            $fields = $result->getFields(); 
+            $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
+           
+            return $getResult;
+
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }        
+    
+        
+    }
+    
+    
     /*
      * 
      * Get the actual classes for the SideBar block

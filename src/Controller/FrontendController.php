@@ -118,12 +118,12 @@ class FrontendController extends ControllerBase {
      * @param string $prop1
      * @param string $fieldName
      * @return JsonResponse
-     */
+    */
     public function autocomplete(request $request, string $prop1, string $fieldName): JsonResponse {
         
         $matches = array();
         $string = $request->query->get('q');
-        
+        $matchClass = [];
         //check the user entered char's
         if(strlen($string) < 3) { return new JsonResponse(array()); }
         
@@ -137,10 +137,12 @@ class FrontendController extends ControllerBase {
         $rangeRes = null;
         
         try {
-            $prop = $fedora->getResourceById($propUri);
+            //get the resource uri based on the propertURI
+            //f.e: http://purl.org/dc/terms/contributor and the res uri will be a fedora uri
+            $prop = $fedora->getResourceById($propUri);            
             //get the property metadata
             $propMeta = $prop->getMetadata();
-            // check the range property in the res metadata
+            // check the range property in the res metadata, we will use this in our next query
             $rangeRes = $propMeta->getResource('http://www.w3.org/2000/01/rdf-schema#range');
         }  catch (\RuntimeException $e){
             return new JsonResponse(array());
@@ -149,48 +151,44 @@ class FrontendController extends ControllerBase {
         if($rangeRes === null){
             return new JsonResponse(array()); // range property is missing - no autocompletion
         }
-
-        $matchClass = $fedora->getResourcesByProperty('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $rangeRes->getUri());
-
+        
+        $matchClass = $this->OeawStorage->checkValueToAutocomplete($string, $rangeRes->getUri());
+        
         // if we want additional properties to be searched, we should add them here:
         $match = array(
             'title'  => $fedora->getResourcesByPropertyRegEx('http://purl.org/dc/elements/1.1/title', $string),
             'name'   => $fedora->getResourcesByPropertyRegEx('http://xmlns.com/foaf/0.1/name', $string),
             'acdhId' => $fedora->getResourcesByPropertyRegEx(RC::get('fedoraIdProp'), $string),
         );
-
+        
         $matchResource = $matchValue = array();
-        foreach ($matchClass as $i) {
-            $matchResource[] = $i->getUri();
-            if (stripos($i->getUri(), $string) !== false) {
-                $matchValue[] = $i->getUri();
+        
+        if(count($matchClass) > 0){
+            foreach ($matchClass as $i) {
+                $matchValue[] = $i;
             }
+        }else{
+            return new JsonResponse(array()); 
         }
+                
         foreach ($match as $i) {
             foreach ($i as $j) {
-                $matchValue[] = $j->getUri();
+                $matchValue[]['res'] = $j->getUri();
             }
         }
+        
         $matchValue = array_unique($matchValue);
-        $matchBoth = array_intersect($matchResource, $matchValue);
-
-        foreach ($matchClass as $i) {
+        
+        foreach ($matchValue as $i) {
             
-            if (!in_array($i->getUri(), $matchBoth)) {
-                continue;
-            }
-
-            $meta = $i->getMetadata();
+            $acdhId = $fedora->getResourceByUri($i['res']);
+            $meta = $acdhId->getMetadata();
             
-            //$acdhId = $meta->getResource(EasyRdfUtil::fixPropName($config->get('fedoraIdProp')));
-            $acdhId = $fedora->getResourceByUri($i->getUri());
-            $acdhId = $acdhId->getId();
-         
             $label = empty($meta->label()) ? $acdhId : $meta->label();
             //because of the special characters we need to convert it
             $label = htmlentities($label, ENT_QUOTES, "UTF-8");
                 
-            $matches[] = ['value' => $acdhId , 'label' => $label];
+            $matches[] = ['value' => $i['res'] , 'label' => $label];
 
             if(count($matches) >= 10){
                  break;
@@ -203,7 +201,7 @@ class FrontendController extends ControllerBase {
         $response->headers->set('Content-Type', 'application/json');
         
         return $response;
-    }    
+    }
         
     /**
      * 
@@ -243,7 +241,6 @@ class FrontendController extends ControllerBase {
                 'id' => 'oeaw-table',
             ),
         );
-
         return $table;
     }
         
@@ -342,10 +339,6 @@ class FrontendController extends ControllerBase {
         // decode the uri hash
         $uri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');
  
-        
-
-
-
         $uid = \Drupal::currentUser()->id();
         
         $rootGraph = $this->OeawFunctions->makeGraph($uri);                 

@@ -143,9 +143,7 @@ class OeawFunctions {
      */    
     public function getFieldNewTitle(array $formElements, string $mode = 'edit'): AjaxResponse {
         
-        $ajax_response = array();
-        $fedora = array();
-        
+        $ajax_response = array();         
         $fedora = new Fedora();
         
         if($mode == "edit"){
@@ -164,38 +162,40 @@ class OeawFunctions {
             $result = array_diff_assoc($newValues, $oldValues);
             
         }else if($mode == "new"){
-                                   
-            foreach($formElements as $key => $value){                
+                 //get the values which are urls
+            foreach($formElements as $key => $value){
                 if((strpos($key, ':prop') !== false)) {
                     unset($formElements[$key]);
                 }elseif (strpos($value, 'http') !== false) {
                     $result[$key] = $value;
                 }
             }
-        }        
+        }
+        
         $ajax_response = new AjaxResponse();
         
         if(empty($result)){ return $ajax_response; }
-       
-        $color = 'green';
-        $resNL = array();
         
         foreach($result as $key => $value){
-            
-            $resNL = $fedora->getResourcesByProperty(RC::get('fedoraIdProp'), (string)$value);
-       
-            foreach($resNL as $nl){
-                if(!empty($nl->getMetadata()->label())){
-                    $label = htmlentities($nl->getMetadata()->label(), ENT_QUOTES, "UTF-8");
-                }else { $label = ""; }
-            }            
-            
-            if(!empty($label)){
-                
-                $ajax_response->addCommand(new HtmlCommand('#edit-'.$key.'--description', "New Value: <a href='".(string)$value."' target='_blank'>".(string)$label."</a>"));
-                $ajax_response->addCommand(new InvokeCommand('#edit-'.$key.'--description', 'css', array('color', $color)));
+            //get the fedora urls, where we can create a FedoraObject
+            if (!empty($value) && strpos($value, RC::get('fedoraApiUrl')) !== false && $key != "file" && !is_array($value)) {
+                $lblFO = $this->makeMetaData($value);
+                //if not empty the fedoraObj then get the label
+                if(!empty($lblFO)){
+                    $lbl = $lblFO->label();
+                }
             }
+            
+            if(!empty($lbl)){
+                $label = htmlentities($lbl, ENT_QUOTES, "UTF-8");
+            }else {
+                $label = "";
+            }
+                        
+            $ajax_response->addCommand(new HtmlCommand('#edit-'.$key.'--description', "New Value: <a href='".(string)$value."' target='_blank'>".(string)$label."</a>"));
+            $ajax_response->addCommand(new InvokeCommand('#edit-'.$key.'--description', 'css', array('color', 'green')));
         }
+        
         // Return the AjaxResponse Object.
         return $ajax_response;        
     }
