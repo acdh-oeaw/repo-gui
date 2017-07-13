@@ -625,4 +625,27 @@ class OeawFunctions {
         return $res;
     }
     
+    /**
+     * 
+     * Array Unique function to multidimensional arrays
+     * 
+     * @param array $data
+     * @param string $key
+     * @return array
+     */
+    public function arrUniqueToMultiArr(array $data, string $key): array{
+        
+        if(empty($data) || empty($key)){ return array(); }
+        
+        $return = array();
+        
+        foreach ($data as $d) {
+            $return[] = $d[$key];
+        }
+        $return = array_unique($return);
+        
+        return $return;
+        
+    }
+    
 }

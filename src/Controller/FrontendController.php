@@ -161,8 +161,8 @@ class FrontendController extends ControllerBase {
             'acdhId' => $fedora->getResourcesByPropertyRegEx(RC::get('fedoraIdProp'), $string),
         );
         
-        $matchResource = $matchValue = array();
-        
+        $matchValue = array();
+
         if(count($matchClass) > 0){
             foreach ($matchClass as $i) {
                 $matchValue[] = $i;
@@ -170,25 +170,25 @@ class FrontendController extends ControllerBase {
         }else{
             return new JsonResponse(array()); 
         }
-                
+
         foreach ($match as $i) {
             foreach ($i as $j) {
                 $matchValue[]['res'] = $j->getUri();
             }
         }
         
-        $matchValue = array_unique($matchValue);
+        $mv = $this->OeawFunctions->arrUniqueToMultiArr($matchValue, "res");
         
-        foreach ($matchValue as $i) {
+        foreach ($mv as $i) {
             
-            $acdhId = $fedora->getResourceByUri($i['res']);
+            $acdhId = $fedora->getResourceByUri($i);
             $meta = $acdhId->getMetadata();
             
             $label = empty($meta->label()) ? $acdhId : $meta->label();
             //because of the special characters we need to convert it
             $label = htmlentities($label, ENT_QUOTES, "UTF-8");
                 
-            $matches[] = ['value' => $i['res'] , 'label' => $label];
+            $matches[] = ['value' => $i , 'label' => $label];
 
             if(count($matches) >= 10){
                  break;

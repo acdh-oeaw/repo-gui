@@ -623,6 +623,13 @@ class OeawStorage {
         }        
     }
     
+    /**
+     *  Check labels for the autocomplete input fields
+     * 
+     * @param string $string
+     * @param string $property
+     * @return array
+     */
     public function checkValueToAutocomplete(string $string, string $property): array{
         
         if (empty($string) || empty($property)) {
@@ -642,9 +649,8 @@ class OeawStorage {
             $q->setDistinct(true);
             $q->addParameter((new HasValue('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property))->setSubVar('?res'));
             $q->addParameter(new MatchesRegEx($dcTitle, $string), 'i');
-            
             $query = $q->getQuery();
-
+          
             $result = $this->fedora->runSparql($query);
            
             $fields = $result->getFields(); 
@@ -663,8 +669,6 @@ class OeawStorage {
             $response->send();
             return;
         }        
-    
-        
     }
     
     
