@@ -9,6 +9,7 @@
                      | <a href="/#" id="delete-root" data-resourceid="{{ editResData.editUrl }}" class="use-ajax" data-dialog-type="modal"><i class="fa fa-trash fa-1x"></i></a>
                 {% endif %}
                 {% if hasBinary %} | <a href="{{ hasBinary }}"><i class="fa fa-download" aria-hidden="true"></i></a>  {% endif %}
+                {% if query %} | <a href="/oeaw_query/{{ query }}"><i class="fa fa-magic" aria-hidden="true"></i></a>  {% endif %}
                 
         </div>
         <div style="float:right; width: 50%; max-height:100px; ">

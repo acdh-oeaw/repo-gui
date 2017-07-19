@@ -113,6 +113,15 @@ oeaw_new_success:
     _permission: 'access content'
     _access: 'TRUE'
 
+oeaw_query:
+  path: '/oeaw_query/{uri}'
+  defaults:
+    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_query'
+  requirements:
+    _permission: 'access content'
+    _access: 'TRUE'
+
+
 oeaw_error_page:
   path: '/oeaw_error_page/{errorMSG}'
   defaults:

@@ -1,0 +1,26 @@
+{% if errorMSG %}    
+    {{ errorMSG }}
+
+{% else %}
+    <div class="vcenter">
+        <h2 ><i class="fa fa-search fa-1x"></i> Your Sparql query result:</b> </h2>    
+    </div>    
+    <table id="" class="display" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+            {% for h in header %}
+                <th>{{h}}</th>
+            {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in result %}
+                <tr>
+                {% for h in header %}
+                <td>{{r[h]}}</td>                    
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif%}  

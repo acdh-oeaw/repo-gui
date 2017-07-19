@@ -29,7 +29,7 @@ class ConnData
         "http://www.w3.org/2000/01/rdf-schema#" => "rdfs",
         "http://www.w3.org/ns/ldp#" => "ldp",
         "http://www.iana.org/assignments/relation/" => "iana",
-        "https://vocabs.acdh.oeaw.ac.at/#" => "acdh",
+        "https://vocabs.acdh.oeaw.ac.at/#" => "acdh",        
         "https://id.acdh.oeaw.ac.at/" => "acdhID",
         "http://purl.org/dc/elements/1.1/" => "dc",
         "http://purl.org/dc/terms/" => "dct",
@@ -47,6 +47,8 @@ class ConnData
     public static $rdfType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
     public static $fedoraBinary = "http://fedora.info/definitions/v4/repository#Binary";
     public static $foafName = "http://xmlns.com/foaf/0.1/name";
+    public static $acdhQuery = "https://vocabs.acdh.oeaw.ac.at/#query";
+    public static $acdhQueryType = "https://vocabs.acdh.oeaw.ac.at/#querytype";
     
    
     
