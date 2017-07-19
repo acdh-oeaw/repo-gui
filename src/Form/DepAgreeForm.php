@@ -28,6 +28,9 @@ class DepAgreeForm extends FormBase{
         $form['depositor']['title'] = array(
             '#type' => 'textfield',
             '#title' => t('Name Title:'),
+            '#attributes' => array(
+              'class' => array('form-control')
+		    ),                     
             '#required' => TRUE,
         );
         
