@@ -2,7 +2,7 @@
 
 function oeaw_theme() {
   $theme['oeaw_detail_dt'] = [
-    'variables' => ['result' => NULL, 'childResult' => NULL, 'editResData' => NULL, 'userid' => NULL, 'hasBinary' => NULL, 'errorMSG' => null],
+    'variables' => ['result' => NULL, 'childResult' => NULL, 'editResData' => NULL, 'userid' => NULL, 'hasBinary' => NULL, 'errorMSG' => null, 'query' => null],
     'template' => 'dtDetail',
   ];  
   
@@ -21,6 +21,10 @@ function oeaw_theme() {
     'template' => 'success_res',
   ];
   
+  $theme['oeaw_query'] = [
+    'variables' => ['result' => NULL, 'header' => NULL, 'userid' => NULL, 'errorMSG' => null],
+    'template' => 'query',
+  ];
   
   $theme['oeaw_form_resource'] = [
     'variables' => ['result' => NULL, 'userid' => NULL, 'errorMSG' => null],

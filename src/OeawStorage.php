@@ -16,6 +16,7 @@ use acdhOeaw\fedora\metadataQuery\HasValue;
 use acdhOeaw\fedora\metadataQuery\MatchesRegEx;
 use acdhOeaw\fedora\metadataQuery\Query;
 use acdhOeaw\fedora\metadataQuery\QueryParameter;
+use acdhOeaw\fedora\metadataQuery\SimpleQuery;
 
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -162,10 +163,52 @@ class OeawStorage {
         }
     }
        
+    /**
+     * 
+     * Get value by the resource uri and property
+     * 
+     * @param string $uri
+     * @param string $property
+     * @return array
+     * 
+     */
+    public function getValueByUriProperty(string $uri, string $property): array{
+        
+        if (empty($uri) || empty($property)) {
+            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+        }
+        
+        $getResult = array();
+
+        try {
+            
+            $q = new Query();
+            $q->addParameter((new HasTriple($uri, $property, '?value')));
+            $q->setJoinClause('optional');
+            $query = $q->getQuery();
+            
+            $result = $this->fedora->runSparql($query);
+            
+            $fields = $result->getFields(); 
+            $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
+
+            return $getResult;                
+        
+        } catch (\Exception $ex) {            
+            return $getResult;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $getResult;
+        } 
+        catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex){
+            return $getResult;
+        } 
+        
+    }
+    
     
     /**
      * 
-     * Get all data by property.
+     * Get all data by property and value
      * 
      * @param string $property
      * @param string $value
@@ -621,6 +664,27 @@ class OeawStorage {
             $response->send();
             return;
         }        
+    }
+    
+    public function runUserSparql(string $string): array{
+        
+        $result = array();
+        
+        try {
+            $q = new SimpleQuery($string);            
+            $query = $q->getQuery();          
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields(); 
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+           
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        } 
     }
     
     /**

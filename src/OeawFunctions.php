@@ -481,6 +481,7 @@ class OeawFunctions {
                                     $results[$i]["val_title"][] = $resValTitle;
                                 }
                             }
+                            //itt a query
                             
                             $results[$i]["value"][] = $resVal;                            
                             $results[$i]["property"] = $this->createPrefixesFromString($v);
@@ -497,6 +498,14 @@ class OeawFunctions {
                         if($this->createPrefixesFromString($v) === false){
                             return drupal_set_message(t('Error in function: createPrefixesFromString'), 'error');
                         }
+                        
+                        if($v == \Drupal\oeaw\ConnData::$acdhQuery){
+                            $results['query'] = $item->__toString();
+                        }
+                        if($v == \Drupal\oeaw\ConnData::$acdhQueryType){
+                            $results['queryType'] = $item->__toString();
+                        }
+                        
                         $results[$i]["property"] = $this->createPrefixesFromString($v);
                         $results[$i]["value"][] = $item->__toString();
                     }else {
@@ -514,6 +523,31 @@ class OeawFunctions {
 
 
         return $results;
+    }
+    
+    /**
+     * 
+     * Get the keys from a multidimensional array
+     * 
+     * @param array $arr
+     * @return array
+     */
+    public function getKeysFromMultiArray(array $arr): array{
+     
+        foreach($arr as $key => $value) {
+            $return[] = $key;
+            if(is_array($value)) $return = array_merge($return, $this->getKeysFromMultiArray($value));
+        }
+        
+        //remove the duplicates
+        $return = array_unique($return);
+        
+        //remove the integers from the values, we need only the strings
+        foreach($return as $key => $value){
+            if(is_numeric($value)) unset($return[$key]);
+        }
+        
+        return $return;
     }
         
     /**

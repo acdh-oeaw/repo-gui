@@ -264,6 +264,60 @@ class FrontendController extends ControllerBase {
         return $datatable;
     }
     
+    
+    
+    /**
+     * 
+     * The acdh:query display page with the user defined sparql query
+     * 
+     * @param string $uri
+     * @return array
+     */
+    public function oeaw_query(string $uri){
+        
+        if (empty($uri)) {
+           return drupal_set_message(t('The uri is missing!'), 'error');
+        }
+        
+        $uri = base64_decode($uri);
+        $data = array();
+        $userSparql = array();
+        $errorMSG = "";
+        $header = array();
+        
+        $data = $this->OeawStorage->getValueByUriProperty($uri, \Drupal\oeaw\ConnData::$acdhQuery);
+        
+        if(isset($data)){
+            $userSparql = $this->OeawStorage->runUserSparql($data[0]['value']);
+            
+            if(count($userSparql) > 0){
+                $header = $this->OeawFunctions->getKeysFromMultiArray($userSparql);
+            }
+        }
+        
+        if(count($userSparql) == 0){
+            $errorMSG = "Sparql query has no result";
+        }
+
+        $uid = \Drupal::currentUser()->id();
+        // decode the uri hash
+        
+        $datatable = array(
+            '#theme' => 'oeaw_query',
+            '#result' => $userSparql,
+            '#header' => $header,
+            '#userid' => $uid,
+            '#errorMSG' => $errorMSG,
+            '#attached' => [
+                'library' => [
+                'oeaw/oeaw-styles', 
+                ]
+            ]
+        );
+        
+        return $datatable;
+    }
+    
     public function oeaw_new_success(string $uri){
         
         if (empty($uri)) {
@@ -347,7 +401,7 @@ class FrontendController extends ControllerBase {
         if(count($rootMeta) > 0){
             $results = array();
             //get the root table data
-            $results = $this->OeawFunctions->createDetailTableData($uri);        
+            $results = $this->OeawFunctions->createDetailTableData($uri);
             if(empty($results)){                
                 $msg = base64_encode("The resource has no metadata!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -385,6 +439,13 @@ class FrontendController extends ControllerBase {
             $resTitle = "title is missing";
         }
         
+        $query = "";
+        if(isset($results['query']) && isset($results['queryType'])){
+            if($results['queryType'] == "SPARQL"){
+                $query = base64_encode($uri);
+            }
+        }
+                
         $editResData = array(
             "editUrl" => $this->OeawFunctions->createDetailsUrl($uri, 'encode'),
             "title" => $resTitle
@@ -394,19 +455,21 @@ class FrontendController extends ControllerBase {
             $results["hasBinary"] = "";
         }
         
+
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
-            '#result' => $results,            
-            '#userid' => $uid,            
+            '#result' => $results,
+            '#userid' => $uid,
+            '#query' => $query,
             '#hasBinary' => $results["hasBinary"],
-            '#childResult' => $childResult,         
+            '#childResult' => $childResult,
             '#editResData' => $editResData,
             '#attached' => [
                 'library' => [
                 'oeaw/oeaw-styles', //include our custom library for this response
                 ]
             ]
-        );  
+        );
                 
         return $datatable;        
     }
