@@ -72,7 +72,7 @@ class FrontendController extends ControllerBase {
                 $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");                
                 //create details and editing urls
                 if($decodeUrl){
-                    $res[$i]['detail'] = $decodeUrl;
+                    $res[$i]['resUri'] = $decodeUrl;
                     if($uid !== 0){
                         $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
                         $res[$i]['delete'] = "/oeaw_delete/".$decodeUrl;
