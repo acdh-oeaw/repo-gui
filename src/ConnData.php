@@ -50,10 +50,13 @@ class ConnData
     public static $acdhQuery = "https://vocabs.acdh.oeaw.ac.at/#query";
     public static $acdhQueryType = "https://vocabs.acdh.oeaw.ac.at/#querytype";
     
-   
-    
-    
+    //For search result variables
+    public static $title = "http://purl.org/dc/elements/1.1/title";
+    public static $description = "http://purl.org/dc/terms/description";
+    public static $contributor = "http://purl.org/dc/terms/contributor";
+    public static $creationdate = "http://fedora.info/definitions/v4/repository#created";
+    public static $isPartOf = "http://purl.org/dc/terms/isPartOf";   
+      
     
 }
-
 

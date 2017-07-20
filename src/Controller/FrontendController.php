@@ -72,7 +72,7 @@ class FrontendController extends ControllerBase {
                 $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");                
                 //create details and editing urls
                 if($decodeUrl){
-                    $res[$i]['detail'] = "/oeaw_detail/".$decodeUrl;
+                    $res[$i]['detail'] = $decodeUrl;
                     if($uid !== 0){
                         $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
                         $res[$i]['delete'] = "/oeaw_delete/".$decodeUrl;
@@ -80,6 +80,15 @@ class FrontendController extends ControllerBase {
                 }
                 $res[$i]["uri"] = $value["uri"];
                 $res[$i]["title"] = $value["title"];
+                $res[$i]["description"] = $value["description"];
+                
+				$creationdate = $value["creationdate"];
+				$creationdate = strtotime($creationdate);
+				$res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
+                
+                $res[$i]["contributorName"] = $value["contributor"];                       
+				//$res[$i]["rdfType"] = $value["rdfType"];
+ 
                 $i++;
             }
             $decodeUrl = "";
@@ -102,7 +111,7 @@ class FrontendController extends ControllerBase {
          if(isset($res) && $res !== null && !empty($res)){
             
             $header = array_keys($res[0]);
-            $datatable['#theme'] = 'oeaw_root_dt';
+            $datatable['#theme'] = 'oeaw_keyword_search_res';
             $datatable['#result'] = $res;
             $datatable['#header'] = $header;
         }        
@@ -487,6 +496,107 @@ class FrontendController extends ControllerBase {
         return $form;
     }
     
+
+
+     /**
+     * 
+     * This contains the keyword search page results
+     * 
+     * @return array
+     */
+    public function oeaw_keywordsearch(string $metavalue):array {
+
+        drupal_get_messages('error', TRUE);
+        
+        $errorMSG = array();
+        
+        if(empty($metavalue)){
+            return drupal_set_message(t('There is no data -> Search'), 'error');        
+        }
+        
+        $uid = \Drupal::currentUser()->id();
+        //decode the search variable
+        $metavalue = urldecode($metavalue);                   
+        
+        $fedora = new Fedora();
+        
+        //we will search in the title, name, fedoraid
+        $keywordSearch = array(
+            'title'  => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$title, $metavalue),
+            'description'  => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$description, $metavalue),
+            'contributor'  => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$contributor, $metavalue),
+            'name'   => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$foafName, $metavalue),
+            'acdhId' => $fedora->getResourcesByPropertyRegEx(RC::get('fedoraIdProp'), $metavalue),
+        );
+        
+
+
+		$result = array();
+		$i = 0;
+        foreach ($keywordSearch as $searchedIn) {            
+            foreach ($searchedIn as $match) {
+                //If we have some matches we get the uri and then create details to display				
+				if(!empty($match->getUri())){
+					//$details = $this->OeawFunctions->createDetailTableData($match->getUri());
+					//array_push($result, $details); 
+					/*
+					highlight_string("<?php\n\$match =\n" . var_export($match, true) . ";\n?>");
+					*/
+
+					//Title and the URI
+					$result[$i]["title"] = $match->getMetadata()->label()->__toString();
+					$result[$i]["resUri"] = $this->OeawFunctions->createDetailsUrl($match->getUri());
+					//Literal class information
+					$result[$i]["description"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
+					$creationdate = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$creationdate);
+					$creationdate = strtotime($creationdate);
+					$result[$i]["creationdate"] = date('F jS, Y',$creationdate);
+					
+					//Resource class information
+					$contributor = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$contributor);
+					if (isset($contributor) && $contributor) {
+						$result[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+						$result[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
+					}
+					
+					$isPartOf = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$isPartOf);
+					if (isset($isPartOf) && $isPartOf) {
+						$result[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
+						$result[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
+					}
+			
+					$rdfType = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$rdfType);
+					if (isset($rdfType) && $rdfType) {
+						//$result[$i]["rdfType"] = $rdfType;
+
+					}
+					
+					
+					
+					
+					$i++;
+				}
+				
+			}	
+		} 
+
+
+        if (empty($result)){
+			$errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
+        }
+		
+        $datatable['#theme'] = 'oeaw_keyword_search_res';
+        $datatable['#userid'] = $uid;
+        $datatable['#errorMSG'] = $errorMSG;
+        $datatable['#result'] = $result;
+        $datatable['#searchedValues'] = $metavalue;
+        
+        return $datatable; 
+        
+
+    } 
+
+
     
     /**
      * 

@@ -21,6 +21,11 @@ function oeaw_theme() {
     'template' => 'success_res',
   ];
   
+  $theme['oeaw_keyword_search_res'] = [
+    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null],
+    'template' => 'keyword_search_res',
+  ]; 
+  
   $theme['oeaw_query'] = [
     'variables' => ['result' => NULL, 'header' => NULL, 'userid' => NULL, 'errorMSG' => null],
     'template' => 'query',
@@ -63,5 +68,4 @@ function oeaw_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     return $form;
 
 }
-
 

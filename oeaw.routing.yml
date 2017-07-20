@@ -38,6 +38,13 @@ oeaw_delete:
     _role: 'authenticated+admin'
     _access: 'TRUE'
 
+oeaw_keywordsearch:
+  path: '/oeaw_keywordsearch/{metavalue}'
+  defaults:
+    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_keywordsearch'
+  requirements:
+    _permission: 'access content'
+    _access: 'TRUE'
         
 oeaw_resources:
   path: '/oeaw_resources/{metakey}/{metavalue}'
