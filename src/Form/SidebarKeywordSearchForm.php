@@ -82,12 +82,53 @@ class SidebarKeywordSearchForm extends FormBase
                 $form['actions']['#type'] = 'actions';
                 $form['actions']['submit'] = array(
                   '#type' => 'submit',
-                  '#value' => $this->t('Search'),
+                  '#value' => $this->t('search'),
                   '#attributes' => array(
-                    'class' => array('btn')
+                    'class' => array('keywordsearch-btn')
 				  ),                   
                   '#button_type' => 'primary',
                 );
+
+
+			    $form['examples'] = array(
+			      '#type' => 'container',
+			      '#attributes' => array(
+			        'class' => array('form-examples')
+			      ),
+			      '#markup' => $this->t('Keyword examples for a quick-start:'),
+			    );
+			    
+                $form['examples']['example-1'] = array(
+                  '#type' => 'container',
+                  '#markup' => $this->t('Austria'),
+                  '#attributes' => array(
+                    'class' => array('form-example-btn'),
+                    'onClick' => 'window.location = "/oeaw_keywordsearch/Austria";'
+				  ),                   
+                  '#button_type' => 'primary',
+                );
+
+                $form['examples']['example-2'] = array(
+                  '#type' => 'container',
+                  '#markup' => $this->t('Media'),
+                  '#attributes' => array(
+                    'class' => array('form-example-btn'),
+                    'onClick' => 'window.location = "/oeaw_keywordsearch/Media";'
+				  ),                   
+                  '#button_type' => 'primary',
+                );
+                
+
+                $form['examples']['example-3'] = array(
+                  '#type' => 'container',
+                  '#markup' => $this->t('History'),
+                  '#attributes' => array(
+                    'class' => array('form-example-btn'),
+                    'onClick' => 'window.location = "/oeaw_keywordsearch/History";'
+				  ),                   
+                  '#button_type' => 'primary',
+                );
+                
 
                 return $form;
             } else {            
