@@ -870,7 +870,8 @@ class FrontendController extends ControllerBase {
 
                     //create details and editing urls
                     if($decodeUrl){
-                        $res[$i]['detail'] = "/oeaw_detail/".$decodeUrl;
+                        //$res[$i]['detail'] = "/oeaw_detail/".$decodeUrl;
+                        $res[$i]['resUri'] = $decodeUrl;
                         if($uid !== 0){
                             $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
                             $res[$i]['delete'] = $decodeUrl;
