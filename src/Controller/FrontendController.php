@@ -905,7 +905,7 @@ class FrontendController extends ControllerBase {
         );
         
         if(isset($res) && $res !== null && !empty($res)){
-            $datatable['#theme'] = 'oeaw_search_class_res_dt';
+            $datatable['#theme'] = 'oeaw_keyword_search_res';
             $datatable['#result'] = $res;
             $datatable['#searchedValues'] = $searchArray;                
         }
