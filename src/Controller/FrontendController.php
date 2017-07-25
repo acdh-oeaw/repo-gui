@@ -114,6 +114,7 @@ class FrontendController extends ControllerBase {
             $datatable['#theme'] = 'oeaw_keyword_search_res';
             $datatable['#result'] = $res;
             $datatable['#header'] = $header;
+            $datatable['#searchedValues'] = $i . ' top-level elements have been found.';
         }        
 
         return $datatable;
@@ -589,7 +590,7 @@ class FrontendController extends ControllerBase {
         $datatable['#userid'] = $uid;
         $datatable['#errorMSG'] = $errorMSG;
         $datatable['#result'] = $result;
-        $datatable['#searchedValues'] = $metavalue;
+        $datatable['#searchedValues'] = $i . ' elements containing "' . $metavalue . '" have been found.';
         
         return $datatable; 
         
@@ -908,7 +909,8 @@ class FrontendController extends ControllerBase {
         if(isset($res) && $res !== null && !empty($res)){
             $datatable['#theme'] = 'oeaw_keyword_search_res';
             $datatable['#result'] = $res;
-            $datatable['#searchedValues'] = $searchArray;                
+            $datatable['#searchedValues'] = $searchArray;
+            $datatable['#searchedValues'] = $i . ' elements of type "' . $searchArray["metaValue"] . '" have been found.';                
         }
         
         return $datatable;     
