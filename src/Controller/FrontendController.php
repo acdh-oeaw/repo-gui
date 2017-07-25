@@ -86,7 +86,19 @@ class FrontendController extends ControllerBase {
 				$creationdate = strtotime($creationdate);
 				$res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
                 
-                $res[$i]["contributorName"] = $value["contributor"];                       
+                $contributor = $value["contributor"];	                
+				if (isset($contributor) && $contributor) {
+					$res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+					$res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
+				}	                
+
+				$isPartOf = $value["isPartOf"];
+				if (isset($isPartOf) && $isPartOf) {
+					$res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
+					$res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
+				}
+                
+                                       
 				//$res[$i]["rdfType"] = $value["rdfType"];
  
                 $i++;
@@ -880,6 +892,28 @@ class FrontendController extends ControllerBase {
                     }
                     $res[$i]["uri"] = $value["uri"];
                     $res[$i]["title"] = $value["title"];
+	                $res[$i]["description"] = $value["description"];
+	                
+					$creationdate = $value["creationdate"];
+					$creationdate = strtotime($creationdate);
+					$res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
+	                
+	                $contributor = $value["contributor"];	                
+					if (isset($contributor) && $contributor) {
+						$res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+						$res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
+					}	                
+
+					$isPartOf = $value["isPartOf"];
+					if (isset($isPartOf) && $isPartOf) {
+						$res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
+						$res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
+					}
+	                
+	                                       
+					//$res[$i]["rdfType"] = $value["rdfType"];                    
+                    
+                    
                     $i++;
                 }
                  $searchArray = array(
