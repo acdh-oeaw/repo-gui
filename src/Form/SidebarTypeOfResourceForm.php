@@ -81,7 +81,8 @@ class SidebarTypeOfResourceForm extends FormBase
                     if($k == "value"){ $count = $v; }
                     
                     if (preg_match("/^acdh:/", $lbl)) {
-	                    $label = explode('acdh:', $lbl)[1];               
+	                    $label = explode('acdh:', $lbl)[1];
+	                    $labelReadable = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $label);               
 						
 						$termencoded = base64_encode($lbl);
 						if ($defaultterm == $termencoded) {
@@ -100,7 +101,7 @@ class SidebarTypeOfResourceForm extends FormBase
 		
 		                $form['checkbox-'.$label]['checkbox'] = array(
 		                  '#type' => 'checkbox',
-		                  '#title' => $this->t($label." (".$count.")"),
+		                  '#title' => $this->t($labelReadable." (".$count.")"),
 		                  '#attributes' => array(
 		                    'class' => array('checkbox-custom'),
 		                    'id' => array('checkbox-'.$label)

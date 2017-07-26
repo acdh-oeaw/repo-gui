@@ -119,14 +119,13 @@ class OeawStorage {
             $q6->setJoinClause('optional');
             $q->addSubquery($q6);   
 
-            //$q6 = new Query();
-            //$q6->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'));
-            //$q6->addParameter(new MatchesRegEx('?rdfType', 'https://vocabs.acdh.oeaw.ac.at', 'i'));
-            //$q6->setJoinClause('optional');
-            //$q->addSubquery($q6);
+	        $q7 = new Query();
+	        $q7->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'));
+            $q7->setJoinClause('optional');
+            $q->addSubquery($q7);
 
                   
-            $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf'));           
+            $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?rdfType'));           
             $q->setOrderBy(array('UCASE(str(?title))'));
             $query= $q->getQuery();
             //var_dump($query);
@@ -311,9 +310,15 @@ class OeawStorage {
             $q8 = new Query();
             $q8->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'));
             $q8->setJoinClause('optional');
-            $q->addSubquery($q8);            
+            $q->addSubquery($q8);
+            
+            $q9 = new Query();
+	        $q9->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'));
+            $q9->setJoinClause('optional');
+            $q->addSubquery($q9);
+                        
                 
-            $q->setSelect(array('?uri', '?title', '?label', '?name', '?description', '?contributor', '?creationdate', '?isPartOf'));
+            $q->setSelect(array('?uri', '?title', '?label', '?name', '?description', '?contributor', '?creationdate', '?isPartOf', '?rdfType'));
             $query = $q->getQuery();
             
             $result = $this->fedora->runSparql($query);

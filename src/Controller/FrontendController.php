@@ -67,45 +67,64 @@ class FrontendController extends ControllerBase {
         if(count($result) > 0){
             $i = 0;            
             foreach($result as $value){
-                // check that the value is an Url or not
+	            
+	            $rdfType = $value["rdfType"];
+	            $rdfTypePrefix = ""; 
+	            if (isset($rdfType) && $rdfType) {
+                    if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {
+	                	$rdfTypePrefix = "acdh";   
+	                }
+	            } else {
+		            $rdfTypePrefix = "none"; 
+	            }    
+	                
+	            //Only list items with either acdh rdfType or no rdfType
+	            if (!empty($rdfTypePrefix)) {
+   	            
+	                // check that the value is an Url or not
+	                $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");                
+	                //create details and editing urls
+	                if($decodeUrl){
+	                    $res[$i]['resUri'] = $decodeUrl;
+	                    if($uid !== 0){
+	                        $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
+	                        $res[$i]['delete'] = "/oeaw_delete/".$decodeUrl;
+	                    }
+	                }
+	                $res[$i]["uri"] = $value["uri"];
+	                $res[$i]["title"] = $value["title"];
+	                $res[$i]["description"] = $value["description"];
+	                
+					$creationdate = $value["creationdate"];
+					$creationdate = strtotime($creationdate);
+					$res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
+	                
+	                $contributor = $value["contributor"];	                
+					if (isset($contributor) && $contributor) {
+						$res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+						$res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
+					}	                
+	
+					$isPartOf = $value["isPartOf"];
+					if (isset($isPartOf) && $isPartOf) {
+						$res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
+						$res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
+					}
+						
+					if (isset($rdfType) && $rdfType) {
+						$res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
+						$res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
+						$res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
+					}	 
+	 
+	                $i++;
                 
-                $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");                
-                //create details and editing urls
-                if($decodeUrl){
-                    $res[$i]['resUri'] = $decodeUrl;
-                    if($uid !== 0){
-                        $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
-                        $res[$i]['delete'] = "/oeaw_delete/".$decodeUrl;
-                    }
                 }
-                $res[$i]["uri"] = $value["uri"];
-                $res[$i]["title"] = $value["title"];
-                $res[$i]["description"] = $value["description"];
                 
-				$creationdate = $value["creationdate"];
-				$creationdate = strtotime($creationdate);
-				$res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
-                
-                $contributor = $value["contributor"];	                
-				if (isset($contributor) && $contributor) {
-					$res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-					$res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-				}	                
-
-				$isPartOf = $value["isPartOf"];
-				if (isset($isPartOf) && $isPartOf) {
-					$res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
-					$res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
-				}
-                
-                                       
-				//$res[$i]["rdfType"] = $value["rdfType"];
- 
-                $i++;
             }
             $decodeUrl = "";
             
-        }else {
+        } else {
             $errorMSG = drupal_set_message(t('You have no root elements!'), 'error', FALSE);
         }
         
@@ -578,14 +597,24 @@ class FrontendController extends ControllerBase {
 						$result[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
 					}
 			
-					$rdfType = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$rdfType);
+					$rdfType = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
 					if (isset($rdfType) && $rdfType) {
-						//$result[$i]["rdfType"] = $rdfType;
-
+						//$result[$i]["rdfType"] = $rdfType->getGraph();
+						//$rdfType = $rdfType->dumpValue();
+						//var_dump($rdfType);
+						//die();
+						
+						foreach ($rdfType as $type) {
+			                if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
+								$result[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
+								$result[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$result[$i]["rdfType"]);
+								//Add a space between capital letters
+								$result[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $result[$i]["rdfType"]);
+								break;
+							}	 	
+				        }  						
 					}
-					
-					
-					
+
 					
 					$i++;
 				}
@@ -878,43 +907,63 @@ class FrontendController extends ControllerBase {
             if(count($result) > 0){
                 $i = 0;
                 foreach($result as $value){
-                    // check that the value is an Url or not
-                    $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");
-
-                    //create details and editing urls
-                    if($decodeUrl){
-                        //$res[$i]['detail'] = "/oeaw_detail/".$decodeUrl;
-                        $res[$i]['resUri'] = $decodeUrl;
-                        if($uid !== 0){
-                            $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
-                            $res[$i]['delete'] = $decodeUrl;
-                        }
-                    }
-                    $res[$i]["uri"] = $value["uri"];
-                    $res[$i]["title"] = $value["title"];
-	                $res[$i]["description"] = $value["description"];
 	                
-					$creationdate = $value["creationdate"];
-					$creationdate = strtotime($creationdate);
-					$res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
-	                
-	                $contributor = $value["contributor"];	                
-					if (isset($contributor) && $contributor) {
-						$res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-						$res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-					}	                
-
-					$isPartOf = $value["isPartOf"];
-					if (isset($isPartOf) && $isPartOf) {
-						$res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
-						$res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
-					}
-	                
-	                                       
-					//$res[$i]["rdfType"] = $value["rdfType"];                    
-                    
-                    
-                    $i++;
+		            $rdfType = $value["rdfType"];
+		            $rdfTypePrefix = ""; 
+		            if (isset($rdfType) && $rdfType) {
+	                    if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {
+		                	$rdfTypePrefix = "acdh";   
+		                }
+		            } else {
+			            $rdfTypePrefix = "none"; 
+		            }    
+		                
+		            //Only list items with either acdh rdfType or no rdfType
+		            if (!empty($rdfTypePrefix)) {	                
+		                
+	                    // check that the value is an Url or not
+	                    $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");
+	
+	                    //create details and editing urls
+	                    if($decodeUrl){
+	                        //$res[$i]['detail'] = "/oeaw_detail/".$decodeUrl;
+	                        $res[$i]['resUri'] = $decodeUrl;
+	                        if($uid !== 0){
+	                            $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
+	                            $res[$i]['delete'] = $decodeUrl;
+	                        }
+	                    }
+	                    $res[$i]["uri"] = $value["uri"];
+	                    $res[$i]["title"] = $value["title"];
+		                $res[$i]["description"] = $value["description"];
+		                
+						$creationdate = $value["creationdate"];
+						$creationdate = strtotime($creationdate);
+						$res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
+		                
+		                $contributor = $value["contributor"];	                
+						if (isset($contributor) && $contributor) {
+							$res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+							$res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
+						}	                
+	
+						$isPartOf = $value["isPartOf"];
+						if (isset($isPartOf) && $isPartOf) {
+							$res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
+							$res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
+						}
+		                
+		                                       
+						if (isset($rdfType) && $rdfType) {
+							$res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
+							$res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
+							$res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
+						}	                   
+	                    
+	                    
+	                    $i++;
+	                    
+	                }    
                 }
                  $searchArray = array(
                     "metaKey" => $classesArr[0],
@@ -940,11 +989,12 @@ class FrontendController extends ControllerBase {
             ]
         );
         
+		$metaValueReadable = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $searchArray["metaValue"]);
+        
         if(isset($res) && $res !== null && !empty($res)){
             $datatable['#theme'] = 'oeaw_keyword_search_res';
             $datatable['#result'] = $res;
-            $datatable['#searchedValues'] = $searchArray;
-            $datatable['#searchedValues'] = $i . ' elements of type "' . $searchArray["metaValue"] . '" have been found.';                
+            $datatable['#searchedValues'] = $i . ' elements of type "' . $metaValueReadable . '" have been found.';                
         }
         
         return $datatable;     

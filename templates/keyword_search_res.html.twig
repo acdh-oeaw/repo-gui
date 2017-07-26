@@ -29,7 +29,7 @@
 			{% if item.rdfType %}
 	            <div class="res-property">
 	            	<i class="material-icons">&#xE54E;</i>
-	            	<span class="res-rdftype">{{ item.rdfType }}</span>
+	            	<span class="res-rdftype"><a href="{{ item.rdfTypeUri }}">{{ item.rdfType }}</a></span>
 	            </div>
             {% endif%}		        
 	        
