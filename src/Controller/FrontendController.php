@@ -486,6 +486,26 @@ class FrontendController extends ControllerBase {
                 $query = base64_encode($uri);
             }
         }
+        
+        if(isset($results['dcterm_contributor'])) {
+	        $iCont = 0;
+	        foreach ($results['dcterm_contributor']["value"] as $contributor) {
+		        $results['dcterm_contributor']["contributorName"][$iCont] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+		        $iCont++;
+	        }
+        }        
+
+        if(isset($results['dcterm_isPartOf'])) {
+			$results["dcterm_isPartOf"]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($results["dcterm_isPartOf"]["value"][0]);
+        }  
+
+        if(isset($results['fedora_created'])) {
+			$creationdate = $results["fedora_created"]["value"][0];
+			$creationdate = $creationdate->__toString();
+			$creationdate = strtotime($creationdate);
+			$creationdate = date('F jS, Y',$creationdate);
+			$results["fedora_created"]["value"]["creationDate"] = $creationdate;
+        }          
                 
         $editResData = array(
             "editUrl" => $this->OeawFunctions->createDetailsUrl($uri, 'encode'),
@@ -495,6 +515,7 @@ class FrontendController extends ControllerBase {
         if(empty($results["hasBinary"])){
             $results["hasBinary"] = "";
         }
+        
         
 
         $datatable = array(
@@ -511,6 +532,10 @@ class FrontendController extends ControllerBase {
                 ]
             ]
         );
+
+        //var_dump($datatable);
+        //die();
+
                 
         return $datatable;        
     }

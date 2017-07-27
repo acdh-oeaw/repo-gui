@@ -3,7 +3,7 @@
 function oeaw_theme() {
   $theme['oeaw_detail_dt'] = [
     'variables' => ['result' => NULL, 'childResult' => NULL, 'editResData' => NULL, 'userid' => NULL, 'hasBinary' => NULL, 'errorMSG' => null, 'query' => null],
-    'template' => 'dtDetail',
+    'template' => 'resDetail',
   ];  
   
   $theme['oeaw_root_dt'] = [

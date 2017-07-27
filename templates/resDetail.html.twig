@@ -1,0 +1,79 @@
+{% if errorMSG %}
+    {{ errorMSG }}
+{% else %}
+
+	<h2>Overview</h2> 
+
+	{% if result['dc_title'] %}
+        <div class="res-property">
+        	<i class="material-icons">&#xE873;</i>                                         
+			{% for value in result['dc_title'].value %}
+        		<span class="res-title">{{ value }}</span>	
+			{% endfor %}
+		</div>
+	{% endif%} 
+	
+	{% if result['dcterm_contributor'] %}
+        <div class="res-property">
+        	<i class="material-icons">&#xE7FB;</i> 
+        	{% for name in result['dcterm_contributor'].contributorName %}                                        
+        		<span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['dcterm_contributor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
+        	{% endfor %}	
+		</div>
+	{% endif%}		
+
+	{% if result['fedora_created'] %}
+        <div class="res-property">
+        	<i class="material-icons">&#xE8DF;</i>	
+        	<span class="res-creationdate">{{ result['fedora_created'].value.creationDate }}</span>
+        </div>
+    {% endif%}	
+
+
+
+	{% if result['dcterm_isPartOf'] %}
+        <div class="res-property">
+        	<i class="material-icons">&#xE335;</i>	
+        	<span class="res-ispartof">Part of: <a href="/oeaw_detail/{{ result['dcterm_isPartOf'].inside_url.0 }}">{{ result['dcterm_isPartOf'].isPartOfTitle }}</a></span>
+        </div>
+    {% endif%}	
+
+
+
+    {% if result['dcterm_description'] %}
+    	<h2 class="single-res-heading">Summary</h2>
+    
+        <div class="res-property">
+        	<i class="material-icons">&#xE88F;</i>
+        	{% for value in result['dcterm_description'].value %}	
+	        	<span class="res-description">{{ value }}</span>
+	        {% endfor %}	
+        </div>
+                            
+    {% endif%}
+
+
+    {% if result['dcterm_contributor'] %}
+    	<h2 class="single-res-heading">About the Author(s)</h2>
+		
+		{% for name in result['dcterm_contributor'].contributorName %}
+	        <div class="res-property">
+	        	<i class="material-icons">&#xE7FB;</i>
+		        <span class="res-contributor">{{ name }}</span>	
+	        </div>
+         {% endfor %}                   
+    {% endif%}
+
+
+    
+    	<h2 class="single-res-heading">Access Data</h2>
+		
+
+    	<h2 class="single-res-heading">Cite Resource</h2>
+
+
+		<h2 class="single-res-heading">Child Resources</h2>
+
+	
+	                                        
+{% endif%}

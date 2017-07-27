@@ -478,16 +478,17 @@ class OeawFunctions {
                                 $resValTitle = $this->getTitleByTheFedIdNameSpace($resVal);
                                 //we have a title for the resource
                                 if($resValTitle){
-                                    $results[$i]["val_title"][] = $resValTitle;
+                                    $results["val_title"]["value"][] = $resValTitle;
                                 }
                             }
                             //itt a query
-                            
-                            $results[$i]["value"][] = $resVal;                            
-                            $results[$i]["property"] = $this->createPrefixesFromString($v);
+                            $property = $this->createPrefixesFromString($v);
+                            $property = str_replace(":","_",$property);
+                            $results[$property]["value"][] = $resVal;                            
+                           
                             //create the HASH URL for the table value
                             if($this->getFedoraUrlHash($resVal)){
-                                $results[$i]["inside_url"][] = $this->getFedoraUrlHash($resVal);
+                                $results[$property]["inside_url"][] = $this->getFedoraUrlHash($resVal);
                             }
                         }
                         
@@ -506,14 +507,16 @@ class OeawFunctions {
                             $results['queryType'] = $item->__toString();
                         }
                         
-                        $results[$i]["property"] = $this->createPrefixesFromString($v);
-                        $results[$i]["value"][] = $item->__toString();
+                        $property = $this->createPrefixesFromString($v);
+                        $property = str_replace(":","_",$property);
+                        $results[$property]["value"][] = $item->__toString();
                     }else {
                         if($this->createPrefixesFromString($v) === false){
                             return drupal_set_message(t('Error in function: createPrefixesFromString'), 'error');
                         }
-                        $results[$i]["property"] = $this->createPrefixesFromString($v);
-                        $results[$i]["value"][] = $item;
+                        $property = $this->createPrefixesFromString($v);
+                        $property = str_replace(":","_",$property);
+                        $results[$property]["value"][] = $item;
                         
                     }
                 }
