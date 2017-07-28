@@ -4,6 +4,12 @@
 
 	<h3 class="single-res-heading">Overview</h3> 
 
+    <div style="float:right; width: 50%; max-height:100px; ">
+        {% if result['image'] %}
+            <a href="{{ result['image'] }}"><img src="{{ result['image'] }}" height="80px;"></a>
+        {% endif %}
+    </div> 
+
 	{% if result['dc_title'] %}
         <div class="res-property">
         	<i class="material-icons">&#xE873;</i>                                         
@@ -65,7 +71,53 @@
     {% endif%}
 
     
-	<h3 class="single-res-heading">Access Data</h3>
+	<h3 class="single-res-heading">Access Data (Dummy)</h3>
+
+    <div class="res-property">
+    	<i class="fa fa-file-pdf-o" aria-hidden="true"></i>	
+        <span class="res-file">Dowload resource as PDF</span>	
+    </div>
+
+    <div class="res-property">
+    	<i class="fa fa-file-archive-o" aria-hidden="true"></i>	
+        <span class="res-file">Dowload resource as ZIP</span>	
+    </div>
+    
+    <div class="res-property">
+    	<i class="fa fa-file-text-o" aria-hidden="true"></i>	
+        <span class="res-file">Dowload resource as Text</span>	
+    </div>    	
+
+    <div class="res-property">
+    	<i class="fa fa-file-image-o" aria-hidden="true"></i>	
+        <span class="res-file">Dowload resource as Image</span>	
+    </div> 
+
+    <div class="res-property">
+    	<i class="fa fa-file-video-o" aria-hidden="true"></i>	
+        <span class="res-file">Dowload resource as Video</span>	
+    </div> 
+
+    <div class="res-property">
+    	<i class="fa fa-file-code-o" aria-hidden="true"></i>	
+        <span class="res-file">Dowload resource as Code</span>	
+    </div> 
+
+    <div class="res-property">
+    	<i class="fa fa-file-word-o" aria-hidden="true"></i>	
+        <span class="res-file">Dowload resource as Word Doc.</span>	
+    </div> 
+
+    <div class="res-property">
+    	<i class="fa fa-file-excel-o" aria-hidden="true"></i>	
+        <span class="res-file">Dowload resource as Excel Doc.</span>	
+    </div> 
+
+    <div class="res-property">
+    	<i class="fa fa-file-o" aria-hidden="true"></i>	
+        <span class="res-file">Dowload resource as File</span>	
+    </div> 
+
 	
 
 	<h3 class="single-res-heading">Cite Resource</h3>
@@ -73,6 +125,13 @@
 	<div class="cite-selector">
 		<div class="cite-style selected">BibTeX</div>
 		<div class="cite-style">AMA</div>
+		<div class="cite-style">APA</div>
+		<div class="cite-style">Frontiers</div>
+		<div class="cite-style">Harvard</div>
+		<div class="cite-style">IEEE</div>
+		<div class="cite-style">LNCS</div>
+		<div class="cite-style">MLA</div>
+		<div class="cite-style">RIS</div>
 	</div>	
 
 	<div class="bd-clipboard"><span class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span></div>
@@ -88,7 +147,7 @@
   title    = { {{ result['dc_title'].value.0 }} }, 
 {% endif%}
 {% if result['fedora_created'] %}
-  year     = { {{ result['fedora_created'].value.creationDate }} }, 
+  year     = { {{ result['fedora_created'].value.creationYear }} }, 
 {% endif%}
 }
 </code>
@@ -98,24 +157,58 @@
 
 	<h3 class="single-res-heading">Child Resources</h3>
 
-    {% for cItem in childResult %}
-        <tr data-resourceid="{{ cItem.delete }}">
-            <td  width="70px">
-                <center>
-                {% if cItem.thumbnail != ""  %}
-                    <a href="{{ cItem.thumbnail }}" data-lightbox="{{ cItem.title }}" data-title="{{ cItem.title }}"><img src="{{ cItem.thumbnail }}" height="50px;"></a>
-                {% endif %}
+			{% for cItem in childResult %}
+				<div class="child-res">
+				
+			        <div class="res-property">
+			        	<i class="material-icons">&#xE873;</i>
+			        	<a href="{{ cItem.detail }}">                                         
+			        		<span class="res-title">{{ cItem.title }}</span>
+			        	</a>		
+					</div>				
 
-                {% if cItem.image != ""  %}
-                    <a href="{{ cItem.image }}" data-lightbox="{{ cItem.title }}" data-title="{{ cItem.title }}"><img src="{{ cItem.image }}" height="50px;"></a>
-                {% endif %}
-                </center>
-            </td>
-            <td>
-                <a href="{{ cItem.detail }}">{{ cItem.title }}</a>
-            </td>                
-        </tr>
-    {% endfor %}
-	
+
+		            <div class="res-property">
+		            	<i class="material-icons">&#xE54E;</i>
+		            	<a href="{{ cItem.rdfTypeUri }}">
+		            		<span class="res-rdftype">{{ cItem.rdfType }}</span>
+		            	</a>
+		            </div>
+
+		            {% if cItem.description %}
+			            <div class="res-property res-property-desc">
+			            	<i class="material-icons">&#xE88F;</i>	
+			            	<span class="res-description">{{ cItem.description }}</span>
+			            </div>            
+		            {% endif%}
+
+
+		            <div class="res-actions">
+		            
+		            	{% if cItem.description %}
+			            	<div class="res-act-button res-act-button-summary closed">
+			            		<i class="material-icons">&#xE145;</i>
+			            		<span>Show Summary</span>
+			            	</div>
+		            	{% endif%}
+		            	
+		            	<div class="res-act-button">
+		            		<a href="{{ cItem.detail }}">
+			            		<i class="material-icons">&#xE873;</i>
+			            		<span>Detailed View</span>
+			            	</a>	
+		            	</div>
+		            	
+		            	<div class="res-act-button">
+		            		<i class="material-icons">&#xE885;</i>
+		            		<span>Add To Favorites</span>
+		            	</div>            	
+		            </div>	
+
+				</div>
+			{% endfor %}
+
+	</table>
+
 	                                        
 {% endif%}

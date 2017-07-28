@@ -503,8 +503,10 @@ class FrontendController extends ControllerBase {
 			$creationdate = $results["fedora_created"]["value"][0];
 			$creationdate = $creationdate->__toString();
 			$creationdate = strtotime($creationdate);
-			$creationdate = date('F jS, Y',$creationdate);
-			$results["fedora_created"]["value"]["creationDate"] = $creationdate;
+			$creationdatefull = date('F jS, Y',$creationdate);
+			$results["fedora_created"]["value"]["creationDate"] = $creationdatefull;
+			$creationyear = date('Y',$creationdate);
+			$results["fedora_created"]["value"]["creationYear"] = $creationyear;
         }          
                 
         $editResData = array(
@@ -623,12 +625,7 @@ class FrontendController extends ControllerBase {
 					}
 			
 					$rdfType = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
-					if (isset($rdfType) && $rdfType) {
-						//$result[$i]["rdfType"] = $rdfType->getGraph();
-						//$rdfType = $rdfType->dumpValue();
-						//var_dump($rdfType);
-						//die();
-						
+					if (isset($rdfType) && $rdfType) {						
 						foreach ($rdfType as $type) {
 			                if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
 								$result[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
