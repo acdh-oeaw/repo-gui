@@ -3,47 +3,53 @@
 {% else %}
 
 	<h3 class="single-res-heading">Overview</h3> 
+    
+    {% if result['image'] %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  
 
-    <div style="float:right; width: 50%; max-height:100px; ">
-        {% if result['image'] %}
-            <a href="{{ result['image'] }}"><img src="{{ result['image'] }}" height="80px;"></a>
-        {% endif %}
-    </div> 
-
-	{% if result['dc_title'] %}
-        <div class="res-property">
-        	<i class="material-icons">&#xE873;</i>                                         
-			{% for value in result['dc_title'].value %}
-        		<span class="res-title">{{ value }}</span>	
-			{% endfor %}
-		</div>
-	{% endif%} 
+		{% if result['dc_title'] %}
+	        <div class="res-property">
+	        	<i class="material-icons">&#xE873;</i>                                         
+				{% for value in result['dc_title'].value %}
+	        		<span class="res-title">{{ value }}</span>	
+				{% endfor %}
+			</div>
+		{% endif%} 
+		
+		{% if result['dcterm_contributor'] %}
+	        <div class="res-property">
+	        	<i class="material-icons">&#xE7FB;</i> 
+	        	{% for name in result['dcterm_contributor'].contributorName %}                                        
+	        		<span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['dcterm_contributor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
+	        	{% endfor %}	
+			</div>
+		{% endif%}		
 	
-	{% if result['dcterm_contributor'] %}
-        <div class="res-property">
-        	<i class="material-icons">&#xE7FB;</i> 
-        	{% for name in result['dcterm_contributor'].contributorName %}                                        
-        		<span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['dcterm_contributor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
-        	{% endfor %}	
+		{% if result['fedora_created'] %}
+	        <div class="res-property">
+	        	<i class="material-icons">&#xE8DF;</i>	
+	        	<span class="res-creationdate">{{ result['fedora_created'].value.creationDate }}</span>
+	        </div>
+	    {% endif%}	
+	
+	
+	
+		{% if result['dcterm_isPartOf'] %}
+	        <div class="res-property">
+	        	<i class="material-icons">&#xE335;</i>	
+	        	<span class="res-ispartof">Part of: <a href="/oeaw_detail/{{ result['dcterm_isPartOf'].inside_url.0 }}">{{ result['dcterm_isPartOf'].isPartOfTitle }}</a></span>
+	        </div>
+	    {% endif%}	
+
+	{% if result['image'] %}</div>{% endif%}
+	
+	{% if result['image'] %}	
+		<div class="res-inside-wrap col-lg-6 ">	
+		    <div class="single-res-thumb">
+		        <a href="{{ result['image'] }}"><img src="{{ result['image'] }}"></a>
+		    </div>
+		    <span class="res-thumb-info">Thumbnail of {{ result['dc_title'].value.0 }}</span>
 		</div>
-	{% endif%}		
-
-	{% if result['fedora_created'] %}
-        <div class="res-property">
-        	<i class="material-icons">&#xE8DF;</i>	
-        	<span class="res-creationdate">{{ result['fedora_created'].value.creationDate }}</span>
-        </div>
-    {% endif%}	
-
-
-
-	{% if result['dcterm_isPartOf'] %}
-        <div class="res-property">
-        	<i class="material-icons">&#xE335;</i>	
-        	<span class="res-ispartof">Part of: <a href="/oeaw_detail/{{ result['dcterm_isPartOf'].inside_url.0 }}">{{ result['dcterm_isPartOf'].isPartOfTitle }}</a></span>
-        </div>
-    {% endif%}	
-
+	{% endif%}	
 
 
     {% if result['dcterm_description'] %}
