@@ -3,7 +3,10 @@ jQuery.noConflict(true);
 jq2(function( $ ) {
     
        var table = jq2('table.display').DataTable({
-            "pageLength": 25
+            //"pageLength": 25
+            searching: false,
+            "info": false,
+            paging: false
         });
         
         

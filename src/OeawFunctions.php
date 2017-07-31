@@ -496,12 +496,13 @@ class OeawFunctions {
                             }
                             //itt a query
                             $property = $this->createPrefixesFromString($v);
-                            $property = str_replace(":","_",$property);
-                            $results[$property]["value"][] = $resVal;                            
+                            $propertyRep = str_replace(":","_",$property);
+                            $results[$propertyRep]["property"] = $property;
+                            $results[$propertyRep]["value"][] = $resVal;                            
                            
                             //create the HASH URL for the table value
                             if($this->getFedoraUrlHash($resVal)){
-                                $results[$property]["inside_url"][] = $this->getFedoraUrlHash($resVal);
+                                $results[$propertyRep]["inside_url"][] = $this->getFedoraUrlHash($resVal);
                             }
                         }
                         
@@ -521,15 +522,17 @@ class OeawFunctions {
                         }
                         
                         $property = $this->createPrefixesFromString($v);
-                        $property = str_replace(":","_",$property);
-                        $results[$property]["value"][] = $item->__toString();
+                        $propertyRep = str_replace(":","_",$property);
+                        $results[$propertyRep]["property"] = $property;
+                        $results[$propertyRep]["value"][] = $item->__toString();
                     }else {
                         if($this->createPrefixesFromString($v) === false){
                             return drupal_set_message(t('Error in function: createPrefixesFromString'), 'error');
                         }
                         $property = $this->createPrefixesFromString($v);
-                        $property = str_replace(":","_",$property);
-                        $results[$property]["value"][] = $item;
+                        $propertyRep = str_replace(":","_",$property);
+                        $results[$propertyRep]["property"] = $property;
+                        $results[$propertyRep]["value"][] = $item;
                         
                     }
                 }

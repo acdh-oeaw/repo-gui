@@ -2,10 +2,20 @@
     {{ errorMSG }}
 {% else %}
 
-	<h3 class="single-res-heading">Overview</h3> 
-    
-    {% if result['image'] %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  
+	<h3 class="single-res-heading">
+		Overview
 
+    	<div class="res-act-button res-act-button-expertview basic">
+    		<i class="material-icons">&#xE896;</i>
+    		<span>Switch to Expert-View</span>
+    	</div>            	
+	
+	
+	</h3> 
+    
+    <div class="single-res-overview single-res-overview-basic">
+	    {% if result['image'] %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  
+	
 		{% if result['dc_title'] %}
 	        <div class="res-property">
 	        	<i class="material-icons">&#xE873;</i>                                         
@@ -39,17 +49,87 @@
 	        	<span class="res-ispartof">Part of: <a href="/oeaw_detail/{{ result['dcterm_isPartOf'].inside_url.0 }}">{{ result['dcterm_isPartOf'].isPartOfTitle }}</a></span>
 	        </div>
 	    {% endif%}	
-
-	{% if result['image'] %}</div>{% endif%}
 	
-	{% if result['image'] %}	
-		<div class="res-inside-wrap col-lg-6 ">	
-		    <div class="single-res-thumb">
-		        <a href="{{ result['image'] }}"><img src="{{ result['image'] }}"></a>
-		    </div>
-		    <span class="res-thumb-info">Thumbnail of {{ result['dc_title'].value.0 }}</span>
-		</div>
-	{% endif%}	
+		{% if result['image'] %}</div>{% endif%}
+		
+		{% if result['image'] %}	
+			<div class="res-inside-wrap col-lg-6 ">	
+			    <div class="single-res-thumb">
+			        <a href="{{ result['image'] }}"><img src="{{ result['image'] }}"></a>
+			    </div>
+			    <span class="res-thumb-info">Thumbnail of {{ result['dc_title'].value.0 }}</span>
+			</div>
+		{% endif%}
+	</div>
+	
+	
+	<div class="single-res-overview single-res-overview-expert">
+		
+	    <table class="display table table-striped" cellspacing="0" width="100%">
+	       <thead>
+	            <tr>
+	                <th>Property</th>           
+	                <th>Value(s)</th>            
+	            </tr>
+	        </thead>
+	        <tbody>  
+	                {% for item in result %}
+	                    {%  if item.property != "" %}    
+	                    <tr data-resourceid="{{ item.delete }}">
+	                        <td>{{ item.property }}</td>
+	                        <td>
+	                            
+	                            {% if item.inside_url is iterable %}
+	                                {% set counter = 0 %}
+	                                                                
+	                                {% for key, inside_url in item.inside_url %}
+	                                    {% set counter = counter + 1 %}
+	                                    <a href="{{ inside_url }}" target="_blank">
+	                                        {% if item.property == "dcterm:identifier" %}                                            
+	                                            {{  item.value[key] }}
+	                                        {% else %}                                            
+	                                            {% if item.val_title[key] %}
+	                                                {{ item.val_title[key] }}
+	                                                <br>
+	                                            {% else %}
+	                                                {{ item.value[key] }}
+	                                                <br>
+	                                            {% endif %}
+	                                        {% endif %}    
+	                                    </a>
+	                                {% endfor %}
+	                                
+	                            {% else %}
+	                                {% if item.value is iterable %}
+	                                
+	                                    {% for value in item.value %}
+	                                        {% if 'http' in value %}
+	                                            <a href="{{ value }}" target="_blank">{{ value }}</a>
+	                                        {% else %}
+	                                            {{ value }}
+	                                        {% endif %}
+	                                        <br>
+	                                   {% endfor %}
+	
+	                                {% else %}                                    
+	                                    {% if 'http' in item.value %}
+	                                        <a href="{{ item.value }}" target="_blank">{{ item.value }}</a>
+	                                    {% else %}
+	                                        {{ item.value }}
+	                                    {% endif %}
+	
+	                                {% endif %}  
+	                            {% endif %}
+	                                
+	                                                      
+	                        </td>
+	                    </tr>
+	                    {% endif %}
+	            {% endfor %}                                          
+	        </tbody>        
+	    </table>
+ 
+	</div>	
 
 
     {% if result['dcterm_description'] %}
@@ -71,11 +151,11 @@
 		{% for name in result['dcterm_contributor'].contributorName %}
 	        <div class="res-property">
 	        	<i class="material-icons">&#xE7FB;</i>
-		        <span class="res-contributor">{{ name }}</span>	
+		        <span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['dcterm_contributor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
 	        </div>
          {% endfor %}                   
     {% endif%}
-
+ 
     
 	<h3 class="single-res-heading">Access Data (Dummy)</h3>
 
@@ -160,7 +240,7 @@
 </pre>
 </figure>
 
-
+	{% if childResult %}
 	<h3 class="single-res-heading">Child Resources</h3>
 
 			{% for cItem in childResult %}
@@ -214,7 +294,7 @@
 				</div>
 			{% endfor %}
 
-	</table>
+	{% endif%}
 
 	                                        
 {% endif%}
