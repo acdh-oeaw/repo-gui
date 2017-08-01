@@ -25,6 +25,13 @@
 			</div>
 		{% endif%} 
 		
+		{% if extras['rdfType'] %}
+            <div class="res-property">
+            	<i class="material-icons">&#xE54E;</i>
+            	<span class="res-rdftype"><a href="{{ extras['rdfTypeUri'] }}">{{ extras['rdfType'] }}</a></span>
+            </div>
+        {% endif%}		
+		
 		{% if result['dcterm_contributor'] %}
 	        <div class="res-property">
 	        	<i class="material-icons">&#xE7FB;</i> 
@@ -34,10 +41,10 @@
 			</div>
 		{% endif%}		
 	
-		{% if result['fedora_created'] %}
+		{% if extras['fedora_created'] %}
 	        <div class="res-property">
 	        	<i class="material-icons">&#xE8DF;</i>	
-	        	<span class="res-creationdate">{{ result['fedora_created'].value.creationDate }}</span>
+	        	<span class="res-creationdate">{{ extras['fedora_created'].value.creationDate }}</span>
 	        </div>
 	    {% endif%}	
 	
@@ -153,7 +160,7 @@
 	        	<div class="res-act-button">
 		        	<a href="/oeaw_query/{{ query }}">
 		        		<i class="material-icons">&#xE53B;</i>
-		        		<span>Query</span>
+		        		<span>View Query Result</span>
 		        	</a>	
 	        	</div>
 	        {% endif %}	            	
@@ -261,8 +268,8 @@
 {% if result['dc_title'] %}
   title    = { {{ result['dc_title'].value.0 }} }, 
 {% endif%}
-{% if result['fedora_created'] %}
-  year     = { {{ result['fedora_created'].value.creationYear }} }, 
+{% if extras['fedora_created'] %}
+  year     = { {{ extras['fedora_created'].value.creationYear }} }, 
 {% endif%}
 }
 </code>

@@ -504,9 +504,9 @@ class FrontendController extends ControllerBase {
 			$creationdate = $creationdate->__toString();
 			$creationdate = strtotime($creationdate);
 			$creationdatefull = date('F jS, Y',$creationdate);
-			$results["fedora_created"]["value"]["creationDate"] = $creationdatefull;
+			$extras["fedora_created"]["value"]["creationDate"] = $creationdatefull;
 			$creationyear = date('Y',$creationdate);
-			$results["fedora_created"]["value"]["creationYear"] = $creationyear;
+			$extras["fedora_created"]["value"]["creationYear"] = $creationyear;
         }          
                 
         $editResData = array(
@@ -517,12 +517,23 @@ class FrontendController extends ControllerBase {
         if(empty($results["hasBinary"])){
             $results["hasBinary"] = "";
         }
-        
-        
+
+        if(isset($results['rdf_type']['value'])) {
+	        foreach ($results['rdf_type']['value'] as $rdfMatch) {		        
+	            if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfMatch)) {          	            
+							$extras["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfMatch)[1]; 						
+							$extras["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$extras["rdfType"]);
+							$extras["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $extras["rdfType"]); 
+							break;            	   
+	            }		        	        
+	        }	        
+	        
+        }  
 
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,
+            '#extras' => $extras,
             '#userid' => $uid,
             '#query' => $query,
             '#hasBinary' => $results["hasBinary"],
