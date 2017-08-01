@@ -131,6 +131,35 @@
  
 	</div>	
 
+	{% if userid != 0  %} 
+        <div class="res-actions">
+
+        	<div class="res-act-button">
+        		<a href="/oeaw_edit/{{ editResData.editUrl }}">
+	        		<i class="material-icons">&#xE254;</i>
+	        		<span>Edit Resource</span>
+	        	</a>	
+        	</div>
+
+        	
+        	<div class="res-act-button">
+            	<a href="/#" id="delete-root" data-resourceid="{{ editResData.editUrl }}" class="use-ajax" data-dialog-type="modal">
+            		<i class="material-icons">&#xE872;</i>
+					<span>Delete Resource</span>
+            	</a>        		
+        	</div>
+        	
+        	{% if query %}
+	        	<div class="res-act-button">
+		        	<a href="/oeaw_query/{{ query }}">
+		        		<i class="material-icons">&#xE53B;</i>
+		        		<span>Query</span>
+		        	</a>	
+	        	</div>
+	        {% endif %}	            	
+        </div>
+	{% endif %}	
+
 
     {% if result['dcterm_description'] %}
     	<h3 class="single-res-heading">Summary</h3>
