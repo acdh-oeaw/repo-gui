@@ -93,13 +93,43 @@ class OeawStorage {
             $q = new Query();
             $q->addParameter(new HasTriple('?uri', $dcTitle, '?title'));    
             $q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Project' ))->setSubVar('?uri'));
+            
             $q2 = new Query();
             $q2->addParameter(new HasTriple('?uri', $isPartOf, '?y'));
             $q2->setJoinClause('filter not exists');
-            $q->addSubquery($q2);            
-            $q->setSelect(array('?uri', '?title'));
+            $q->addSubquery($q2);    
+        
+            $q3 = new Query();
+            $q3->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'));
+            $q3->setJoinClause('optional');
+            $q->addSubquery($q3);                        
+
+            $q4 = new Query();
+            $q4->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'));
+            $q4->setJoinClause('optional');
+            $q->addSubquery($q4); 
+
+            $q5 = new Query();
+            $q5->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'));
+            $q5->setJoinClause('optional');
+            $q->addSubquery($q5);
+
+            $q6 = new Query();
+            $q6->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'));
+            $q6->setJoinClause('optional');
+            $q->addSubquery($q6);   
+
+	        $q7 = new Query();
+	        $q7->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'));
+            $q7->setJoinClause('optional');
+            $q->addSubquery($q7);
+
+                  
+            $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?rdfType'));           
             $q->setOrderBy(array('UCASE(str(?title))'));
             $query= $q->getQuery();
+            //var_dump($query);
+            //die();
             
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
@@ -260,8 +290,35 @@ class OeawStorage {
             $q4 = new Query();
             $q4->addParameter((new HasTriple('?uri', $foafName, '?name')));
             $q4->setJoinClause('optional');
-            $q->addSubquery($q4);            
-            $q->setSelect(array('?uri', '?title', '?label', '?name'));
+            $q->addSubquery($q4);
+         
+            $q5 = new Query();
+            $q5->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'));
+            $q5->setJoinClause('optional');
+            $q->addSubquery($q5);                        
+
+            $q6 = new Query();
+            $q6->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'));
+            $q6->setJoinClause('optional');
+            $q->addSubquery($q6); 
+
+            $q7 = new Query();
+            $q7->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'));
+            $q7->setJoinClause('optional');
+            $q->addSubquery($q7);
+            
+            $q8 = new Query();
+            $q8->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'));
+            $q8->setJoinClause('optional');
+            $q->addSubquery($q8);
+            
+            $q9 = new Query();
+	        $q9->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'));
+            $q9->setJoinClause('optional');
+            $q->addSubquery($q9);
+                        
+                
+            $q->setSelect(array('?uri', '?title', '?label', '?name', '?description', '?contributor', '?creationdate', '?isPartOf', '?rdfType'));
             $query = $q->getQuery();
             
             $result = $this->fedora->runSparql($query);

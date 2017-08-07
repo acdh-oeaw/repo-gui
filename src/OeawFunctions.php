@@ -379,7 +379,20 @@ class OeawFunctions {
         
         foreach($data as $r){
             $childResult[$i]['uri']= $r->getUri();                
-            $childResult[$i]['title']= $r->getMetadata()->label();
+            $childResult[$i]['title']= $r->getMetadata()->label();    
+  			$childResult[$i]['description'] = $r->getMetadata()->get(\Drupal\oeaw\ConnData::$description);			
+			$rdfType = $r->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
+			if (isset($rdfType) && $rdfType) {						
+				foreach ($rdfType as $type) {
+	                if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
+						$childResult[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
+						$childResult[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$childResult[$i]["rdfType"]);
+						//Add a space between capital letters
+						$childResult[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $childResult[$i]["rdfType"]);
+						break;
+					}	 	
+		        }  						
+			}
                 
             $imageThumbnail = $r->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
             $imageRdfType = $r->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
@@ -453,13 +466,13 @@ class OeawFunctions {
                         if($item){                                                    
                             $imgData = $OeawStorage->getImage($item);
                             if($imgData){                                
-                                $results[$i]["image"] = $imgData;
+                                $results["image"] = $imgData;
                             }
                         }
                     }else if($v == \Drupal\oeaw\ConnData::$rdfType){
                         if($item == \Drupal\oeaw\ConnData::$imageProperty){
                             $hasImage = $uri;
-                            $results[$i]["image"] = $uri;
+                            $results["image"] = $uri;
                         }
                     }
                     
@@ -478,16 +491,18 @@ class OeawFunctions {
                                 $resValTitle = $this->getTitleByTheFedIdNameSpace($resVal);
                                 //we have a title for the resource
                                 if($resValTitle){
-                                    $results[$i]["val_title"][] = $resValTitle;
+                                    $results["val_title"]["value"][] = $resValTitle;
                                 }
                             }
                             //itt a query
-                            
-                            $results[$i]["value"][] = $resVal;                            
-                            $results[$i]["property"] = $this->createPrefixesFromString($v);
+                            $property = $this->createPrefixesFromString($v);
+                            $propertyRep = str_replace(":","_",$property);
+                            $results[$propertyRep]["property"] = $property;
+                            $results[$propertyRep]["value"][] = $resVal;                            
+                           
                             //create the HASH URL for the table value
                             if($this->getFedoraUrlHash($resVal)){
-                                $results[$i]["inside_url"][] = $this->getFedoraUrlHash($resVal);
+                                $results[$propertyRep]["inside_url"][] = $this->getFedoraUrlHash($resVal);
                             }
                         }
                         
@@ -506,14 +521,18 @@ class OeawFunctions {
                             $results['queryType'] = $item->__toString();
                         }
                         
-                        $results[$i]["property"] = $this->createPrefixesFromString($v);
-                        $results[$i]["value"][] = $item->__toString();
+                        $property = $this->createPrefixesFromString($v);
+                        $propertyRep = str_replace(":","_",$property);
+                        $results[$propertyRep]["property"] = $property;
+                        $results[$propertyRep]["value"][] = $item->__toString();
                     }else {
                         if($this->createPrefixesFromString($v) === false){
                             return drupal_set_message(t('Error in function: createPrefixesFromString'), 'error');
                         }
-                        $results[$i]["property"] = $this->createPrefixesFromString($v);
-                        $results[$i]["value"][] = $item;
+                        $property = $this->createPrefixesFromString($v);
+                        $propertyRep = str_replace(":","_",$property);
+                        $results[$propertyRep]["property"] = $property;
+                        $results[$propertyRep]["value"][] = $item;
                         
                     }
                 }

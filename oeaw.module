@@ -2,8 +2,8 @@
 
 function oeaw_theme() {
   $theme['oeaw_detail_dt'] = [
-    'variables' => ['result' => NULL, 'childResult' => NULL, 'editResData' => NULL, 'userid' => NULL, 'hasBinary' => NULL, 'errorMSG' => null, 'query' => null],
-    'template' => 'dtDetail',
+    'variables' => ['result' => NULL, 'extras' => NULL, 'childResult' => NULL, 'editResData' => NULL, 'userid' => NULL, 'hasBinary' => NULL, 'errorMSG' => null, 'query' => null],
+    'template' => 'resDetail',
   ];  
   
   $theme['oeaw_root_dt'] = [
@@ -20,6 +20,11 @@ function oeaw_theme() {
     'variables' => ['result' => NULL, 'userid' => NULL, 'errorMSG' => null],
     'template' => 'success_res',
   ];
+  
+  $theme['oeaw_keyword_search_res'] = [
+    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null],
+    'template' => 'keyword_search_res',
+  ]; 
   
   $theme['oeaw_query'] = [
     'variables' => ['result' => NULL, 'header' => NULL, 'userid' => NULL, 'errorMSG' => null],
@@ -63,5 +68,4 @@ function oeaw_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     return $form;
 
 }
-
 
