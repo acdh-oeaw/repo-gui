@@ -38,6 +38,13 @@ oeaw_delete:
     _role: 'authenticated+admin'
     _access: 'TRUE'
 
+oeaw_keywordsearch:
+  path: '/oeaw_keywordsearch/{metavalue}'
+  defaults:
+    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_keywordsearch'
+  requirements:
+    _permission: 'access content'
+    _access: 'TRUE'
         
 oeaw_resources:
   path: '/oeaw_resources/{metakey}/{metavalue}'
@@ -139,45 +146,49 @@ oeaw_form_success:
     _access: 'TRUE'
 
 oeaw_depagree_base:
-  path: '/oeaw_depagree_base'
+  path: '/oeaw_depagree_base/{formid}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_depagree_base'
+    formid: 'new'
   requirements:
     _permission: 'access content'
     _access: 'TRUE'
     
 oeaw_depagree_one:
-  path: '/oeaw_depagree_one'
+  path: '/oeaw_depagree_one/{formid}'
   defaults:
     _form: '\Drupal\oeaw\Form\DepAgreeOneForm'
     _title: 'Deposition agreement, Step 1'
+    formid: 'new'
   requirements:
-    _permission: 'access content'
-    _access: 'TRUE'
+    _permission: 'access content'    
     
 oeaw_depagree_two:
-  path: '/oeaw_depagree_two'
+  path: '/oeaw_depagree_two/{formid}'
   defaults:
     _form: '\Drupal\oeaw\Form\DepAgreeTwoForm'
     _title: 'Deposition agreement, Step 2'
+    formid: 'new'
   requirements:
     _permission: 'access content'
     _access: 'TRUE'
 
 oeaw_depagree_three:
-  path: '/oeaw_depagree_three'
+  path: '/oeaw_depagree_three/{formid}'
   defaults:
     _form: '\Drupal\oeaw\Form\DepAgreeThreeForm'
     _title: 'Deposition agreement, Step 3'
+    formid: 'new'
   requirements:
     _permission: 'access content'
     _access: 'TRUE'
 
 oeaw_depagree_four:
-  path: '/oeaw_depagree_four'
+  path: '/oeaw_depagree_four/{formid}'
   defaults:
     _form: '\Drupal\oeaw\Form\DepAgreeFourForm'
     _title: 'Deposition agreement, Step 4'
+    formid: 'new'
   requirements:
     _permission: 'access content'
     _access: 'TRUE'
