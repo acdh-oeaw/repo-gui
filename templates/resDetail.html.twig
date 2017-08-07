@@ -91,7 +91,7 @@
 	                                                                
 	                                {% for key, inside_url in item.inside_url %}
 	                                    {% set counter = counter + 1 %}
-	                                    <a href="{{ inside_url }}" target="_blank">
+	                                    <a href="{{ inside_url }}">
 	                                        {% if item.property == "dcterm:identifier" %}                                            
 	                                            {{  item.value[key] }}
 	                                        {% else %}                                            
@@ -111,7 +111,7 @@
 	                                
 	                                    {% for value in item.value %}
 	                                        {% if 'http' in value %}
-	                                            <a href="{{ value }}" target="_blank">{{ value }}</a>
+	                                            <a href="{{ value }}">{{ value }}</a>
 	                                        {% else %}
 	                                            {{ value }}
 	                                        {% endif %}
@@ -120,7 +120,7 @@
 	
 	                                {% else %}                                    
 	                                    {% if 'http' in item.value %}
-	                                        <a href="{{ item.value }}" target="_blank">{{ item.value }}</a>
+	                                        <a href="{{ item.value }}">{{ item.value }}</a>
 	                                    {% else %}
 	                                        {{ item.value }}
 	                                    {% endif %}
@@ -342,10 +342,12 @@
 			            	</a>	
 		            	</div>
 		            	
+		            	<!--
 		            	<div class="res-act-button">
 		            		<i class="material-icons">&#xE885;</i>
 		            		<span>Add To Favorites</span>
-		            	</div>            	
+		            	</div>
+		            	-->           	
 		            </div>	
 
 				</div>
