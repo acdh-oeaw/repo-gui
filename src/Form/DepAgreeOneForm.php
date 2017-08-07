@@ -2,24 +2,95 @@
 
 namespace Drupal\oeaw\Form;
 
-
+use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
 
 class DepAgreeOneForm extends DepAgreeBaseForm{
+    
+    private $formData = array();
     
     public function getFormId() {
         return 'depagree_form';
     }
     
-    
-    
-    public function buildForm(array $form, FormStateInterface $form_state) {
+    private function getFormFromDB(string $repoid):array{
+        $res = array();
+        
+        $query = db_select('oeaw_forms', 'of');
+        $query->fields('of',array('data'));
+        $query->condition('of.userid', \Drupal::currentUser()->id());
+        $query->condition('of.repoid', $repoid);        
+        $query->condition('of.status', 'open');
+        $query->orderBy('of.date', 'DESC');
+        $query->range(0, 1);
+        $result = $query->execute();
+        $result = $result->fetchAssoc();
+        
+        if($result != false) {
+            $res = $result;
+        }
+        
+        return $res;
+    }
+    //, AccountInterface $user = NULL
+    public function buildForm(array $form, FormStateInterface $form_state, $formid = NULL) {
         
         $form = parent::buildForm($form, $form_state);
+        
+        $l_name = "";
+        $f_name = "";
+        $title = "";
+        $institution = "";
+        $city = "";
+        $address = "";
+        $zipcode = "";
+        $email = "";
+        $phone = "";
 
         if(empty($this->store->get('material_acdh_repo_id'))){
             $this->store->set('material_acdh_repo_id',substr( md5(rand()), 0, 20));
-        }        
+        }
+
+        $repoid = $this->store->get('material_acdh_repo_id');
+        if(!empty($this->getFormFromDB($repoid))){
+            $this->formData = $this->getFormFromDB($repoid);
+        }
+        
+        
+        if(count($this->formData) > 0){            
+            $dataField = json_decode($this->formData["data"]);
+            
+            if(count($dataField) > 0 && isset($dataField)){
+                if(isset($dataField->l_name)){
+                    $l_name = $dataField->l_name;
+                }
+                if(isset($dataField->f_name)){
+                    $f_name = $dataField->f_name;
+                }
+                if(isset($dataField->title)){
+                    $title = $dataField->title;
+                }
+                if(isset($dataField->institution)){
+                    $institution = $dataField->institution;
+                }
+                if(isset($dataField->city)){
+                    $city = $dataField->city;
+                }
+                if(isset($dataField->address)){
+                    $address = $dataField->address;
+                }
+                if(isset($dataField->zipcode)){
+                    $zipcode = $dataField->zipcode;
+                }
+                if(isset($dataField->email)){
+                    $email = $dataField->email;
+                }
+                if(isset($dataField->phone)){
+                    $phone = $dataField->phone;
+                }
+            }
+        }
         
         $form['depositor'] = array(
             '#type' => 'fieldset',
@@ -31,105 +102,68 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor']['l_name'] = array(
             '#type' => 'textfield',
             '#title' => t('Last Name:'),
-            '#attributes' => array(
-		        'class' => array('form-control')
-			),
             '#required' => TRUE,
-            '#default_value' => $this->store->get('l_name') ? $this->store->get('l_name') : '',
+            '#default_value' => $l_name,
         );
         
         $form['depositor']['f_name'] = array(
             '#type' => 'textfield',
             '#title' => t('First Name:'),
-            '#attributes' => array(
-		        'class' => array('form-control')
-			),
             '#required' => TRUE,
-            '#default_value' => $this->store->get('f_name') ? $this->store->get('f_name') : '',
+            '#default_value' => $f_name,
         );
         
         $form['depositor']['title'] = array(
             '#type' => 'textfield',
             '#title' => t('Title:'),
-            '#attributes' => array(
-		        'class' => array('form-control')
-			),
             '#required' => FALSE,
-            '#default_value' => $this->store->get('title') ? $this->store->get('title') : '',
+            '#default_value' => $title,
         );
         
         $form['depositor']['institution'] = array(
             '#type' => 'textfield',
             '#title' => t('Institution:'),
-            '#attributes' => array(
-		        'class' => array('form-control')
-			),
             '#required' => TRUE,
-            '#default_value' => $this->store->get('institution') ? $this->store->get('institution') : '',
+            '#default_value' => $institution,
         );
         
         $form['depositor']['city'] = array(
             '#type' => 'textfield',
             '#title' => t('City:'),
-            '#attributes' => array(
-		        'class' => array('form-control')
-			),
             '#required' => TRUE,
-            '#default_value' => $this->store->get('city') ? $this->store->get('city') : '',
+            '#default_value' => $city,
         );
         
         $form['depositor']['address'] = array(
             '#type' => 'textfield',
             '#title' => t('Address:'),
-            '#attributes' => array(
-		        'class' => array('form-control')
-			),
             '#required' => TRUE,
-            '#default_value' => $this->store->get('address') ? $this->store->get('address') : '',
+            '#default_value' => $address,
         );
         
         $form['depositor']['zipcode'] = array(
             '#type' => 'textfield',
             '#title' => t('Zipcode:'),
-            '#attributes' => array(
-		        'class' => array('form-control')
-			),
             '#required' => TRUE,
-            '#default_value' => $this->store->get('zipcode') ? $this->store->get('zipcode') : '',
+            '#default_value' => $zipcode,
         );
         
         $form['depositor']['email'] = array(
             '#type' => 'email',
             '#title' => t('Email:'),
-            '#attributes' => array(
-		        'class' => array('form-control')
-			),
             '#required' => TRUE,
-            '#default_value' => $this->store->get('email') ? $this->store->get('email') : '',
+            '#default_value' => $email,
         );
         
         $form['depositor']['phone'] = array (
             '#type' => 'tel',
             '#title' => t('Phone'),
-            '#attributes' => array(
-		        'class' => array('form-control')
-			),
             '#required' => TRUE,
-            '#default_value' => $this->store->get('phone') ? $this->store->get('phone') : '',
+            '#default_value' => $phone,
         );
-       
         
         //create the next button to the form second page
-        $form['actions']['#type'] = 'actions';
-        $form['actions']['submit'] = array(
-          '#type' => 'submit',
-          '#value' => $this->t('Next'),
-          '#attributes' => array(
-            'class' => array('btn')
-		  ),                   
-          '#button_type' => 'primary',
-        );
-
+        $form['actions']['submit']['#value'] = $this->t('Next');
         
         return $form;
   }
@@ -148,7 +182,7 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
     $form1Val['zipcode'] = $form_state->getValue('zipcode');
     $form1Val['email'] = $form_state->getValue('email');
     $form1Val['phone'] = $form_state->getValue('phone');
-    $asd = $this->store->set('form1Val', $form1Val);
+    $this->store->set('form1Val', $form1Val);
     
     $this->store->set('title', $form_state->getValue('title'));
     $this->store->set('l_name', $form_state->getValue('l_name'));
@@ -160,7 +194,36 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
     $this->store->set('email', $form_state->getValue('email'));
     $this->store->set('phone', $form_state->getValue('phone'));
         
-    $form_state->setRedirect('oeaw_depagree_two');
+    $json_obj = json_encode($form1Val);
+    
+    if(count($this->formData) > 0){
+        
+        $num_updated = db_update('oeaw_forms')
+            ->fields(array(
+                    'data' => $json_obj,
+                    'date'=>  date("d-m-Y H:i:s")
+            ))
+            ->condition('userid', \Drupal::currentUser()->id(), '=')
+            ->condition('repoid', $this->store->get('material_acdh_repo_id'), '=')
+            ->execute();
+        
+    }else {
+        
+        $field = array(
+            'userid' => \Drupal::currentUser()->id(),
+            'repoid' => $this->store->get('material_acdh_repo_id'),
+            'form' =>  'depagree_form_one',
+            'data' => $json_obj,
+            'status' =>  'open',
+            'date'=>  date("d-m-Y H:i:s")
+        );
+        db_insert('oeaw_forms')
+            ->fields($field)
+            ->execute();
+    }
+    
+        
+    $form_state->setRedirect('oeaw_depagree_two', array('formid' => $this->store->get('material_acdh_repo_id')));
    }
     
 }
