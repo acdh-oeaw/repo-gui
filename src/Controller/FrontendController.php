@@ -69,10 +69,14 @@ class FrontendController extends ControllerBase {
             foreach($result as $value){
 	            
 	            $rdfType = $value["rdfType"];
-	            $rdfTypePrefix = ""; 
+	            $rdfTypePrefix = "";
+	            $hasImageType = false;  
 	            if (isset($rdfType) && $rdfType) {
                     if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {
 	                	$rdfTypePrefix = "acdh";   
+	                }
+	                if ($rdfType == \Drupal\oeaw\ConnData::$imageProperty) {
+		                $hasImageType = true;
 	                }
 	            } else {
 		            $rdfTypePrefix = "none"; 
@@ -115,8 +119,21 @@ class FrontendController extends ControllerBase {
 						$res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
 						$res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
 						$res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
-					}	 
-	 
+					}	
+					
+					
+					if ($hasImageType) {
+						$res[$i]["image"] = $value["uri"];
+					} else {
+						$thumbnail = $value["image"];
+						if (isset($thumbnail) && $thumbnail) {
+							$imgData = $this->OeawStorage->getImage($thumbnail);
+							if (isset($imgData) && $imgData) {
+								$res[$i]["image"] = $imgData;
+							}	
+						}						
+					}				
+ 
 	                $i++;
                 
                 }
@@ -634,11 +651,14 @@ class FrontendController extends ControllerBase {
 						$result[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
 						$result[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
 					}
-			
+					
+					$hasImageType = false;
 					$rdfType = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
 					if (isset($rdfType) && $rdfType) {						
 						foreach ($rdfType as $type) {
-			                if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
+			                if ($type == \Drupal\oeaw\ConnData::$imageProperty) {
+								$hasImageType = true; 
+							} else if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
 								$result[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
 								$result[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$result[$i]["rdfType"]);
 								//Add a space between capital letters
@@ -648,15 +668,17 @@ class FrontendController extends ControllerBase {
 				        }  						
 					}
 
-
-					$thumbnail = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
-					if (isset($thumbnail) && $thumbnail) {
-						$imgData = $OeawStorage->getImage($thumbnail);
-						if (isset($imgData) && $imgData) {
-							$result[$i]["image"] = $imgData;
-						}	
+					if ($hasImageType) {
+						$result[$i]["image"] = $match->getUri();
+					} else {
+						$thumbnail = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
+						if (isset($thumbnail) && $thumbnail) {
+							$imgData = $this->OeawStorage->getImage($thumbnail);
+							if (isset($imgData) && $imgData) {
+								$result[$i]["image"] = $imgData;
+							}	
+						}						
 					}
-
 					
 					$i++;
 				}
@@ -669,8 +691,8 @@ class FrontendController extends ControllerBase {
 			$errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
         }
 
-        var_dump($result);
-        die();
+        //var_dump($result);
+        //die();
 
 		
         $datatable['#theme'] = 'oeaw_keyword_search_res';
