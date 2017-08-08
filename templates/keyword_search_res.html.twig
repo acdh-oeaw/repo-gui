@@ -11,6 +11,8 @@
 	{% for item in result %}
 		<div class="res-el col-block col-lg-12">
 		
+		{% if item.image %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  
+		
 			{% if item.title %}
 	            <div class="res-property">
 	            	<i class="material-icons">&#xE873;</i>
@@ -79,8 +81,18 @@
             		<span>Add To Favorites</span>
             	</div>
             	-->            	
-            </div>	            		
+            </div>
             
+            {% if item.image %}</div>{% endif%}
+            
+			{% if item.image %}	
+				<div class="res-inside-wrap col-lg-6 ">	
+				    <div class="single-res-thumb">
+				        <a href="{{ item.image }}"><img src="{{ item.image }}"></a>
+				    </div>
+				</div>
+			{% endif%}            
+  
             	                                        
 		</div>
 	{% endfor %} 

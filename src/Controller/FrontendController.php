@@ -648,6 +648,15 @@ class FrontendController extends ControllerBase {
 				        }  						
 					}
 
+
+					$thumbnail = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
+					if (isset($thumbnail) && $thumbnail) {
+						$imgData = $OeawStorage->getImage($thumbnail);
+						if (isset($imgData) && $imgData) {
+							$result[$i]["image"] = $imgData;
+						}	
+					}
+
 					
 					$i++;
 				}
@@ -659,6 +668,10 @@ class FrontendController extends ControllerBase {
         if (empty($result)){
 			$errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
         }
+
+        var_dump($result);
+        die();
+
 		
         $datatable['#theme'] = 'oeaw_keyword_search_res';
         $datatable['#userid'] = $uid;
