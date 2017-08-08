@@ -87,12 +87,13 @@ class OeawStorage {
         
         try {
             
-            $dcTitle = RC::titleProp();
-            $isPartOf = RC::relProp();
+            $dcTitle = \Drupal\oeaw\ConnData::$title;
+            $isPartOf = \Drupal\oeaw\ConnData::$isPartOf;
           
             $q = new Query();
             $q->addParameter(new HasTriple('?uri', $dcTitle, '?title'));    
-            $q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Project' ))->setSubVar('?uri'));
+            //$q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Project' ))->setSubVar('?uri'));
+            $q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Collection' ))->setSubVar('?uri'));
             
             $q2 = new Query();
             $q2->addParameter(new HasTriple('?uri', $isPartOf, '?y'));
@@ -119,8 +120,8 @@ class OeawStorage {
             $q6->setJoinClause('optional');
             $q->addSubquery($q6);   
 
-	        $q7 = new Query();
-	        $q7->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'));
+	    $q7 = new Query();
+	    $q7->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'));
             $q7->setJoinClause('optional');
             $q->addSubquery($q7);
 
@@ -128,8 +129,6 @@ class OeawStorage {
             $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?rdfType'));           
             $q->setOrderBy(array('UCASE(str(?title))'));
             $query= $q->getQuery();
-            //var_dump($query);
-            //die();
             
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
