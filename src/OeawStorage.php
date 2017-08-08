@@ -125,8 +125,12 @@ class OeawStorage {
             $q7->setJoinClause('optional');
             $q->addSubquery($q7);
 
+            $q8 = new Query();
+            $q8->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'));
+            $q8->setJoinClause('optional');
+            $q->addSubquery($q8); 
                   
-            $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?rdfType'));           
+            $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?rdfType', '?image'));           
             $q->setOrderBy(array('UCASE(str(?title))'));
             $query= $q->getQuery();
             
