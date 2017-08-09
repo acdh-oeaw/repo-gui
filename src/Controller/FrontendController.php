@@ -447,10 +447,10 @@ class FrontendController extends ControllerBase {
         $uri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');
  
         $uid = \Drupal::currentUser()->id();
-        
+        $rules = array();
         $rules = $this->OeawFunctions->getRules($uri);
         
-        if(count($rules) < 0){
+        if(count($rules) == 0){
             $msg = base64_encode("The Resource is private");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
@@ -575,9 +575,6 @@ class FrontendController extends ControllerBase {
             }	        
         }  
         $results['ACL'] = $ACL;
-
-        // Pass fedora uri so it can be linked in the template
-        $extras["fedoraURI"] = $uri; 
 
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
