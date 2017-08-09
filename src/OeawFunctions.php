@@ -50,6 +50,26 @@ class OeawFunctions {
         $fedora = new Fedora();
         return $fedora;
     }
+    
+    /**
+     * 
+     * Get the Fedora Resource Rules
+     * If it is empty, then it is a private resource
+     * 
+     * @param string $uri
+     * @return type
+     */
+    public function getRules(string $uri): array{        
+        $result = array();
+        $fedora = new Fedora();
+        $fedora->begin();
+        $res = $fedora->getResourceByUri($uri);
+        $aclObj = $res->getAcl();
+        $result = $aclObj->getRules();
+        $fedora->commit();
+        
+        return $result;
+    }
         
     /**
      * 

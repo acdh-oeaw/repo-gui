@@ -207,28 +207,19 @@
             </tr>
         </thead>
         <tbody>  
-        <tr>
-            <td>
-                User1
-            </td>
-            <td>
-                Read
-            </td>
-            <td>
-                <a href="#">Revoke Rights</a>
-            </td>                
-        </tr>            
-        <tr>
-            <td>
-                User2
-            </td>
-            <td>
-                Write
-            </td>
-            <td>
-                <button>Revoke Rights</button>
-            </td>                
-        </tr>
+        {% for acl in result['ACL'] %}
+            <tr>
+                <td>
+                    {{ acl.username }}
+                </td>
+                <td>
+                    {{ acl.mode }}
+                </td>
+                <td>
+                    <button>Revoke Rights</button>
+                </td>
+            </tr>            
+        {% endfor %}        
         </tbody>        
     </table>
     <br>
@@ -371,61 +362,59 @@
 </pre>
 </figure>
 
-	{% if childResult %}
-	<h3 class="single-res-heading">Child Resources</h3>
+    {% if childResult %}
+    <h3 class="single-res-heading">Child Resources</h3>
 
-			{% for cItem in childResult %}
-				<div class="child-res">
-				
-			        <div class="res-property">
-			        	<i class="material-icons">&#xE873;</i>
-			        	<a href="{{ cItem.detail }}">                                         
-			        		<span class="res-title">{{ cItem.title }}</span>
-			        	</a>		
-					</div>				
+        {% for cItem in childResult %}
+            <div class="child-res">
 
+            <div class="res-property">
+                <i class="material-icons">&#xE873;</i>
+                <a href="{{ cItem.detail }}">                                         
+                        <span class="res-title">{{ cItem.title }}</span>
+                </a>		
+            </div>
 
-		            <div class="res-property">
-		            	<i class="material-icons">&#xE54E;</i>
-		            	<a href="{{ cItem.rdfTypeUri }}">
-		            		<span class="res-rdftype">{{ cItem.rdfType }}</span>
-		            	</a>
-		            </div>
+            <div class="res-property">
+                <i class="material-icons">&#xE54E;</i>
+                <a href="{{ cItem.rdfTypeUri }}">
+                        <span class="res-rdftype">{{ cItem.rdfType }}</span>
+                </a>
+            </div>
 
-		            {% if cItem.description %}
-			            <div class="res-property res-property-desc">
-			            	<i class="material-icons">&#xE88F;</i>	
-			            	<span class="res-description">{{ cItem.description }}</span>
-			            </div>            
-		            {% endif%}
+            {% if cItem.description %}
+                <div class="res-property res-property-desc">
+                    <i class="material-icons">&#xE88F;</i>	
+                    <span class="res-description">{{ cItem.description }}</span>
+                </div>
+            {% endif%}
 
+            <div class="res-actions">
 
-		            <div class="res-actions">
-		            
-		            	{% if cItem.description %}
-			            	<div class="res-act-button res-act-button-summary closed">
-			            		<i class="material-icons">&#xE145;</i>
-			            		<span>Show Summary</span>
-			            	</div>
-		            	{% endif%}
-		            	
-		            	<div class="res-act-button">
-		            		<a href="{{ cItem.detail }}">
-			            		<i class="material-icons">&#xE873;</i>
-			            		<span>Detailed View</span>
-			            	</a>	
-		            	</div>
-		            	
-		            	<div class="res-act-button">
-		            		<i class="material-icons">&#xE885;</i>
-		            		<span>Add To Favorites</span>
-		            	</div>            	
-		            </div>	
+                {% if cItem.description %}
+                    <div class="res-act-button res-act-button-summary closed">
+                            <i class="material-icons">&#xE145;</i>
+                            <span>Show Summary</span>
+                    </div>
+                {% endif%}
 
-				</div>
-			{% endfor %}
+                <div class="res-act-button">
+                    <a href="{{ cItem.detail }}">
+                        <i class="material-icons">&#xE873;</i>
+                        <span>Detailed View</span>
+                    </a>	
+                </div>
 
-	{% endif%}
+                <div class="res-act-button">
+                    <i class="material-icons">&#xE885;</i>
+                    <span>Add To Favorites</span>
+                </div>            	
+            </div>	
+
+                </div>
+        {% endfor %}
+
+    {% endif%}
 
 	                                        
 {% endif%}

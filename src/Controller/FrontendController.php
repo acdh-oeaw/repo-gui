@@ -448,13 +448,48 @@ class FrontendController extends ControllerBase {
  
         $uid = \Drupal::currentUser()->id();
         
+        $rules = $this->OeawFunctions->getRules($uri);
+        
+        if(count($rules) < 0){
+            $msg = base64_encode("The Resource is private");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;     
+        }else {
+            $ACL = array();
+            $i = 0;
+            //check the rules
+            foreach($rules as $r){
+                foreach($r->users as $u){
+                    //check the users
+                    if($u == \acdhOeaw\fedora\acl\WebAclRule::PUBLIC_USER){
+                        $ACL[$i]['username'] = "Public User";
+                    }else {
+                        $ACL[$i]['username'] = $u;
+                    }
+                }
+                
+                switch ($r->mode) {                    
+                    case 1:
+                        $ACL[$i]['mode'] = "READ";
+                        break;
+                    case 2:
+                        $ACL[$i]['mode'] = "WRITE";
+                        break;
+                    default:
+                        $ACL[$i]['mode'] = "NONE";                        
+                }
+            }            
+        }
+        
         $rootGraph = $this->OeawFunctions->makeGraph($uri);                 
         $rootMeta =  $this->OeawFunctions->makeMetaData($uri);
 
         if(count($rootMeta) > 0){
             $results = array();
             //get the root table data
-            $results = $this->OeawFunctions->createDetailTableData($uri);                        
+            $results = $this->OeawFunctions->createDetailTableData($uri);
+            
             if(empty($results)){                
                 $msg = base64_encode("The resource has no metadata!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -539,12 +574,13 @@ class FrontendController extends ControllerBase {
                 }
             }	        
         }  
+        $results['ACL'] = $ACL;
 
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,
             '#extras' => $extras,
-            '#userid' => $uid,
+            '#userid' => $uid,            
             '#query' => $query,
             '#hasBinary' => $results["hasBinary"],
             '#childResult' => $childResult,
