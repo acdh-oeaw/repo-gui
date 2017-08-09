@@ -193,92 +193,165 @@
          {% endfor %}                   
     {% endif%}
  
+    <!--
+        The ACL rights
+    -->    
+    <h3 class="single-res-heading">Access Rights</h3>
+    <span class="res-title">Actual users and rights</span>
+    <table class="display table table-striped" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>User</th>           
+                <th>Rights</th>
+                <th>Revoke</th>                    
+            </tr>
+        </thead>
+        <tbody>  
+        <tr>
+            <td>
+                User1
+            </td>
+            <td>
+                Read
+            </td>
+            <td>
+                <a href="#">Revoke Rights</a>
+            </td>                
+        </tr>            
+        <tr>
+            <td>
+                User2
+            </td>
+            <td>
+                Write
+            </td>
+            <td>
+                <button>Revoke Rights</button>
+            </td>                
+        </tr>
+        </tbody>        
+    </table>
+    <br>
+    <span class="res-title">Add rights</span>
+    <table class="display table table-striped" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Rights</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>  
+        <tr>
+            <td>
+                <select>
+                    <option value="">----</option>
+                    <option value="user1">User1</option>
+                    <option value="user2">User2</option>
+                    <option value="user3">User3</option>
+                </select>
+            </td>
+            <td>
+                <select>
+                    <option value="">----</option>
+                    <option value="read">Read</option>
+                    <option value="write">Write</option>                
+                </select>
+            </td>
+            <td>
+                <button>Add</button>
+            </td>
+        </tr>        
+        </tbody>        
+    </table>
+
     
-	<h3 class="single-res-heading">Access Data (Dummy)</h3>
+    <!--
+    <h3 class="single-res-heading">Access Data (Dummy)</h3>
 
 
 
-	    <table class="display table table-striped" cellspacing="0" width="100%">
-	       	<thead>
-	            <tr>
-	                <th>Format</th>           
-	                <th>File</th>
-	                <th>Access</th>
-	                <th>Size</th>
-	                <th>Download</th>            
-	            </tr>
-	        </thead>
-	        <tbody>  
+        <table class="display table table-striped" cellspacing="0" width="100%">
+            <thead>
                 <tr>
-                	<td>
-                		<i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF	
-	                </td>
-	                <td>
-                		Documentation file of the work	
-	                </td>
-	                <td>
-                		Limited Access	
-	                </td>	                
-	                <td>
-                		256 kB	
-	                </td>
-	                <td class="res-download-button">
-                		<i class="material-icons">&#xE2C4;</i>	
-	                </td>	                
-	            </tr>
-                <tr>
-                	<td>
-                		<i class="fa fa-file-image-o" aria-hidden="true"></i> TIFF	
-	                </td>
-	                <td>
-                		Image file from the DIP	
-	                </td>
-	                <td>
-                		Limited Access	
-	                </td>	                
-	                <td>
-                		256 kB	
-	                </td>
-	                <td class="res-download-button">
-                		<i class="material-icons">&#xE2C4;</i>	
-	                </td>	                
-	            </tr>
-                <tr>
-                	<td>
-                		<i class="fa fa-file-code-o" aria-hidden="true"></i> XML	
-	                </td>
-	                <td>
-                		Metadata of the resource	
-	                </td>
-	                <td>
-                		Open Access	
-	                </td>	                
-	                <td>
-                		256 kB	
-	                </td>
-	                <td class="res-download-button">
-                		<i class="material-icons">&#xE2C4;</i>	
-	                </td>	                
-	            </tr>	            	                                                      
-	        </tbody>        
-	    </table>
-	
+                    <th>Format</th>           
+                    <th>File</th>
+                    <th>Access</th>
+                    <th>Size</th>
+                    <th>Download</th>            
+                </tr>
+            </thead>
+            <tbody>  
+            <tr>
+                    <td>
+                            <i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF	
+                    </td>
+                    <td>
+                            Documentation file of the work	
+                    </td>
+                    <td>
+                            Limited Access	
+                    </td>	                
+                    <td>
+                            256 kB	
+                    </td>
+                    <td class="res-download-button">
+                            <i class="material-icons">&#xE2C4;</i>	
+                    </td>	                
+                </tr>
+            <tr>
+                    <td>
+                            <i class="fa fa-file-image-o" aria-hidden="true"></i> TIFF	
+                    </td>
+                    <td>
+                            Image file from the DIP	
+                    </td>
+                    <td>
+                            Limited Access	
+                    </td>	                
+                    <td>
+                            256 kB	
+                    </td>
+                    <td class="res-download-button">
+                            <i class="material-icons">&#xE2C4;</i>	
+                    </td>	                
+                </tr>
+            <tr>
+                    <td>
+                            <i class="fa fa-file-code-o" aria-hidden="true"></i> XML	
+                    </td>
+                    <td>
+                            Metadata of the resource	
+                    </td>
+                    <td>
+                            Open Access	
+                    </td>	                
+                    <td>
+                            256 kB	
+                    </td>
+                    <td class="res-download-button">
+                            <i class="material-icons">&#xE2C4;</i>	
+                    </td>	                
+                </tr>	            	                                                      
+            </tbody>        
+        </table>
 
-	<h3 class="single-res-heading">Cite Resource</h3>
-	
-	<div class="cite-selector">
-		<div class="cite-style selected">BibTeX</div>
-		<div class="cite-style">AMA</div>
-		<div class="cite-style">APA</div>
-		<div class="cite-style">Frontiers</div>
-		<div class="cite-style">Harvard</div>
-		<div class="cite-style">IEEE</div>
-		<div class="cite-style">LNCS</div>
-		<div class="cite-style">MLA</div>
-		<div class="cite-style">RIS</div>
-	</div>	
+-->
+    <h3 class="single-res-heading">Cite Resource</h3>
 
-	<div class="bd-clipboard"><span class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span></div>
+    <div class="cite-selector">
+            <div class="cite-style selected">BibTeX</div>
+            <div class="cite-style">AMA</div>
+            <div class="cite-style">APA</div>
+            <div class="cite-style">Frontiers</div>
+            <div class="cite-style">Harvard</div>
+            <div class="cite-style">IEEE</div>
+            <div class="cite-style">LNCS</div>
+            <div class="cite-style">MLA</div>
+            <div class="cite-style">RIS</div>
+    </div>	
+
+    <div class="bd-clipboard"><span class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span></div>
 	
 <figure class="highlight">
 <pre>
