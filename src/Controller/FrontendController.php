@@ -576,6 +576,9 @@ class FrontendController extends ControllerBase {
         }  
         $results['ACL'] = $ACL;
 
+        // Pass fedora uri so it can be linked in the template
+        $extras["fedoraURI"] = $uri; 
+
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,
