@@ -359,7 +359,7 @@ class OeawFunctions {
         $returnData = "";
         
         if ($way == 'encode') {            
-            $data = str_replace(RC::get('fedoraApiUrl').'/', '', $data);
+            //$data = str_replace(RC::get('fedoraApiUrl').'/', '', $data);
             $data = base64_encode($data);
             $returnData = str_replace(array('+', '/', '='), array('-', '_', ''), $data);
         }
@@ -374,7 +374,8 @@ class OeawFunctions {
             
             $data = base64_decode($data);
                         
-            $returnData = RC::get('fedoraApiUrl').'/' . $data;
+            //$returnData = RC::get('fedoraApiUrl').'/' . $data;
+            $returnData = $data;
             
         }
         return $returnData;
