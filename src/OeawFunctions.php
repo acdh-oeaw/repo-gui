@@ -475,6 +475,7 @@ class OeawFunctions {
                             $results["image"] = $uri;
                         }
                     }
+                    // thumbnail end                    
                     
                     if(get_class($item) == "EasyRdf\Resource"){
                         if($this->createPrefixesFromString($v) === false){                            
@@ -486,19 +487,19 @@ class OeawFunctions {
                             
                             $resVal = $item->getUri();
                             //get the resource title
+                            $property = $this->createPrefixesFromString($v);
+                            $propertyRep = str_replace(":","_",$property);
+                            
                             if($this->getTitleByTheFedIdNameSpace($resVal)){
                                 $resValTitle = "";
                                 $resValTitle = $this->getTitleByTheFedIdNameSpace($resVal);
                                 //we have a title for the resource
                                 if($resValTitle){
-                                    $results["val_title"]["value"][] = $resValTitle;
+                                    $results[$propertyRep]["title"][] = $resValTitle;
                                 }
-                            }
-                            //itt a query
-                            $property = $this->createPrefixesFromString($v);
-                            $propertyRep = str_replace(":","_",$property);
+                            }                                                        
                             $results[$propertyRep]["property"] = $property;
-                            $results[$propertyRep]["value"][] = $resVal;                            
+                            $results[$propertyRep]["value"][] = $resVal;
                            
                             //create the HASH URL for the table value
                             if($this->getFedoraUrlHash($resVal)){
@@ -539,7 +540,6 @@ class OeawFunctions {
                 $i++;                    
             } 
         }
-
 
         return $results;
     }
@@ -586,7 +586,7 @@ class OeawFunctions {
         if (strpos($string, 'https://id.acdh.oeaw.ac.at/') !== false) {
             
             $itemRes = $OeawStorage->getDataByProp(RC::get('fedoraIdProp'), $string);
-            if(count($itemRes) > 0){
+            if(count($itemRes) > 0){                
                 if($itemRes[0]["title"]){
                     $return = $itemRes[0]["title"];
                 }else if($itemRes[0]["label"]){

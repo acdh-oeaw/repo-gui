@@ -7,7 +7,7 @@
 
     	<div class="res-act-button res-act-button-expertview basic">
     		<i class="material-icons">&#xE896;</i>
-    		<span>Switch to Expert-View</span>
+    		<span>Switch to Expert-View</span>                
     	</div>            	
 	
 	
@@ -16,10 +16,11 @@
     <div class="single-res-overview single-res-overview-basic">
 	    {% if result['image'] %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  
 	
-		{% if result['dc_title'] %}
+                
+		{% if result['acdh_hasTitle'] %}
 	        <div class="res-property">
-	        	<i class="material-icons">&#xE873;</i>                                         
-				{% for value in result['dc_title'].value %}
+	        	<i class="material-icons">&#xE873;</i>
+				{% for value in result['acdh_hasTitle'].value %}
 	        		<span class="res-title">{{ value }}</span>	
 				{% endfor %}
 			</div>
@@ -75,43 +76,43 @@
 	    <table class="display table table-striped" cellspacing="0" width="100%">
 	       <thead>
 	            <tr>
-	                <th>Property</th>           
-	                <th>Value(s)</th>            
+	                <th>Property</th>
+	                <th>Value(s)</th>
 	            </tr>
 	        </thead>
-	        <tbody>  
+	        <tbody>
 	                {% for item in result %}
-	                    {%  if item.property != "" %}    
+	                   {%  if item.property != "" %}
 	                    <tr data-resourceid="{{ item.delete }}">
 	                        <td>{{ item.property }}</td>
-	                        <td>
-	                            
+                                <td>
 	                            {% if item.inside_url is iterable %}
 	                                {% set counter = 0 %}
-	                                                                
 	                                {% for key, inside_url in item.inside_url %}
 	                                    {% set counter = counter + 1 %}
 	                                    <a href="{{ inside_url }}">
-	                                        {% if item.property == "dcterm:identifier" %}                                            
+	                                        {% if item.property == "dcterm:identifier" %}
 	                                            {{  item.value[key] }}
-	                                        {% else %}                                            
-	                                            {% if item.val_title[key] %}
-	                                                {{ item.val_title[key] }}
+                                                    </a> - 
+                                                    {{  item.title[key] }}
+	                                        {% else %}
+	                                            {% if item.title[key] %}
+	                                                {{ item.title[key] }}</a>
 	                                                <br>
-	                                            {% else %}
+	                                            {% else %}                                                        
 	                                                {{ item.value[key] }}
+                                                        </a>
 	                                                <br>
 	                                            {% endif %}
 	                                        {% endif %}    
-	                                    </a>
+	                                    
 	                                {% endfor %}
 	                                
 	                            {% else %}
-	                                {% if item.value is iterable %}
-	                                
+	                                {% if item.value is iterable %}	                                
 	                                    {% for value in item.value %}
 	                                        {% if 'http' in value %}
-	                                            <a href="{{ value }}">{{ value }}</a>
+	                                            <a href="{{ value }}" >{{ value }}</a>
 	                                        {% else %}
 	                                            {{ value }}
 	                                        {% endif %}
@@ -131,7 +132,7 @@
 	                                                      
 	                        </td>
 	                    </tr>
-	                    {% endif %}
+	                    {% endif %} 
 	            {% endfor %}                                          
 	        </tbody>        
 	    </table>
@@ -342,12 +343,10 @@
 			            	</a>	
 		            	</div>
 		            	
-		            	<!--
 		            	<div class="res-act-button">
 		            		<i class="material-icons">&#xE885;</i>
 		            		<span>Add To Favorites</span>
-		            	</div>
-		            	-->           	
+		            	</div>            	
 		            </div>	
 
 				</div>
