@@ -447,9 +447,10 @@ class FrontendController extends ControllerBase {
         $uri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');
  
         $uid = \Drupal::currentUser()->id();
+        
         $rules = array();
         $rules = $this->OeawFunctions->getRules($uri);
-        
+        //check the rules
         if(count($rules) == 0){
             $msg = base64_encode("The Resource is private");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -468,7 +469,7 @@ class FrontendController extends ControllerBase {
                         $ACL[$i]['username'] = $u;
                     }
                 }
-                
+                //check the mode
                 switch ($r->mode) {                    
                     case 1:
                         $ACL[$i]['mode'] = "READ";
@@ -918,7 +919,27 @@ class FrontendController extends ControllerBase {
         return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\EditForm');
     }
     
+    /**
+     * 
+     * User ACL revoke function
+     * 
+     * @param string $uri
+     * @param string $user
+     * @param Request $request
+     */
+    public function oeaw_revoke(string $uri, string $user, Request $request): JsonResponse {
+        
+    }
     
+    
+    /**
+     * 
+     * Resource Delete function
+     * 
+     * @param string $uri
+     * @param Request $request
+     * @return JsonResponse
+     */
     public function oeaw_delete(string $uri, Request $request): JsonResponse {
         drupal_get_messages('error', TRUE);
         $matches = array();
