@@ -921,10 +921,21 @@ class FrontendController extends ControllerBase {
         $matches = array();
         $response = array();
         
-        $user = base64_decode($user);
-        $uri = base64_decode($uri);
+        $fedora = new Fedora();       
+        $fedora->begin();
+        $res = $fedora->getResourceByUri($uri);
+        $aclObj = $res->getAcl();
+        $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
+        $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::WRITE);
+        $aclObj->grant(\acdhOeaw\fedora\acl\WebAclRule::USER, 'user1', \acdhOeaw\fedora\acl\WebAclRule::READ);
+        $fedora->commit();
         
-        $this->OeawFunctions->revokeRules($uri, $user);
+        $asd = array();
+        $asd = $this->OeawFunctions->getRules($uri);
+        error_log(print_r($asd, true));
+        
+        
+//        $this->OeawFunctions->revokeRules($uri, $user);
         
         $matches = array(
                 "result" => true,
