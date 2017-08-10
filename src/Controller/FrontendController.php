@@ -578,6 +578,9 @@ class FrontendController extends ControllerBase {
             }	        
         }  
         $results['ACL'] = $ACL;
+        
+		// Pass fedora uri so it can be linked in the template
+		$extras["fedoraURI"] = $uri;         
 
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
@@ -657,23 +660,7 @@ class FrontendController extends ControllerBase {
                     */
 
                     //Title and the URI
-                    $result[$i]["title"] = $match->getMetadata()->label()->__toString();
-                    $result[$i]["resUri"] = $this->OeawFunctions->createDetailsUrl($match->getUri());
-                    //Literal class information
-                    $result[$i]["description"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
-                    $creationdate = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$creationdate);
-                    $creationdate = strtotime($creationdate);
-                    $result[$i]["creationdate"] = date('F jS, Y',$creationdate);
-
-                    //Resource class information
-                    $contributor = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$contributor);
-                    if (isset($contributor) && $contributor) {
-                            $result[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-                            $result[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-                    }
-
-                    //Title and the URI
-                    $result[$i]["title"] = $match->getMetadata()->label()->__toString();
+                    $result[$i]["title"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$title);
                     $result[$i]["resUri"] = $this->OeawFunctions->createDetailsUrl($match->getUri());
                     //Literal class information
                     $result[$i]["description"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
