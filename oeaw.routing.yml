@@ -38,6 +38,14 @@ oeaw_delete:
     _role: 'authenticated+admin'
     _access: 'TRUE'
 
+oeaw_revoke:
+  path: '/oeaw_revoke/{uri}/{user}'
+  defaults:
+    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_revoke'
+  requirements:
+    _role: 'authenticated+admin'
+    _access: 'TRUE'
+
 oeaw_keywordsearch:
   path: '/oeaw_keywordsearch/{metavalue}'
   defaults:
