@@ -465,10 +465,10 @@ class FrontendController extends ControllerBase {
                     //check the users
                     if($u == \acdhOeaw\fedora\acl\WebAclRule::PUBLIC_USER){
                         $ACL[$i]['username'] = "Public User";
-                        $ACL[$i]['user'] = $u;
+                        $ACL[$i]['user'] = base64_encode($u);
                     }else {
                         $ACL[$i]['username'] = $u;
-                        $ACL[$i]['user'] = $u;
+                        $ACL[$i]['user'] = base64_encode($u);
                     }
                 }
                 //check the mode
@@ -934,6 +934,10 @@ class FrontendController extends ControllerBase {
         $matches = array();
         $response = array();
         
+        $user = base64_decode($user);
+        $uri = base64_decode($uri);
+        
+        $this->OeawFunctions->revokeRules($uri, $user);
         
         $matches = array(
                 "result" => true,
