@@ -465,8 +465,10 @@ class FrontendController extends ControllerBase {
                     //check the users
                     if($u == \acdhOeaw\fedora\acl\WebAclRule::PUBLIC_USER){
                         $ACL[$i]['username'] = "Public User";
+                        $ACL[$i]['user'] = $u;
                     }else {
                         $ACL[$i]['username'] = $u;
+                        $ACL[$i]['user'] = $u;
                     }
                 }
                 //check the mode
@@ -928,7 +930,23 @@ class FrontendController extends ControllerBase {
      * @param Request $request
      */
     public function oeaw_revoke(string $uri, string $user, Request $request): JsonResponse {
+        drupal_get_messages('error', TRUE);
+        $matches = array();
+        $response = array();
         
+        
+        $matches = array(
+                "result" => true,
+                "error_msg" => "SIKERULT"
+                );
+        
+        $response = new JsonResponse($matches);
+        
+        $response->setCharset('utf-8');
+        $response->headers->set('charset', 'utf-8');
+        $response->headers->set('Content-Type', 'application/json');
+        
+        return $response;
     }
     
     

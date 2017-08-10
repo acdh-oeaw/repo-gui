@@ -136,20 +136,27 @@
 	            {% endfor %}                                          
 	        </tbody>        
 	    </table>
-
-        <div class="res-actions">
-        	<div class="res-act-button">
-        		<a href="{{ extras['fedoraURI'] }}">
-	        		<i class="material-icons">&#xE0B2;</i>
-	        		<span>View in Repository</span>
-	        	</a>	
-        	</div>      	           	
-        </div>
  
 	</div>	
 
 	{% if userid != 0  %} 
-        <div class="res-actions">       	
+        <div class="res-actions">
+
+        	<div class="res-act-button">
+                    <a href="/oeaw_edit/{{ editResData.editUrl }}">
+                            <i class="material-icons">&#xE254;</i>
+                            <span>Edit Resource</span>
+                    </a>	
+        	</div>
+
+        	
+        	<div class="res-act-button">
+                    <a href="/#" id="delete-root" data-resourceid="{{ editResData.editUrl }}" class="use-ajax" data-dialog-type="modal">
+                        <i class="material-icons">&#xE872;</i>
+                        <span>Delete Resource</span>
+                    </a>        		
+        	</div>
+        	
         	{% if query %}
 	        	<div class="res-act-button">
 		        	<a href="/oeaw_query/{{ query }}">
@@ -209,7 +216,13 @@
                     {{ acl.mode }}
                 </td>
                 <td>
-                    <button>Revoke Rights</button>
+                    <div class="res-act-button">
+                    <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
+                        <i class="material-icons">&#xE872;</i>
+                        <span>Revoke Rights</span>
+                    </a>        		
+        	</div>                    
+                    
                 </td>
             </tr>            
         {% endfor %}        
@@ -397,7 +410,11 @@
                         <span>Detailed View</span>
                     </a>	
                 </div>
-          	
+
+                <div class="res-act-button">
+                    <i class="material-icons">&#xE885;</i>
+                    <span>Add To Favorites</span>
+                </div>            	
             </div>	
 
                 </div>
