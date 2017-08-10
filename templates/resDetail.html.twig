@@ -9,8 +9,7 @@
     		<i class="material-icons">&#xE896;</i>
     		<span>Switch to Expert-View</span>                
     	</div>            	
-	
-	
+		
 	</h3> 
     
     <div class="single-res-overview single-res-overview-basic">
@@ -47,9 +46,7 @@
 	        	<i class="material-icons">&#xE8DF;</i>	
 	        	<span class="res-creationdate">{{ extras['fedora_created'].value.creationDate }}</span>
 	        </div>
-	    {% endif%}	
-	
-	
+	    {% endif%}	           	
 	
 		{% if result['dcterm_isPartOf'] %}
 	        <div class="res-property">
@@ -69,19 +66,6 @@
 			</div>
 		{% endif%}
                 
-                <h3 class="single-res-heading">Dissemination Services</h3>    
-                <ul style="list-style: none;">                    
-                    {% if extras['dissServ'] %}
-                        {% for key, ds in extras['dissServ'] %}
-                            <li>
-                                <div class="res-act-button">
-                                    <a href="{{ ds }}?format={{ key }}" ><span>{{ key }}</span></a>
-                                </div>
-                            </li>                
-                        {% endfor %}        
-                    {% endif %}    
-
-                </ul>
 	</div>
 	
 	
@@ -150,29 +134,40 @@
 	            {% endfor %}                                          
 	        </tbody>        
 	    </table>
-
-        <div class="res-actions">       	
-        	<div class="res-act-button">
-	        	<a href="{{ extras['fedoraURI'] }}">
-	        		<i class="material-icons">&#xE0B2;</i>
-	        		<span>View in Fedora</span>
-	        	</a>	
-        	</div>           	
-        </div>
  
 	</div>	
 
-	{% if userid != 0  %} 
-        <div class="res-actions">       	
-        	{% if query %}
+    {% if extras['dissServ'] %}
+        <div class="res-property">
+        	<i class="material-icons">&#xE89F;</i>	
+                {% for key, ds in extras['dissServ'] %}
+                    <div class="res-act-button">
+                        <a href="{{ ds }}?format={{ key }}" ><span>{{ key|upper }} Access</span></a>
+                    </div>               
+                {% endfor %}  
+        </div>                       
+    {% endif %}    	
+
+    <div class="res-property">
+    	<i class="material-icons">&#xE0B2;</i>    	
+    	<div class="res-act-button">
+        	<a href="{{ extras['fedoraURI'] }}">
+        		<span>View in Fedora</span>
+        	</a>	
+    	</div>           	
+	</div>
+
+	{% if userid != 0  %}
+		{% if query %} 
+		    <div class="res-property">
+		    	<i class="material-icons">&#xE53B;</i>       	
 	        	<div class="res-act-button">
 		        	<a href="/oeaw_query/{{ query }}">
-		        		<i class="material-icons">&#xE53B;</i>
 		        		<span>View Query Result</span>
 		        	</a>	
-	        	</div>
-	        {% endif %}	            	
-        </div>
+	        	</div>          	
+	        </div>
+        {% endif %}	
 	{% endif %}	
 
 
@@ -232,7 +227,6 @@
                     {% else %}
                         <span>You cant Revoke Rights</span>
                     {% endif %}
-                    
                 </td>
             </tr>            
         {% endfor %}        
