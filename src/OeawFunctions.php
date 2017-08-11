@@ -80,7 +80,7 @@ class OeawFunctions {
      * @param string $uri
      * @return type
      */
-    public function getRules(string $uri, $fedora): array{
+    public function getRules(string $uri, \acdhOeaw\fedora\Fedora $fedora): array{
         $result = array();
                 
         $fedora->begin();        
@@ -93,9 +93,8 @@ class OeawFunctions {
     }
     
     
-    public function grantAccess(string $uri, string $user, $fedora){
+    public function grantAccess(string $uri, string $user, \acdhOeaw\fedora\Fedora $fedora): array{
         $result = array();
-
         
         $fedora->begin();        
         $res = $fedora->getResourceByUri($uri);
@@ -109,16 +108,19 @@ class OeawFunctions {
 
     }   
     
-    public function revokeRules(string $uri, string $user){
+    public function revokeRules(string $uri, string $user, \acdhOeaw\fedora\Fedora $fedora): array{
         $result = array();
         
-        $fedora = new Fedora();       
-        $fedora->begin();
+        $fedora->begin();        
         $res = $fedora->getResourceByUri($uri);
         $aclObj = $res->getAcl();
-        //$aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
+        $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
         $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::WRITE);
+        $aclObj = $res->getAcl();
+        $result = $aclObj->getRules();        
         $fedora->commit();
+        
+        return $result;
     }
         
     /**
