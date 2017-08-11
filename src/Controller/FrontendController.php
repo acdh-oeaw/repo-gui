@@ -448,7 +448,7 @@ class FrontendController extends ControllerBase {
         $uid = \Drupal::currentUser()->id();
         $rules = array();
         
-        $this->OeawFunctions->grantAccess($uri, 'user61232221', $fedora);
+        //$this->OeawFunctions->grantAccess($uri, 'user61232221', $fedora);
         
         $rules = $this->OeawFunctions->getRules($uri, $fedora);
         
