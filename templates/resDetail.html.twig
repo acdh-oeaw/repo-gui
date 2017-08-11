@@ -68,6 +68,27 @@
 			    <span class="res-thumb-info">Thumbnail of {{ result['dc_title'].value.0 }}</span>
 			</div>
 		{% endif%}
+                
+                <h3 class="single-res-heading">Dissemination Services</h3>    
+                <ul style="list-style: none;">
+                    <li>
+                        <div class="res-act-button">
+                            <a href="{{ extras['fedoraURI'] }}/fcr:metadata">                    
+                                <span>METADATA</span>
+                            </a>
+                        </div>
+                    </li>
+                    {% if extras['dissServ'] %}
+                        {% for key, ds in extras['dissServ'] %}
+                            <li>
+                                <div class="res-act-button">
+                                    <a href="{{ ds }}?format={{ key }}" ><span>{{ key }}</span></a>
+                                </div>
+                            </li>                
+                        {% endfor %}        
+                    {% endif %}    
+
+                </ul>
 	</div>
 	
 	
@@ -210,12 +231,11 @@
                 </td>
                 <td>
                     <div class="res-act-button">
-                    <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
-                        <i class="material-icons">&#xE872;</i>
-                        <span>Revoke Rights</span>
-                    </a>        		
-        	</div>                    
-                    
+                        <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
+                            <i class="material-icons">&#xE872;</i>
+                            <span>Revoke Rights</span>
+                        </a>
+                    </div>
                 </td>
             </tr>            
         {% endfor %}        
@@ -256,77 +276,9 @@
     </table>
 
     
-    <!--
-    <h3 class="single-res-heading">Access Data (Dummy)</h3>
-
-
-
-        <table class="display table table-striped" cellspacing="0" width="100%">
-            <thead>
-                <tr>
-                    <th>Format</th>           
-                    <th>File</th>
-                    <th>Access</th>
-                    <th>Size</th>
-                    <th>Download</th>            
-                </tr>
-            </thead>
-            <tbody>  
-            <tr>
-                    <td>
-                            <i class="fa fa-file-pdf-o" aria-hidden="true"></i> PDF	
-                    </td>
-                    <td>
-                            Documentation file of the work	
-                    </td>
-                    <td>
-                            Limited Access	
-                    </td>	                
-                    <td>
-                            256 kB	
-                    </td>
-                    <td class="res-download-button">
-                            <i class="material-icons">&#xE2C4;</i>	
-                    </td>	                
-                </tr>
-            <tr>
-                    <td>
-                            <i class="fa fa-file-image-o" aria-hidden="true"></i> TIFF	
-                    </td>
-                    <td>
-                            Image file from the DIP	
-                    </td>
-                    <td>
-                            Limited Access	
-                    </td>	                
-                    <td>
-                            256 kB	
-                    </td>
-                    <td class="res-download-button">
-                            <i class="material-icons">&#xE2C4;</i>	
-                    </td>	                
-                </tr>
-            <tr>
-                    <td>
-                            <i class="fa fa-file-code-o" aria-hidden="true"></i> XML	
-                    </td>
-                    <td>
-                            Metadata of the resource	
-                    </td>
-                    <td>
-                            Open Access	
-                    </td>	                
-                    <td>
-                            256 kB	
-                    </td>
-                    <td class="res-download-button">
-                            <i class="material-icons">&#xE2C4;</i>	
-                    </td>	                
-                </tr>	            	                                                      
-            </tbody>        
-        </table>
-
--->
+    
+    
+   
     <h3 class="single-res-heading">Cite Resource</h3>
 
     <div class="cite-selector">

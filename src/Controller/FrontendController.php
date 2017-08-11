@@ -437,19 +437,18 @@ class FrontendController extends ControllerBase {
             $response->send();
             return;            
         }
+        $uri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');
+        $hasBinary = "";  
         
-        $hasBinary = "";        
        //get the childrens
         $fedora = $this->OeawFunctions->initFedora();
         $childResult = array();
         
-        // decode the uri hash
-        $uri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');
- 
         $uid = \Drupal::currentUser()->id();
         
         $rules = array();
         $rules = $this->OeawFunctions->getRules($uri);
+        
         //check the rules
         if(count($rules) == 0){
             $msg = base64_encode("The Resource is private");
@@ -460,6 +459,7 @@ class FrontendController extends ControllerBase {
             $ACL = array();
             $i = 0;
             //check the rules
+            
             foreach($rules as $r){
                 foreach($r->users as $u){
                     //check the users
@@ -482,6 +482,7 @@ class FrontendController extends ControllerBase {
                     default:
                         $ACL[$i]['mode'] = "NONE";                        
                 }
+                $i++;
             }            
         }
         
@@ -579,8 +580,14 @@ class FrontendController extends ControllerBase {
         }  
         $results['ACL'] = $ACL;
         
-		// Pass fedora uri so it can be linked in the template
-		$extras["fedoraURI"] = $uri;         
+        //check the Dissemination services
+        $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
+        if(count($dissServices) > 0){
+            $extras['dissServ'] = $dissServices;
+        }
+        
+        // Pass fedora uri so it can be linked in the template
+        $extras["fedoraURI"] = $uri;
 
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
@@ -917,6 +924,7 @@ class FrontendController extends ControllerBase {
      * @param Request $request
      */
     public function oeaw_revoke(string $uri, string $user, Request $request): JsonResponse {
+        error_log("ebben");
         drupal_get_messages('error', TRUE);
         $matches = array();
         $response = array();

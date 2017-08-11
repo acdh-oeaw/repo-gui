@@ -53,22 +53,70 @@ class OeawFunctions {
     
     /**
      * 
+     * Get the actual Resource Dissemination services
+     * 
+     * @param string $uri
+     * @return array
+     */
+    public function getResourceDissServ(string $uri): array {
+        
+        $result = array();
+        
+        $fedora = $this->initFedora();
+        $res = $fedora->getResourceByUri($uri); //or any other way to get the FedoraResource object
+        $id = $res->getId();
+        foreach($res->getDissServices() as $k => $v) {
+            $result[$k] = $id;
+            //printf('<a href="%s?format=%s">%s</a>', $id, $k, $k);
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * 
      * Get the Fedora Resource Rules
      * If it is empty, then it is a private resource
      * 
      * @param string $uri
      * @return type
      */
-    public function getRules(string $uri): array{        
+    public function getRules(string $uri): array{
         $result = array();
-        $fedora = new Fedora();
-        $fedora->begin();
+        
+        $fedora = $this->initFedora();
+        $fedora->begin();        
         $res = $fedora->getResourceByUri($uri);
+        
         $aclObj = $res->getAcl();
         $result = $aclObj->getRules();
         $fedora->commit();
         
         return $result;
+    }
+    
+    
+    public function grantAccess(string $uri, string $user){
+        $result = array();
+        
+        $fedora = new Fedora();       
+        $fedora->begin();
+        $res = $fedora->getResourceByUri($uri);
+        $aclObj = $res->getAcl();
+        $aclObj->grant(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
+        $fedora->commit();
+    }   
+    
+    public function revokeRules(string $uri, string $user){
+        $result = array();
+        
+        $fedora = new Fedora();       
+        $fedora->begin();
+        $res = $fedora->getResourceByUri($uri);
+        $aclObj = $res->getAcl();
+        //$aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
+        $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::WRITE);
+        $fedora->commit();
     }
         
     /**
