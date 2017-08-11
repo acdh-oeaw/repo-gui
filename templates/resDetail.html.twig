@@ -70,14 +70,7 @@
 		{% endif%}
                 
                 <h3 class="single-res-heading">Dissemination Services</h3>    
-                <ul style="list-style: none;">
-                    <li>
-                        <div class="res-act-button">
-                            <a href="{{ extras['fedoraURI'] }}/fcr:metadata">                    
-                                <span>METADATA</span>
-                            </a>
-                        </div>
-                    </li>
+                <ul style="list-style: none;">                    
                     {% if extras['dissServ'] %}
                         {% for key, ds in extras['dissServ'] %}
                             <li>
