@@ -208,8 +208,8 @@
                 <th>Revoke</th>                    
             </tr>
         </thead>
-        <tbody>  
-        {% for acl in result['ACL'] %}
+        <tbody>            
+        {% for acl in result['ACL'] %}            
             <tr>
                 <td>
                     {{ acl.username }}
@@ -219,11 +219,15 @@
                 </td>
                 <td>
                     {% if userid == 1  %}
-                        <div class="res-act-button">
-                            <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
-                                <i class="material-icons">&#xE872;</i><span>Revoke Rights</span>
-                            </a>
-                        </div>
+                        {% if result['ACL']|length > 1  %}
+                            <div class="res-act-button">
+                                <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
+                                    <i class="material-icons">&#xE872;</i><span>Revoke Rights</span>
+                                </a>
+                            </div>
+                        {% else %}
+                            <span>-</span>
+                        {% endif %}
                     {% else %}
                         <span>You cant Revoke Rights</span>
                     {% endif %}

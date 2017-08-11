@@ -66,8 +66,7 @@ class OeawFunctions {
         $res = $fedora->getResourceByUri($uri); //or any other way to get the FedoraResource object
         $id = $res->getId();
         foreach($res->getDissServices() as $k => $v) {
-            $result[$k] = $id;
-            //printf('<a href="%s?format=%s">%s</a>', $id, $k, $k);
+            $result[$k] = $id;            
         }
         
         return $result;
@@ -81,30 +80,33 @@ class OeawFunctions {
      * @param string $uri
      * @return type
      */
-    public function getRules(string $uri): array{
+    public function getRules(string $uri, $fedora): array{
         $result = array();
-        
-        $fedora = $this->initFedora();
+                
         $fedora->begin();        
-        $res = $fedora->getResourceByUri($uri);
-        
+        $res = $fedora->getResourceByUri($uri);        
         $aclObj = $res->getAcl();
         $result = $aclObj->getRules();
         $fedora->commit();
-        
+       
         return $result;
     }
     
     
-    public function grantAccess(string $uri, string $user){
+    public function grantAccess(string $uri, string $user, $fedora){
         $result = array();
+
         
-        $fedora = new Fedora();       
-        $fedora->begin();
+        $fedora->begin();        
         $res = $fedora->getResourceByUri($uri);
         $aclObj = $res->getAcl();
         $aclObj->grant(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
+        $aclObj = $res->getAcl();
+        $result = $aclObj->getRules();        
         $fedora->commit();
+        
+        return $result;
+
     }   
     
     public function revokeRules(string $uri, string $user){

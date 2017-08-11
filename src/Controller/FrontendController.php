@@ -442,12 +442,15 @@ class FrontendController extends ControllerBase {
         
        //get the childrens
         $fedora = $this->OeawFunctions->initFedora();
+        
         $childResult = array();
         
         $uid = \Drupal::currentUser()->id();
-        
         $rules = array();
-        $rules = $this->OeawFunctions->getRules($uri);
+        
+        $this->OeawFunctions->grantAccess($uri, 'user61232221', $fedora);
+        
+        $rules = $this->OeawFunctions->getRules($uri, $fedora);
         
         //check the rules
         if(count($rules) == 0){
@@ -462,7 +465,6 @@ class FrontendController extends ControllerBase {
             
             foreach($rules as $r){
                 foreach($r->users as $u){
-                    //check the users
                     if($u == \acdhOeaw\fedora\acl\WebAclRule::PUBLIC_USER){
                         $ACL[$i]['username'] = "Public User";
                         $ACL[$i]['user'] = base64_encode($u);
@@ -470,23 +472,23 @@ class FrontendController extends ControllerBase {
                         $ACL[$i]['username'] = $u;
                         $ACL[$i]['user'] = base64_encode($u);
                     }
+                    
+                    switch ($r->mode) {
+                        case 1:
+                            $ACL[$i]['mode'] = "READ";
+                            break;
+                        case 2:
+                            $ACL[$i]['mode'] = "WRITE";
+                            break;
+                        default:
+                            $ACL[$i]['mode'] = "NONE";
+                    }
+                    $i++;
                 }
-                //check the mode
-                switch ($r->mode) {                    
-                    case 1:
-                        $ACL[$i]['mode'] = "READ";
-                        break;
-                    case 2:
-                        $ACL[$i]['mode'] = "WRITE";
-                        break;
-                    default:
-                        $ACL[$i]['mode'] = "NONE";                        
-                }
-                $i++;
-            }            
+            }
         }
         
-        $rootGraph = $this->OeawFunctions->makeGraph($uri);                 
+        $rootGraph = $this->OeawFunctions->makeGraph($uri);
         $rootMeta =  $this->OeawFunctions->makeMetaData($uri);
 
         if(count($rootMeta) > 0){
@@ -924,7 +926,7 @@ class FrontendController extends ControllerBase {
      * @param Request $request
      */
     public function oeaw_revoke(string $uri, string $user, Request $request): JsonResponse {
-        error_log("ebben");
+        
         drupal_get_messages('error', TRUE);
         $matches = array();
         $response = array();
@@ -934,8 +936,7 @@ class FrontendController extends ControllerBase {
         $res = $fedora->getResourceByUri($uri);
         $aclObj = $res->getAcl();
         $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
-        $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::WRITE);
-        $aclObj->grant(\acdhOeaw\fedora\acl\WebAclRule::USER, 'user1', \acdhOeaw\fedora\acl\WebAclRule::READ);
+        $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::WRITE);        
         $fedora->commit();
         
         $asd = array();
