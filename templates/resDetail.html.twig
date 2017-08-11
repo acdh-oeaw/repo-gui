@@ -223,12 +223,16 @@
                     {{ acl.mode }}
                 </td>
                 <td>
-                    <div class="res-act-button">
-                        <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
-                            <i class="material-icons">&#xE872;</i>
-                            <span>Revoke Rights</span>
-                        </a>
-                    </div>
+                    {% if userid == 1  %}
+                        <div class="res-act-button">
+                            <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
+                                <i class="material-icons">&#xE872;</i><span>Revoke Rights</span>
+                            </a>
+                        </div>
+                    {% else %}
+                        <span>You cant Revoke Rights</span>
+                    {% endif %}
+                    
                 </td>
             </tr>            
         {% endfor %}        
