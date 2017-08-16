@@ -51,7 +51,7 @@
 		{% if result['acdh_isPartOf'] %}
 	        <div class="res-property">
 	        	<i class="material-icons">&#xE335;</i>	
-	        	<span class="res-ispartof">Part of: <a href="/oeaw_detail/{{ result['acdh_isPartOf'].inside_url.0 }}">{{ result['acdh_isPartOf'].isPartOfTitle }}</a></span>
+	        	<span class="res-ispartof">Part of: <a href="/oeaw_detail/{{ result['acdh_isPartOf'].inside_url.0 }}">{{ result['acdh_isPartOf'].title.0 }}</a></span>
 	        </div>
 	    {% endif%}	
 	
