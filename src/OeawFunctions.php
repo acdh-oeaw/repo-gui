@@ -399,38 +399,25 @@ class OeawFunctions {
     
     /**
      * 
-     * details button url generating to pass the uri value to the next page     
+     * Check the special RDF types and generate the special labels for them.
      * 
-     * @param string $data
-     * @param string $way
-     * @param string $dl
+     * @param string $rdfType
+     * @param Resource $rootMeta
      * @return string
      */
-    public function createDetailsUrl(string $data, string $way = 'encode', string$dl = null): string {
-      
-        $returnData = "";
+    public function checkSpecialRdfType(string $rdfType, \EasyRdf\Resource $rootMeta): string{
+        $result = "";
         
-        if ($way == 'encode') {            
-            //$data = str_replace(RC::get('fedoraApiUrl').'/', '', $data);
-            $data = base64_encode($data);
-            $returnData = str_replace(array('+', '/', '='), array('-', '_', ''), $data);
+        if($rdfType == \Drupal\oeaw\ConnData::$person ){
+            $fn = $rootMeta->get(\Drupal\oeaw\ConnData::$hasFirstName);
+            $ln = $rootMeta->get(\Drupal\oeaw\ConnData::$hasLastName);
+            
+            if($fn && $ln){
+                $result = $fn.' '.$ln;
+            }             
         }
-
-        if ($way == 'decode') {
-            $data = str_replace('oeaw_detail/', '', $data);
-            $data = str_replace('/', '', $data);
-            $data = str_replace(array('-', '_'), array('+', '/'), $data);
-            $mod4 = strlen($data) % 4;
-            
-            if ($mod4) { $data .= substr('====', $mod4); }
-            
-            $data = base64_decode($data);
-                        
-            //$returnData = RC::get('fedoraApiUrl').'/' . $data;
-            $returnData = $data;
-            
-        }
-        return $returnData;
+        
+        return $result;
     }
     
     /**
@@ -546,6 +533,15 @@ class OeawFunctions {
                         if($item == \Drupal\oeaw\ConnData::$imageProperty){
                             $hasImage = $uri;
                             $results["image"] = $uri;
+                        }
+                        //if we have an acdh namespace in the rdftype
+                        if (strpos($item, \Drupal\oeaw\ConnData::$acdhNamespace) !== false) {
+                            //then we need to check the special rdf types
+                            //f.e. Person, and so on
+                            $specLbl = $this->checkSpecialRdfType($item, $rootMeta);
+                            if($specLbl){
+                                $results["specialLabel"] = $specLbl;
+                            }
                         }
                     }
                     // thumbnail end                    
@@ -694,7 +690,7 @@ class OeawFunctions {
                         $fedoraUrl = RC::get('fedoraApiUrl');
                         $url = str_replace($fedoraUrl."/", "", $itemRes[0]['uri']);
                         if($url){
-                            $return = $this->createDetailsUrl($url);
+                            $return = base64_encode($url);
                         }
                     }
                     
@@ -716,7 +712,7 @@ class OeawFunctions {
         $res = "";        
         if (filter_var($string, FILTER_VALIDATE_URL)) {
             if (strpos($string, RC::get('fedoraApiUrl')) !== false) {
-                $res = $this->createDetailsUrl($string, 'encode');
+                $res = base64_encode($string);
             }
             return $res;
         } else {

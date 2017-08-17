@@ -156,7 +156,7 @@ abstract class NewResourceFormBase extends FormBase {
             $uri = preg_replace('|/tx:[-a-zA-Z0-9]+/|', '/', $uri);
             $uri = $uri.'/fcr:metadata';
             
-            $encodeUri = $this->OeawFunctions->createDetailsUrl($uri, 'encode');
+            $encodeUri = base64_encode($uri);
             
             if (strpos($encodeUri, 'fcr:metadata') !== false) {
                 $encodeUri = $encodeUri.'/fcr:metadata';

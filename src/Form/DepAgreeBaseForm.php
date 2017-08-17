@@ -60,15 +60,18 @@ abstract class DepAgreeBaseForm extends FormBase {
     
     public function getFormFromDB():array{
         $res = array();
-        
-        $query = db_select('oeaw_forms', 'of');
-        $query->fields('of',array('data', 'userid', 'repoid'));
-        $query->condition('of.userid', \Drupal::currentUser()->id());
-        $query->condition('of.repoid', $this->repoid);
-        $query->condition('of.status', 'open');
-        $query->orderBy('of.date', 'DESC');
-        $query->range(0, 1);        
-        $result = $query->execute()->fetchAssoc();
+        try{
+            $query = db_select('oeaw_forms', 'of');
+            $query->fields('of',array('data', 'userid', 'repoid'));
+            $query->condition('of.userid', \Drupal::currentUser()->id());
+            $query->condition('of.repoid', $this->repoid);
+            $query->condition('of.status', 'open');
+            $query->orderBy('of.date', 'DESC');
+            $query->range(0, 1);        
+            $result = $query->execute()->fetchAssoc();
+        } catch (Exception $ex) {
+            
+        }
         
         if($result != false) {
             $res = $result;
@@ -123,7 +126,7 @@ abstract class DepAgreeBaseForm extends FormBase {
             
             if(count($this->dbData) == 0){
                 //return drupal_set_message($this->t('This REPO ID is already CLOSED!'), 'error');                
-                $msg = base64_encode("This REPO ID is already CLOSED!");
+                $msg = base64_encode("This REPO ID is already CLOSED! Or it is not yours!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
                 return;

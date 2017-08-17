@@ -378,7 +378,8 @@ class FrontendController extends ControllerBase {
         }
         $uid = \Drupal::currentUser()->id();
         // decode the uri hash
-        $uri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');
+        /*$uri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');*/
+        $uri = base64_decode($uri);
         
         $datatable = array(
             '#theme' => 'oeaw_success_resource',
@@ -437,7 +438,8 @@ class FrontendController extends ControllerBase {
             $response->send();
             return;            
         }
-        $uri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');
+        
+        $uri = base64_decode($uri);        
         $hasBinary = "";  
         
        //get the childrens
@@ -447,8 +449,6 @@ class FrontendController extends ControllerBase {
         
         $uid = \Drupal::currentUser()->id();
         $rules = array();
-        
-        //$this->OeawFunctions->grantAccess($uri, 'user61232221', $fedora);
         
         $rules = $this->OeawFunctions->getRules($uri, $fedora);
         
@@ -559,10 +559,10 @@ class FrontendController extends ControllerBase {
             $extras["fedora_created"]["value"]["creationDate"] = $creationdatefull;
             $creationyear = date('Y',$creationdate);
             $extras["fedora_created"]["value"]["creationYear"] = $creationyear;
-        }          
-                
+        }
+
         $editResData = array(
-            "editUrl" => $this->OeawFunctions->createDetailsUrl($uri, 'encode'),
+            "editUrl" => base64_encode($uri),
             "title" => $resTitle
         );
         
@@ -572,7 +572,7 @@ class FrontendController extends ControllerBase {
 
         if(isset($results['rdf_type']['value'])) {
             foreach ($results['rdf_type']['value'] as $rdfMatch) {
-                if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfMatch)) {
+                if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfMatch)) {                    
                     $extras["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfMatch)[1];
                     $extras["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$extras["rdfType"]);
                     $extras["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $extras["rdfType"]); 
@@ -580,6 +580,7 @@ class FrontendController extends ControllerBase {
                 }
             }	        
         }  
+        
         $results['ACL'] = $ACL;
         
         //check the Dissemination services
@@ -669,7 +670,7 @@ class FrontendController extends ControllerBase {
 						$uniqueMatches[] = $matchURI;
 	                    //Title and the URI
 	                    $result[$i]["title"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$title);
-	                    $result[$i]["resUri"] = $this->OeawFunctions->createDetailsUrl($matchURI);
+	                    $result[$i]["resUri"] = base64_encode($matchURI);
 	                    //Literal class information
 	                    $result[$i]["description"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
 	                    $creationdate = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$creationdate);
@@ -900,7 +901,7 @@ class FrontendController extends ControllerBase {
         return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\NewResourceOneForm');
     }
     
-    public function oeaw_depagree_base(){
+    public function oeaw_depagree_base(string $formid = NULL){
         return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\DepAgreeOneForm');
     }
     
@@ -980,7 +981,7 @@ class FrontendController extends ControllerBase {
                 "error_msg" => "URI MISSING!"
                 );
         }
-        $resUri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');
+        $resUri = base64_decode($uri);
         $graph = $this->OeawFunctions->makeGraph($resUri);
         $fedora = new Fedora();
         
