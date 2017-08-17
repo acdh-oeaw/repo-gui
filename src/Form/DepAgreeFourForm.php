@@ -11,14 +11,17 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
         return 'depagree_form';
     }
     
-    public function buildForm(array $form, FormStateInterface $form_state) {
-                
+    public function buildForm(array $form, FormStateInterface $form_state, $formid = NULL) {
+
         $form = parent::buildForm($form, $form_state);
-         
+        $repoFormID = \Drupal::routeMatch()->getParameter("formid");
+        
+        $this->checkRepoId($repoFormID);
+        
         $form['fields']['creators'] = array(
             '#type' => 'fieldset',
             '#open' => TRUE,
-            '#title' => t('Creators'),            
+            '#title' => t('Creators'),
             '#prefix' => '<div id="creators-wrapper">',
             '#suffix' => '</div>',
         );
@@ -171,6 +174,53 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
         }
         
         $this->store->set('form4Val', $form4Val);
+        
+        $DBData = array();
+    
+        //we have record in the DB, so it will be an DB update
+        if(isset($this->dbData["data"]) && !empty($this->dbData["data"])){        
+            $DBData = json_decode($this->dbData["data"], TRUE);        
+            //if we dont have a key then we creating one
+            if(array_key_exists('four', $DBData) == null){
+                $DBData["four"] = $form4Val;
+            }else {
+                //if we have it then it will be a modification
+                foreach($DBData as $key => $value){
+                    if($key == "four"){
+                        $DBData["four"] = $form4Val;
+                    }
+                }
+            }
+            //we jsut creating the json encode data
+            $jsonObj = json_encode($DBData);
+
+            $num_updated = db_update('oeaw_forms')
+                ->fields(array(
+                        'data' => $jsonObj,
+                        'date'=>  date("d-m-Y H:i:s")
+                ))
+                ->condition('userid', \Drupal::currentUser()->id(), '=')
+                ->condition('repoid', $this->repoid, '=')
+                ->condition('status', "open", '=')
+                ->execute();        
+
+        }else {
+            $DBData["four"] = $form4Val;
+            $jsonObj = json_encode($DBData);
+            //this will be a new DB insert
+            $field = array(
+                'userid' => \Drupal::currentUser()->id(),
+                'repoid' => $this->repoid,        
+                'data' => $jsonObj,
+                'status' =>  'open',
+                'date'=>  date("d-m-Y H:i:s")
+            );
+            db_insert('oeaw_forms')
+                ->fields($field)
+                ->execute();
+        }
+
+        
         parent::saveData();
     }
     

@@ -15,12 +15,7 @@ function oeaw_schema() {
                 'type' => 'varchar',
                 'length' => 100,
                 'not null' => TRUE,
-            ),
-            'form'=>array(
-                'type' => 'varchar',
-                'length' => 40,
-                'not null' => TRUE,
-            ),
+            ),            
             'data'=>array(
                 'type' => 'text',
                 'not null' => TRUE,

@@ -6,6 +6,8 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionManagerInterface;
+use Drupal\Core\Database\Database;
+use Drupal\Core\Routing;
 use Drupal\user\PrivateTempStoreFactory;
 use Drupal\file\Entity;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -36,6 +38,9 @@ abstract class DepAgreeBaseForm extends FormBase {
     */
     protected $store;
    
+    protected $formData = array();
+    protected $dbData = array();
+    protected $repoid = "";
     
     /**
    * Constructs a Multi step form Base.
@@ -53,6 +58,53 @@ abstract class DepAgreeBaseForm extends FormBase {
         
     }
     
+    public function getFormFromDB():array{
+        $res = array();
+        
+        $query = db_select('oeaw_forms', 'of');
+        $query->fields('of',array('data', 'userid', 'repoid'));
+        $query->condition('of.userid', \Drupal::currentUser()->id());
+        $query->condition('of.repoid', $this->repoid);
+        $query->condition('of.status', 'open');
+        $query->orderBy('of.date', 'DESC');
+        $query->range(0, 1);        
+        $result = $query->execute()->fetchAssoc();
+        
+        if($result != false) {
+            $res = $result;
+        }
+        
+        return $res;
+    }
+    
+    /**
+     * 
+     * If the user is pasting a new form resource id then we need to change it
+     * on the form
+     * 
+     * @param string $repoFormID
+     */
+    public function checkRepoId(string $repoFormID){
+        if(empty($this->repoid)){
+            if(isset($repoFormID) && $repoFormID != "new"){
+                $this->repoid = $repoFormID;
+            }else {
+                $this->store->set('material_acdh_repo_id',substr( md5(rand()), 0, 20));            
+                $this->repoid = $this->store->get('material_acdh_repo_id');
+            }
+        }else {
+            //somebody trying to reach a diff one directly trough the url
+            if($this->repoid != $repoFormID){
+                $this->repoid = $repoFormID;
+            }
+        }
+        
+        if($repoFormID == "new"){
+            $this->store->set('material_acdh_repo_id',substr( md5(rand()), 0, 20));            
+            $this->repoid = $this->store->get('material_acdh_repo_id');
+        }
+    }
+    
     public static function create(ContainerInterface $container){
         return new static(
                 $container->get('user.private_tempstore'),
@@ -61,8 +113,26 @@ abstract class DepAgreeBaseForm extends FormBase {
         );
     }
     
-    public function buildForm(array $form, FormStateInterface $form_state)
-    {            
+    public function buildForm(array $form, FormStateInterface $form_state, $formid = NULL)
+    {    
+        $repoFormID = \Drupal::routeMatch()->getParameter("formid");
+        
+        if(isset($repoFormID) && $repoFormID != "new"){
+            $this->repoid = $repoFormID;
+            $this->dbData = $this->getFormFromDB();
+            
+            if(count($this->dbData) == 0){
+                //return drupal_set_message($this->t('This REPO ID is already CLOSED!'), 'error');                
+                $msg = base64_encode("This REPO ID is already CLOSED!");
+                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+                $response->send();
+                return;
+            }
+        }else {            
+            $this->store->set('material_acdh_repo_id',substr( md5(rand()), 0, 20));            
+            $this->repoid = $this->store->get('material_acdh_repo_id');
+        }
+     
         //start a manual session for anonymus user
         if(!isset($_SESSION['deep_agree_form_form_holds_session'])) {
             $_SESSION['deep_agree_form_form_holds_session'] = true;
@@ -158,14 +228,18 @@ abstract class DepAgreeBaseForm extends FormBase {
         
         $dv = \Drupal\oeaw\DepAgreeConstants::getDataValidation();
         $form3['data_validation'] = $dv[$form3['data_validation']];                
+       
+        $num_updated = db_update('oeaw_forms')
+            ->fields(array(        
+                    'status'=>  "closed"
+            ))
+            ->condition('userid', \Drupal::currentUser()->id(), '=')
+            ->condition('repoid', $this->repoid, '=')
+            ->condition('status', "open", '=')
+            ->execute();   
         
         $tcpdf = new \Drupal\oeaw\deppPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-        $tcpdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, PDF_HEADER_TITLE, PDF_HEADER_STRING);
-
-        // set header and footer fonts
-        $tcpdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-        $tcpdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-
+        
         // set default monospaced font
         $tcpdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 
@@ -180,8 +254,11 @@ abstract class DepAgreeBaseForm extends FormBase {
         $tcpdf->setPrintHeader(false);
         $tcpdf->setPrintFooter(true);
         
-        $fontname = \TCPDF_FONTS::addTTFfont('modules/oeaw/fonts/Brandon_reg.ttf');
-        $fontnameBold = \TCPDF_FONTS::addTTFfont('modules/oeaw/fonts/Brandon_bld.ttf');        
+        //$fontname = \TCPDF_FONTS::addTTFfont('modules/oeaw/fonts/Brandon_reg.ttf');
+        //$fontnameBold = \TCPDF_FONTS::addTTFfont('modules/oeaw/fonts/Brandon_bld.ttf');        
+        
+        $fontname = 'times';
+        $fontnameBold = 'times';
         
         $tcpdf->SetFont($fontname, 'BI', 14);
         $tcpdf->AddPage();
@@ -223,6 +300,13 @@ abstract class DepAgreeBaseForm extends FormBase {
         $fontnames = array('normal' => $fontname, 'bold' => $fontnameBold);
         
        //generate the pages
+        if(empty($form1) || empty($form2) || empty($form3) || empty($form4)){        
+            $msg = base64_encode("This FORM is OUTDATED!");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;        
+        }
+        
         $this->generatePdfPage($tcpdf, $form1, "DEPOSITOR", \Drupal\oeaw\DepAgreeConstants::$depTXT, $fontnames);
         $this->generatePdfPage($tcpdf, $form2, "DESCRIPTION OF MATERIAL, EXTENT, FILES", \Drupal\oeaw\DepAgreeConstants::$descTXT, $fontnames);
         $this->generatePdfPage($tcpdf, $form3, "TRANSFER PROCEDURES", \Drupal\oeaw\DepAgreeConstants::$transferTXT, $fontnames);
@@ -268,7 +352,8 @@ abstract class DepAgreeBaseForm extends FormBase {
     
     public function generatePdfPage(TCPDF $tcpdf, array $formData, string $title, string $ftrTXT = "", array $fontnames): TCPDF{
         
-         // add a page
+        
+        // add a page
         $tcpdf->AddPage();
         $tcpdf->SetLineWidth(0.5);
         $tcpdf->setCellHeightRatio(1.5);
