@@ -279,66 +279,36 @@ class OeawStorage {
             $dcTitle = RC::titleProp();
             $foafName = self::$sparqlPref["foafName"];
             $rdfsLabel = self::$sparqlPref["rdfsLabel"];            
-            
-            $q = new Query();
+
+            $q = new Query();            
             $q->addParameter((new HasValue($property, $value))->setSubVar('?uri'));
-            $q2 = new Query();
-            $q2->addParameter((new HasTriple('?uri', $dcTitle, '?title')));
-            $q2->setJoinClause('optional');
-            $q->addSubquery($q2);
-            $q3 = new Query();
-            $q3->addParameter((new HasTriple('?uri', $rdfsLabel, '?label')));
-            $q3->setJoinClause('optional');
-            $q->addSubquery($q3);
-            $q4 = new Query();
-            $q4->addParameter((new HasTriple('?uri', $foafName, '?name')));
-            $q4->setJoinClause('optional');
-            $q->addSubquery($q4);
-         
-            $q5 = new Query();
-            $q5->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'));
-            $q5->setJoinClause('optional');
-            $q->addSubquery($q5);                        
-
-            $q6 = new Query();
-            $q6->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'));
-            $q6->setJoinClause('optional');
-            $q->addSubquery($q6); 
-
-            $q7 = new Query();
-            $q7->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'));
-            $q7->setJoinClause('optional');
-            $q->addSubquery($q7);
+            //Query parameters for the properties we want to get, true stands for optional
+            $q->addParameter((new HasTriple('?uri', $dcTitle, '?title')), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$author, '?author'), true);           
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
+            $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?label'), true);
+            $q->addParameter(new HasTriple('?uri', $foafName, '?name'), true);         
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);            
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
+			
+			//Select and aggregate multiple sets of values into a comma seperated string
+            $q->setSelect(array('?uri', '?title', '?description', '?label', '?name', '?creationdate', '?isPartOf', '?firstName', '?lastName', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
             
-            $q8 = new Query();
-            $q8->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'));
-            $q8->setJoinClause('optional');
-            $q->addSubquery($q8);
-            
-            $q9 = new Query();
-	    $q9->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'));
-            $q9->setJoinClause('optional');
-            $q->addSubquery($q9);
-            
-            $q10 = new Query();
-            $q10->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'));
-            $q10->setJoinClause('optional');
-            $q->addSubquery($q10);
-            
-            $q11 = new Query();
-            $q11->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasLastName, '?lastName'));
-            $q11->setJoinClause('optional');
-            $q->addSubquery($q11);
-            
-            $q12 = new Query();
-            $q12->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$author, '?author'));
-            $q12->setJoinClause('optional');
-            $q->addSubquery($q12);             
-            
-            $q->setSelect(array('?uri', '?title', '?label', '?name', '?firstName', '?lastName', '?description', '?contributor', '?author', '?creationdate', '?isPartOf', '?rdfType'));
+            //If it's a person order by their name, if not by resource title
+            if ($value == \Drupal\oeaw\ConnData::$person) {
+	            $q->setOrderBy(array('?firstName'));
+            } else {
+	            $q->setOrderBy(array('?title'));
+            }
+                              
+            $q->setGroupBy(array('?uri', '?title', '?description', '?label', '?name', '?creationdate', '?isPartOf', '?firstName', '?lastName'));                       
            
             $query = $q->getQuery();
-
+            
             $result = $this->fedora->runSparql($query);
             
             $fields = $result->getFields(); 

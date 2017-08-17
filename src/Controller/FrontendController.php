@@ -696,17 +696,39 @@ class FrontendController extends ControllerBase {
 	                    $creationdate = strtotime($creationdate);
 	                    $result[$i]["creationdate"] = date('F jS, Y',$creationdate);
 	
-	                    //Resource class information
-	                    $contributor = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$contributor);
-	                    if (isset($contributor) && $contributor) {
-	                        $result[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-	                        $result[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-	                    }
+	                    //Resource author and contributor information
+                        $contributors = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$contributor);
+                        if (isset($contributors) && $contributors) {
+	                        $c = 0;
+							foreach ($contributors as $contributor) {
+								$contributorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+								if ($contributorName) {
+						            //If there are multiple people then add a comma in between
+						            if ($c > 0) {
+							            $result[$i]["contributors"][$c-1]["contributorName"] .= ",";     
+						            }								
+	                                $result[$i]["contributors"][$c]["contributorName"] = $contributorName;
+	                                $result[$i]["contributors"][$c]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
+	                                $c++;
+	                            }    
+                            }    
+                        }
 	                    
-                        $author = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$author);
-                        if (isset($author) && $author) {
-                                $result[$i]["authorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($author);
-                                $result[$i]["authorUri"] = $this->OeawFunctions->getFedoraUrlHash($author);
+                        $authors = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$author);
+                        if (isset($authors) && $authors) {
+	                        $a = 0;
+							foreach ($authors as $author) {
+								$authorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($author);
+								if ($authorName) {
+						            //If there are multiple people then add a comma in between
+						            if ($a > 0) {
+							            $result[$i]["authors"][$a-1]["authorName"] .= ",";     
+						            }								
+	                                $result[$i]["authors"][$a]["authorName"] = $authorName;
+	                                $result[$i]["authors"][$a]["authorUri"] = $this->OeawFunctions->getFedoraUrlHash($author);
+	                                $a++;
+	                            }    
+                            }    
                         }
 	
 	                    $isPartOf = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$isPartOf);
@@ -758,7 +780,7 @@ class FrontendController extends ControllerBase {
         $datatable['#errorMSG'] = $errorMSG;
         $datatable['#result'] = $result;
         $datatable['#searchedValues'] = $i . ' elements containing "' . $metavalue . '" have been found.';
-        
+
         return $datatable;
     } 
 
@@ -1080,6 +1102,7 @@ class FrontendController extends ControllerBase {
                 $i = 0;
                 foreach($result as $value){
 	                
+	                /*
                     $rdfType = $value["rdfType"];
                     $rdfTypePrefix = ""; 
                     if (isset($rdfType) && $rdfType) {
@@ -1091,7 +1114,8 @@ class FrontendController extends ControllerBase {
                     }    
 
                     //Only list items with either acdh rdfType or no rdfType
-                    if (!empty($rdfTypePrefix)) {	                
+                    if (!empty($rdfTypePrefix)) {	   
+	                */                 
 
                         // check that the value is an Url or not
                         $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");
@@ -1117,32 +1141,63 @@ class FrontendController extends ControllerBase {
                         $creationdate = strtotime($creationdate);
                         $res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
 
-                        $contributor = $value["contributor"];
-                        if (isset($contributor) && $contributor) {
-                                $res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-                                $res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-                        }	                
-
-                        $author = $value["author"];
-                        if (isset($author) && $author) {
-                                $res[$i]["authorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($author);
-                                $res[$i]["authorUri"] = $this->OeawFunctions->getFedoraUrlHash($author);
-                        }
-
                         $isPartOf = $value["isPartOf"];
                         if (isset($isPartOf) && $isPartOf) {
                                 $res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
                                 $res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
                         }
-
-
-                        if (isset($rdfType) && $rdfType) {
-                                $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
-                                $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
-                                $res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
+                        
+                        $rdfTypes = $value["rdfTypes"];                       
+                        if (isset($rdfTypes) && $rdfTypes) {
+	                        $rdfTypes = explode(',', $rdfTypes);
+	                        foreach ($rdfTypes as $rdfType) {
+		                        if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {                            
+	                                $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
+	                                $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
+	                                $res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
+		                            break;  
+		                        }                        
+	                        }
                         }
+
+	                    //Resource author and contributor information
+                        $contributors = $value["contributors"]; 
+                        if (isset($contributors) && $contributors) {
+	                        $c = 0;
+	                        $contributors = explode(',', $contributors);
+							foreach ($contributors as $contributor) {
+								$contributorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+								if ($contributorName) {
+						            //If there are multiple people then add a comma in between
+						            if ($c > 0) {
+							            $res[$i]["contributors"][$c-1]["contributorName"] .= ",";     
+						            }								
+	                                $res[$i]["contributors"][$c]["contributorName"] = $contributorName;
+	                                $res[$i]["contributors"][$c]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
+	                                $c++;
+	                            }    
+                            }    
+                        }
+	                    
+                        $authors = $value["authors"]; 
+                        if (isset($authors) && $authors) {
+	                        $a = 0;
+	                        $authors = explode(',', $authors);
+							foreach ($authors as $author) {
+								$authorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($author);
+								if ($authorName) {
+						            //If there are multiple people then add a comma in between
+						            if ($a > 0) {
+							            $res[$i]["authors"][$a-1]["authorName"] .= ",";     
+						            }								
+	                                $res[$i]["authors"][$a]["authorName"] = $authorName;
+	                                $res[$i]["authors"][$a]["authorUri"] = $this->OeawFunctions->getFedoraUrlHash($author);
+	                                $a++;
+	                            }    
+                            }    
+                        }                       
+                        
                         $i++;
-                    }
                 }
                  $searchArray = array(
                     "metaKey" => $classesArr[0],
@@ -1157,7 +1212,7 @@ class FrontendController extends ControllerBase {
             $searchArray = array();
             $res = array();
         }
-        
+
         $datatable = array(            
             '#userid' => $uid,
             '#errorMSG' => $errorMSG,
@@ -1168,8 +1223,10 @@ class FrontendController extends ControllerBase {
             ]
         );
         
-        $metaValueReadable = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $searchArray["metaValue"]);
-        
+        if(isset($searchArray)) {
+	        $metaValueReadable = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $searchArray["metaValue"]);
+        }
+ 
         if(isset($res) && $res !== null && !empty($res)){
             $datatable['#theme'] = 'oeaw_keyword_search_res';
             $datatable['#result'] = $res;
