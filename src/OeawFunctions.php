@@ -655,9 +655,11 @@ class OeawFunctions {
         if (strpos($string, 'https://id.acdh.oeaw.ac.at/') !== false) {
             
             $itemRes = $OeawStorage->getDataByProp(RC::get('fedoraIdProp'), $string);
-            if(count($itemRes) > 0){                
-                if($itemRes[0]["title"]){
-                    $return = $itemRes[0]["title"];
+            if(count($itemRes) > 0){
+                if($itemRes[0]["firstName"] && $itemRes[0]["lastName"]){
+		            $return = $itemRes[0]["firstName"] . " " . $itemRes[0]["lastName"];
+                }else if($itemRes[0]["title"]){
+		            $return = $itemRes[0]["title"];
                 }else if($itemRes[0]["label"]){
                     $return = $itemRes[0]["label"];
                 }else if($itemRes[0]["name"]){

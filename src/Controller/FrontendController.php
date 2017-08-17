@@ -539,17 +539,35 @@ class FrontendController extends ControllerBase {
             }
         }
         
-        if(isset($results['dcterm_contributor'])) {
+        if(isset($results['acdh_hasContributor'])) {
             $iCont = 0;
-            foreach ($results['dcterm_contributor']["value"] as $contributor) {
-                $results['dcterm_contributor']["contributorName"][$iCont] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-                $iCont++;
+            foreach ($results['acdh_hasContributor']["value"] as $contributor) {
+	            $contributorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+	            if ($contributorName) {
+		            //If there are multiple people then add a comma in between
+		            if ($iCont > 0) {
+			            $results['acdh_hasContributor']["contributorName"][$iCont-1] .= ",";     
+		            }		            
+	                $results['acdh_hasContributor']["contributorName"][$iCont] = $contributorName;
+	                $iCont++;
+	            }    
             }
         }        
 
-        if(isset($results['dcterm_isPartOf'])) {
-            $results["dcterm_isPartOf"]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($results["dcterm_isPartOf"]["value"][0]);
-        }  
+        if(isset($results['acdh_hasAuthor'])) {
+            $iCont = 0;
+            foreach ($results['acdh_hasAuthor']["value"] as $contributor) {
+	            $authorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+	            if ($authorName) {
+		            //If there are multiple people then add a comma in between
+		            if ($iCont > 0) {
+			            $results['acdh_hasAuthor']["authorName"][$iCont-1] .= ",";     
+		            }
+	                $results['acdh_hasAuthor']["authorName"][$iCont] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+	                $iCont++;	            
+	            }
+            }
+        }
 
         if(isset($results['fedora_created'])) {
             $creationdate = $results["fedora_created"]["value"][0];
@@ -608,7 +626,8 @@ class FrontendController extends ControllerBase {
             ]
         );
                 
-        return $datatable;        
+        return $datatable;
+             
     }
     
     
