@@ -26,9 +26,16 @@
                 </div>
             {% endif%}    
 
-            {% if item.contributorName %}
+            {% if item.authorName %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FB;</i>	
+                    <span class="res-contributor"><a href="/oeaw_detail/{{ item.authorUri }}">{{ item.authorName }}</a></span>
+                </div>
+            {% endif%} 
+
+            {% if item.contributorName %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE7FE;</i>	
                     <span class="res-contributor"><a href="/oeaw_detail/{{ item.contributorUri }}">{{ item.contributorName }}</a></span>
                 </div>
             {% endif%}    

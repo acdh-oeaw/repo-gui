@@ -702,6 +702,12 @@ class FrontendController extends ControllerBase {
 	                        $result[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
 	                        $result[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
 	                    }
+	                    
+                        $author = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$author);
+                        if (isset($author) && $author) {
+                                $result[$i]["authorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($author);
+                                $result[$i]["authorUri"] = $this->OeawFunctions->getFedoraUrlHash($author);
+                        }
 	
 	                    $isPartOf = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$isPartOf);
 	                    if (isset($isPartOf) && $isPartOf) {
@@ -1116,6 +1122,12 @@ class FrontendController extends ControllerBase {
                                 $res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
                                 $res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
                         }	                
+
+                        $author = $value["author"];
+                        if (isset($author) && $author) {
+                                $res[$i]["authorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($author);
+                                $res[$i]["authorUri"] = $this->OeawFunctions->getFedoraUrlHash($author);
+                        }
 
                         $isPartOf = $value["isPartOf"];
                         if (isset($isPartOf) && $isPartOf) {

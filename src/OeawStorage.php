@@ -330,7 +330,12 @@ class OeawStorage {
             $q11->setJoinClause('optional');
             $q->addSubquery($q11);
             
-            $q->setSelect(array('?uri', '?title', '?label', '?name', '?firstName', '?lastName', '?description', '?contributor', '?creationdate', '?isPartOf', '?rdfType'));
+            $q12 = new Query();
+            $q12->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$author, '?author'));
+            $q12->setJoinClause('optional');
+            $q->addSubquery($q12);             
+            
+            $q->setSelect(array('?uri', '?title', '?label', '?name', '?firstName', '?lastName', '?description', '?contributor', '?author', '?creationdate', '?isPartOf', '?rdfType'));
            
             $query = $q->getQuery();
 
