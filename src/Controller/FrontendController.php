@@ -1031,7 +1031,6 @@ class FrontendController extends ControllerBase {
             return;
         }
 
-
         $datatable = array();
         
         $interPathArray = array();
@@ -1059,7 +1058,7 @@ class FrontendController extends ControllerBase {
                     $rdfType = $value["rdfType"];
                     $rdfTypePrefix = ""; 
                     if (isset($rdfType) && $rdfType) {
-                        if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {
+                        if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {                            
                             $rdfTypePrefix = "acdh";   
                         }
                     } else {
@@ -1083,7 +1082,12 @@ class FrontendController extends ControllerBase {
                         }
                         $res[$i]["uri"] = $value["uri"];
                         $res[$i]["title"] = $value["title"];
-                        $res[$i]["description"] = $value["description"];
+                        if(isset($value["firstName"]) && $value["lastName"]){
+                            $res[$i]["specialLabel"] = $value["firstName"].' '.$value["lastName"];
+                        }
+                        if(isset($value["description"])){
+                            $res[$i]["description"] = $value["description"];
+                        }
                         $creationdate = $value["creationdate"];
                         $creationdate = strtotime($creationdate);
                         $res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
