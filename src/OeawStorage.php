@@ -14,6 +14,8 @@ use acdhOeaw\fedora\metadataQuery\HasProperty;
 use acdhOeaw\fedora\metadataQuery\HasTriple;
 use acdhOeaw\fedora\metadataQuery\HasValue;
 use acdhOeaw\fedora\metadataQuery\MatchesRegEx;
+
+
 use acdhOeaw\fedora\metadataQuery\Query;
 use acdhOeaw\fedora\metadataQuery\QueryParameter;
 use acdhOeaw\fedora\metadataQuery\SimpleQuery;
@@ -103,7 +105,7 @@ class OeawStorage {
             $q3 = new Query();
             $q3->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'));
             $q3->setJoinClause('optional');
-            $q->addSubquery($q3);                        
+            $q->addSubquery($q3);
 
             $q4 = new Query();
             $q4->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'));
@@ -120,19 +122,17 @@ class OeawStorage {
             $q6->setJoinClause('optional');
             $q->addSubquery($q6);   
 
-	    $q7 = new Query();
-	    $q7->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'));
-            $q7->setJoinClause('optional');
-            $q->addSubquery($q7);
-
             $q8 = new Query();
             $q8->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'));
             $q8->setJoinClause('optional');
             $q->addSubquery($q8); 
                   
-            $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?rdfType', '?image'));           
+            
+            $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image'));
             $q->setOrderBy(array('UCASE(str(?title))'));
-            $query= $q->getQuery();
+            $q->setLimit("1");
+           /* $q->setOffset($offset); */
+            $query = $q->getQuery();
             
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){

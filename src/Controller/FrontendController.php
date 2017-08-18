@@ -51,6 +51,7 @@ class FrontendController extends ControllerBase {
      * @return array
      */
     public function roots_list(): array {
+        
         drupal_get_messages('error', TRUE);
         // get the root resources
         // sparql result fields - uri, title
@@ -71,69 +72,70 @@ class FrontendController extends ControllerBase {
                 $rdfTypePrefix = "";
                 $hasImageType = false;  
                 if (isset($rdfType) && $rdfType) {
+                    
                     if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {
-                                $rdfTypePrefix = "acdh";   
-                        }
-                        if ($rdfType == \Drupal\oeaw\ConnData::$imageProperty) {
-                                $hasImageType = true;
-                        }
-                    } else {
-                            $rdfTypePrefix = "none"; 
-                    }    
-
-                    //Only list items with either acdh rdfType or no rdfType
-                    if (!empty($rdfTypePrefix)) {
-
-                        // check that the value is an Url or not
-                        $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");                
-                        //create details and editing urls
-                        if($decodeUrl){
-                            $res[$i]['resUri'] = $decodeUrl;
-                            if($uid !== 0){
-                                $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
-                                $res[$i]['delete'] = "/oeaw_delete/".$decodeUrl;
-                            }
-                        }
-                        $res[$i]["uri"] = $value["uri"];
-                        $res[$i]["title"] = $value["title"];
-                        $res[$i]["description"] = $value["description"];
-
-                        $creationdate = $value["creationdate"];
-                        $creationdate = strtotime($creationdate);
-                        $res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
-
-                        $contributor = $value["contributor"];	                
-                        if (isset($contributor) && $contributor) {
-                            $res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-                            $res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-                        }	                
-
-                        $isPartOf = $value["isPartOf"];
-                        if (isset($isPartOf) && $isPartOf) {
-                            $res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
-                            $res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
-                        }
-
-                        if (isset($rdfType) && $rdfType) {
-                            $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
-                            $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
-                            $res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
-                        }	
-
-                        if ($hasImageType) {
-                                $res[$i]["image"] = $value["uri"];
-                        } else {
-                                $thumbnail = $value["image"];
-                                if (isset($thumbnail) && $thumbnail) {
-                                    $imgData = $this->OeawStorage->getImage($thumbnail);
-                                    if (isset($imgData) && $imgData) {
-                                            $res[$i]["image"] = $imgData;
-                                    }	
-                                }						
-                        }
-                        $i++;
+                        $rdfTypePrefix = "acdh";   
                     }
-                
+                    
+                    if ($rdfType == \Drupal\oeaw\ConnData::$imageProperty) {
+                        $hasImageType = true;
+                    }
+                } else {
+                    $rdfTypePrefix = "none"; 
+                }    
+
+                //Only list items with either acdh rdfType or no rdfType
+                if (!empty($rdfTypePrefix)) {
+
+                    // check that the value is an Url or not
+                    $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");                
+                    //create details and editing urls
+                    if($decodeUrl){
+                        $res[$i]['resUri'] = $decodeUrl;
+                        if($uid !== 0){
+                            $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
+                            $res[$i]['delete'] = "/oeaw_delete/".$decodeUrl;
+                        }
+                    }
+                    $res[$i]["uri"] = $value["uri"];
+                    $res[$i]["title"] = $value["title"];
+                    $res[$i]["description"] = $value["description"];
+
+                    $creationdate = $value["creationdate"];
+                    $creationdate = strtotime($creationdate);
+                    $res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
+
+                    $contributor = $value["contributor"];	                
+                    if (isset($contributor) && $contributor) {
+                        $res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+                        $res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
+                    }	                
+
+                    $isPartOf = $value["isPartOf"];
+                    if (isset($isPartOf) && $isPartOf) {
+                        $res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
+                        $res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
+                    }
+
+                    if (isset($rdfType) && $rdfType) {
+                        $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
+                        $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
+                        $res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
+                    }	
+
+                    if ($hasImageType) {
+                        $res[$i]["image"] = $value["uri"];
+                    } else {
+                        $thumbnail = $value["image"];
+                        if (isset($thumbnail) && $thumbnail) {
+                            $imgData = $this->OeawStorage->getImage($thumbnail);
+                            if (isset($imgData) && $imgData) {
+                                    $res[$i]["image"] = $imgData;
+                            }	
+                        }						
+                    }
+                    $i++;
+                }                
             }
             $decodeUrl = "";
             
@@ -624,8 +626,6 @@ class FrontendController extends ControllerBase {
         return $form;
     }
     
-
-
      /**
      * 
      * This contains the keyword search page results
@@ -665,60 +665,60 @@ class FrontendController extends ControllerBase {
                 //If we have some matches we get the uri and then create details to display				
                 if(!empty($match->getUri())){   
 	                $matchURI = $match->getUri();
-					//Ignore duplicate results
-					if (!in_array($matchURI, $uniqueMatches)) {
-						$uniqueMatches[] = $matchURI;
-	                    //Title and the URI
-	                    $result[$i]["title"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$title);
-	                    $result[$i]["resUri"] = base64_encode($matchURI);
-	                    //Literal class information
-	                    $result[$i]["description"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
-	                    $creationdate = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$creationdate);
-	                    $creationdate = strtotime($creationdate);
-	                    $result[$i]["creationdate"] = date('F jS, Y',$creationdate);
-	
-	                    //Resource class information
-	                    $contributor = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$contributor);
-	                    if (isset($contributor) && $contributor) {
-	                        $result[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-	                        $result[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-	                    }
-	
-	                    $isPartOf = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$isPartOf);
-	                    if (isset($isPartOf) && $isPartOf) {
-	                        $result[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
-	                        $result[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
-	                    }
-	
-	                    $hasImageType = false;
-	                    $rdfType = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
-	                    if (isset($rdfType) && $rdfType) {						
-	                        foreach ($rdfType as $type) {
-	                            if ($type == \Drupal\oeaw\ConnData::$imageProperty) {
-	                                $hasImageType = true; 
-	                            } else if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
-	                                $result[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
-	                                $result[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$result[$i]["rdfType"]);
-	                                //Add a space between capital letters
-	                                $result[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $result[$i]["rdfType"]);
-	                                break;
-	                            }	 	
-	                        }  						
-	                    }
-	
-	                    if ($hasImageType) {
-	                            $result[$i]["image"] = $matchURI;
-	                    } else {
-	                        $thumbnail = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
-	                        if (isset($thumbnail) && $thumbnail) {
-	                            $imgData = $this->OeawStorage->getImage($thumbnail);
-	                            if (isset($imgData) && $imgData) {
-	                                $result[$i]["image"] = $imgData;
-	                            }	
-	                        }						
-	                    }
-	                    $i++;
-	                }    
+                        //Ignore duplicate results
+                        if (!in_array($matchURI, $uniqueMatches)) {
+                                $uniqueMatches[] = $matchURI;
+                        //Title and the URI
+                        $result[$i]["title"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$title);
+                        $result[$i]["resUri"] = base64_encode($matchURI);
+                        //Literal class information
+                        $result[$i]["description"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
+                        $creationdate = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$creationdate);
+                        $creationdate = strtotime($creationdate);
+                        $result[$i]["creationdate"] = date('F jS, Y',$creationdate);
+
+                        //Resource class information
+                        $contributor = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$contributor);
+                        if (isset($contributor) && $contributor) {
+                            $result[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+                            $result[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
+                        }
+
+                        $isPartOf = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$isPartOf);
+                        if (isset($isPartOf) && $isPartOf) {
+                            $result[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
+                            $result[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
+                        }
+
+                        $hasImageType = false;
+                        $rdfType = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
+                        if (isset($rdfType) && $rdfType) {						
+                            foreach ($rdfType as $type) {
+                                if ($type == \Drupal\oeaw\ConnData::$imageProperty) {
+                                    $hasImageType = true; 
+                                } else if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
+                                    $result[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
+                                    $result[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$result[$i]["rdfType"]);
+                                    //Add a space between capital letters
+                                    $result[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $result[$i]["rdfType"]);
+                                    break;
+                                }	 	
+                            }  						
+                        }
+
+                        if ($hasImageType) {
+                                $result[$i]["image"] = $matchURI;
+                        } else {
+                            $thumbnail = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
+                            if (isset($thumbnail) && $thumbnail) {
+                                $imgData = $this->OeawStorage->getImage($thumbnail);
+                                if (isset($imgData) && $imgData) {
+                                    $result[$i]["image"] = $imgData;
+                                }	
+                            }						
+                        }
+                        $i++;
+                    }    
                 }
 				
             }	
@@ -822,7 +822,7 @@ class FrontendController extends ControllerBase {
         }
 
         if(count($data) > 0){
-            $i = 0;            
+            $i = 0;
           
             foreach($data as $value){
                                 
@@ -942,8 +942,6 @@ class FrontendController extends ControllerBase {
         
         $asd = array();
         $asd = $this->OeawFunctions->getRules($uri);
-        error_log(print_r($asd, true));
-        
         
 //        $this->OeawFunctions->revokeRules($uri, $user);
         
@@ -981,6 +979,7 @@ class FrontendController extends ControllerBase {
                 "error_msg" => "URI MISSING!"
                 );
         }
+        
         $resUri = base64_decode($uri);
         $graph = $this->OeawFunctions->makeGraph($resUri);
         $fedora = new Fedora();
@@ -1041,6 +1040,7 @@ class FrontendController extends ControllerBase {
         $classesArr = explode(":", base64_decode($data));
         $property = $classesArr[0];
         $value =  $classesArr[1];
+        
         if (strpos($value, '(') !== false) {
             $val = explode(' (', $value);
             if(count($val) > 0){
@@ -1066,7 +1066,7 @@ class FrontendController extends ControllerBase {
                     }    
 
                     //Only list items with either acdh rdfType or no rdfType
-                    if (!empty($rdfTypePrefix)) {	                
+                    if (!empty($rdfTypePrefix)) {
 
                         // check that the value is an Url or not
                         $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");
@@ -1080,6 +1080,7 @@ class FrontendController extends ControllerBase {
                                 $res[$i]['delete'] = $decodeUrl;
                             }
                         }
+                        
                         $res[$i]["uri"] = $value["uri"];
                         $res[$i]["title"] = $value["title"];
                         if(isset($value["firstName"]) && $value["lastName"]){
@@ -1090,7 +1091,7 @@ class FrontendController extends ControllerBase {
                         }
                         $creationdate = $value["creationdate"];
                         $creationdate = strtotime($creationdate);
-                        $res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
+                        $res[$i]["creationdate"] = date('F jS, Y',$creationdate);
 
                         $contributor = $value["contributor"];
                         if (isset($contributor) && $contributor) {
@@ -1104,7 +1105,6 @@ class FrontendController extends ControllerBase {
                                 $res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
                         }
 
-
                         if (isset($rdfType) && $rdfType) {
                                 $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
                                 $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
@@ -1113,7 +1113,8 @@ class FrontendController extends ControllerBase {
                         $i++;
                     }
                 }
-                 $searchArray = array(
+                
+                $searchArray = array(
                     "metaKey" => $classesArr[0],
                     "metaValue" => $classesArr[1]
                 );

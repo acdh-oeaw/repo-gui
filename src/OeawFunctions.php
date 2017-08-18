@@ -445,11 +445,11 @@ class OeawFunctions {
             if (isset($rdfType) && $rdfType) {						
                 foreach ($rdfType as $type) {
                     if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
-                            $childResult[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
-                            $childResult[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$childResult[$i]["rdfType"]);
-                            //Add a space between capital letters
-                            $childResult[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $childResult[$i]["rdfType"]);
-                            break;
+                        $childResult[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
+                        $childResult[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$childResult[$i]["rdfType"]);
+                        //Add a space between capital letters
+                        $childResult[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $childResult[$i]["rdfType"]);
+                        break;
                     }
                 }  						
             }
