@@ -83,7 +83,7 @@ class OeawStorage {
      * 
      * @return Array     
      */
-    public function getRootFromDB(): array {
+    public function getRootFromDB(int $limit = 0, int $offset = 0): array {
           
         $getResult = array();
         
@@ -96,44 +96,24 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', $dcTitle, '?title'));    
             //$q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Project' ))->setSubVar('?uri'));
             $q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Collection' ))->setSubVar('?uri'));
-            
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
+                        
             $q2 = new Query();
             $q2->addParameter(new HasTriple('?uri', $isPartOf, '?y'));
             $q2->setJoinClause('filter not exists');
             $q->addSubquery($q2);    
-        
-            $q3 = new Query();
-            $q3->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'));
-            $q3->setJoinClause('optional');
-            $q->addSubquery($q3);
-
-            $q4 = new Query();
-            $q4->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'));
-            $q4->setJoinClause('optional');
-            $q->addSubquery($q4); 
-
-            $q5 = new Query();
-            $q5->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'));
-            $q5->setJoinClause('optional');
-            $q->addSubquery($q5);
-
-            $q6 = new Query();
-            $q6->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'));
-            $q6->setJoinClause('optional');
-            $q->addSubquery($q6);   
-
-            $q8 = new Query();
-            $q8->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'));
-            $q8->setJoinClause('optional');
-            $q->addSubquery($q8); 
-                  
-            
+      
             $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image'));
             $q->setOrderBy(array('UCASE(str(?title))'));
-            $q->setLimit("1");
-           /* $q->setOffset($offset); */
+            $q->setLimit($limit);
+            $q->setOffset($offset); 
             $query = $q->getQuery();
             
+
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
                 $fields = $result->getFields();             

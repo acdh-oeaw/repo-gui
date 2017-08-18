@@ -15,9 +15,11 @@ oeaw_search:
     _access: 'TRUE'
 
 oeaw_detail_list:
-  path: '/oeaw_detail/{uri}'
+  path: '/oeaw_detail/{uri}/{limit}/{offset}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_detail'
+    limit: "0"
+    offset: "0"
   requirements:
     _permission: 'access content'
     _access: 'TRUE'
@@ -63,9 +65,11 @@ oeaw_resources:
     _access: 'TRUE'
     
 oeaw_roots:
-  path: '/oeaw_roots'
+  path: '/oeaw_roots/{limit}/{offset}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::roots_list'
+    limit: "0"
+    offset: "0"
   requirements:
     _permission: 'access content'    
     _access: 'TRUE'

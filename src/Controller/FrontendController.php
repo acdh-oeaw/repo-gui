@@ -50,7 +50,7 @@ class FrontendController extends ControllerBase {
      * 
      * @return array
      */
-    public function roots_list(): array {
+    public function roots_list(string $limit = "10", string $offset = "0"): array {
         
         drupal_get_messages('error', TRUE);
         // get the root resources
@@ -61,14 +61,18 @@ class FrontendController extends ControllerBase {
         $decodeUrl = "";
         $errorMSG = array();
         
-        $result = $this->OeawStorage->getRootFromDB();      
+        $limit = (int)$limit;
+        $offset = (int)$offset;
+        
+        $result = $this->OeawStorage->getRootFromDB($limit, $offset);      
 
         $uid = \Drupal::currentUser()->id();
         
         if(count($result) > 0){
             $i = 0;            
             foreach($result as $value){
-                $rdfType = $value["rdfType"];
+                // our roots are Collections
+                $rdfType = 'https://vocabs.acdh.oeaw.ac.at/#Collection';
                 $rdfTypePrefix = "";
                 $hasImageType = false;  
                 if (isset($rdfType) && $rdfType) {
@@ -111,12 +115,13 @@ class FrontendController extends ControllerBase {
                         $res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
                     }	                
 
+                    /*
                     $isPartOf = $value["isPartOf"];
                     if (isset($isPartOf) && $isPartOf) {
                         $res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
                         $res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
                     }
-
+                    */
                     if (isset($rdfType) && $rdfType) {
                         $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
                         $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
@@ -431,7 +436,7 @@ class FrontendController extends ControllerBase {
      * @param Request $request
      * @return array
      */
-    public function oeaw_detail(string $uri, Request $request): array {
+    public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $offset = "0"): array {
         drupal_get_messages('error', TRUE);
         
         if (empty($uri)) {
