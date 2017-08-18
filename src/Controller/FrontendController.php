@@ -1116,12 +1116,10 @@ class FrontendController extends ControllerBase {
                     }    
 
                     //Only list items with either acdh rdfType or no rdfType
-<<<<<<< HEAD
-                    if (!empty($rdfTypePrefix)) {
-=======
+
                     if (!empty($rdfTypePrefix)) {	   
 	                */                 
->>>>>>> 88230f99f7c962f98b854b4fe7eaca682d92b962
+
 
                         // check that the value is an Url or not
                         $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");
@@ -1167,12 +1165,7 @@ class FrontendController extends ControllerBase {
 	                        }
                         }
 
-<<<<<<< HEAD
-                        if (isset($rdfType) && $rdfType) {
-                                $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
-                                $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
-                                $res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
-=======
+
 	                    //Resource author and contributor information
                         $contributors = $value["contributors"]; 
                         if (isset($contributors) && $contributors) {
@@ -1190,7 +1183,7 @@ class FrontendController extends ControllerBase {
 	                                $c++;
 	                            }    
                             }    
->>>>>>> 88230f99f7c962f98b854b4fe7eaca682d92b962
+
                         }
 	                    
                         $authors = $value["authors"]; 
