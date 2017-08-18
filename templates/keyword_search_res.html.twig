@@ -26,13 +26,23 @@
                 </div>
             {% endif%}    
 
-            {% if item.contributorName %}
+            {% if item.authors %}
                 <div class="res-property">
-                    <i class="material-icons">&#xE7FB;</i>	
-                    <span class="res-contributor"><a href="/oeaw_detail/{{ item.contributorUri }}">{{ item.contributorName }}</a></span>
+                    <i class="material-icons">&#xE7FB;</i>
+                    {% for author in item.authors %}  	
+                    	<span class="res-contributor"><a href="/oeaw_detail/{{ author.authorUri }}">{{ author.authorName }}</a></span>
+                    {% endfor %}	
                 </div>
-            {% endif%}    
+            {% endif%}
 
+            {% if item.contributors %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE7FE;</i>
+                    {% for contributor in item.contributors %}  	
+                    	<span class="res-contributor"><a href="/oeaw_detail/{{ contributor.contributorUri }}">{{ contributor.contributorName }}</a></span>
+                    {% endfor %}	
+                </div>
+            {% endif%}
 
             {% if item.rdfType %}
                 <div class="res-property">

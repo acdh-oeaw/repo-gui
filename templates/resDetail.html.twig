@@ -36,14 +36,23 @@
             </div>
         {% endif%}		
 		
-		{% if result['dcterm_contributor'] %}
+		{% if result['acdh_hasAuthor'] %}
 	        <div class="res-property">
 	        	<i class="material-icons">&#xE7FB;</i> 
-	        	{% for name in result['dcterm_contributor'].contributorName %}                                        
-	        		<span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['dcterm_contributor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
+	        	{% for name in result['acdh_hasAuthor'].authorName %}                                        
+	        		<span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['acdh_hasAuthor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
 	        	{% endfor %}	
 			</div>
-		{% endif%}		
+		{% endif%}
+		
+		{% if result['acdh_hasContributor'] %}
+	        <div class="res-property">
+	        	<i class="material-icons">&#xE7FE;</i>
+	        	{% for name in result['acdh_hasContributor'].contributorName %}                                        
+	        		<span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['acdh_hasContributor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
+	        	{% endfor %}	
+			</div>
+		{% endif%}					
 	
 		{% if extras['fedora_created'] %}
 	        <div class="res-property">
@@ -175,26 +184,36 @@
 	{% endif %}	
 
 
-    {% if result['dcterm_description'] %}
+    {% if result['acdh_hasDescription'] %}
     	<h3 class="single-res-heading">Summary</h3>
     
         <div class="res-property">
         	<i class="material-icons">&#xE88F;</i>
-        	{% for value in result['dcterm_description'].value %}	
+        	{% for value in result['acdh_hasDescription'].value %}	
 	        	<span class="res-description">{{ value }}</span>
 	        {% endfor %}	
         </div>
                             
     {% endif%}
 
-
-    {% if result['dcterm_contributor'] %}
+    {% if result['acdh_hasAuthor'] %}
     	<h3 class="single-res-heading">About the Author(s)</h3>
 		
-		{% for name in result['dcterm_contributor'].contributorName %}
+		{% for name in result['acdh_hasAuthor'].authorName %}
 	        <div class="res-property">
-	        	<i class="material-icons">&#xE7FB;</i>
-		        <span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['dcterm_contributor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
+	        	<i class="material-icons">&#xE7FD;</i>
+		        <span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['acdh_hasAuthor'].inside_url, loop.index0) }}">{{ name|trim(',') }}</a></span>  
+	        </div>
+         {% endfor %}                   
+    {% endif%}
+
+    {% if result['acdh_hasContributor'] %}
+    	<h3 class="single-res-heading">About the Contributor(s)</h3>
+		
+		{% for name in result['acdh_hasContributor'].contributorName %}
+	        <div class="res-property">
+	        	<i class="material-icons">&#xE7FE;</i>
+		        <span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['acdh_hasContributor'].inside_url, loop.index0) }}">{{ name|trim(',') }}</a></span>  
 	        </div>
          {% endfor %}                   
     {% endif%}
