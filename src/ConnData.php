@@ -56,7 +56,7 @@ class ConnData
     public static $description = "https://vocabs.acdh.oeaw.ac.at/#hasDescription";
     public static $contributor = "https://vocabs.acdh.oeaw.ac.at/#hasContributor";
     public static $author = "https://vocabs.acdh.oeaw.ac.at/#hasAuthor";
-    public static $creationdate = "https://vocabs.acdh.oeaw.ac.at/#hasCreationDate";
+    public static $creationdate = "http://fedora.info/definitions/v4/repository#created";
     public static $isPartOf = "https://vocabs.acdh.oeaw.ac.at/#isPartOf";
     
     //special RDF types
