@@ -6,7 +6,7 @@
         <div class="result-basic-info">
             {{ searchedValues }}
         </div>	
-        <div class="result-basic-info">
+       <!-- <div class="result-basic-info">
             {{ search['previous_page'] }}
             {% if  search['previous_page'] != "first" %}
             <a href="/{{ search['page'] }}/{{ search['limit'] }}/{{ search['previous_page'] }}"> <<< Previous Page</a>
@@ -15,7 +15,7 @@
             {% if  search['next_page'] != "end" %}
                 <a href="/{{ search['page'] }}/{{ search['limit'] }}/{{ search['next_page'] }}">Next Page >>></a>
             {% endif%}
-        </div>
+        </div>-->
     </div>
 	
     {% for item in result %}

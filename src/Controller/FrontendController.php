@@ -70,7 +70,7 @@ class FrontendController extends ControllerBase {
         if($countRes == 0){
             $errorMSG = drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
         }
-        
+        $search = array();
         //make the pagination data
         //$search = $this->OeawFunctions->makePaginatonData($offset, $limit, (int)$countRes);
         if($offset >= $countRes){
