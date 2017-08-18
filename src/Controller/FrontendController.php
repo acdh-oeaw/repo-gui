@@ -63,8 +63,33 @@ class FrontendController extends ControllerBase {
         
         $limit = (int)$limit;
         $offset = (int)$offset;
+        //count all root resource for the pagination
+        $countRes = $this->OeawStorage->getRootFromDB(0,0,true);
         
-        $result = $this->OeawStorage->getRootFromDB($limit, $offset);      
+        if(count($countRes) == 0){
+            $errorMSG = drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
+        }
+        
+        //if the offset is bigger than the 
+        if($offset >= count($countRes)){
+            $offset = count($countRes) - 1;
+            $search['next_page'] = "end";
+        }else {
+            $search['next_page'] = $offset + 10;
+        }
+        
+        $search['page'] = 'discover'; 
+        $search['limit'] = $limit;     
+        
+        $search['offset'] = $offset;
+        
+        if($offset <= 10){
+            $search['previous_page'] = 0;
+        }else {
+            $search['previous_page'] = $offset - 10;
+        }
+        
+        $result = $this->OeawStorage->getRootFromDB($limit, $offset);
 
         $uid = \Drupal::currentUser()->id();
         
@@ -113,15 +138,8 @@ class FrontendController extends ControllerBase {
                     if (isset($contributor) && $contributor) {
                         $res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
                         $res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-                    }	                
-
-                    /*
-                    $isPartOf = $value["isPartOf"];
-                    if (isset($isPartOf) && $isPartOf) {
-                        $res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
-                        $res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
                     }
-                    */
+
                     if (isset($rdfType) && $rdfType) {
                         $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
                         $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
@@ -136,16 +154,16 @@ class FrontendController extends ControllerBase {
                             $imgData = $this->OeawStorage->getImage($thumbnail);
                             if (isset($imgData) && $imgData) {
                                     $res[$i]["image"] = $imgData;
-                            }	
-                        }						
+                            }
+                        }
                     }
                     $i++;
-                }                
+                }
             }
-            $decodeUrl = "";
-            
+            $decodeUrl = "";            
         } else {
-            $errorMSG = drupal_set_message(t('You have no root elements!'), 'error', FALSE);
+            $errorMSG = drupal_set_message(t('Problem during the root listing'), 'error', FALSE);
+            
         }
         
         //create the datatable values and pass the twig template name what we want to use
@@ -159,10 +177,13 @@ class FrontendController extends ControllerBase {
             ]
         );
         
+        
+        
         if(isset($res) && $res !== null && !empty($res)){            
             $header = array_keys($res[0]);
             $datatable['#theme'] = 'oeaw_keyword_search_res';
             $datatable['#result'] = $res;
+            $datatable['#search'] = $search;
             $datatable['#header'] = $header;
             $datatable['#searchedValues'] = $i . ' top-level elements have been found.';
         }        

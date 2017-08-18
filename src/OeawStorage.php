@@ -83,7 +83,7 @@ class OeawStorage {
      * 
      * @return Array     
      */
-    public function getRootFromDB(int $limit = 0, int $offset = 0): array {
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false): array {
           
         $getResult = array();
         
@@ -107,13 +107,18 @@ class OeawStorage {
             $q2->setJoinClause('filter not exists');
             $q->addSubquery($q2);    
       
-            $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image'));
-            $q->setOrderBy(array('UCASE(str(?title))'));
-            $q->setLimit($limit);
-            $q->setOffset($offset); 
+            if($count == false){
+                $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image'));
+                $q->setOrderBy(array('UCASE(str(?title))'));
+                $q->setLimit($limit);
+                $q->setOffset($offset); 
+            }else {
+                $q->setSelect(array('(COUNT(?uri) as ?count)'));
+                $q->setOrderBy(array('?uri'));
+            }
+            
             $query = $q->getQuery();
             
-
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
                 $fields = $result->getFields();             

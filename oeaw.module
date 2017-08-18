@@ -22,7 +22,7 @@ function oeaw_theme() {
   ];
   
   $theme['oeaw_keyword_search_res'] = [
-    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null],
+    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null, 'search' => NULL],
     'template' => 'keyword_search_res',
   ]; 
   
