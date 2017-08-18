@@ -65,14 +65,15 @@ class FrontendController extends ControllerBase {
         $offset = (int)$offset;
         //count all root resource for the pagination
         $countRes = $this->OeawStorage->getRootFromDB(0,0,true);
-        
-        if(count($countRes) == 0){
+        $countRes = $countRes[0]["count"];
+                
+        if($countRes == 0){
             $errorMSG = drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
         }
         
         //if the offset is bigger than the 
-        if($offset >= count($countRes)){
-            $offset = count($countRes) - 1;
+        if($offset >= $countRes){
+            $offset = $countRes - 1;        
             $search['next_page'] = "end";
         }else {
             $search['next_page'] = $offset + 10;
