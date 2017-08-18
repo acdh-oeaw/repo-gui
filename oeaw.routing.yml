@@ -65,7 +65,7 @@ oeaw_resources:
     _access: 'TRUE'
     
 oeaw_roots:
-  path: '/oeaw_roots/{limit}/{offset}'
+  path: '/discover/{limit}/{offset}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::roots_list'
     limit: "0"
