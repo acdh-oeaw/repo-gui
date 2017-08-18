@@ -39,9 +39,20 @@
 		{% if result['acdh_hasAuthor'] %}
 	        <div class="res-property">
 	        	<i class="material-icons">&#xE7FB;</i> 
-	        	{% for name in result['acdh_hasAuthor'].authorName %}                                        
-	        		<span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['acdh_hasAuthor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
+                        <ul>
+	        	{% for name in result['acdh_hasAuthor'].value %}                                        
+	        		<span class="res-contributor">
+                                    <a href="/oeaw_detail/{{ cycle(result['acdh_hasAuthor'].inside_url, loop.index0) }}">
+                                        <li>
+                                            {% if result['acdh_hasAuthor']['title'][loop.index - 1] %}
+                                                {{ result['acdh_hasAuthor']['title'][loop.index - 1] }}
+                                            {% else %}
+                                                {{ result['acdh_hasAuthor']['value'][loop.index - 1] }}
+                                            {% endif %} 
+                                        </li>
+                                    </a></span>  
 	        	{% endfor %}	
+                        </ul>
 			</div>
 		{% endif%}
 		

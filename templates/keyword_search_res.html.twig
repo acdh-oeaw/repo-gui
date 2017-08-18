@@ -7,11 +7,14 @@
             {{ searchedValues }}
         </div>	
         <div class="result-basic-info">
-            <a href="/{{ search['page'] }}/10/{{ search['previous_page'] }}"> <<< Previous Page</a> || 
+            {{ search['previous_page'] }}
+            {% if  search['previous_page'] != "first" %}
+            <a href="/{{ search['page'] }}/{{ search['limit'] }}/{{ search['previous_page'] }}"> <<< Previous Page</a>
+            {% endif%}
             
             {% if  search['next_page'] != "end" %}
-                <a href="/{{ search['page'] }}/10/{{ search['next_page'] }}">Next Page >>></a>
-            {% endif%}    
+                <a href="/{{ search['page'] }}/{{ search['limit'] }}/{{ search['next_page'] }}">Next Page >>></a>
+            {% endif%}
         </div>
     </div>
 	

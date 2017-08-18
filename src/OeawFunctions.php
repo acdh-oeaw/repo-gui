@@ -72,6 +72,31 @@ class OeawFunctions {
         return $result;
     }
     
+    public function makePaginatonData(int $offset, int $limit, int $countRes): array{
+        
+        $res = array();
+        
+       /* //if the offset is bigger than the 
+        if($offset >= $countRes){            
+            $res['next_page'] = "end";
+        }else {
+            $res['next_page'] = $offset + $limit;
+        }
+        
+        $res['page'] = 'discover'; 
+        $res['limit'] = $limit;     
+        
+        $res['offset'] = $offset;
+        
+        if($offset <= $limit){
+            $res['previous_page'] = "first";
+        }else {
+            $res['previous_page'] = $offset - $limit;
+        }
+        */
+        return $res;
+    }
+    
     /**
      * 
      * Get the Fedora Resource Rules
@@ -518,7 +543,7 @@ class OeawFunctions {
             $i = 0;
             
             foreach($rootMeta->propertyUris($uri) as $v){
-            
+                $x = 0;
                 foreach($rootMeta->all($v) as $item){
             
                     // if there is a thumbnail
@@ -564,9 +589,9 @@ class OeawFunctions {
                                 $resValTitle = $this->getTitleByTheFedIdNameSpace($resVal);
                                 //we have a title for the resource
                                 if($resValTitle){
-                                    $results[$propertyRep]["title"][] = $resValTitle;
+                                    $results[$propertyRep]["title"][$x] = $resValTitle;
                                 }
-                            }                                                        
+                            }
                             $results[$propertyRep]["property"] = $property;
                             $results[$propertyRep]["value"][] = $resVal;
                            
@@ -603,13 +628,14 @@ class OeawFunctions {
                         $propertyRep = str_replace(":","_",$property);
                         $results[$propertyRep]["property"] = $property;
                         $results[$propertyRep]["value"][] = $item;
-                        
                     }
+                    $x++;
                 }
+                
                 $i++;                    
             } 
         }
-
+       
         return $results;
     }
     

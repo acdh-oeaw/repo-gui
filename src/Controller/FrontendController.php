@@ -71,23 +71,10 @@ class FrontendController extends ControllerBase {
             $errorMSG = drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
         }
         
-        //if the offset is bigger than the 
+        //make the pagination data
+        //$search = $this->OeawFunctions->makePaginatonData($offset, $limit, (int)$countRes);
         if($offset >= $countRes){
-            $offset = $countRes - 1;        
-            $search['next_page'] = "end";
-        }else {
-            $search['next_page'] = $offset + 10;
-        }
-        
-        $search['page'] = 'discover'; 
-        $search['limit'] = $limit;     
-        
-        $search['offset'] = $offset;
-        
-        if($offset <= 10){
-            $search['previous_page'] = 0;
-        }else {
-            $search['previous_page'] = $offset - 10;
+            $offset = $countRes - 1;
         }
         
         $result = $this->OeawStorage->getRootFromDB($limit, $offset);
@@ -177,8 +164,6 @@ class FrontendController extends ControllerBase {
                 ]
             ]
         );
-        
-        
         
         if(isset($res) && $res !== null && !empty($res)){            
             $header = array_keys($res[0]);
@@ -593,7 +578,7 @@ class FrontendController extends ControllerBase {
 			            $results['acdh_hasAuthor']["authorName"][$iCont-1] .= ",";     
 		            }
 	                $results['acdh_hasAuthor']["authorName"][$iCont] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-	                $iCont++;	            
+	                $iCont++;
 	            }
             }
         }
@@ -638,7 +623,7 @@ class FrontendController extends ControllerBase {
         
         // Pass fedora uri so it can be linked in the template
         $extras["fedoraURI"] = $uri;
-
+        
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,
