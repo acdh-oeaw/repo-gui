@@ -111,9 +111,11 @@ oeaw_admin_form:
         _admin_route: TRUE
 
 oeaw_classes_result:    
-    path: '/oeaw_classes_result/{data}'
+    path: '/oeaw_classes_result/{data}/{limit}/{page}'
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_classes_result'
+        limit: "0"
+        page: "0"
     requirements:        
         _access: 'TRUE'
 

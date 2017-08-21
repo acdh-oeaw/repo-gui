@@ -232,7 +232,7 @@ class OeawStorage {
      * @param string $value
      * @return array
      */
-    public function getDataByProp(string $property, string $value): array {
+    public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false): array {
         
         if (empty($value) || empty($property)) {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
@@ -267,31 +267,36 @@ class OeawStorage {
 
             $q = new Query();            
             $q->addParameter((new HasValue($property, $value))->setSubVar('?uri'));
-            //Query parameters for the properties we want to get, true stands for optional
-            $q->addParameter((new HasTriple('?uri', $dcTitle, '?title')), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$author, '?author'), true);           
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
-            $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?label'), true);
-            $q->addParameter(new HasTriple('?uri', $foafName, '?name'), true);         
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);            
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
-			
-			//Select and aggregate multiple sets of values into a comma seperated string
-            $q->setSelect(array('?uri', '?title', '?description', '?label', '?name', '?creationdate', '?isPartOf', '?firstName', '?lastName', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
             
-            //If it's a person order by their name, if not by resource title
-            if ($value == \Drupal\oeaw\ConnData::$person) {
-	            $q->setOrderBy(array('?firstName'));
-            } else {
-	            $q->setOrderBy(array('?title'));
-            }
+            if($count == false){
+                //Query parameters for the properties we want to get, true stands for optional
+                $q->addParameter((new HasTriple('?uri', $dcTitle, '?title')), true);
+                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$author, '?author'), true);           
+                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
+                $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?label'), true);
+                $q->addParameter(new HasTriple('?uri', $foafName, '?name'), true);         
+                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);            
+                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
+                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'), true);
+                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'), true);
+                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
+                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
+                //Select and aggregate multiple sets of values into a comma seperated string
+                $q->setSelect(array('?uri', '?title', '?description', '?label', '?name', '?creationdate', '?isPartOf', '?firstName', '?lastName', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
+                $q->setGroupBy(array('?uri', '?title', '?description', '?label', '?name', '?creationdate', '?isPartOf', '?firstName', '?lastName'));
+                //If it's a person order by their name, if not by resource title
+                if ($value == \Drupal\oeaw\ConnData::$person) {
+                        $q->setOrderBy(array('?firstName'));
+                } else {
+                        $q->setOrderBy(array('?title'));
+                }
+                $q->setLimit($limit);
+                $q->setOffset($offset); 
+            }else {
+                $q->setSelect(array('(COUNT(?uri) as ?count)'));
+                $q->setOrderBy(array('?uri'));
+            }                       
                               
-            $q->setGroupBy(array('?uri', '?title', '?description', '?label', '?name', '?creationdate', '?isPartOf', '?firstName', '?lastName'));                       
-           
             $query = $q->getQuery();
             
             $result = $this->fedora->runSparql($query);

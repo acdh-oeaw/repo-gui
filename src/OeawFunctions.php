@@ -72,31 +72,97 @@ class OeawFunctions {
         return $result;
     }
     
-    public function makePaginatonData(int $offset, int $limit, int $countRes): array{
+    
+    public function createPaginationData(int $limit, int $page, int $total): array {
         
+        $totalPages = 0;
         $res = array();
         
-       /* //if the offset is bigger than the 
-        if($offset >= $countRes){            
-            $res['next_page'] = "end";
+        if($limit == 0){
+            $totalPages = 0;
         }else {
-            $res['next_page'] = $offset + $limit;
-        }
-        
-        $res['page'] = 'discover'; 
-        $res['limit'] = $limit;     
-        
-        $res['offset'] = $offset;
-        
-        if($offset <= $limit){
-            $res['previous_page'] = "first";
+            $totalPages = ceil( $total / $limit ) ;
+        }            
+
+        if(isset($page) && $page != 0){                
+            if ($page > 0 && $page <= $totalPages) {
+                $start = ($page - 1) * $limit;
+                $end = $page * $limit;
+            } else {
+                // error - show first set of results
+                $start = 0;
+                $end = $limit;
+            }
         }else {
-            $res['previous_page'] = $offset - $limit;
-        }
-        */
+            // if page isn't set, show first set of results
+            $start = 0;
+            $end = 0;
+            $page = 0;
+        }   
+        
+        $res["start"] = $start;
+        $res["end"] = $end;
+        $res["page"] = $page;
+        $res["totalPages"] = $totalPages;
+        
         return $res;
     }
     
+    /**
+     * 
+     * create the page navigation html code
+     * 
+     * @param type $actualPage
+     * @param type $page
+     * @param type $tpages
+     * @param type $limit
+     * @return string
+     */
+    public function createPaginationHTML($actualPage, $page, $tpages, $limit): string {
+       
+        $adjacents = 2;
+        $prevlabel = "&lsaquo; Prev";
+        $nextlabel = "Next &rsaquo;";
+        $out = "";
+        
+        $tpages = $tpages -1;
+        // previous
+        if ($page == 0) {
+            $out.= "<li style='display: block; float:left; padding: 5px;'><span>" . $prevlabel . "</span></li>";
+        } elseif ($page == 1) {
+            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='" .$actualPage."/" .$limit . "/".$page."'>" . $prevlabel . "</a></li>";
+        } else {
+            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/".$actualPage."/" .$limit . "/" . ($page - 1) . "'>" . $prevlabel . "</a>\n</li>";
+        }
+
+        $pmin = ($page > $adjacents) ? ($page - $adjacents) : 0;
+        $pmax = ($page < ($tpages - $adjacents)) ? ($page + $adjacents) : $tpages;
+        
+        for ($i = $pmin; $i <= $pmax; $i++) {
+            if ($i == $page) {
+                $out.= "<li  style='display: block; float:left; padding: 5px;'  class=\"active\"><a href=''>" . $i . "</a></li>\n";
+            } elseif ($i == 0) {
+                $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/".$actualPage."/" .$limit . "/'>" . $i . "</a>\n</li>";
+            } else {
+                $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/".$actualPage."/" .$limit . "/" . $i . "'>" . $i . "</a>\n</li>";
+            }
+        }
+
+        // next
+        if ($page < $tpages) {
+            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/".$actualPage."/" .$limit . "/" . ($page + 1) . "'>" . $nextlabel . "</a>\n</li>";
+        } else {
+            $out.= "<li style='display: block; float:left; padding: 5px;'><span style=''>" . $nextlabel . "</span></li>";
+        }
+        
+        if ($page < ($tpages - $adjacents)) {
+            $out.= "<li style='display: block; float:left; padding: 5px;'>Last Page: <a style='' href='/".$actualPage."/" .$limit . "/" . $tpages . "'>" . $tpages . "</a></li>";
+        }
+        $out.= "";
+        
+        return $out;
+    }
+        
     /**
      * 
      * Get the Fedora Resource Rules

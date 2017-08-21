@@ -1075,6 +1075,8 @@ class FrontendController extends ControllerBase {
         return $response;
         
     }
+    
+    
         
     /**
      * 
@@ -1083,7 +1085,7 @@ class FrontendController extends ControllerBase {
      * 
      * @return array
      */
-    public function oeaw_classes_result(string $data, string $limit = "10", string $offset = "0"): array{
+    public function oeaw_classes_result(string $data, string $limit = "10", string $page = "0"): array{
         drupal_get_messages('error', TRUE);
         
         if(empty($data)){
@@ -1097,7 +1099,16 @@ class FrontendController extends ControllerBase {
         $classesArr = array();
         $res = array();        
         $errorMSG = array();
-
+        $pagination = "";
+        
+        $page = (int)$page;
+        $limit = (int)$limit;
+        //get the current page for the pagination
+        $currentPath = \Drupal::service('path.current')->getPath();
+        $currentPage = substr($currentPath, 1);
+        $currentPage = explode("/", $currentPage);        
+        $currentPage = $currentPage[0].'/'.$currentPage[1];
+        
         $classesArr = explode(":", base64_decode($data));
         $property = $classesArr[0];
         $value =  $classesArr[1];
@@ -1111,20 +1122,21 @@ class FrontendController extends ControllerBase {
         
         $uid = \Drupal::currentUser()->id();
         if(!empty($property) && !empty($value)){
-            
+            //get all data
             $countRes = $this->OeawStorage->getDataByProp('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property.':'.$value, 0, 0, true);
-            $countRes = $countRes[0]["count"];
+            $total = (int)$countRes[0]["count"];
                 
             if($countRes == 0){
                 $errorMSG = drupal_set_message(t('There is no data in the Database!'), 'error', FALSE);
             }
+            //create data for the pagination
+            $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
             
-            //$search = $this->OeawFunctions->makePaginatonData($offset, $limit, (int)$countRes);
-            if($offset >= $countRes){
-                $offset = $countRes - 1;
+            if ($pageData['totalPages'] > 1) {
+                $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
             }
-
-            $result = $this->OeawStorage->getDataByProp('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property.':'.$value, $limit, $offset);
+            //get the search result
+            $result = $this->OeawStorage->getDataByProp('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property.':'.$value, $limit, $pageData['end']);
             
             if(count($result) > 0){
                 $i = 0;
@@ -1244,6 +1256,7 @@ class FrontendController extends ControllerBase {
         if(isset($res) && $res !== null && !empty($res)){
             $datatable['#theme'] = 'oeaw_keyword_search_res';
             $datatable['#result'] = $res;
+            $datatable['#pagination'] = $pagination;
             $datatable['#searchedValues'] = $i . ' elements of type "' . $metaValueReadable . '" have been found.';                
         }
         
