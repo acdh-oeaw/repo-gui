@@ -144,7 +144,7 @@ abstract class DepAgreeBaseForm extends FormBase {
         
         $form = array();        
        
-        /*
+        
         $form['actions']['#type'] = 'actions';
         $form['actions']['submit'] = array(
             '#type' => 'submit',
@@ -156,7 +156,7 @@ abstract class DepAgreeBaseForm extends FormBase {
                 'style' => 'margin:10px; color:white;'
             ),
         );
-*/
+
         return $form;        
     }
     
