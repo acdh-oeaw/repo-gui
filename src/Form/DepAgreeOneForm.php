@@ -79,8 +79,7 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
         $form['depositor'] = array(
             '#type' => 'fieldset',
             '#title' => t('<b>Depositor</b>'),
-            '#collapsible' => TRUE,
-            '#collapsed' => FALSE,  
+            '#field_prefix' => 'The Depositor is the person authorised to transfer and deposit digital resources.',
         );
         
         $form['depositor']['l_name'] = array(
@@ -132,18 +131,18 @@ class DepAgreeOneForm extends DepAgreeBaseForm{
             '#default_value' => $this->zipcode,
         );
         
-        $form['depositor']['email'] = array(
-            '#type' => 'email',
-            '#title' => t('Email:'),
-            '#required' => TRUE,
-            '#default_value' => $this->email,
-        );
-        
         $form['depositor']['phone'] = array (
             '#type' => 'tel',
-            '#title' => t('Phone'),
+            '#title' => t('Phone:'),
             '#required' => TRUE,
             '#default_value' => $this->phone,
+        );
+        
+        $form['depositor']['email'] = array(
+            '#type' => 'email',
+            '#title' => t('E-mail:'),
+            '#required' => TRUE,
+            '#default_value' => $this->email,
         );
         
         //create the next button to the form second page

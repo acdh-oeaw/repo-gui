@@ -400,20 +400,44 @@ class DepAgreeConstants {
     }
     
     public static function getTransferMedium(){
-        $transferMeth = array();
-        $transferMeth["CD"] = "CD";
-        $transferMeth["DVD"] = "DVD";
-        $transferMeth["HDD"] = "Hard Drive";
-        $transferMeth["NETWORK"] = "Network Transfer";
-        $transferMeth["USB"] = "USB";
+        /*$transferMeth = array();
+        $transferMeth["UPLOAD"] = "Upload (max. 100MB)";
+        $transferMeth["OEAWCLOUD"] = "oeawCloud please provide the URL";
+        $transferMeth["LINK"] = "Link to file storage: please provide the URL";
+        $transferMeth["PHYSICAL"] = "With physical storage medium: we will contact you to clarify details";
+        */
+        
+        $transferMeth = array( 
+            'UPLOAD' => t('Upload (max. 100MB)'),
+            'OEAWCLOUD' => t('oeawCloud please provide the URL'),
+            'LINK' => t('Link to file storage: please provide the URL'),
+            'PHYSICAL' => t('With physical storage medium: we will contact you to clarify details')            
+        );
+        
         return $transferMeth;
     }
     
     public static function getDataValidation(){
-        $dataValidation = array();
-        $dataValidation[0] = "The donor/depository has provided a tab-delimited text file providing full object paths and filenames for the all objects being submitted, with an MD5 checksum for each object.  The repository will perform automated validation.";
-        $dataValidation[1] = "Based on incomplete information supplied by the depositor/donor prior to transfer, the repository will carry out selected content and completeness checks to verify that the transmitted data is what is expected, and that it is complete.";
-        $dataValidation[2] = "No data validation will be performed on objects submitted.";        
-        return $dataValidation;
+        $data = array();
+        $data[0] = "The donor/depository has provided a tab-delimited text file providing full object paths and filenames for the all objects being submitted, with an MD5 checksum for each object.  The repository will perform automated validation.";
+        $data[1] = "Based on incomplete information supplied by the depositor/donor prior to transfer, the repository will carry out selected content and completeness checks to verify that the transmitted data is what is expected, and that it is complete.";
+        $data[2] = "No data validation will be performed on objects submitted.";        
+        return $data;
+    }
+    
+    public static function getIntegrityChecks(){
+        $data = array();
+        $data[0] = "The Depositor has provided a file listing full object paths and filenames for the all objects being submitted, with an MD5 checksum for each object.  The Repository will perform automated validation.";
+        $data[1] = "Based on incomplete information supplied by the Depositor prior to transfer, the Repository will carry out content and completeness checks to verify that the transmitted data is what is expected, and that it is complete.";
+        $data[2] = "If no checksums or other information about the data is provided by the Depositor, the Repository cannot perform any integrity checks on submitted data.";        
+        return $data;
+    }
+    
+    public static function getAccessMode(){
+        $data = array();
+        $data['PUB'] = "Public content (PUB): free access to the general public without any restriction. The classification of a resource as public content does not mean that the resources may be used for any purpose. The permissible types of use are further detailed by the licence accompanying every resource.";
+        $data['ACA'] = "Academic content (ACA): to access the resource the user has to register as an academic user. This is accomplished by authentication with the home identity provider by means of the Identity Federation.";
+        $data['RES'] = "Restricted content (RES): includes resources with a special access mode. Special authorisation rules apply that are detailed in the accompanying metadata record.";        
+        return $data;
     }
 }
