@@ -143,8 +143,7 @@ abstract class DepAgreeBaseForm extends FormBase {
         }
         
         $form = array();        
-       
-        
+               
         $form['actions']['#type'] = 'actions';
         $form['actions']['submit'] = array(
             '#type' => 'submit',

@@ -144,14 +144,27 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
     
     public function getCreators(&$form, $max){
         
+        
+        $form['fields']['creators_title'] = [
+            '#type' => 'checkbox',
+            '#title' => t('Show / Hide Creators Form'),
+            '#options' => [
+                '1' => t('Show/Hide')
+             ],
+        ];
+
         $form['fields']['creators'] = array(
-            '#type' => 'fieldset',
-            
+            '#type' => 'fieldset',           
             '#collapsible' => TRUE,
             '#collapsed' => TRUE,  
             '#title' => t('Creators'),
             '#prefix' => '<div id="creators-wrapper">',
             '#suffix' => '</div>',
+            '#states' => array(
+                'visible' => array(
+                    ':input[name="creators_title"]' => array('checked' => TRUE),
+                ),
+            ),
         );
        
         
@@ -383,7 +396,7 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
         
         
     }
-    
+        
     public function getDisseminationMaterials(array &$form){
         $form['diss_material'] = array(
             '#type' => 'fieldset',
@@ -407,14 +420,15 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
         $form['diss_material']['diss_material_logos'] = array(
             '#type' => 'managed_file',
             '#title' => t('Logos:'),
-            
+            '#multiple' => TRUE,
             '#upload_location' => 'public://'.$this->repoid.'/',
             '#default_value' => $this->diss_material_logos,
             '#upload_validators' => array(
                 'file_validate_extensions' => array('png jpg gif jpeg'),                
              ),
             '#description' => $this->t('Please provide logos to be displayed along the resources'),
-            '#required' => FALSE,            
+            '#required' => FALSE,
+            '#theme' => 'advimagearray_thumb_upload',
         );
     }
     
@@ -437,11 +451,92 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
             ),          
         ];
         
-        $form['transfer']['access_mode_check']['access_mode_check'] = array(
+        $form['transfer']['access_mode_check']['accmode_l_name'] = array(
             '#type' => 'textfield',
-            '#title' => t('access_mode_check:'),
-            '#default_value' => $this->transfer_method_url,            
+            '#title' => t('Last Name:'),
+            '#required' => FALSE,
+            '#default_value' => $this->store->get('accmode_l_name') ? $this->store->get('accmode_l_name') : '',
+            '#prefix' => t('<h2><b>Access Mode Contact person </b></h2>'),
+            '#states' => array(
+                'visible' => array(                    
+                    ':input[name="access_mode"]' => array('value' => 'RES'),                    
+                ),
+            ),          
         );
+        $form['transfer']['access_mode_check']['accmode_f_name'] = array(
+            '#type' => 'textfield',
+            '#title' => t('First Name:'),
+            '#required' => FALSE,
+            '#default_value' => $this->store->get('accmode_f_name') ? $this->store->get('accmode_f_name') : '',
+            '#states' => array(
+                'visible' => array(                    
+                    ':input[name="access_mode"]' => array('value' => 'RES'),                    
+                ),
+            ),          
+        );
+        $form['transfer']['access_mode_check']['accmode_title'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Title:'),
+            '#default_value' => $this->store->get('accmode_title') ? $this->store->get('accmode_title') : '',
+            '#states' => array(
+                'visible' => array(                    
+                    ':input[name="access_mode"]' => array('value' => 'RES'),                    
+                ),
+            ),          
+        );        
+        $form['transfer']['access_mode_check']['accmode_city'] = array(
+            '#type' => 'textfield',
+            '#title' => t('City:'),
+            '#default_value' => $this->store->get('accmode_city') ? $this->store->get('accmode_city') : '',
+            '#states' => array(
+                'visible' => array(                    
+                    ':input[name="access_mode"]' => array('value' => 'RES'),                    
+                ),
+            ),          
+        );
+        $form['transfer']['access_mode_check']['accmode_address'] = array(
+            '#type' => 'textfield',                    
+            '#title' => t('Address:'),
+            '#default_value' => $this->store->get('accmode_address') ? $this->store->get('accmode_address') : '',
+            '#states' => array(
+                'visible' => array(                    
+                    ':input[name="access_mode"]' => array('value' => 'RES'),                    
+                ),
+            ),          
+        );
+        $form['transfer']['access_mode_check']['accmode_zipcode'] = array(
+            '#type' => 'textfield',
+            '#title' => t('Zipcode:'),
+            '#default_value' => $this->store->get('accmode_zipcode') ? $this->store->get('accmode_zipcode') : '',
+            '#states' => array(
+                'visible' => array(                    
+                    ':input[name="access_mode"]' => array('value' => 'RES'),                    
+                ),
+            ),          
+        );                
+        $form['transfer']['access_mode_check']['accmode_phone'] = array (
+            '#type' => 'tel',
+            '#title' => t('Phone'),
+            '#default_value' => $this->store->get('accmode_phone') ? $this->store->get('accmode_phone') : '',
+            '#states' => array(
+                'visible' => array(                    
+                    ':input[name="access_mode"]' => array('value' => 'RES'),                    
+                ),
+            ),          
+        );
+        $form['transfer']['access_mode_check']['accmode_email'] = array (
+            '#type' => 'email',
+            '#title' => t('Email'),
+            '#default_value' => $this->store->get('accmode_email') ? $this->store->get('accmode_email') : '',
+            '#suffix' => '<hr><br>',
+            '#states' => array(
+                'visible' => array(                    
+                    ':input[name="access_mode"]' => array('value' => 'RES'),                    
+                ),
+            ),
+        );
+        
+        
     }
     
   
