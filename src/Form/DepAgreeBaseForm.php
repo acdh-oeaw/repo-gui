@@ -169,7 +169,7 @@ abstract class DepAgreeBaseForm extends FormBase {
         $form1 = $this->store->get('form1Val');
         $form2 = $this->store->get('form2Val');
         $form3 = $this->store->get('form3Val');
-        $form4 = $this->store->get('form4Val');
+        //$form4 = $this->store->get('form4Val');
      
         $fileMetaData = $this->store->get('material_metadata_file');
         $fileNameScheme = $this->store->get('material_name_scheme');        
@@ -178,33 +178,41 @@ abstract class DepAgreeBaseForm extends FormBase {
         $fileMatLogo = $this->store->get('diss_material_logos');
         $fileMatBagit = $this->store->get('material_bagit_file');
         $fileMatArr = $this->store->get('material_arrangement_file');
-                
+        
         if($fileMetaData){
             $fileMetaData = $fileMetaData[0];
-            if($fileMetaData[0]){
-                $fmdObj = file_load($fileMetaData);
+            
+            if($fileMetaData){
+                $fmdObj = file_load($fileMetaData[0]);
                 $form2['material_metadata_file'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$fmdObj->getFilename();
             }
         }
+        
         if($fileNameScheme){
             $fileNameScheme = $fileNameScheme[0];
-            if($fileNameScheme[0]){
-                $fnsObj = file_load($fileNameScheme);
+            if($fileNameScheme){
+                $fnsObj = file_load($fileNameScheme[0]);
                 $form2['material_name_scheme'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$fnsObj->getFilename();
             }
         }
-        if($fileMatTitle){
-            $fileMatTitle = $fileMatTitle[0];
-            if($fileMatTitle[0]){
-                $mtdObj = file_load($fileMatTitle);
-                $form2['diss_material_title'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$mtdObj->getFilename();
+        
+        if(count($fileMatTitle) > 0){
+            $fID = $fileMatTitle[0];
+            if(!empty($fID)){
+                $mtdObj = file_load($fID);
+                if($mtdObj->getFilename()){
+                    $form2['diss_material_title'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$mtdObj->getFilename();
+                }
             }
         }
-        if($fileMatSub){
-            $fileMatSub = $fileMatSub[0];
-            if($fileMatSub[0]){
-                $msdObj = file_load($fileMatSub);
-                $form2['diss_material_sub_images'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$msdObj->getFilename();
+        if(count($fileMatSub) > 0){
+            $fmID = $fileMatSub[0];            
+            if(!empty($fmID)){
+                $msdObj = file_load($fmID);
+                if($msdObj->getFilename()){
+                    $form2['diss_material_sub_images'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$msdObj->getFilename();
+                }
+                
             }
         }        
         if($fileMatLogo){
@@ -229,9 +237,9 @@ abstract class DepAgreeBaseForm extends FormBase {
             }
         }
         
-        $dv = \Drupal\oeaw\DepAgreeConstants::getDataValidation();
+        /*$dv = \Drupal\oeaw\DepAgreeConstants::getDataValidation();
         $form3['data_validation'] = $dv[$form3['data_validation']];                
-       
+       */
         $num_updated = db_update('oeaw_forms')
             ->fields(array(        
                     'status'=>  "closed"
@@ -303,7 +311,21 @@ abstract class DepAgreeBaseForm extends FormBase {
         $fontnames = array('normal' => $fontname, 'bold' => $fontnameBold);
         
        //generate the pages
-        if(empty($form1) || empty($form2) || empty($form3) || empty($form4)){        
+        if(empty($form1) || empty($form2) || empty($form3)){        
+            
+            echo "<pre>";
+            echo "form1";
+            var_dump($form1);
+            echo "form2";
+            var_dump($form2);
+            echo "form3";
+            var_dump($form3);
+            echo "</pre>";
+
+            die();
+
+
+
             $msg = base64_encode("This FORM is OUTDATED!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
@@ -313,7 +335,7 @@ abstract class DepAgreeBaseForm extends FormBase {
         $this->generatePdfPage($tcpdf, $form1, "DEPOSITOR", \Drupal\oeaw\DepAgreeConstants::$depTXT, $fontnames);
         $this->generatePdfPage($tcpdf, $form2, "DESCRIPTION OF MATERIAL, EXTENT, FILES", \Drupal\oeaw\DepAgreeConstants::$descTXT, $fontnames);
         $this->generatePdfPage($tcpdf, $form3, "TRANSFER PROCEDURES", \Drupal\oeaw\DepAgreeConstants::$transferTXT, $fontnames);
-        $this->generatePdfPage($tcpdf, $form4, "CREATORS", \Drupal\oeaw\DepAgreeConstants::$lastTXT, $fontnames);
+        //$this->generatePdfPage($tcpdf, $form4, "CREATORS", \Drupal\oeaw\DepAgreeConstants::$lastTXT, $fontnames);
  
         $tcpdf->AddPage();
         $signTXT = '
@@ -342,12 +364,12 @@ abstract class DepAgreeBaseForm extends FormBase {
         $this->deleteStore($form1);
         $this->deleteStore($form2);
         $this->deleteStore($form3);
-        $this->deleteStore($form4);
+        //$this->deleteStore($form4);
 
         $this->store->delete('form1Val');
         $this->store->delete('form2Val');
         $this->store->delete('form3Val');
-        $this->store->delete('form4Val');
+        //$this->store->delete('form4Val');
         $response = new RedirectResponse(\Drupal::url('oeaw_form_success', ['url' => $form2['material_acdh_repo_id']]));
         $response->send();
         return;

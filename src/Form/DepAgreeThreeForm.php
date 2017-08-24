@@ -7,7 +7,6 @@ use Drupal\Core\Url;
 
 class DepAgreeThreeForm extends DepAgreeBaseForm{
     
-    private $formDataThree = array();
     private $material_mat_licence = "";
     private $folder_name = "";
     private $transfer_method = "";
@@ -18,8 +17,16 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
     private $embargo_date = "";
     private $diss_material_title = "";
     private $transfer_method_url = "";
-    //private $diss_material_sub_images = array();
+    private $transfer_method_link_url = "";
     private $diss_material_logos = array();
+    private $accmode_l_name = "";
+    private $accmode_f_name = "";
+    private $accmode_title = "";
+    private $accmode_city  = "";
+    private $accmode_address  = "";
+    private $accmode_zipcode  = "";
+    private $accmode_phone  = "";
+    private $accmode_email  = "";
             
     public function getFormId() {
         return 'depagree_form';
@@ -29,12 +36,36 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
     
         $dataField = array();
         $dataThree = json_decode($this->dbData["data"]);
+        
         if(isset($dataThree->three)){
             $dataField = $dataThree->three; 
         }
 
         if(count($dataField) > 0 && isset($dataField)){
-
+            if(isset($dataField->accmode_l_name)){
+                $this->accmode_l_name = $dataField->accmode_l_name;
+            }
+            if(isset($dataField->accmode_f_name)){
+                $this->accmode_f_name = $dataField->accmode_f_name;
+            }
+            if(isset($dataField->accmode_title)){
+                $this->accmode_title = $dataField->accmode_title;
+            }
+            if(isset($dataField->accmode_city)){
+                $this->accmode_city = $dataField->accmode_city;
+            }
+            if(isset($dataField->accmode_address)){
+                $this->accmode_address = $dataField->accmode_address;
+            }
+            if(isset($dataField->accmode_zipcode)){
+                $this->accmode_zipcode = $dataField->accmode_zipcode;
+            }
+            if(isset($dataField->accmode_phone)){
+                $this->accmode_phone = $dataField->accmode_phone;
+            }
+            if(isset($dataField->accmode_email)){
+                $this->accmode_email = $dataField->accmode_email;
+            }
             if(isset($dataField->embargo_question)){
                 $this->embargo_question = $dataField->embargo_question;
             }
@@ -62,14 +93,15 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
             if(isset($dataField->diss_material_title)){
                 $this->diss_material_title = $dataField->diss_material_title;
             }
-            
             if(isset($dataField->diss_material_logos)){
                 $this->diss_material_logos = $dataField->diss_material_logos;
             }
             if(isset($dataField->transfer_method_url)){
                 $this->transfer_method_url = $dataField->transfer_method_url;
             }
-            
+            if(isset($dataField->transfer_method_link_url)){
+                $this->transfer_method_link_url = $dataField->transfer_method_link_url;
+            }
         }        
     }
     
@@ -282,16 +314,7 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
             '#attributes' => array("readonly" => TRUE),
             '#default_value' => date("d-m-Y")            
         );
-        /*
-        $form['transfer']['transfer_method'] = array(
-            '#type' => 'radios',
-            '#title' => t('Transfer medium and method:'),
-            '#options' => \Drupal\oeaw\DepAgreeConstants::getTransferMedium(),
-            '#description' => $this->t(''),
-            '#required' => FALSE,
-            '#default_value' => $this->transfer_method,
-        );
-        */
+        
         $form['transfer']['transfer_method'] = array(
             '#type' => 'select',
             '#title' => t('Transfer medium and method:'),
@@ -579,6 +602,14 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
        
         $form3Val = array();
         //get the class and root values from the form
+        $form3Val['accmode_l_name'] = $form_state->getValue('accmode_l_name');
+        $form3Val['accmode_f_name'] = $form_state->getValue('accmode_f_name');
+        $form3Val['accmode_title'] = $form_state->getValue('accmode_title');
+        $form3Val['accmode_city'] = $form_state->getValue('accmode_city');
+        $form3Val['accmode_address'] = $form_state->getValue('accmode_address');
+        $form3Val['accmode_zipcode'] = $form_state->getValue('accmode_zipcode');
+        $form3Val['accmode_phone'] = $form_state->getValue('accmode_phone');
+        $form3Val['accmode_email'] = $form_state->getValue('accmode_email');
         $form3Val['material_mat_licence'] = $form_state->getValue('material_mat_licence');
         $form3Val['folder_name'] = $form_state->getValue('folder_name');
         $form3Val['transfer_date'] = $form_state->getValue('transfer_date');
@@ -588,11 +619,15 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
         $form3Val['material_ipr'] = $form_state->getValue('material_ipr');
         $form3Val['embargo_question'] = $form_state->getValue('embargo_question');
         $form3Val['embargo_date'] = $form_state->getValue('embargo_date');
-        $form3Val['diss_material_title'] = $form_state->getValue('diss_material_title');
-        //$form3Val['diss_material_sub_images'] = $form_state->getValue('diss_material_sub_images');
+        $form3Val['diss_material_title'] = $form_state->getValue('diss_material_title');        
         $form3Val['diss_material_logos'] = $form_state->getValue('diss_material_logos');
-        $form3Val['transfer_method_url'] = $form_state->getValue('transfer_method_url');
 
+        if(!empty($form_state->getValue('transfer_method_link_url'))){
+                $form3Val['transfer_method_url'] = $form_state->getValue('transfer_method_link_url');
+        }else {
+                $form3Val['transfer_method_url'] = $form_state->getValue('transfer_method_oeawcloud_url');
+        }
+        $form3Val['transfer_method_link_url'] = $form_state->getValue('transfer_method_link_url');
         $form3Val['fields_count'] = $form_state->get('fields_count');
         $fields_count = $this->store->set('fields_count_value', $form_state->get('fields_count'));
 
@@ -610,6 +645,15 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
             $form3Val['creator_email_'.$i] = $form_state->getValue('creator_email_'.$i);
         }
 
+        
+        $this->store->set('accmode_l_name', $form_state->getValue('accmode_l_name'));
+        $this->store->set('accmode_f_name', $form_state->getValue('accmode_f_name'));
+        $this->store->set('accmode_title', $form_state->getValue('accmode_title'));
+        $this->store->set('accmode_city', $form_state->getValue('accmode_city'));
+        $this->store->set('accmode_address', $form_state->getValue('accmode_address'));
+        $this->store->set('accmode_zipcode', $form_state->getValue('accmode_zipcode'));
+        $this->store->set('accmode_phone', $form_state->getValue('accmode_phone'));
+        $this->store->set('accmode_email', $form_state->getValue('accmode_email'));
         $this->store->set('folder_name', $form_state->getValue('folder_name'));
         $this->store->set('material_mat_licence', $form_state->getValue('material_mat_licence'));
         $this->store->set('transfer_date', $form_state->getValue('transfer_date'));
@@ -620,14 +664,15 @@ class DepAgreeThreeForm extends DepAgreeBaseForm{
         $this->store->set('embargo_date', $form_state->getValue('embargo_date'));
         $this->store->set('embargo_question', $form_state->getValue('embargo_question'));
         $this->store->set('diss_material_logos', $form_state->getValue('diss_material_logos'));
-        //$this->store->set('diss_material_sub_images', $form_state->getValue('diss_material_sub_images'));
-        $this->store->set('diss_material_title', $form_state->getValue('diss_material_title'));        
-        $this->store->set('transfer_method_url', $form_state->getValue('transfer_method_url'));        
-        
-        $this->store->set('form3Val', $form3Val);
+        $this->store->set('diss_material_title', $form_state->getValue('diss_material_title'));
+        $this->store->set('transfer_method_url', $form_state->getValue('transfer_method_url'));
+        $this->store->set('transfer_method_link_url', $form_state->getValue('transfer_method_link_url'));
+        $fields_count = $this->store->set('fields_count_value', $form_state->get('fields_count'));
 
         $DBData = array();
     
+        $this->store->set('form3Val', $form3Val);
+        
         //we have record in the DB, so it will be an DB update
         if(isset($this->dbData["data"]) && !empty($this->dbData["data"])){        
             $DBData = json_decode($this->dbData["data"], TRUE);        
