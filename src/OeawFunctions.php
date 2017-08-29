@@ -504,7 +504,7 @@ class OeawFunctions {
             $ln = $rootMeta->get(\Drupal\oeaw\ConnData::$hasLastName);
             
             if($fn && $ln){
-                $result = $fn.' '.$ln;
+                return $result = $fn.' '.$ln;
             }             
         }
         
@@ -604,7 +604,7 @@ class OeawFunctions {
         $results = array();
         $resVal = "";
         $rootMeta =  $this->makeMetaData($uri);
-        
+        $specLbl = "";
         if(count($rootMeta) > 0){
             $i = 0;
             
@@ -625,6 +625,7 @@ class OeawFunctions {
                             $hasImage = $uri;
                             $results["image"] = $uri;
                         }
+                        
                         //if we have an acdh namespace in the rdftype
                         if (strpos($item, \Drupal\oeaw\ConnData::$acdhNamespace) !== false) {
                             //then we need to check the special rdf types
@@ -635,7 +636,17 @@ class OeawFunctions {
                             }
                         }
                     }
-                    // thumbnail end                    
+                    // if the speciallabel is empty then we check the hasContributor property too
+                    if(empty($specLbl)){                        
+                        if (strpos($v, \Drupal\oeaw\ConnData::$contributor) !== false) {                            
+                            $cUser = $this->getTitleByTheFedIdNameSpace($item);
+                            if($cUser){
+                                $specLbl = $cUser;
+                            }
+                        }                                    
+                    }
+                    
+                    // thumbnail end
                     
                     if(get_class($item) == "EasyRdf\Resource"){
                         if($this->createPrefixesFromString($v) === false){                            
@@ -731,7 +742,7 @@ class OeawFunctions {
     }
         
     /**
-     * Get the title if the url contains the fedoraIDNamespace
+     * Get the title if the url contains the fedoraIDNamespace or the viaf.org ID
      * 
      * 
      * @param string $string
@@ -744,9 +755,10 @@ class OeawFunctions {
         $return = "";
         $OeawStorage = new OeawStorage();
         
-        if (strpos($string, 'https://id.acdh.oeaw.ac.at/') !== false) {
+        if (strpos($string, 'https://id.acdh.oeaw.ac.at/') !== false || strpos($string, 'http://viaf.org/viaf/') !== false) {
             
             $itemRes = $OeawStorage->getDataByProp(RC::get('fedoraIdProp'), $string);
+
             if(count($itemRes) > 0){
                 if($itemRes[0]["firstName"] && $itemRes[0]["lastName"]){
 		            $return = $itemRes[0]["firstName"] . " " . $itemRes[0]["lastName"];
