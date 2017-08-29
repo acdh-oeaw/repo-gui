@@ -635,27 +635,16 @@ class OeawFunctions {
                                 $results["specialLabel"] = $specLbl;
                             }
                         }
-                    }
-                    // if the speciallabel is empty then we check the hasContributor property too
-                    if(empty($specLbl)){                        
-                        if (strpos($v, \Drupal\oeaw\ConnData::$contributor) !== false) {                            
-                            $cUser = $this->getTitleByTheFedIdNameSpace($item);
-                            if($cUser){
-                                $specLbl = $cUser;
-                            }
-                        }                                    
-                    }
-                    
+                    }                    
                     // thumbnail end
                     
                     if(get_class($item) == "EasyRdf\Resource"){
-                        if($this->createPrefixesFromString($v) === false){                            
+                        if($this->createPrefixesFromString($v) === false){
                             return drupal_set_message(t('Error in function: createPrefixesFromString'), 'error');
                         }
                         
                         //check the title based on the acdh id
-                        if($item->getUri()){
-                            
+                        if($item->getUri()){                            
                             $resVal = $item->getUri();
                             //get the resource title
                             $property = $this->createPrefixesFromString($v);
@@ -712,7 +701,7 @@ class OeawFunctions {
                 $i++;                    
             } 
         }
-       
+        
         return $results;
     }
     

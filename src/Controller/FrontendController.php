@@ -562,7 +562,8 @@ class FrontendController extends ControllerBase {
 		            if ($iCont > 0) {
 			            $results['acdh_hasContributor']["contributorName"][$iCont-1] .= ",";     
 		            }		            
-	                $results['acdh_hasContributor']["contributorName"][$iCont] = $contributorName;
+	                $results['acdh_hasContributor']["contributorName"][$iCont] = $contributorName;                        
+                        $results['acdh_hasContributor']["contributorUri"][$iCont] = $results['acdh_hasContributor']["value"][$iCont];
 	                $iCont++;
 	            }    
             }

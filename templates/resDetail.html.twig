@@ -59,8 +59,13 @@
 		{% if result['acdh_hasContributor'] %}
 	        <div class="res-property">
 	        	<i class="material-icons">&#xE7FE;</i>
-	        	{% for name in result['acdh_hasContributor'].contributorName %}                                        
+	        	{% for name in result['acdh_hasContributor'].contributorName %}
+                            {% if cycle(result['acdh_hasContributor'].inside_url, loop.index0)%}
 	        		<span class="res-contributor"><a href="/oeaw_detail/{{ cycle(result['acdh_hasContributor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
+                            {% else %}
+                                <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                                <span class="res-contributor"><a href="{{ cycle(result['acdh_hasContributor'].contributorUri, loop.index0) }}">{{ name }}</a></span>  
+                            {% endif%}
 	        	{% endfor %}	
 			</div>
 		{% endif%}					
