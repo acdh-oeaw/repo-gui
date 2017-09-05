@@ -25,12 +25,12 @@
             {% if item.specialLabel %}
                 <div class="res-property">
                     <i class="material-icons">&#xE873;</i>
-                    <span class="res-title"><a href="/oeaw_detail/{{ item.resUri }}">{{ item.specialLabel }}</a></span>
+                    <span class="res-title"><a href="oeaw_detail/{{ item.resUri }}">{{ item.specialLabel }}</a></span>
                 </div>
             {% elseif item.title %}
                 <div class="res-property">
                     <i class="material-icons">&#xE873;</i>
-                    <span class="res-title"><a href="/oeaw_detail/{{ item.resUri }}">{{ item.title }}</a></span>
+                    <span class="res-title"><a href="oeaw_detail/{{ item.resUri }}">{{ item.title }}</a></span>
                 </div>
             {% endif%}    
 
@@ -38,7 +38,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE7FB;</i>
                     {% for author in item.authors %}  	
-                    	<span class="res-contributor"><a href="/oeaw_detail/{{ author.authorUri }}">{{ author.authorName }}</a></span>
+                    	<span class="res-contributor"><a href="oeaw_detail/{{ author.authorUri }}">{{ author.authorName }}</a></span>
                     {% endfor %}	
                 </div>
             {% endif%}
@@ -47,7 +47,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE7FE;</i>
                     {% for contributor in item.contributors %}  	
-                    	<span class="res-contributor"><a href="/oeaw_detail/{{ contributor.contributorUri }}">{{ contributor.contributorName }}</a></span>
+                    	<span class="res-contributor"><a href="oeaw_detail/{{ contributor.contributorUri }}">{{ contributor.contributorName }}</a></span>
                     {% endfor %}	
                 </div>
             {% endif%}
@@ -70,7 +70,7 @@
             {% if item.isPartOfTitle %}
                 <div class="res-property">
                     <i class="material-icons">&#xE335;</i>	
-                    <span class="res-ispartof">Part of: <a href="/oeaw_detail/{{ item.isPartOfUri }}">{{ item.isPartOfTitle }}</a></span>
+                    <span class="res-ispartof">Part of: <a href="oeaw_detail/{{ item.isPartOfUri }}">{{ item.isPartOfTitle }}</a></span>
                 </div>
             {% endif%}            
 
@@ -92,7 +92,7 @@
                 {% endif%}
 
                 <div class="res-act-button">
-                    <a href="/oeaw_detail/{{ item.resUri }}">
+                    <a href="oeaw_detail/{{ item.resUri }}">
                         <i class="material-icons">&#xE873;</i>
                         <span>Detailed View</span>
                     </a>	
