@@ -33,9 +33,7 @@ class SidebarTypeOfResourceForm extends FormBase
     * {@inheritdoc}.
     */
     public function buildForm(array $form, FormStateInterface $form_state) 
-    {   
-      
-        echo base_path();
+    { 
         $data = $this->OeawStorage->getClassesForSideBar();
         $searchClasses = array();
         
