@@ -90,20 +90,20 @@ class SidebarKeywordSearchForm extends FormBase
                 );
 
 
-			    $form['examples'] = array(
-			      '#type' => 'container',
-			      '#attributes' => array(
-			        'class' => array('form-examples')
-			      ),
-			      '#markup' => $this->t('Keyword examples for a quick-start:'),
-			    );
+                $form['examples'] = array(
+                  '#type' => 'container',
+                  '#attributes' => array(
+                    'class' => array('form-examples')
+                  ),
+                  '#markup' => $this->t('Keyword examples for a quick-start:'),
+                );
 			    
                 $form['examples']['example-1'] = array(
                   '#type' => 'container',
                   '#markup' => $this->t('Austria'),
                   '#attributes' => array(
                     'class' => array('form-example-btn'),
-                    'onClick' => 'window.location = "/oeaw_keywordsearch/Austria";'
+                    'onClick' => 'window.location = "oeaw_keywordsearch/Austria";'
 				  ),                   
                   '#button_type' => 'primary',
                 );
@@ -113,7 +113,7 @@ class SidebarKeywordSearchForm extends FormBase
                   '#markup' => $this->t('Media'),
                   '#attributes' => array(
                     'class' => array('form-example-btn'),
-                    'onClick' => 'window.location = "/oeaw_keywordsearch/Media";'
+                    'onClick' => 'window.location = "oeaw_keywordsearch/Media";'
 				  ),                   
                   '#button_type' => 'primary',
                 );
@@ -124,7 +124,7 @@ class SidebarKeywordSearchForm extends FormBase
                   '#markup' => $this->t('History'),
                   '#attributes' => array(
                     'class' => array('form-example-btn'),
-                    'onClick' => 'window.location = "/oeaw_keywordsearch/History";'
+                    'onClick' => 'window.location = "oeaw_keywordsearch/History";'
 				  ),                   
                   '#button_type' => 'primary',
                 );
@@ -147,12 +147,23 @@ class SidebarKeywordSearchForm extends FormBase
     }
     
   
+    
+    
     public function submitForm(array &$form, FormStateInterface $form_state) {
         
         $metavalue = $form_state->getValue('metavalue');
-        //$metavalue = base64_encode($metavalue);
-        $metavalue = urlencode($metavalue);        
-        $form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metavalue]); 
+        // Data AND thun NOT editions type:Collection NOT Person date:[20170501 TO 20171020]
+        $metavalue = str_replace('+', '%2B', $metavalue);
+        
+        $metavalue = str_replace('%253A', ':', $metavalue);
+        $metavalue = str_replace('%255B', '[', $metavalue);
+        $metavalue = str_replace('%255D', ']', $metavalue);        
+        $metavalue = str_replace('+TO+', '_-_', $metavalue);
+                
+        $metaVal = $this->OeawFunctions->convertSearchString($metavalue);        
+        $metaVal = urlencode($metaVal);
+     
+        $form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metaVal]); 
     
     }
   

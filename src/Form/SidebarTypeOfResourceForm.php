@@ -76,48 +76,42 @@ class SidebarTypeOfResourceForm extends FormBase
 
             foreach($searchClasses as $value){
                 foreach($value as $k => $v){
-
                     if($k == "type"){ $lbl = $v; }
                     if($k == "value"){ $count = $v; }
                     
                     if (preg_match("/^acdh:/", $lbl)) {
-	                    $label = explode('acdh:', $lbl)[1];
-	                    $labelReadable = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $label);               
+                        $label = explode('acdh:', $lbl)[1];
+                        $labelReadable = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $label);               
 						
-						$termencoded = base64_encode($lbl);
-						if ($defaultterm == $termencoded) {
-							$checked = TRUE;
-						} else {
-							$checked = FALSE;
-						}
-                    
-					    $form['checkbox-'.$label] = array(
-					      '#type' => 'container',
-					      '#attributes' => array(
-					        'class' => array('form-checkbox-custom'),
-					        'onClick' => 'window.location = "/oeaw_classes_result/'.base64_encode($lbl).'";'
-					      ) 
-					    );
+                        $termencoded = base64_encode($lbl);
+                        if ($defaultterm == $termencoded) {
+                            $checked = TRUE;
+                        } else {
+                            $checked = FALSE;
+                        }
+
+                        $form['checkbox-'.$label] = array(
+                            '#type' => 'container',
+                            '#attributes' => array(
+                                'class' => array('form-checkbox-custom'),
+                                'onClick' => 'window.location = "oeaw_classes_result/'.base64_encode($lbl).'";'
+                            ) 
+                        );
 		
-		                $form['checkbox-'.$label]['checkbox'] = array(
-		                  '#type' => 'checkbox',
-		                  '#title' => $this->t($labelReadable." (".$count.")"),
-		                  '#attributes' => array(
-		                    'class' => array('checkbox-custom'),
-		                    'id' => array('checkbox-'.$label)
-						  ),
-						  '#default_value' => $checked
-		                );                    
-                    
+                        $form['checkbox-'.$label]['checkbox'] = array(
+                            '#type' => 'checkbox',
+                            '#title' => $this->t($labelReadable." (".$count.")"),
+                            '#attributes' => array(
+                                'class' => array('checkbox-custom'),
+                                'id' => array('checkbox-'.$label)
+                            ),
+                            '#default_value' => $checked
+                        );
                     }
-                    
-                    
-                }            
+                }
                 $i++;
             }
-
-            return $form;       
-        
+            return $form;
         }
         
         
