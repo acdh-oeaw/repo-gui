@@ -35,7 +35,7 @@ class SidebarTypeOfResourceForm extends FormBase
     public function buildForm(array $form, FormStateInterface $form_state) 
     {   
       
-        
+        echo base_path();
         $data = $this->OeawStorage->getClassesForSideBar();
         $searchClasses = array();
         
@@ -94,7 +94,7 @@ class SidebarTypeOfResourceForm extends FormBase
                             '#type' => 'container',
                             '#attributes' => array(
                                 'class' => array('form-checkbox-custom'),
-                                'onClick' => 'window.location = "oeaw_classes_result/'.base64_encode($lbl).'";'
+                                'onClick' => 'window.location = "'.base_path().'oeaw_classes_result/'.base64_encode($lbl).'";'
                             ) 
                         );
 		
@@ -113,8 +113,6 @@ class SidebarTypeOfResourceForm extends FormBase
             }
             return $form;
         }
-        
-        
     }
     
     

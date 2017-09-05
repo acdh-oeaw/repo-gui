@@ -36,7 +36,7 @@ class SidebarKeywordSearchForm extends FormBase
     {   
         $propertys = array();
         $searchTerms = array();
-                
+        $basePath = base_path();
         $propertys = $this->OeawStorage->getAllPropertyForSearch();
   
         if(empty($propertys)){
@@ -103,7 +103,7 @@ class SidebarKeywordSearchForm extends FormBase
                   '#markup' => $this->t('Austria'),
                   '#attributes' => array(
                     'class' => array('form-example-btn'),
-                    'onClick' => 'window.location = "oeaw_keywordsearch/Austria";'
+                    'onClick' => 'window.location = "'.$basePath.'oeaw_keywordsearch/Austria";'
 				  ),                   
                   '#button_type' => 'primary',
                 );
@@ -113,7 +113,7 @@ class SidebarKeywordSearchForm extends FormBase
                   '#markup' => $this->t('Media'),
                   '#attributes' => array(
                     'class' => array('form-example-btn'),
-                    'onClick' => 'window.location = "oeaw_keywordsearch/Media";'
+                    'onClick' => 'window.location = "'.$basePath.'oeaw_keywordsearch/Media";'
 				  ),                   
                   '#button_type' => 'primary',
                 );
@@ -124,7 +124,7 @@ class SidebarKeywordSearchForm extends FormBase
                   '#markup' => $this->t('History'),
                   '#attributes' => array(
                     'class' => array('form-example-btn'),
-                    'onClick' => 'window.location = "oeaw_keywordsearch/History";'
+                    'onClick' => 'window.location = "'.$basePath.'oeaw_keywordsearch/History";'
 				  ),                   
                   '#button_type' => 'primary',
                 );
