@@ -15,19 +15,19 @@
     <div class="single-res-overview single-res-overview-basic">
 	    {% if result['image'] %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  
 	
-            {% if result['specialLabel'] %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE873;</i>
-                        <span class="res-title">{{ result['specialLabel'] }}</span>
-                </div>
-			{%  elseif result['acdh_hasTitle'] %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE873;</i>
-                        {% for value in result['acdh_hasTitle'].value %}
-                        <span class="res-title">{{ value }}</span>	
-                        {% endfor %}
-                </div>
-			{% endif%} 
+                {% if result['specialLabel'] %}
+                    <div class="res-property">
+                        <i class="material-icons">&#xE873;</i>
+                            <span class="res-title">{{ result['specialLabel'] }}</span>
+                    </div>
+		{%  elseif result['acdh_hasTitle'] %}
+                    <div class="res-property">
+                        <i class="material-icons">&#xE873;</i>
+                            {% for value in result['acdh_hasTitle'].value %}
+                            <span class="res-title">{{ value }}</span>	
+                            {% endfor %}
+                    </div>
+		{% endif%} 
 		
 		{% if extras['rdfType'] %}
             <div class="res-property">
@@ -163,7 +163,82 @@
 	            {% endfor %}                                          
 	        </tbody>        
 	    </table>
- 
+                
+            {% if userid == 1  %}
+                <!--  The ACL rights  -->    
+                <h3 class="single-res-heading">Access Rights</h3>
+                <span class="res-title">Actual users and rights</span>
+                <table class="display table table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>User</th>           
+                            <th>Rights</th>
+                            <th>Revoke</th>                    
+                        </tr>
+                    </thead>
+                    <tbody>            
+                    {% for acl in result['ACL'] %}            
+                        <tr>
+                            <td>
+                                {{ acl.username }}
+                            </td>
+                            <td>
+                                {{ acl.mode }}
+                            </td>
+                            <td>
+                                {% if userid == 1  %}
+                                    {% if result['ACL']|length > 1  %}
+                                        <div class="res-act-button">
+                                            <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
+                                                <i class="material-icons">&#xE872;</i><span>Revoke Rights</span>
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        <span>-</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span>You cant Revoke Rights</span>
+                                {% endif %}
+                            </td>
+                        </tr>            
+                    {% endfor %}        
+                    </tbody>        
+                </table>
+                <br>
+                <span class="res-title">Add rights</span>
+                <table class="display table table-striped" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Rights</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>  
+                    <tr>
+                        <td>
+                            <select>
+                                <option value="">----</option>
+                                <option value="user1">User1</option>
+                                <option value="user2">User2</option>
+                                <option value="user3">User3</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select>
+                                <option value="">----</option>
+                                <option value="read">Read</option>
+                                <option value="write">Write</option>                
+                            </select>
+                        </td>
+                        <td>
+                            <button>Add</button>
+                        </td>
+                    </tr>        
+                    </tbody>        
+                </table>
+                <br>
+            {% endif %}
 	</div>	
 
     {% if extras['dissServ'] %}
@@ -184,20 +259,20 @@
         		<span>View in Fedora</span>
         	</a>	
     	</div>           	
-	</div>
+    </div>
 
-	{% if userid != 0  %}
-		{% if query %} 
-		    <div class="res-property">
-		    	<i class="material-icons">&#xE53B;</i>       	
-	        	<div class="res-act-button">
-		        	<a href="/oeaw_query/{{ query }}">
-		        		<span>View Query Result</span>
-		        	</a>	
-	        	</div>          	
-	        </div>
+    {% if userid != 0  %}
+        {% if query %} 
+            <div class="res-property">
+                <i class="material-icons">&#xE53B;</i>       	
+                <div class="res-act-button">
+                    <a href="/oeaw_query/{{ query }}">
+                        <span>View Query Result</span>
+                    </a>	
+                </div>          	
+            </div>
         {% endif %}	
-	{% endif %}	
+    {% endif %}	
 
 
     {% if result['acdh_hasDescription'] %}
@@ -238,80 +313,7 @@
         {% endfor %}			
     {% endif%}
  
-    <!--
-        The ACL rights
-    -->    
-    <h3 class="single-res-heading">Access Rights</h3>
-    <span class="res-title">Actual users and rights</span>
-    <table class="display table table-striped" cellspacing="0" width="100%">
-        <thead>
-            <tr>
-                <th>User</th>           
-                <th>Rights</th>
-                <th>Revoke</th>                    
-            </tr>
-        </thead>
-        <tbody>            
-        {% for acl in result['ACL'] %}            
-            <tr>
-                <td>
-                    {{ acl.username }}
-                </td>
-                <td>
-                    {{ acl.mode }}
-                </td>
-                <td>
-                    {% if userid == 1  %}
-                        {% if result['ACL']|length > 1  %}
-                            <div class="res-act-button">
-                                <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
-                                    <i class="material-icons">&#xE872;</i><span>Revoke Rights</span>
-                                </a>
-                            </div>
-                        {% else %}
-                            <span>-</span>
-                        {% endif %}
-                    {% else %}
-                        <span>You cant Revoke Rights</span>
-                    {% endif %}
-                </td>
-            </tr>            
-        {% endfor %}        
-        </tbody>        
-    </table>
-    <br>
-    <span class="res-title">Add rights</span>
-    <table class="display table table-striped" cellspacing="0" width="100%">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Rights</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>  
-        <tr>
-            <td>
-                <select>
-                    <option value="">----</option>
-                    <option value="user1">User1</option>
-                    <option value="user2">User2</option>
-                    <option value="user3">User3</option>
-                </select>
-            </td>
-            <td>
-                <select>
-                    <option value="">----</option>
-                    <option value="read">Read</option>
-                    <option value="write">Write</option>                
-                </select>
-            </td>
-            <td>
-                <button>Add</button>
-            </td>
-        </tr>        
-        </tbody>        
-    </table>
+    
 
     
     
@@ -336,27 +338,15 @@
 <figure class="highlight">
 <pre>
 <code class="language-bibtex" data-lang="scss">
-@misc { 1,
-{% if result['acdh_hasAuthor'] %}
-  author = {
-{% for name in result['acdh_hasAuthor'].value %}
-{% if result['acdh_hasAuthor']['title'][loop.index - 1] %}
-{{ result['acdh_hasAuthor']['title'][loop.index - 1] }}
-{% else %}
-{{ result['acdh_hasAuthor']['value'][loop.index - 1] }}
-{% endif %}
-{% endfor %}
- },
+@misc { 1,  
+{% if result['dcterm_contributor'] %}
+  author   = { {% for name in result['dcterm_contributor'].contributorName %}{{ name }}{% endfor %} }, 
 {% endif%}
-{% if result['specialLabel'] %}
-  title = { {{ result['specialLabel'] }} },
-{%  elseif result['acdh_hasTitle'] %}
-{% for value in result['acdh_hasTitle'].value %}
-  title = { {{ value }} },
-{% endfor %}
+{% if result['dc_title'] %}
+  title    = { {{ result['dc_title'].value.0 }} }, 
 {% endif%}
 {% if extras['fedora_created'] %}
-  year = { {{ extras['fedora_created'].value.creationYear }} }, 
+  year     = { {{ extras['fedora_created'].value.creationYear }} }, 
 {% endif%}
 }
 </code>
