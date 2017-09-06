@@ -15,19 +15,19 @@
     <div class="single-res-overview single-res-overview-basic">
 	    {% if result['image'] %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  
 	
-                {% if result['specialLabel'] %}
-                    <div class="res-property">
-                        <i class="material-icons">&#xE873;</i>
-                            <span class="res-title">{{ result['specialLabel'] }}</span>
-                    </div>
-		{%  elseif result['acdh_hasTitle'] %}
-                    <div class="res-property">
-                        <i class="material-icons">&#xE873;</i>
-                            {% for value in result['acdh_hasTitle'].value %}
-                            <span class="res-title">{{ value }}</span>	
-                            {% endfor %}
-                    </div>
-		{% endif%} 
+            {% if result['specialLabel'] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE873;</i>
+                        <span class="res-title">{{ result['specialLabel'] }}</span>
+                </div>
+			{%  elseif result['acdh_hasTitle'] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE873;</i>
+                        {% for value in result['acdh_hasTitle'].value %}
+                        <span class="res-title">{{ value }}</span>	
+                        {% endfor %}
+                </div>
+			{% endif%} 
 		
 		{% if extras['rdfType'] %}
             <div class="res-property">
@@ -336,20 +336,49 @@
 <figure class="highlight">
 <pre>
 <code class="language-bibtex" data-lang="scss">
-@misc { 1,  
-{% if result['dcterm_contributor'] %}
-  author   = { {% for name in result['dcterm_contributor'].contributorName %}{{ name }}{% endfor %} }, 
+@misc { 1,
+{% if result['acdh_hasAuthor'] %}
+  author = {
+{% for name in result['acdh_hasAuthor'].value %}
+{% if result['acdh_hasAuthor']['title'][loop.index - 1] %}
+{{ result['acdh_hasAuthor']['title'][loop.index - 1] }}
+{% else %}
+{{ result['acdh_hasAuthor']['value'][loop.index - 1] }}
+{% endif %}
+{% endfor %}
+ },
 {% endif%}
-{% if result['dc_title'] %}
-  title    = { {{ result['dc_title'].value.0 }} }, 
+{% if result['specialLabel'] %}
+  title = { {{ result['specialLabel'] }} },
+{%  elseif result['acdh_hasTitle'] %}
+{% for value in result['acdh_hasTitle'].value %}
+  title = { {{ value }} },
+{% endfor %}
 {% endif%}
 {% if extras['fedora_created'] %}
-  year     = { {{ extras['fedora_created'].value.creationYear }} }, 
+  year = { {{ extras['fedora_created'].value.creationYear }} }, 
 {% endif%}
 }
 </code>
 </pre>
 </figure>
+
+            {% if result['specialLabel'] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE873;</i>
+                        <span class="res-title">{{ result['specialLabel'] }}</span>
+                </div>
+			{%  elseif result['acdh_hasTitle'] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE873;</i>
+                        {% for value in result['acdh_hasTitle'].value %}
+                        <span class="res-title">{{ value }}</span>	
+                        {% endfor %}
+                </div>
+			{% endif%}
+
+
+
 
     {% if childResult %}
     <h3 class="single-res-heading">Child Resources</h3>
