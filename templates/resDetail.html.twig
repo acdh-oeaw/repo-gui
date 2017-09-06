@@ -163,7 +163,30 @@
 	            {% endfor %}                                          
 	        </tbody>        
 	    </table>
-                
+            {% if extras.inverseData %}
+                <h3>Inverse Data</h3>
+                <table class="display table table-striped" cellspacing="0" width="100%">
+                   <thead>
+                        <tr>                        
+                            <th>Property</th>
+                            <th>Value(s)</th>
+                        </tr>
+                    </thead>
+                    <tbody>                    
+                        {% for item in extras.inverseData %}
+                            <tr>                            
+                                <td>
+                                    {{ item.prop }}
+                                </td>
+                                <td>
+                                    <a href="{{ item.uri }}"> <b>{{ item.title }} </b></a>
+                                </td>
+                            </tr>
+                        {% endfor %}                                          
+                    </tbody>        
+                </table>   
+            {% endif %}
+                    
             {% if userid == 1  %}
                 <!--  The ACL rights  -->    
                 <h3 class="single-res-heading">Access Rights</h3>

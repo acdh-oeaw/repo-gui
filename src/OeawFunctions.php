@@ -72,7 +72,16 @@ class OeawFunctions {
         return $result;
     }
     
-    
+    /**
+     * 
+     * Create the data for the pagination function
+     * 
+     * @param int $limit
+     * @param int $page
+     * @param int $total
+     * @return array
+     * 
+     */
     public function createPaginationData(int $limit, int $page, int $total): array {
         
         $totalPages = 0;
@@ -107,6 +116,216 @@ class OeawFunctions {
         
         return $res;
     }
+    
+    /**
+     * 
+     * Prepare the searchString for the sparql Query
+     * 
+     * @param string $string
+     * @return array
+     */
+    public function explodeSearchString(string $string): array{
+        
+        $filters = array("type", "dates", "words", "mindate", "maxdate");
+        $operands = array("and" => "+", "not" => "-");
+        $positions = array();
+        
+        $res = "";
+        
+        $strArr = explode('&', $string);
+                
+        foreach($filters as $f){
+            foreach($strArr as $arr){
+                if (strpos($arr, $f) !== false) {
+                    $arr = str_replace($f.'=', '', $arr);                    
+                    foreach($operands as $k => $v){
+                        if (strpos($arr, $v) !== false) {
+                            $arr = str_replace($v, ' '.$k.' ', $arr);
+                        }
+                    }
+                    $res[$f] = $arr;
+                }
+            }
+        }
+        return $res;
+    }
+    
+            
+    /**
+     * 
+     * Create a rawurlencoded string from the users entered search string
+     * 
+     * @param string $string
+     * @return string
+     */        
+    public function convertSearchString(string $string, array $extras = null): string{
+        
+        $filters = array("type", "date", "words",);
+        $operands = array("and", "not");
+        $positions = array();
+        
+        $res = "";
+        $string = strtolower($string);
+        $string = str_replace(' ', '+', $string);
+        //get the filters actual position in the string
+        foreach($filters as $f){
+            if(strpos($string, $f)){
+                $positions[$f] = strpos($string.':', $f);
+            }
+        }        
+        //sort them by value to get the right order in the text
+        asort($positions);
+
+        $keys = array_keys($positions);
+
+        $newStrArr = array();
+        //create the type array
+        foreach(array_keys($keys) as $k ){
+            $thisVal = $positions[$keys[$k]];
+            if($k == 0){
+                //add the first line
+                $newStrArr["words"] = substr($string, 0, $thisVal);
+            }
+            
+            if($positions[$keys[$k+1]]){
+                $nextVal = $positions[$keys[$k+1]];
+                $newStrArr[$keys[$k]] =  substr($string, $thisVal, $nextVal - $thisVal);
+            }else {
+                $newStrArr[$keys[$k]] =  substr($string, $thisVal);
+            }
+        }
+        
+        $dtStr = "";
+        $tyStr = "";
+        $wsStr = "";
+                
+        if(isset($newStrArr["words"])){
+            $wdStr = strtolower($newStrArr["words"]);
+            $wdStr = "words=".$wdStr;
+            $res = $wdStr;
+        }
+
+        if(isset($newStrArr["type"])){
+            $tyStr = strtolower($newStrArr["type"]);
+            if(isset($extras["type"])){
+                foreach($extras["type"] as $t){
+                    if (strpos($tyStr, $t) == false) {
+                        $tyStr .= "and+".$t."+";
+                        
+                    }
+                }
+            }
+            
+            $tyStr = str_replace('type:', 'type=', $tyStr);
+            if(!empty($tyStr)){
+                $res = $res."&".$tyStr;
+            }
+        }
+        
+        //date format should be: mindate=20160101&maxdate=20170817
+        if(isset($newStrArr["date"])){
+            $dtStr = strtolower($newStrArr["date"]);
+            $dtStr = str_replace('date:[', 'mindate=', $dtStr);
+            $dtStr = str_replace(']', '', $dtStr);
+            $dtStr = str_replace(' ', '', $dtStr);
+            $dtStr = str_replace('to', '&maxdate=', $dtStr);
+            $newStrArr["date"] = $dtStr;
+            if(!empty($res)){
+                $res = $res."&".$dtStr;
+            }
+        }
+        
+        $res = str_replace('+&', '&', $res);
+        
+        return $res;    
+    }
+    
+    public function createFullTextSparql(array $data): string{
+        
+        $wordsQuery = "";
+        $query = "";
+        $select = "SELECT ?uri ";
+        $conditions = "";
+        
+        $types = array("");
+        
+        if(isset($data["words"])){            
+            $wdProp = array("title" => \Drupal\oeaw\ConnData::$title, "description" => \Drupal\oeaw\ConnData::$description, "hasContributor" => \Drupal\oeaw\ConnData::$contributor);
+            $wd = explode(' ', $data["words"]);
+            $not = false;            
+            foreach($wdProp as $k => $v){
+                $select = $select." ?".$k." ";
+                $query .= "OPTIONAL {?uri <".$v."> ?".$k." . \n";
+                foreach ($wd as $w){
+                    
+                    if($w == "and"){ continue; }
+                    
+                    if($w == "not"){
+                        $not = true;
+                        continue;
+                    }
+                    if($not == true){
+                        $query .= "FILTER (!regex(str(?".$k."), '".$w."', 'i')) .  \n";
+                        $not = false;
+                    }else {
+                        $query .= "FILTER (regex(str(?".$k."), '".$w."', 'i')) . \n";
+                    }                    
+                }
+                $query .= "}\n ";
+            }
+        }
+
+        
+        //check the rdf types from the query
+        if(isset($data["type"])){
+            
+            $td = explode(' ', $data["type"]);
+            $not = false;
+            $storage =  new OeawStorage();
+            $acdhTypes = $storage->getACDHTypes();
+            
+            if(count($acdhTypes) > 0){
+                foreach($td as $dtype){                        
+                    foreach($acdhTypes as $t){
+                        
+                        $val = explode('https://vocabs.acdh.oeaw.ac.at/#', $t["type"]);
+                        $val = strtolower($val[1]);
+                        
+                        if($dtype == "and"){ continue; }
+                        
+                        if($dtype == "not"){                        
+                            $not = true;
+                            continue;
+                        }
+                        
+                        if (strpos(strtolower($dtype), $val) !== false) {
+                            if($not == true){
+                                $query .= "filter not exists { SELECT * WHERE { ?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <".$t['type']."> . } }\n";                            
+                                $not = false;
+                            }else {
+                                $query .= "filter exists { SELECT * WHERE { ?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <".$t['type']."> . } }\n";
+                            }
+                        }
+                    }
+                }
+            }            
+        }
+        
+        if(isset($data["mindate"]) && isset($data["maxdate"])){
+            $mindate = new \DateTime($data["mindate"]);
+            $maxdate = new \DateTime($data["maxdate"]);
+            
+            $conditions .= " ?uri <http://fedora.info/definitions/v4/repository#lastModified> ?date . \n";
+            //(?date < "2017-10-20T00:00:00+00:00"^^xsd:dateTime && ?date > "2017-05-11T00:00:00+00:00"^^xsd:dateTime) .
+            $query .= "FILTER (?date < '".$maxdate->format(DATE_ATOM)."' ^^xsd:dateTime && ?date > '".$mindate->format(DATE_ATOM)."'^^xsd:dateTime)  \n";
+        }
+        
+        
+        $query = $select." Where { ".$conditions." ".$query." }";
+        
+        return $query;
+    }
+    
     
     /**
      * 
@@ -729,6 +948,35 @@ class OeawFunctions {
         
         return $return;
     }
+    
+    /**
+     * 
+     * Get the Resource Title by the uri
+     * 
+     * @param string $string
+     * @return boolean
+     * 
+     */
+    public function getTitleByUri(string $string){
+        if(!$string) { return false; }
+        
+        $return = "";
+        $OeawStorage = new OeawStorage();
+        
+        $itemRes = $OeawStorage->getResourceTitle($string);
+
+        if(count($itemRes) > 0){
+            if($itemRes[0]["title"]){
+                $return = $itemRes[0]["title"];                
+            }else if($itemRes[0]["firstName"] && $itemRes[0]["lastName"]){
+                $return = $itemRes[0]["firstName"] . " " . $itemRes[0]["lastName"];
+            }else if($itemRes[0]["contributor"]){
+                $return = $itemRes[0]["contributor"];
+            }
+        }
+        return $return;
+    }
+    
         
     /**
      * Get the title if the url contains the fedoraIDNamespace or the viaf.org ID
@@ -750,9 +998,9 @@ class OeawFunctions {
 
             if(count($itemRes) > 0){
                 if($itemRes[0]["firstName"] && $itemRes[0]["lastName"]){
-		            $return = $itemRes[0]["firstName"] . " " . $itemRes[0]["lastName"];
+                    $return = $itemRes[0]["firstName"] . " " . $itemRes[0]["lastName"];
                 }else if($itemRes[0]["title"]){
-		            $return = $itemRes[0]["title"];
+                    $return = $itemRes[0]["title"];
                 }else if($itemRes[0]["label"]){
                     $return = $itemRes[0]["label"];
                 }else if($itemRes[0]["name"]){
