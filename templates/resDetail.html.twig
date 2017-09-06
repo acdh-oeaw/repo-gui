@@ -363,23 +363,6 @@
 </pre>
 </figure>
 
-            {% if result['specialLabel'] %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE873;</i>
-                        <span class="res-title">{{ result['specialLabel'] }}</span>
-                </div>
-			{%  elseif result['acdh_hasTitle'] %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE873;</i>
-                        {% for value in result['acdh_hasTitle'].value %}
-                        <span class="res-title">{{ value }}</span>	
-                        {% endfor %}
-                </div>
-			{% endif%}
-
-
-
-
     {% if childResult %}
     <h3 class="single-res-heading">Child Resources</h3>
 
