@@ -80,7 +80,11 @@
 		{% if result['acdh_isPartOf'] %}
 	        <div class="res-property">
 	        	<i class="material-icons">&#xE335;</i>	
-	        	<span class="res-ispartof">Part of: <a href="{{ url('<front>') }}oeaw_detail/{{ result['acdh_isPartOf'].inside_url.0 }}">{{ result['acdh_isPartOf'].title.0 }}</a></span>
+	        	<span class="res-ispartof">Part of:
+		        	{% for title in result['acdh_isPartOf'].title %}
+						<a href="{{ url('<front>') }}oeaw_detail/{{ cycle(result['acdh_isPartOf'].inside_url, loop.index0) }}">{{ cycle(result['acdh_isPartOf'].title, loop.index0)  }} </a>
+		        	{% endfor %}
+	        	</span>
 	        </div>
 	    {% endif%}	
 	
