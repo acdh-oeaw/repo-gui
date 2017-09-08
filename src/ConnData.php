@@ -54,10 +54,13 @@ class ConnData
     //public static $title = "http://purl.org/dc/elements/1.1/title";
     public static $title = "https://vocabs.acdh.oeaw.ac.at/#hasTitle";
     public static $description = "https://vocabs.acdh.oeaw.ac.at/#hasDescription";
+    public static $hasDissService = "https://vocabs.acdh.oeaw.ac.at/#hasDissService";
     public static $contributor = "https://vocabs.acdh.oeaw.ac.at/#hasContributor";
     public static $author = "https://vocabs.acdh.oeaw.ac.at/#hasAuthor";
     public static $creationdate = "http://fedora.info/definitions/v4/repository#created";
     public static $isPartOf = "https://vocabs.acdh.oeaw.ac.at/#isPartOf";
+    public static $providesMime = "https://vocabs.acdh.oeaw.ac.at/#providesMime";
+    
     
     //special RDF types
     public static $acdhNamespace = "https://vocabs.acdh.oeaw.ac.at/#";

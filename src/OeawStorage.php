@@ -77,7 +77,7 @@ class OeawStorage {
         }
     }
 
-
+    
     /*
      * Get the root elements from fedora
      * 
@@ -101,7 +101,7 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
-                        
+            
             $q2 = new Query();
             $q2->addParameter(new HasTriple('?uri', $isPartOf, '?y'));
             $q2->setJoinClause('filter not exists');
@@ -141,6 +141,38 @@ class OeawStorage {
         }
     }
 
+    public function getResourceTitle(string $uri): array {
+         $getResult = array();
+        
+        try {
+            
+            $q = new Query();            
+            $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$title, '?title'), true);
+            $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
+            $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
+            $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
+            
+            $query = $q->getQuery();
+            
+            $result = $this->fedora->runSparql($query);
+            
+            $fields = $result->getFields();             
+            $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);        
+            return $getResult;
+            
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;            
+        }catch (\InvalidArgumentException $ex){            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }
+    }
+    
     /**
      * 
      * Get all property for search
@@ -701,6 +733,77 @@ class OeawStorage {
         }        
     }
     
+    
+    /**
+     * 
+     * Create the data for the InverseViews by the Resource Identifier
+     * 
+     * @param array $data
+     * @return array
+     */
+    public function getInverseViewData(array $data): array{
+        
+        $result = array();
+        $num = count($data);
+        $string = "";
+        $where = "?uri ?prop ?obj . ";
+        
+        for ($i = 0; $i <= $num -1 ; $i++) {
+                        
+            $where .= '{
+                select * where 
+                {
+                    ?uri ?prop <'.$data[$i].'>
+                }   
+            }
+            ';
+            if($i !== ($num - 1)){
+                $where .= 'UNION';
+            }
+        }
+        
+        $select = '
+            select DISTINCT ?uri ?prop ?obj where { ';        
+        $end = ' } ';
+        
+        $string = $select.$where.$end;
+        
+        try {
+            $q = new SimpleQuery($string);            
+            $query = $q->getQuery();          
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields(); 
+            $res = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+            $i = 0;
+            foreach($res as $r){
+                foreach($r as $k => $v){
+                    $result[$i][$k] = $v;
+                    if($k == "uri"){
+                        $title = $this->OeawFunctions->getTitleByUri($v);
+                        $result[$i]["title"] = $title;
+                    }
+                }
+                $i++;
+            }            
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+    }
+    
+    
+    /**
+     * 
+     * Run users sparql from the resource views
+     * 
+     * @param string $string
+     * @return array
+     */
     public function runUserSparql(string $string): array{
         
         $result = array();
@@ -770,6 +873,92 @@ class OeawStorage {
         }        
     }
     
+    public function getMimeTypes(){
+        $rdfType = self::$sparqlPref["rdfType"];
+        $getResult = array();
+        
+        try {
+            $q = new Query();
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasDissService, '?dissId'));
+            $q->addParameter(new HasTriple('?dissuri', RC::idProp(), '?dissId'));
+            $q->addParameter(new HasTriple('?dissuri', \Drupal\oeaw\ConnData::$providesMime, '?mime'));
+            
+            $q->setSelect(array('?mime', '(COUNT(?mime) as ?mimeCount)'));
+            $q->setOrderBy(array('?mime'));
+            $q->setGroupBy(array('?mime'));
+            
+            $query = $q->getQuery();
+
+            $result = $this->fedora->runSparql($query);
+            $fields = $result->getFields(); 
+            $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
+            
+            return $getResult;
+
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }  
+    }
+    
+    /**
+     * 
+     * Get the acdh rdf types
+     * 
+     * @return array
+     */
+    public function getACDHTypes(bool $count = false) :array
+    {        
+        $rdfType = self::$sparqlPref["rdfType"];        
+        $getResult = array();
+        
+        try {            
+            if($count == true){
+                $select = "SELECT  ?type (COUNT(?type) as ?typeCount) ";
+            }else {
+                $select = "SELECT  DISTINCT ?type ";
+            }
+            $queryStr = "
+                WHERE {
+                    ?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type .
+                    FILTER (regex(str(?type), 'https://vocabs.acdh.oeaw.ac.at/#', 'i'))
+                }
+                GROUP BY ?type
+                ORDER BY ?uri
+                ";
+            $queryStr = $select.$queryStr;
+            
+            $q = new SimpleQuery($queryStr);            
+            $query = $q->getQuery();
+
+            $result = $this->fedora->runSparql($query);
+            $fields = $result->getFields(); 
+            $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
+            
+            return $getResult;
+
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }  
+    }
+    
+    
+    
     
     /*
      * 
@@ -792,12 +981,6 @@ class OeawStorage {
             $q->setGroupBy(array('?type'));
             $query = $q->getQuery();
             
-            /*   $query =
-                    self::$prefixes . ' 
-                        SELECT ?type  
-                        WHERE {[] a ?type} GROUP BY ?type ';
-*/
-
             $result = $this->fedora->runSparql($query);
             $fields = $result->getFields(); 
             $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
