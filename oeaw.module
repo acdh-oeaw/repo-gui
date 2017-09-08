@@ -25,7 +25,12 @@ function oeaw_theme() {
     'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null, 'search' => NULL, 'pagination' => NULL],
     'template' => 'keyword_search_res',
   ]; 
-  
+
+  $theme['oeaw_start_left_block'] = [
+    'variables' => ['result' => NULL],
+    'template' => 'start_left_block',
+  ];  
+
   $theme['oeaw_query'] = [
     'variables' => ['result' => NULL, 'header' => NULL, 'userid' => NULL, 'errorMSG' => null],
     'template' => 'query',
