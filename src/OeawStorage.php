@@ -713,12 +713,6 @@ class OeawStorage {
             
             $query = $q->getQuery();
          
-            echo "<pre>";
-            var_dump($query);
-            echo "</pre>";
-
-            die();
-
             $result = $this->fedora->runSparql($query);
            
             $fields = $result->getFields(); 
@@ -766,7 +760,6 @@ class OeawStorage {
             if($i !== ($num - 1)){
                 $where .= 'UNION';
             }
-            
         }
         
         $select = '
@@ -793,16 +786,14 @@ class OeawStorage {
                     }
                 }
                 $i++;
-            }
-            
+            }            
             return $result;
 
         } catch (Exception $ex) {
             return $result;
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             return $result;
-        } 
-        
+        }
     }
     
     
