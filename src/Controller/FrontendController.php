@@ -510,6 +510,20 @@ class FrontendController extends ControllerBase {
             //get the root table data
             $results = $this->OeawFunctions->createDetailTableData($uri);
             
+            
+            $ident = $rootMeta->allResources(RC::idProp());
+            
+            $identifiers = array();
+            if(count($ident) > 0){
+                foreach($ident as $i){
+                    $identifiers[] = $i->getUri();
+                }
+            }
+            
+            if(count($identifiers) > 0){
+                $inverseData = $this->OeawStorage->getInverseViewData($identifiers);
+            }
+            
             if(empty($results)){                
                 $msg = base64_encode("The resource has no metadata!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -625,6 +639,10 @@ class FrontendController extends ControllerBase {
         // Pass fedora uri so it can be linked in the template
         $extras["fedoraURI"] = $uri;
         
+        if(count($inverseData) > 0){
+            $extras['inverseData'] = $inverseData;
+        }
+        
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,
@@ -666,6 +684,42 @@ class FrontendController extends ControllerBase {
      */
     public function oeaw_keywordsearch(string $metavalue):array {
 
+        /*
+        
+        $metavalue = urldecode($metavalue);
+        $metavalue = str_replace(' ', '+', $metavalue);
+        
+        $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);
+        
+        $sparql = $this->OeawFunctions->createFullTextSparql($searchStr);
+
+        $res = $this->OeawStorage->runUserSparql($sparql);
+        
+        
+        
+        echo "<pre>";
+        var_dump($res);
+        echo "</pre>";
+
+        die();
+        
+        foreach($res as $r){            
+            if(!empty($r["title"]) ||  !empty($r["description"])  || !empty($r["hasContributor"]) ){
+                $result[] = $r;
+            }
+        }
+        
+        
+
+
+
+        return $result;
+         
+
+        
+          
+         */
+        
         drupal_get_messages('error', TRUE);
         
         $errorMSG = array();
@@ -794,7 +848,7 @@ class FrontendController extends ControllerBase {
         $datatable['#userid'] = $uid;
         $datatable['#errorMSG'] = $errorMSG;
         $datatable['#result'] = $result;
-        $datatable['#searchedValues'] = $i . ' elements containing "' . $metavalue . '" have been found.';
+        $datatable['#searchedValues'] = count($result) . ' elements containing "' . $metavalue . '" have been found.';
 
         return $datatable;
     } 
