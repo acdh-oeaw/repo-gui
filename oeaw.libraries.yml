@@ -12,10 +12,3 @@ oeaw-styles:
         js/dataTables.bootstrap4.min.js: {}
         js/datatable_init.js: {}
         js/lightbox.js: {}        
-
-  
-mylibrary:
-    version: 1.0
-    js:
-        js/fieldFunctions.js: {}
-        
