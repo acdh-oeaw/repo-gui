@@ -683,43 +683,7 @@ class FrontendController extends ControllerBase {
      * @return array
      */
     public function oeaw_keywordsearch(string $metavalue):array {
-
-        /*
-        
-        $metavalue = urldecode($metavalue);
-        $metavalue = str_replace(' ', '+', $metavalue);
-        
-        $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);
-        
-        $sparql = $this->OeawFunctions->createFullTextSparql($searchStr);
-
-        $res = $this->OeawStorage->runUserSparql($sparql);
-        
-        
-        
-        echo "<pre>";
-        var_dump($res);
-        echo "</pre>";
-
-        die();
-        
-        foreach($res as $r){            
-            if(!empty($r["title"]) ||  !empty($r["description"])  || !empty($r["hasContributor"]) ){
-                $result[] = $r;
-            }
-        }
-        
-        
-
-
-
-        return $result;
-         
-
-        
-          
-         */
-        
+  
         drupal_get_messages('error', TRUE);
         
         $errorMSG = array();
