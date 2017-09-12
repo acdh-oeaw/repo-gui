@@ -92,7 +92,7 @@ class SidebarTypeOfResourceForm extends FormBase
                             '#type' => 'container',
                             '#attributes' => array(
                                 'class' => array('form-checkbox-custom'),
-                                'onClick' => 'window.location = "'.base_path().'oeaw_classes_result/'.base64_encode($lbl).'";'
+                                'onClick' => 'window.location = "'.base_path().'oeaw_classes_result/'.base64_encode($lbl).'/10/0";'
                             ) 
                         );
 		
