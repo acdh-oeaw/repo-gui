@@ -84,7 +84,9 @@ class OeawStorage {
      * @return Array     
      */
     public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false): array {
-          
+        
+        if($offset < 0) { $offset = 0; }
+        
         $getResult = array();
         
         try {
@@ -853,6 +855,13 @@ class OeawStorage {
             $q->addParameter(new MatchesRegEx($dcTitle, $string), 'i');
             $query = $q->getQuery();
           
+            
+            echo "<pre>";
+            var_dump($query);
+            echo "</pre>";
+
+            die();
+
             $result = $this->fedora->runSparql($query);
            
             $fields = $result->getFields(); 
