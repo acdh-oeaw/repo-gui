@@ -24,12 +24,16 @@ class StartPageLeftBlock extends BlockBase {
     */
     public function build() {
     
-	    $this->FrontendController = new FrontendController();
+        $result = "";
+	$this->FrontendController = new FrontendController();
 	    
         $data = $this->FrontendController->roots_list(3);
 
+        if(count($data) > 0){
+            $result = $data['#result'];
+        }
         $datatable['#theme'] = 'oeaw_start_left_block';
-        $datatable['#result'] = $data['#result'];
+        $datatable['#result'] = $result;
 		            
         return $datatable;
 
