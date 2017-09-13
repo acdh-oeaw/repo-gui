@@ -50,7 +50,7 @@ class FrontendController extends ControllerBase {
      * 
      * @return array
      */
-    public function roots_list(string $limit = "10", string $offset = "0"): array {
+    public function roots_list(string $limit = "10", string $page = "0"): array {
         
         drupal_get_messages('error', TRUE);
         // get the root resources
@@ -62,7 +62,7 @@ class FrontendController extends ControllerBase {
         $errorMSG = array();
         
         $limit = (int)$limit;
-        $offset = (int)$offset;
+        $page = (int)$page;
         //count all root resource for the pagination
         $countRes = $this->OeawStorage->getRootFromDB(0,0,true);
         $countRes = $countRes[0]["count"];
@@ -73,11 +73,12 @@ class FrontendController extends ControllerBase {
         $search = array();
         //make the pagination data
         //$search = $this->OeawFunctions->makePaginatonData($offset, $limit, (int)$countRes);
-        if($offset >= $countRes){
-            $offset = $countRes - 1;
+        if($page >= $countRes){
+            $page = $countRes - 1;
+            if($page < 0){ $page = 0; }
         }
         
-        $result = $this->OeawStorage->getRootFromDB($limit, $offset);
+        $result = $this->OeawStorage->getRootFromDB($limit, $page);
 
         $uid = \Drupal::currentUser()->id();
         
@@ -443,7 +444,7 @@ class FrontendController extends ControllerBase {
      * @param Request $request
      * @return array
      */
-    public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $offset = "0"): array {
+    public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "0"): array {
         drupal_get_messages('error', TRUE);
         
         if (empty($uri)) {
@@ -676,6 +677,66 @@ class FrontendController extends ControllerBase {
         return $form;
     }
     
+    
+    public function oeaw_complexsearch(string $metavalue, string $limit = "10", string $page = "0"):array {
+
+        drupal_get_messages('error', TRUE);
+        
+        $res = array();        
+        $errorMSG = array();        
+        $page = (int)$page;
+        $limit = (int)$limit;
+        $result = array();
+        $pagination = "";        
+        //get the current page for the pagination        
+        $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
+
+        $metavalue = urldecode($metavalue);
+        $metavalue = str_replace(' ', '+', $metavalue);
+        
+        $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);        
+        $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
+                
+        $count = $this->OeawStorage->runUserSparql($countSparql);
+        $total = (int)$count[0]['count'];
+        //create data for the pagination
+        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
+        
+        //echo $pageData["end"];
+        if ($pageData['totalPages'] > 1) {
+            $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
+        }
+        $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end']);
+      
+        $res = $this->OeawStorage->runUserSparql($sparql);
+        
+        if(count($res) > 0){
+            $i = 0;
+            foreach($res as $r){
+                if( !empty($r['uri']) ){
+                    $result[$i]['resUri'] = base64_encode($r['uri']);
+                    $result[$i]['title'] = $r['obj'];
+                    $i++;
+                }
+            }
+        }
+        
+        if (count($result) < 0){
+            $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
+        }
+        
+        $uid = \Drupal::currentUser()->id();
+        
+        $datatable['#theme'] = 'oeaw_complex_search_res';
+        $datatable['#userid'] = $uid;
+        $datatable['#pagination'] = $pagination;
+        $datatable['#errorMSG'] = $errorMSG;
+        $datatable['#result'] = $result;
+        $datatable['#searchedValues'] = $total . ' elements containing "' . $metavalue . '" have been found.';
+
+        return $datatable;
+    }
+    
      /**
      * 
      * This contains the keyword search page results
@@ -683,9 +744,9 @@ class FrontendController extends ControllerBase {
      * @return array
      */
     public function oeaw_keywordsearch(string $metavalue):array {
-  
+
         drupal_get_messages('error', TRUE);
-        
+                
         $errorMSG = array();
         
         if(empty($metavalue)){
@@ -709,99 +770,97 @@ class FrontendController extends ControllerBase {
         
         $result = array();
         $uniqueMatches = array();
-		$i = 0;
+	$i = 0;
         foreach ($keywordSearch as $searchedIn) {            
             foreach ($searchedIn as $match) {
                 //If we have some matches we get the uri and then create details to display				
                 if(!empty($match->getUri())){   
-	                $matchURI = $match->getUri();
+                    $matchURI = $match->getUri();
 
-					//Ignore duplicate results
-					if (!in_array($matchURI, $uniqueMatches)) {
-						$uniqueMatches[] = $matchURI;
-	                    //Title and the URI
-	                    $result[$i]["title"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$title);
-	                    $result[$i]["resUri"] = base64_encode($matchURI);
-	                    //Literal class information
-	                    $result[$i]["description"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
-	                    $creationdate = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$creationdate);
-	                    $creationdate = strtotime($creationdate);
-	                    $result[$i]["creationdate"] = date('F jS, Y',$creationdate);
-	
-	                    //Resource author and contributor information
+                    //Ignore duplicate results
+                    if (!in_array($matchURI, $uniqueMatches)) {
+                        $uniqueMatches[] = $matchURI;
+                        //Title and the URI
+                        $result[$i]["title"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$title);
+                        $result[$i]["resUri"] = base64_encode($matchURI);
+                        //Literal class information
+                        $result[$i]["description"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
+                        $creationdate = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$creationdate);
+                        $creationdate = strtotime($creationdate);
+                        $result[$i]["creationdate"] = date('F jS, Y',$creationdate);
+
+                        //Resource author and contributor information
                         $contributors = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$contributor);
                         if (isset($contributors) && $contributors) {
-	                        $c = 0;
-							foreach ($contributors as $contributor) {
-								$contributorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-								if ($contributorName) {
-						            //If there are multiple people then add a comma in between
-						            if ($c > 0) {
-							            $result[$i]["contributors"][$c-1]["contributorName"] .= ",";     
-						            }								
-	                                $result[$i]["contributors"][$c]["contributorName"] = $contributorName;
-	                                $result[$i]["contributors"][$c]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-	                                $c++;
-	                            }    
+                            $c = 0;
+                            foreach ($contributors as $contributor) {
+                                $contributorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
+                                if ($contributorName) {
+                                    //If there are multiple people then add a comma in between
+                                    if ($c > 0) {
+                                        $result[$i]["contributors"][$c-1]["contributorName"] .= ",";     
+                                    }								
+                                    $result[$i]["contributors"][$c]["contributorName"] = $contributorName;
+                                    $result[$i]["contributors"][$c]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
+                                    $c++;
+                                }    
                             }    
                         }
 	                    
                         $authors = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$author);
                         if (isset($authors) && $authors) {
-	                        $a = 0;
-							foreach ($authors as $author) {
-								$authorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($author);
-								if ($authorName) {
-						            //If there are multiple people then add a comma in between
-						            if ($a > 0) {
-							            $result[$i]["authors"][$a-1]["authorName"] .= ",";     
-						            }								
-	                                $result[$i]["authors"][$a]["authorName"] = $authorName;
-	                                $result[$i]["authors"][$a]["authorUri"] = $this->OeawFunctions->getFedoraUrlHash($author);
-	                                $a++;
-	                            }    
-                            }    
+                            $a = 0;
+                            foreach ($authors as $author) {
+                                $authorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($author);
+                                if ($authorName) {
+                                    //If there are multiple people then add a comma in between
+                                    if ($a > 0) {
+                                        $result[$i]["authors"][$a-1]["authorName"] .= ",";     
+                                    }
+                                    $result[$i]["authors"][$a]["authorName"] = $authorName;
+                                    $result[$i]["authors"][$a]["authorUri"] = $this->OeawFunctions->getFedoraUrlHash($author);
+                                    $a++;
+                                }    
+                            }
                         }
 	
-	                    $isPartOf = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$isPartOf);
-	                    if (isset($isPartOf) && $isPartOf) {
-	                        $result[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
-	                        $result[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
-	                    }
-	
-	                    $hasImageType = false;
-	                    $rdfType = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
-	                    if (isset($rdfType) && $rdfType) {						
-	                        foreach ($rdfType as $type) {
-	                            if ($type == \Drupal\oeaw\ConnData::$imageProperty) {
-	                                $hasImageType = true; 
-	                            } else if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
-	                                $result[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
-	                                $result[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$result[$i]["rdfType"]);
-	                                //Add a space between capital letters
-	                                $result[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $result[$i]["rdfType"]);
-	                                break;
-	                            }	 	
-	                        }  						
-	                    }
-	
-	                    if ($hasImageType) {
-	                            $result[$i]["image"] = $matchURI;
-	                    } else {
-	                        $thumbnail = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
-	                        if (isset($thumbnail) && $thumbnail) {
-	                            $imgData = $this->OeawStorage->getImage($thumbnail);
-	                            if (isset($imgData) && $imgData) {
-	                                $result[$i]["image"] = $imgData;
-	                            }	
-	                        }						
-	                    }
-	                    $i++;
-	                }    
+                        $isPartOf = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$isPartOf);
+                        if (isset($isPartOf) && $isPartOf) {
+                            $result[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
+                            $result[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
+                        }
 
+                        $hasImageType = false;
+                        $rdfType = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
+                        if (isset($rdfType) && $rdfType) {						
+                            foreach ($rdfType as $type) {
+                                if ($type == \Drupal\oeaw\ConnData::$imageProperty) {
+                                    $hasImageType = true; 
+                                } else if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
+                                    $result[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
+                                    $result[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$result[$i]["rdfType"]);
+                                    //Add a space between capital letters
+                                    $result[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $result[$i]["rdfType"]);
+                                    break;
+                                }	 	
+                            }  						
+                        }
+
+                        if ($hasImageType) {
+                                $result[$i]["image"] = $matchURI;
+                        } else {
+                            $thumbnail = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
+                            if (isset($thumbnail) && $thumbnail) {
+                                $imgData = $this->OeawStorage->getImage($thumbnail);
+                                if (isset($imgData) && $imgData) {
+                                    $result[$i]["image"] = $imgData;
+                                }	
+                            }						
+                        }
+                        $i++;
+	            }
                 }
-				
-            }	
+            }
         } 
 
         if (empty($result)){
@@ -1026,9 +1085,9 @@ class FrontendController extends ControllerBase {
 //        $this->OeawFunctions->revokeRules($uri, $user);
         
         $matches = array(
-                "result" => true,
-                "error_msg" => "SIKERULT"
-                );
+            "result" => true,
+            "error_msg" => "DONE"
+            );
         
         $response = new JsonResponse($matches);
         
@@ -1121,12 +1180,9 @@ class FrontendController extends ControllerBase {
         $pagination = "";
         
         $page = (int)$page;
-        $limit = (int)$limit;
-        //get the current page for the pagination
-        $currentPath = \Drupal::service('path.current')->getPath();
-        $currentPage = substr($currentPath, 1);
-        $currentPage = explode("/", $currentPage);        
-        $currentPage = $currentPage[0].'/'.$currentPage[1];
+        $limit = (int)$limit;        
+        //get the current page for the pagination        
+        $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
         
         $classesArr = explode(":", base64_decode($data));
         $property = $classesArr[0];
@@ -1150,10 +1206,11 @@ class FrontendController extends ControllerBase {
             }
             //create data for the pagination
             $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
-            
+        
             if ($pageData['totalPages'] > 1) {
                 $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
             }
+            
             //get the search result
             $result = $this->OeawStorage->getDataByProp('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property.':'.$value, $limit, $pageData['end']);
             

@@ -91,9 +91,9 @@ class OeawFunctions {
             $totalPages = 0;
         }else {
             $totalPages = ceil( $total / $limit ) ;
-        }            
+        }
 
-        if(isset($page) && $page != 0){                
+        if(isset($page) && $page != 0){
             if ($page > 0 && $page <= $totalPages) {
                 $start = ($page - 1) * $limit;
                 $end = $page * $limit;
@@ -127,7 +127,7 @@ class OeawFunctions {
     public function explodeSearchString(string $string): array{
         
         $filters = array("type", "dates", "words", "mindate", "maxdate");
-        $operands = array("and" => "+", "not" => "-");
+        //$operands = array("and" => "+", "not" => "-");
         $positions = array();
         
         $res = "";
@@ -137,11 +137,9 @@ class OeawFunctions {
         foreach($filters as $f){
             foreach($strArr as $arr){
                 if (strpos($arr, $f) !== false) {
-                    $arr = str_replace($f.'=', '', $arr);                    
-                    foreach($operands as $k => $v){
-                        if (strpos($arr, $v) !== false) {
-                            $arr = str_replace($v, ' '.$k.' ', $arr);
-                        }
+                    $arr = str_replace($f.'=', '', $arr);
+                    if( ($f == "mindate") || ($f == "maxdate") ){
+                        $arr = str_replace('+', '', $arr);
                     }
                     $res[$f] = $arr;
                 }
@@ -150,7 +148,25 @@ class OeawFunctions {
         return $res;
     }
     
-            
+    /**
+     * 
+     * Creates a string from the currentPage For the pagination
+     * 
+     * @return string
+     * 
+     */
+    public function getCurrentPageForPagination(): string{
+        $currentPath = "";
+        $currentPage = "";
+        
+        $currentPath = \Drupal::service('path.current')->getPath();
+        $currentPage = substr($currentPath, 1);
+        $currentPage = explode("/", $currentPage);        
+        $currentPage = $currentPage[0].'/'.$currentPage[1];
+        return $currentPage;
+    }
+    
+    
     /**
      * 
      * Create a rawurlencoded string from the users entered search string
@@ -172,7 +188,10 @@ class OeawFunctions {
             if(strpos($string, $f)){
                 $positions[$f] = strpos($string.':', $f);
             }
-        }        
+        }
+        if(empty($positions) && !empty($string)){
+            $positions["words"] = 0;
+        }
         //sort them by value to get the right order in the text
         asort($positions);
 
@@ -211,15 +230,31 @@ class OeawFunctions {
                 foreach($extras["type"] as $t){
                     if (strpos($tyStr, $t) == false) {
                         $tyStr .= "and+".$t."+";
-                        
                     }
                 }
             }
             
             $tyStr = str_replace('type:', 'type=', $tyStr);
+            
             if(!empty($tyStr)){
                 $res = $res."&".$tyStr;
             }
+            
+        } elseif (isset($extras["type"])){
+            $tyStr .="type=";
+            
+            $count = count($extras["type"]);
+            $i = 0;
+            foreach($extras["type"] as $t){
+                if (strpos($tyStr, $t) == false) {
+                    $tyStr .= "".$t."+";
+                }
+                if($i != $count -1){
+                    $tyStr .= "and+";
+                }                
+                $i++;
+            }
+            $res = $res."&".$tyStr;
         }
         
         //date format should be: mindate=20160101&maxdate=20170817
@@ -228,11 +263,16 @@ class OeawFunctions {
             $dtStr = str_replace('date:[', 'mindate=', $dtStr);
             $dtStr = str_replace(']', '', $dtStr);
             $dtStr = str_replace(' ', '', $dtStr);
-            $dtStr = str_replace('to', '&maxdate=', $dtStr);
+            $dtStr = str_replace('+to+', '&maxdate=', $dtStr);
             $newStrArr["date"] = $dtStr;
             if(!empty($res)){
                 $res = $res."&".$dtStr;
             }
+        }elseif (isset($extras["start_date"]) && isset($extras["end_date"])){
+            $mindate = date("Ymd", strtotime($extras['start_date']));
+            $maxdate = date("Ymd", strtotime($extras['end_date']));
+        
+            $res = $res."&mindate=".$mindate."&maxdate=".$maxdate;
         }
         
         $res = str_replace('+&', '&', $res);
@@ -240,50 +280,50 @@ class OeawFunctions {
         return $res;    
     }
     
-    public function createFullTextSparql(array $data): string{
+    public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false): string{
         
         $wordsQuery = "";
         $query = "";
-        $select = "SELECT ?uri ";
+        if($count == true){
+            $select = "SELECT (COUNT(?uri) as ?count) ";
+        }else {
+            $select = "SELECT ?uri ?prop ?obj";
+        }
+        
         $conditions = "";
+        $query .= "?uri ?prop ?obj . \n
+            FILTER( ?prop IN (<".RC::titleProp().">, <".\Drupal\oeaw\ConnData::$description.">, <".\Drupal\oeaw\ConnData::$contributor."> )) .   \n";
         
-        $types = array("");
-        
-        if(isset($data["words"])){            
-            $wdProp = array("title" => \Drupal\oeaw\ConnData::$title, "description" => \Drupal\oeaw\ConnData::$description, "hasContributor" => \Drupal\oeaw\ConnData::$contributor);
-            $wd = explode(' ', $data["words"]);
-            $not = false;            
-            foreach($wdProp as $k => $v){
-                $select = $select." ?".$k." ";
-                $query .= "OPTIONAL {?uri <".$v."> ?".$k." . \n";
-                foreach ($wd as $w){
-                    
-                    if($w == "and"){ continue; }
-                    
-                    if($w == "not"){
-                        $not = true;
-                        continue;
-                    }
-                    if($not == true){
-                        $query .= "FILTER (!regex(str(?".$k."), '".$w."', 'i')) .  \n";
-                        $not = false;
-                    }else {
-                        $query .= "FILTER (regex(str(?".$k."), '".$w."', 'i')) . \n";
-                    }                    
+        if(isset($data["words"])){
+            $wd = explode('+', $data["words"]);
+            $not = false;
+            
+            foreach ($wd as $w){
+
+                if($w == "and"){ continue; }
+
+                if($w == "not"){
+                    $not = true;
+                    continue;
                 }
-                $query .= "}\n ";
+                if($not == true){
+                    $query .= "FILTER (!contains(lcase(?obj), lcase('".$w."' ))) .  \n";
+                    $not = false;
+                }else {
+                    $query .= "FILTER (contains(lcase(?obj), lcase('".$w."' ))) .  \n";
+                }
             }
         }
-
         
         //check the rdf types from the query
         if(isset($data["type"])){
             
-            $td = explode(' ', $data["type"]);
+            $td = explode('+', $data["type"]);
             $not = false;
             $storage =  new OeawStorage();
             $acdhTypes = $storage->getACDHTypes();
             
+
             if(count($acdhTypes) > 0){
                 foreach($td as $dtype){                        
                     foreach($acdhTypes as $t){
@@ -321,7 +361,14 @@ class OeawFunctions {
         }
         
         
-        $query = $select." Where { ".$conditions." ".$query." }";
+        $query = $select." Where { ".$conditions." ".$query." } ORDER BY ?obj ";
+        if($limit){
+            $query .= " LIMIT ".$limit." ";
+            
+            if($page){
+                $query .= " OFFSET ".$page." ";
+            }
+        }
         
         return $query;
     }
@@ -337,7 +384,7 @@ class OeawFunctions {
      * @param type $limit
      * @return string
      */
-    public function createPaginationHTML($actualPage, $page, $tpages, $limit): string {
+    public function createPaginationHTML(string $actualPage, string $page, $tpages, $limit): string {
        
         $adjacents = 2;
         $prevlabel = "&lsaquo; Prev";
@@ -349,9 +396,9 @@ class OeawFunctions {
         if ($page == 0) {
             $out.= "<li style='display: block; float:left; padding: 5px;'><span>" . $prevlabel . "</span></li>";
         } elseif ($page == 1) {
-            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='" .$actualPage."/" .$limit . "/".$page."'>" . $prevlabel . "</a></li>";
+            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/browser/" .$actualPage."/" .$limit . "/".$page."'>" . $prevlabel . "</a></li>";
         } else {
-            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/".$actualPage."/" .$limit . "/" . ($page - 1) . "'>" . $prevlabel . "</a>\n</li>";
+            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/browser/".$actualPage."/" .$limit . "/" . ($page - 1) . "'>" . $prevlabel . "</a>\n</li>";
         }
 
         $pmin = ($page > $adjacents) ? ($page - $adjacents) : 0;
@@ -361,21 +408,21 @@ class OeawFunctions {
             if ($i == $page) {
                 $out.= "<li  style='display: block; float:left; padding: 5px;'  class=\"active\"><a href=''>" . $i . "</a></li>\n";
             } elseif ($i == 0) {
-                $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/".$actualPage."/" .$limit . "/'>" . $i . "</a>\n</li>";
+                $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/browser/".$actualPage."/" .$limit . "/'>" . $i . "</a>\n</li>";
             } else {
-                $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/".$actualPage."/" .$limit . "/" . $i . "'>" . $i . "</a>\n</li>";
+                $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/browser/".$actualPage."/" .$limit . "/" . $i . "'>" . $i . "</a>\n</li>";
             }
         }
 
         // next
         if ($page < $tpages) {
-            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/".$actualPage."/" .$limit . "/" . ($page + 1) . "'>" . $nextlabel . "</a>\n</li>";
+            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/browser/".$actualPage."/" .$limit . "/" . ($page + 1) . "'>" . $nextlabel . "</a>\n</li>";
         } else {
             $out.= "<li style='display: block; float:left; padding: 5px;'><span style=''>" . $nextlabel . "</span></li>";
         }
         
         if ($page < ($tpages - $adjacents)) {
-            $out.= "<li style='display: block; float:left; padding: 5px;'>Last Page: <a style='' href='/".$actualPage."/" .$limit . "/" . $tpages . "'>" . $tpages . "</a></li>";
+            $out.= "<li style='display: block; float:left; padding: 5px;'>Last Page: <a style='' href='/browser/".$actualPage."/" .$limit . "/" . $tpages . "'>" . $tpages . "</a></li>";
         }
         $out.= "";
         

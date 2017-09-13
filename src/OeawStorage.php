@@ -56,7 +56,7 @@ class OeawStorage {
         'owlMaxCardinality' => 'http://www.w3.org/2002/07/owl#maxCardinality'        
     );
         
-    private $titleProp;    
+    
     private $OeawFunctions;    
     private $fedora;    
     
@@ -90,22 +90,20 @@ class OeawStorage {
         $getResult = array();
         
         try {
+                       
             
-            $dcTitle = \Drupal\oeaw\ConnData::$title;
-            $isPartOf = \Drupal\oeaw\ConnData::$isPartOf;
-          
             $q = new Query();
-            $q->addParameter(new HasTriple('?uri', $dcTitle, '?title'));    
+            $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));    
             //$q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Project' ))->setSubVar('?uri'));
             $q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Collection' ))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'), true);
+            $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
             
             $q2 = new Query();
-            $q2->addParameter(new HasTriple('?uri', $isPartOf, '?y'));
+            $q2->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?y'));
             $q2->setJoinClause('filter not exists');
             $q->addSubquery($q2);    
       
@@ -149,7 +147,7 @@ class OeawStorage {
         try {
             
             $q = new Query();            
-            $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$title, '?title'), true);
+            $q->addParameter(new HasTriple($uri, RC::titleProp(), '?title'), true);
             $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
             $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
             $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
@@ -294,8 +292,7 @@ class OeawStorage {
         $getResult = array();
 
         try {        
-            
-            $dcTitle = RC::titleProp();
+                        
             $foafName = self::$sparqlPref["foafName"];
             $rdfsLabel = self::$sparqlPref["rdfsLabel"];            
 
@@ -304,14 +301,14 @@ class OeawStorage {
             
             if($count == false){
                 //Query parameters for the properties we want to get, true stands for optional
-                $q->addParameter((new HasTriple('?uri', $dcTitle, '?title')), true);
+                $q->addParameter((new HasTriple('?uri', RC::titleProp(), '?title')), true);
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$author, '?author'), true);           
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
                 $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?label'), true);
                 $q->addParameter(new HasTriple('?uri', $foafName, '?name'), true);         
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);            
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
-                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$isPartOf, '?isPartOf'), true);
+                $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'), true);
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
@@ -332,7 +329,7 @@ class OeawStorage {
             }                       
                               
             $query = $q->getQuery();
-            
+           
             $result = $this->fedora->runSparql($query);
             
             $fields = $result->getFields(); 
@@ -515,8 +512,7 @@ class OeawStorage {
         $getResult = array();
         
         try {            
-            
-            $dcTitle = RC::titleProp();            
+                        
             $idProp = RC::idProp();
             $rdfsSubClass = self::$sparqlPref['rdfsSubClass'];
             $rdfsDomain = self::$sparqlPref["rdfsDomain"];
@@ -670,7 +666,7 @@ class OeawStorage {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
         }
                 
-        $dcTitle = RC::titleProp();
+        
         $rdfsLabel = self::$sparqlPref["rdfsLabel"];
         $rdfType = self::$sparqlPref["rdfType"];
         $foafThumbnail = self::$sparqlPref["foafThumbnail"];
@@ -688,7 +684,7 @@ class OeawStorage {
             $q->addParameter(new MatchesRegEx($property, $value), 'i');
             
             $q2 = new Query();
-            $q2->addParameter((new HasTriple('?res', $dcTitle, '?title')));
+            $q2->addParameter((new HasTriple('?res', RC::titleProp(), '?title')));
             $q2->setJoinClause('optional');
             $q->addSubquery($q2);
 
@@ -839,8 +835,7 @@ class OeawStorage {
         if (empty($string) || empty($property)) {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
         }
-        
-        $dcTitle = RC::titleProp();
+                
         $rdfsLabel = self::$sparqlPref["rdfsLabel"];
         $getResult = array();
         
@@ -852,16 +847,9 @@ class OeawStorage {
             $q->setSelect(array('?res'));
             $q->setDistinct(true);
             $q->addParameter((new HasValue('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property))->setSubVar('?res'));
-            $q->addParameter(new MatchesRegEx($dcTitle, $string), 'i');
+            $q->addParameter(new MatchesRegEx(RC::titleProp(), $string), 'i');
             $query = $q->getQuery();
           
-            
-            echo "<pre>";
-            var_dump($query);
-            echo "</pre>";
-
-            die();
-
             $result = $this->fedora->runSparql($query);
            
             $fields = $result->getFields(); 

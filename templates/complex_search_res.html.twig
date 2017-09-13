@@ -1,0 +1,123 @@
+{% if errorMSG %}
+
+{% else %}
+	
+    <div class="res-el res-info col-block col-lg-12">
+        <div class="result-basic-info">
+            {{ searchedValues }}
+        </div>	
+         
+        {% if pagination %}
+            <div>                
+                <ul>
+                    {{ pagination|raw }}
+                </ul>    
+            </div>    
+        {% endif%}       
+    </div>
+	
+    {% for item in result %}
+        <div class="res-el col-block col-lg-12">
+		
+            {% if item.image %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  		
+
+                
+            {% if item.specialLabel %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE873;</i>
+                    <span class="res-title"><a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">{{ item.specialLabel }}</a></span>
+                </div>
+            {% elseif item.title %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE873;</i>
+                    <span class="res-title"><a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">{{ item.title }}</a></span>
+                </div>
+            {% endif%}    
+
+            {% if item.authors %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE7FB;</i>
+                    {% for author in item.authors %}  	
+                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ author.authorUri }}">{{ author.authorName }}</a></span>
+                    {% endfor %}	
+                </div>
+            {% endif%}
+
+            {% if item.contributors %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE7FE;</i>
+                    {% for contributor in item.contributors %}  	
+                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ contributor.contributorUri }}">{{ contributor.contributorName }}</a></span>
+                    {% endfor %}	
+                </div>
+            {% endif%}
+
+            {% if item.rdfType %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE54E;</i>
+                    <span class="res-rdftype"><a href="{{ item.rdfTypeUri }}">{{ item.rdfType }}</a></span>
+                </div>
+            {% endif%}		        
+
+
+            {% if item.creationdate %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE8DF;</i>	
+                    <span class="res-creationdate">{{ item.creationdate }}</span>
+                </div>
+            {% endif%}
+
+            {% if item.isPartOfTitle %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE335;</i>	
+                    <span class="res-ispartof">Part of: <a href="{{ url('<front>') }}oeaw_detail/{{ item.isPartOfUri }}">{{ item.isPartOfTitle }}</a></span>
+                </div>
+            {% endif%}            
+
+            {% if item.description %}
+                <div class="res-property res-property-desc">
+                    <i class="material-icons">&#xE88F;</i>	
+                    <span class="res-description">{{ item.description }}</span>
+                </div>            
+            {% endif%}
+
+
+            <div class="res-actions">
+
+                {% if item.description %}
+                    <div class="res-act-button res-act-button-summary closed">
+                        <i class="material-icons">&#xE145;</i>
+                        <span>Show Summary</span>
+                    </div>
+                {% endif%}
+
+                <div class="res-act-button">
+                    <a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">
+                        <i class="material-icons">&#xE873;</i>
+                        <span>Detailed View </span>
+                    </a>	
+                </div>
+
+                <!--
+                <div class="res-act-button">
+                        <i class="material-icons">&#xE885;</i>
+                        <span>Add To Favorites</span>
+                </div>
+                -->            	
+            </div>
+
+            {% if item.image %}</div>{% endif%}
+
+            {% if item.image %}	
+                <div class="res-inside-wrap col-lg-6 ">	
+                    <div class="single-res-thumb">
+                        <a href="{{ item.image }}"><img src="{{ item.image }}"></a>
+                    </div>
+                </div>
+            {% endif%}            
+  
+            	                                        
+        </div>
+    {% endfor %} 
+
+{% endif%}	

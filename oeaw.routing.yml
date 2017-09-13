@@ -15,11 +15,11 @@ oeaw_search:
     _access: 'TRUE'
 
 oeaw_detail_list:
-  path: '/oeaw_detail/{uri}/{limit}/{offset}'
+  path: '/oeaw_detail/{uri}/{limit}/{page}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_detail'
     limit: "0"
-    offset: "0"
+    page: "0"
   requirements:
     _permission: 'access content'
     _access: 'TRUE'
@@ -49,12 +49,25 @@ oeaw_revoke:
     _access: 'TRUE'
 
 oeaw_keywordsearch:
-  path: '/oeaw_keywordsearch/{metavalue}'
+  path: '/oeaw_keywordsearch/{metavalue}/{limit}/{page}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_keywordsearch'
+    limit: "0"
+    page: "0"
   requirements:
     _permission: 'access content'
     _access: 'TRUE'
+
+oeaw_complexsearch:
+  path: '/oeaw_complexsearch/{metavalue}/{limit}/{page}'
+  defaults:
+    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_complexsearch'
+    limit: "0"
+    page: "0"
+  requirements:
+    _permission: 'access content'
+    _access: 'TRUE'
+        
         
 oeaw_resources:
   path: '/oeaw_resources/{metakey}/{metavalue}'
@@ -65,11 +78,11 @@ oeaw_resources:
     _access: 'TRUE'
     
 oeaw_roots:
-  path: '/discover/{limit}/{offset}'
+  path: '/discover/{limit}/{page}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::roots_list'
     limit: "0"
-    offset: "0"
+    page: "0"
   requirements:
     _permission: 'access content'    
     _access: 'TRUE'

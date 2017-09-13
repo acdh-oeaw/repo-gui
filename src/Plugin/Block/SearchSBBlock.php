@@ -13,8 +13,8 @@ use Drupal\Core\Block\BlockBase;
  *
  * @Block(
  *   id = "searchsb_block",
- *   admin_label = @Translation("Sidebar Search OEAW"),
- *   category = @Translation("Custom sidebar search oeaw")
+ *   admin_label = @Translation("Search"),
+ *   category = @Translation("Custom complex search oeaw")
  * )
  */
 class SearchSBBlock extends BlockBase {
@@ -24,7 +24,7 @@ class SearchSBBlock extends BlockBase {
     */
     public function build() {
         
-        $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\SearchForm');
+        $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\ComplexSearchForm');
          
         return $form;
  
