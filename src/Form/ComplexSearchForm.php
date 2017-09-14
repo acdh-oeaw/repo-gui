@@ -100,7 +100,7 @@ class ComplexSearchForm extends FormBase
             '#title' => $this->t($data["title"]),
             '#attributes' => array(
                 'class' => array('form-checkbox-custom'),
-                'onClick' => 'window.location = "'.base_path().'browser/oeaw_complexsearch/q=type'.$data["title"].'/10/0";'
+                //'onClick' => 'window.location = "'.base_path().'browser/oeaw_complexsearch/q=type'.$data["title"].'/10/0";'
             ),
             '#options' =>
                 $data["fields"]
