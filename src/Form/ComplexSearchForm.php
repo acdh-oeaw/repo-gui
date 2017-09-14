@@ -43,7 +43,7 @@ class ComplexSearchForm extends FormBase
         $resFields = $this->OeawStorage->getACDHTypes(true);
         
         $rs = array();
-        foreach($resFields as $val){            
+        foreach($resFields as $val){
             $type = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type']);
             $count = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type'])." (".$val['typeCount'].")";
             $rs[$type] = $count;
@@ -100,7 +100,6 @@ class ComplexSearchForm extends FormBase
             '#title' => $this->t($data["title"]),
             '#attributes' => array(
                 'class' => array('form-checkbox-custom'),
-                //'onClick' => 'window.location = "'.base_path().'browser/oeaw_complexsearch/q=type'.$data["title"].'/10/0";'
             ),
             '#options' =>
                 $data["fields"]
@@ -168,11 +167,23 @@ class ComplexSearchForm extends FormBase
     
     public function validateForm(array &$form, FormStateInterface $form_state) 
     {
+        $metavalue = $form_state->getValue('metavalue');
+        $types = $form_state->getValue('searchbox_types');
+        if(count($types) > 0){
+            $types = array_filter($types);
+        }
         
+        $formats = $form_state->getValue('searchbox_format');
+        if(count($formats) > 0){
+            $formats = array_filter($formats);
+        }
+        
+        if( (empty($metavalue)) && (count($types) <= 0) 
+                &&  (count($formats) <= 0)  && empty($form_state->getValue('date_start_date'))
+                && empty($form_state->getValue('date_end_date')) ){            
+            $form_state->setErrorByName('metavalue', $this->t('Please add a keyword or select a type'));
+        }
     }
-    
-  
-    
     
     public function submitForm(array &$form, FormStateInterface $form_state) {
         
