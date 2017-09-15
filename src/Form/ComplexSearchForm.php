@@ -43,11 +43,13 @@ class ComplexSearchForm extends FormBase
         $resFields = $this->OeawStorage->getACDHTypes(true);
         
         $rs = array();
+        //create the resource type data
         foreach($resFields as $val){
             $type = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type']);
             $count = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type'])." (".$val['typeCount'].")";
             $rs[$type] = $count;
         }
+        
         $resData["fields"] = $rs;
         if(count($resData["fields"]) > 0){
             $this->createBox($form, $resData);
