@@ -38,7 +38,7 @@ class ComplexSearchForm extends FormBase
         
         //$this->createTypeData();
         
-        $resData["title"] = "Resource Types";
+        $resData["title"] = "Type of Resource";
         $resData["type"] = "searchbox_types";
         $resFields = $this->OeawStorage->getACDHTypes(true);
         
@@ -101,7 +101,8 @@ class ComplexSearchForm extends FormBase
             '#type' => 'checkboxes',            
             '#title' => $this->t($data["title"]),
             '#attributes' => array(
-                'class' => array('form-checkbox-custom'),
+                'class' => array('checkbox-custom'),
+                //'onClick' => 'window.location = "'.base_path().'browser/oeaw_complexsearch/q=type'.$data["title"].'/10/0";'
             ),
             '#options' =>
                 $data["fields"]
@@ -143,7 +144,7 @@ class ComplexSearchForm extends FormBase
                 
                 $form['metavalue'] = array(
                     '#type' => 'textfield',
-                    '#attributes' => array(	            
+                    '#attributes' => array(             
                         'class' => array('form-control')
                     ),                            
                     #'#required' => TRUE,
