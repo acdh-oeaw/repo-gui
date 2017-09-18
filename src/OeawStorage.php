@@ -141,6 +141,38 @@ class OeawStorage {
         }
     }
 
+    
+    public function getTitleByIdentifier(string $string): array{
+        $getResult = array();
+        
+        try {
+            
+            $q = new Query();
+            $q->addParameter((new HasValue(RC::idProp(), $string ))->setSubVar('?uri'));
+            $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
+            
+            $query = $q->getQuery();
+            
+            $result = $this->fedora->runSparql($query);
+            
+            $fields = $result->getFields();             
+            $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);        
+            return $getResult;
+            
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;            
+        }catch (\InvalidArgumentException $ex){            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }
+    }
+    
+    
     public function getResourceTitle(string $uri): array {
          $getResult = array();
         
@@ -256,6 +288,7 @@ class OeawStorage {
     }
     
     
+    
     /**
      * 
      * Get all data by property and value
@@ -327,9 +360,9 @@ class OeawStorage {
                 $q->setSelect(array('(COUNT(?uri) as ?count)'));
                 $q->setOrderBy(array('?uri'));
             }                       
-                              
+            
             $query = $q->getQuery();
-           
+                       
             $result = $this->fedora->runSparql($query);
             
             $fields = $result->getFields(); 
@@ -751,7 +784,7 @@ class OeawStorage {
             $where .= '{
                 select * where 
                 {
-                    ?uri ?prop <'.$data[$i].'>
+                    ?uri ?prop <'.$data[$i].'> 
                 }   
             }
             ';
@@ -760,8 +793,9 @@ class OeawStorage {
             }
         }
         
+        $where .= 'MINUS { ?uri <'.RC::get("fedoraIdProp").'> ?obj . }';
         $select = '
-            select DISTINCT ?uri ?prop ?obj where { ';        
+            select DISTINCT ?uri ?prop ?obj where { ';
         $end = ' } ';
         
         $string = $select.$where.$end;
@@ -776,15 +810,21 @@ class OeawStorage {
             
             $i = 0;
             foreach($res as $r){
-                foreach($r as $k => $v){
+                foreach($r as $k => $v){                    
                     $result[$i][$k] = $v;
                     if($k == "uri"){
                         $title = $this->OeawFunctions->getTitleByUri($v);
                         $result[$i]["title"] = $title;
+                        $result[$i]["insideUri"] = base64_encode($v);
+                    }
+                    if($k == "prop"){                        
+                        $shortcut = $this->OeawFunctions->createPrefixesFromString($v);
+                        $result[$i]["shortcut"] = $shortcut;
                     }
                 }
                 $i++;
-            }            
+            }
+            
             return $result;
 
         } catch (Exception $ex) {
@@ -807,13 +847,12 @@ class OeawStorage {
         $result = array();
         
         try {
-            $q = new SimpleQuery($string);            
-            $query = $q->getQuery();          
+            $q = new SimpleQuery($string);
+            $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $result = $this->OeawFunctions->createSparqlResult($res, $fields);
-           
             return $result;
 
         } catch (Exception $ex) {
@@ -972,9 +1011,9 @@ class OeawStorage {
         
         try {            
             $q = new Query();
-            $q->addParameter(new HasTriple('?aaa', $rdfType, '?type'));
+            $q->addParameter(new HasTriple('?uri', $rdfType, '?type'));
             $q->setSelect(array('?type', '(COUNT(?type) as ?typeCount)'));
-            $q->setOrderBy(array('?aaa'));
+            $q->setOrderBy(array('?uri'));
             $q->setGroupBy(array('?type'));
             $query = $q->getQuery();
             

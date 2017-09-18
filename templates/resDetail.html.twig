@@ -180,10 +180,10 @@
                         {% for item in extras.inverseData %}
                             <tr>                            
                                 <td>
-                                    {{ item.prop }}
+                                    {{ item.shortcut }}
                                 </td>
                                 <td>
-                                    <a href="{{ item.uri }}"> <b>{{ item.title }} </b></a>
+                                    <a href="{{ item.insideUri }}"> <b>{{ item.title }} </b></a>
                                 </td>
                             </tr>
                         {% endfor %}                                          
