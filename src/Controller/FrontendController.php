@@ -50,7 +50,7 @@ class FrontendController extends ControllerBase {
      * 
      * @return array
      */
-    public function roots_list(string $limit = "10", string $page = "0"): array {
+    public function roots_list(string $limit = "10", string $page = "0", string $order = "?title" ): array {
         
         drupal_get_messages('error', TRUE);
         // get the root resources
@@ -78,7 +78,7 @@ class FrontendController extends ControllerBase {
             if($page < 0){ $page = 0; }
         }
         
-        $result = $this->OeawStorage->getRootFromDB($limit, $page);
+        $result = $this->OeawStorage->getRootFromDB($limit, $page, false, $order);
 
         $uid = \Drupal::currentUser()->id();
         

@@ -83,7 +83,7 @@ class OeawStorage {
      * 
      * @return Array     
      */
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false): array {
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "?title" ): array {
         
         if($offset < 0) { $offset = 0; }
         
@@ -109,7 +109,7 @@ class OeawStorage {
       
             if($count == false){
                 $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image'));
-                $q->setOrderBy(array('UCASE(str(?title))'));
+                $q->setOrderBy(array($order));
                 $q->setLimit($limit);
                 $q->setOffset($offset); 
             }else {
