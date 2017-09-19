@@ -287,7 +287,9 @@ class OeawFunctions {
         if($count == true){
             $select = "SELECT (COUNT(?uri) as ?count) ";
         }else {
-            $select = "SELECT ?uri ?prop ?obj";
+            $select = 'SELECT ?uri ?prop ?obj ?description (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
+                       (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
+                       (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) ';
         }
         
         $conditions = "";
@@ -359,17 +361,20 @@ class OeawFunctions {
             //(?date < "2017-10-20T00:00:00+00:00"^^xsd:dateTime && ?date > "2017-05-11T00:00:00+00:00"^^xsd:dateTime) .
             $query .= "FILTER (?date < '".$maxdate->format(DATE_ATOM)."' ^^xsd:dateTime && ?date > '".$mindate->format(DATE_ATOM)."'^^xsd:dateTime)  \n";
         }
+        $query .= "OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/#hasDescription> ?description .}                
+    	OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/#hasAuthor> ?author .}	    	
+        OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/#hasContributor> ?contrib .}	
+    	OPTIONAL {?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?rdfType . }";
         
-        
-        $query = $select." Where { ".$conditions." ".$query." } ORDER BY ?obj ";
+        $query = $select." Where { ".$conditions." ".$query." } GROUP BY ?uri ?prop ?obj ?description  ORDER BY ?obj ";
         if($limit){
             $query .= " LIMIT ".$limit." ";
             
             if($page){
                 $query .= " OFFSET ".$page." ";
             }
-        }
-        
+        }        
+
         return $query;
     }
     
@@ -428,7 +433,48 @@ class OeawFunctions {
         
         return $out;
     }
+    
+
+    public function checkRules(array $rules): array{
+        $ACL = array();
         
+        //check the rules
+        if(count($rules) == 0){
+            $msg = base64_encode("The Resource is private");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }else {            
+            $i = 0;
+            //check the rules            
+            foreach($rules as $r){
+                foreach($r->users as $u){
+                    if($u == \acdhOeaw\fedora\acl\WebAclRule::PUBLIC_USER){
+                        $ACL[$i]['username'] = "Public User";
+                        $ACL[$i]['user'] = base64_encode($u);
+                    }else {
+                        $ACL[$i]['username'] = $u;
+                        $ACL[$i]['user'] = base64_encode($u);
+                    }
+                    
+                    switch ($r->mode) {
+                        case 1:
+                            $ACL[$i]['mode'] = "READ";
+                            break;
+                        case 2:
+                            $ACL[$i]['mode'] = "WRITE";
+                            break;
+                        default:
+                            $ACL[$i]['mode'] = "NONE";
+                    }
+                    $i++;
+                }
+            }
+        }
+        
+        return $ACL;
+    }
+    
     /**
      * 
      * Get the Fedora Resource Rules
@@ -644,25 +690,24 @@ class OeawFunctions {
             return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error');
         }
         $res = array();
-        $resCount = count($result)-1;        
+        $resCount = count($result)-1;
         $val = "";
         
         for ($x = 0; $x <= $resCount; $x++) {
         
             foreach($fields as $f){                
-                
-                if(!empty($result[$x]->$f)){
-                    
+               
+                if(!empty($result[$x]->$f)){                    
                     $objClass = get_class($result[$x]->$f);
                     
-                    if($objClass == "EasyRdf\Resource"){                        
+                    if($objClass == "EasyRdf\Resource"){
                         $val = $result[$x]->$f;
                         $val = $val->getUri();
-                        $res[$x][$f] = $val;                        
-                    }else if($objClass == "EasyRdf\Literal"){                                                
+                        $res[$x][$f] = $val;
+                    }else if($objClass == "EasyRdf\Literal"){
                         $val = $result[$x]->$f;
                         $val = $val->__toString();
-                        $res[$x][$f] = $val;                        
+                        $res[$x][$f] = $val;
                     } else {
                         $res[$x][$f] = $result[$x]->$f->__toString();
                     } 
@@ -672,7 +717,31 @@ class OeawFunctions {
                 }
             }
         }
+        
         return $res;
+    }
+    
+    
+    /**
+     * 
+     * Creating an array from the vocabsNamespace
+     * 
+     * @param string $string
+     * @return array
+     * 
+     * 
+     */
+    public function createStrongFromACDHVocabs(string $string): array {
+        if (empty($string)) { return false; }
+        
+        $result = array();
+        
+        if (strpos($string, RC::vocabsNmsp()) !== false) {
+            $result['rdfType']['typeUri'] = $string;
+            $result['rdfType']['typeName'] = str_replace(RC::vocabsNmsp(), '', $string);
+        }
+        
+        return $result;
     }
     
     /**
@@ -779,6 +848,27 @@ class OeawFunctions {
     
     /**
      * 
+     * Format data to children array
+     * 
+     * @param array $data
+     * @return array
+     * 
+     */
+    public function createChildrenViewData(array $data): array{
+        
+        $result = array();
+        if(count($data) < 0){ return $result; }
+        
+        for ($x = 0; $x <= count($data) - 1; $x++) {
+            $result[$x] = $data[$x];
+            $result[$x]['insideUri'] = base64_encode($data[$x]['uri']);
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * 
      * create the data for the children resource in the detail view
      * 
      * @param array $data
@@ -850,6 +940,82 @@ class OeawFunctions {
         }
         return $childResult;
     }
+
+
+    /**
+     * 
+     * this will generate an array with the Resource data.
+     * The Table will contains the resource properties with the values in array.
+     * 
+     * There will be also some additonal data:
+     * - resourceTitle -> the Main Resource Title
+     * - uri -> the Main Resource Uri
+     * - insideUri -> the base64_encoded uri to the gui browsing
+     * 
+     * @param Resource $data
+     * @return array
+     */
+    public function createDetailViewTable(\EasyRdf\Resource $data): array{
+        $result = array();
+        
+        $OeawStorage = new OeawStorage();
+        
+        if(empty($data)){
+            return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error');
+        }
+        //get the resource Title
+        $resourceTitle = $data->get(RC::get('fedoraTitleProp'));
+        $resourceUri = $data->getUri();
+        
+        //get the resources and remove fedora properties
+        $properties = array();
+        $properties = $data->propertyUris();
+              
+        foreach ($properties as $key => $val){
+            if (strpos($val, 'fedora.info') !== false) {
+                unset($properties[$key]);
+            }
+        }
+        
+        foreach ($properties as $p){
+            $propertyShortcut = $this->createPrefixesFromString($p);
+            
+            foreach ($data->all($p) as $key => $val){
+                
+                if(get_class($val) == "EasyRdf\Resource" ){
+                    $classUri = $val->getUri();
+                    $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
+                    
+                    //we will skip the title for the resource identifier
+                    if($p != RC::idProp()){
+                        $title = $OeawStorage->getTitleByIdentifier($classUri);
+                    }
+                    
+                    if(count($title) > 0){
+                        if($p == \Drupal\oeaw\ConnData::$rdfType){
+                            $result['acdh_'.$propertyShortcut]['title'] = $title[0]['title'];
+                            $result['acdh_'.$propertyShortcut]['insideUri'] = base64_encode($title[0]['uri']);
+                        }
+                        //we will skip the identifer, there we do not need the title
+                        if($p != RC::idProp()){
+                            $result['table'][$propertyShortcut][$key]['title'] = $title[0]['title'];
+                            $result['table'][$propertyShortcut][$key]['insideUri'] = base64_encode($title[0]['uri']);
+                        }                        
+                    }
+                }
+                
+                if(get_class($val) == "EasyRdf\Literal" ){
+                    $result['table'][$propertyShortcut][$key] = $val->getValue();
+                }
+            }
+        }
+        
+        $result['resourceTitle'] = $resourceTitle;
+        $result['uri'] = $resourceUri;
+        $result['insideUri'] = base64_encode($resourceUri);
+        
+        return $result;
+    }
     
     /**
      * 
@@ -916,14 +1082,19 @@ class OeawFunctions {
                             $property = $this->createPrefixesFromString($v);
                             $propertyRep = str_replace(":","_",$property);
                             
-                            if($this->getTitleByTheFedIdNameSpace($resVal)){
-                                $resValTitle = "";
-                                $resValTitle = $this->getTitleByTheFedIdNameSpace($resVal);
-                                //we have a title for the resource
-                                if($resValTitle){
-                                    $results[$propertyRep]["title"][$x] = $resValTitle;
+                            // we dont need the title for the identifiers
+                            if ($v != RC::idProp()) {                                
+                                if(count($this->getTitleByTheFedIdNameSpace($resVal)) > 0 ){
+                                    $resValTitle = "";
+                                    $resValTitle = $this->getTitleByTheFedIdNameSpace($resVal);
+
+                                    //we have a title for the resource
+                                    if($resValTitle){
+                                        $results[$propertyRep]["title"][$x] = $resValTitle[0]["title"];
+                                    }
                                 }
                             }
+                            
                             $results[$propertyRep]["property"] = $property;
                             $results[$propertyRep]["value"][] = $resVal;
                            
@@ -1032,29 +1203,19 @@ class OeawFunctions {
      * @param string $string
      * @return string
      */
-    public function getTitleByTheFedIdNameSpace(string $string): string{
+    public function getTitleByTheFedIdNameSpace(string $string): array{
         
         if(!$string) { return false; }
         
-        $return = "";
+        $return = array();
         $OeawStorage = new OeawStorage();
-        
-        if (strpos($string, 'https://id.acdh.oeaw.ac.at/') !== false || strpos($string, 'http://viaf.org/viaf/') !== false) {
             
-            $itemRes = $OeawStorage->getDataByProp(RC::get('fedoraIdProp'), $string);
+        $itemRes = $OeawStorage->getTitleByIdentifier($string);
 
-            if(count($itemRes) > 0){
-                if($itemRes[0]["firstName"] && $itemRes[0]["lastName"]){
-                    $return = $itemRes[0]["firstName"] . " " . $itemRes[0]["lastName"];
-                }else if($itemRes[0]["title"]){
-                    $return = $itemRes[0]["title"];
-                }else if($itemRes[0]["label"]){
-                    $return = $itemRes[0]["label"];
-                }else if($itemRes[0]["name"]){
-                    $return = $itemRes[0]["name"];
-                }
-            }
-        }        
+        if(count($itemRes) > 0){
+            $return = $itemRes;
+        }
+        
         return $return;
     }
      

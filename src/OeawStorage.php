@@ -83,7 +83,7 @@ class OeawStorage {
      * 
      * @return Array     
      */
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false): array {
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "?title" ): array {
         
         if($offset < 0) { $offset = 0; }
         
@@ -109,7 +109,7 @@ class OeawStorage {
       
             if($count == false){
                 $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image'));
-                $q->setOrderBy(array('UCASE(str(?title))'));
+                $q->setOrderBy(array($order));
                 $q->setLimit($limit);
                 $q->setOffset($offset); 
             }else {
@@ -141,6 +141,7 @@ class OeawStorage {
         }
     }
 
+   
     
     public function getTitleByIdentifier(string $string): array{
         $getResult = array();
@@ -152,7 +153,7 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
             
             $query = $q->getQuery();
-            
+
             $result = $this->fedora->runSparql($query);
             
             $fields = $result->getFields();             
@@ -179,13 +180,12 @@ class OeawStorage {
         try {
             
             $q = new Query();            
-            $q->addParameter(new HasTriple($uri, RC::titleProp(), '?title'), true);
+            $q->addParameter(new HasTriple($uri, RC::titleProp(), '?title'), true);            
             $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
             $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
             $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
             
             $query = $q->getQuery();
-            
             $result = $this->fedora->runSparql($query);
             
             $fields = $result->getFields();             
@@ -302,6 +302,7 @@ class OeawStorage {
         if (empty($value) || empty($property)) {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
         }
+       if($offset < 0) { $offset = 0; }
        
         if(!filter_var($property, FILTER_VALIDATE_URL)){
             $property = $this->OeawFunctions->createUriFromPrefix($property);
@@ -767,6 +768,77 @@ class OeawStorage {
     
     /**
      * 
+     * @param string $uri  the root uri
+     * @param string $limit the pagination limit
+     * @param string $offset
+     * @param bool $count
+     * @return array
+     * 
+     * 
+     */
+    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false): array {
+        
+        if (count($ids) < 0) { return array(); }
+        if($offset < 0) { $offset = 0; }
+        $result = array();
+        $select = "";
+        $where = "";
+        $limitStr = "";
+        $queryStr = "";
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        if($count == false){
+            $select = 'SELECT ?uri ?title ?description (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';            
+            $limitStr = ' LIMIT '.$limit.'
+            OFFSET '.$offset.' ';
+        }else {
+            $select = 'SELECT (COUNT(?uri) as ?count) ';            
+        }
+        
+        $where = '
+            WHERE {
+                ?uri <'.RC::get("fedoraTitleProp").'> ?title .
+                OPTIONAL { ?uri <'.\Drupal\oeaw\ConnData::$description.'> ?description .}
+                ?uri  <'.\Drupal\oeaw\ConnData::$rdfType.'> ?type .
+                FILTER regex(str(?type),"vocabs.acdh","i") .
+                ?uri <'.RC::get("fedoraRelProp").'>  ?isPartOf .
+                FILTER ( 
+            ';
+        
+        $num = count($ids);
+        
+        for ($i = 0; $i <= $num -1 ; $i++) {
+                        
+            $where .= '?isPartOf =  <'.$ids[$i].'> ';
+            if($i !== ($num - 1)){
+                $where .= ' || ';
+            }
+        }
+        $where .= ')';
+        $groupBy = ' }  GROUP BY ?uri ?title ?description ORDER BY ASC( fn:lower-case(?title))';
+        
+        $queryStr = $select.$where.$groupBy.$limitStr;       
+        
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields(); 
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+        
+        
+    }
+    
+    /**
+     * 
      * Create the data for the InverseViews by the Resource Identifier
      * 
      * @param array $data
@@ -801,8 +873,8 @@ class OeawStorage {
         $string = $select.$where.$end;
         
         try {
-            $q = new SimpleQuery($string);            
-            $query = $q->getQuery();          
+            $q = new SimpleQuery($string);
+            $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
             $fields = $res->getFields(); 

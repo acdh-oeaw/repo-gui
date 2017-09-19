@@ -50,7 +50,7 @@ class FrontendController extends ControllerBase {
      * 
      * @return array
      */
-    public function roots_list(string $limit = "10", string $page = "0"): array {
+    public function roots_list(string $limit = "10", string $page = "0", string $order = "?title"): array {
         
         drupal_get_messages('error', TRUE);
         // get the root resources
@@ -78,7 +78,7 @@ class FrontendController extends ControllerBase {
             if($page < 0){ $page = 0; }
         }
         
-        $result = $this->OeawStorage->getRootFromDB($limit, $page);
+        $result = $this->OeawStorage->getRootFromDB($limit, $page, false, $order);
 
         $uid = \Drupal::currentUser()->id();
         
@@ -456,8 +456,8 @@ class FrontendController extends ControllerBase {
         
         $uri = base64_decode($uri);        
         $hasBinary = "";  
+        $inverseData = array();
         
-       //get the childrens
         $fedora = $this->OeawFunctions->initFedora();
         
         $childResult = array();
@@ -467,41 +467,16 @@ class FrontendController extends ControllerBase {
         
         $rules = $this->OeawFunctions->getRules($uri, $fedora);
         
-        //check the rules
-        if(count($rules) == 0){
-            $msg = base64_encode("The Resource is private");
+        if(count($rules) <= 0){
+            $msg = base64_encode("The Resource Rules are not reachable!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;     
-        }else {
-            $ACL = array();
-            $i = 0;
-            //check the rules
-            
-            foreach($rules as $r){
-                foreach($r->users as $u){
-                    if($u == \acdhOeaw\fedora\acl\WebAclRule::PUBLIC_USER){
-                        $ACL[$i]['username'] = "Public User";
-                        $ACL[$i]['user'] = base64_encode($u);
-                    }else {
-                        $ACL[$i]['username'] = $u;
-                        $ACL[$i]['user'] = base64_encode($u);
-                    }
-                    
-                    switch ($r->mode) {
-                        case 1:
-                            $ACL[$i]['mode'] = "READ";
-                            break;
-                        case 2:
-                            $ACL[$i]['mode'] = "WRITE";
-                            break;
-                        default:
-                            $ACL[$i]['mode'] = "NONE";
-                    }
-                    $i++;
-                }
-            }
+            return;
         }
+        
+        $ACL = array();
+        $ACL = $this->OeawFunctions->checkRules($rules);
+        $results['ACL'] = $ACL;
         
         $rootGraph = $this->OeawFunctions->makeGraph($uri);
         $rootMeta =  $this->OeawFunctions->makeMetaData($uri);
@@ -509,115 +484,68 @@ class FrontendController extends ControllerBase {
         if(count($rootMeta) > 0){
             $results = array();
             //get the root table data
-            $results = $this->OeawFunctions->createDetailTableData($uri);
-            
-            
-            $ident = $rootMeta->allResources(RC::idProp());
-            
-            $identifiers = array();
-            if(count($ident) > 0){
-                foreach($ident as $i){
-                    $identifiers[] = $i->getUri();
-                }
-            }
-            
-            if(count($identifiers) > 0){
-                $inverseData = $this->OeawStorage->getInverseViewData($identifiers);
-            }
+            $results = $this->OeawFunctions->createDetailViewTable($rootMeta);
+            //$results = $this->OeawFunctions->createDetailTableData($uri);
             
             if(empty($results)){                
                 $msg = base64_encode("The resource has no metadata!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
                 return;            
-            }           
-        } else {            
+            }  
+            
+            $identifiers = array();
+            if(count($results['table']['acdh:hasIdentifier']) > 0){
+                foreach($results['table']['acdh:hasIdentifier'] as $i){
+                    $identifiers[] = $i['uri'];
+                }
+            }
+            
+            if(count($identifiers) > 0){
+                $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
+                
+                //$inverseData = $this->OeawStorage->getInverseViewData($identifiers);                
+                $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);
+                
+                $total = (int)count($countData);
+                if($limit == "0") { $pagelimit = "10"; } else { $pagelimit = $limit; }
+                
+                //create data for the pagination                
+                $pageData = $this->OeawFunctions->createPaginationData($pagelimit, $page, $total);
+                $pagination = "";                
+                if ($pageData['totalPages'] > 1) {
+                    $results['pagination'] =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
+                }
+                $childResult = array();
+                //if we have acdh has identifier then we will check the children data too
+                $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $pageData['end']);
+                if(count($childrenData) > 0){
+                    $childResult = $this->OeawFunctions->createChildrenViewData($childrenData);
+                }
+            }
+            
+        } else {
             $msg = base64_encode("The resource has no metadata!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;            
         }
 
-        try{                
-            if($fedora->getResourceByUri($uri)->getChildren()){                
-                $childF = $fedora->getResourceByUri($uri)->getChildren();
-                //get the childrens table data
-                if(count($childF) > 0){
-                    $childResult = $this->OeawFunctions->createChildrenDetailTableData($childF);
-                }
-            }
-        } catch (\Exception $ex) {
-            $msg = base64_encode("There was a runtime error during the getChildren method! Error message: ".$ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-            return;            
-        }
         
-        $resTitle = $rootGraph->label($uri);
-        
-        if($resTitle){
-            $resTitle->dumpValue('text');
-        }else {
-            $resTitle = "title is missing";
-        }
-        
+        /*
         $query = "";
         if(isset($results['query']) && isset($results['queryType'])){
             if($results['queryType'] == "SPARQL"){
                 $query = base64_encode($uri);
             }
         }
-        
-        if(isset($results['acdh_hasContributor'])) {
-            $iCont = 0;
-            foreach ($results['acdh_hasContributor']["value"] as $contributor) {
-	            $contributorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-	            if ($contributorName) {
-		            //If there are multiple people then add a comma in between
-		            if ($iCont > 0) {
-			            $results['acdh_hasContributor']["contributorName"][$iCont-1] .= ",";     
-		            }		            
-	                $results['acdh_hasContributor']["contributorName"][$iCont] = $contributorName;                        
-                        $results['acdh_hasContributor']["contributorUri"][$iCont] = $results['acdh_hasContributor']["value"][$iCont];
-	                $iCont++;
-	            }    
-            }
-        }        
-
-        if(isset($results['acdh_hasAuthor'])) {
-            $iCont = 0;
-            foreach ($results['acdh_hasAuthor']["value"] as $contributor) {
-	            $authorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-	            if ($authorName) {
-		            //If there are multiple people then add a comma in between
-		            if ($iCont > 0) {
-			            $results['acdh_hasAuthor']["authorName"][$iCont-1] .= ",";     
-		            }
-	                $results['acdh_hasAuthor']["authorName"][$iCont] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-	                $iCont++;
-	            }
-            }
-        }
-
-        if(isset($results['fedora_created'])) {
-            $creationdate = $results["fedora_created"]["value"][0];
-            $creationdate = $creationdate->__toString();
-            $creationdate = strtotime($creationdate);
-            $creationdatefull = date('F jS, Y',$creationdate);
-            $extras["fedora_created"]["value"]["creationDate"] = $creationdatefull;
-            $creationyear = date('Y',$creationdate);
-            $extras["fedora_created"]["value"]["creationYear"] = $creationyear;
-        }
-
-        $editResData = array(
-            "editUrl" => base64_encode($uri),
-            "title" => $resTitle
-        );
-        
-        if(empty($results["hasBinary"])){
+        */
+     
+       if(empty($results["hasBinary"])){
             $results["hasBinary"] = "";
         }
 
+        /*
         if(isset($results['rdf_type']['value'])) {
             foreach ($results['rdf_type']['value'] as $rdfMatch) {
                 if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfMatch)) {                    
@@ -628,10 +556,9 @@ class FrontendController extends ControllerBase {
                 }
             }	        
         }  
-        
-        $results['ACL'] = $ACL;
-        
-        //check the Dissemination services
+        */
+
+       //check the Dissemination services
         $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
         if(count($dissServices) > 0){
             $extras['dissServ'] = $dissServices;
@@ -649,10 +576,9 @@ class FrontendController extends ControllerBase {
             '#result' => $results,
             '#extras' => $extras,
             '#userid' => $uid,            
-            '#query' => $query,
+            #'#query' => $query,
             '#hasBinary' => $results["hasBinary"],
-            '#childResult' => $childResult,
-            '#editResData' => $editResData,
+            '#childResult' => $childResult,            
             '#attached' => [
                 'library' => [
                 'oeaw/oeaw-styles', //include our custom library for this response
@@ -695,32 +621,65 @@ class FrontendController extends ControllerBase {
         $metavalue = str_replace(' ', '+', $metavalue);
         
         $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);        
-        $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
-                
-        $count = $this->OeawStorage->runUserSparql($countSparql);
-        $total = (int)$count[0]['count'];
-        //create data for the pagination
-        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
         
-        //echo $pageData["end"];
-        if ($pageData['totalPages'] > 1) {
-            $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
+        //if we have only types selected then we need to
+        if((count($searchStr) == 1) && (isset($searchStr['type']))){
+            $countSparql = $this->OeawStorage->getACDHTypes();
+            $rs = array();
+            $i = 0;
+            $total = (int)count($countSparql);
+            foreach($countSparql as $val){
+                $res[$i]['uri'] = $val['type'];
+                $res[$i]['obj'] = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type']);
+                $res[$i]['rdfTypes'] = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type']);
+                $res[$i]['description'] = "";
+                //$res[$i]['typeCount'] = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type'])." (".$val['typeCount'].")";
+                $i++;                
+            }
+        }else {        
+            $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
+            $count = $this->OeawStorage->runUserSparql($countSparql);
+            $total = (int)count($count);
+            //create data for the pagination
+            $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
+        
+            //echo $pageData["end"];
+            if ($pageData['totalPages'] > 1) {
+                $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
+            }
+            $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end']);        
+            $res = $this->OeawStorage->runUserSparql($sparql);
         }
-        $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end']);
-      
-        $res = $this->OeawStorage->runUserSparql($sparql);
         
+
         if(count($res) > 0){
             $i = 0;
             foreach($res as $r){
                 if( !empty($r['uri']) ){
                     $result[$i]['resUri'] = base64_encode($r['uri']);
                     $result[$i]['title'] = $r['obj'];
+                    
+                    if($r['rdfTypes']){
+                        $x = 0;
+                        $types = explode(",", $r['rdfTypes']);
+                        
+                        foreach ($types as  $t){
+                            if (strpos($t, RC::vocabsNmsp()) !== false) {
+                                $tr = $this->OeawFunctions->getTitleByTheFedIdNameSpace($t);
+                                
+                                if(count($tr) > 0){
+                                    $result[$i]['rdfType']['typeUri'] = base64_encode($tr[0]['uri']);
+                                    $result[$i]['rdfType']['typeName'] = $tr[0]['title'];
+                                }
+                            }
+                        }
+                    }
+                    $result[$i]['description'] = $r['description'];
                     $i++;
                 }
             }
         }
-        
+       
         if (count($result) < 0){
             $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
         }
