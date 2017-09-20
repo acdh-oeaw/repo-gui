@@ -68,10 +68,10 @@
             {% endif%}	
 
             
-            {% if result['table']['acdh:hasCreatedDate'] %}
+            {% if result['table']['acdh:hasCreatedDate'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>	
-                    <span class="res-creationdate">{{ result['table']['acdh:hasCreatedDate'] }}</span>
+                    <span class="res-creationdate">{{ result['table']['acdh:hasCreatedDate'][0] }}</span>
                 </div>
             {% endif%}	           	
 
@@ -270,11 +270,11 @@
     {% endif %}	
 
 
-    {% if result['table']['acdh:hasDescription'] %}
+    {% if result['table']['acdh:hasDescription'][0] %}
     	<h3 class="single-res-heading">Summary</h3>    
         <div class="res-property">
             <i class="material-icons">&#xE88F;</i>
-            <span class="res-description">{{ result['table']['acdh:hasDescription'] }}</span>
+            <span class="res-description">{{ result['table']['acdh:hasDescription'][0] }}</span>
         </div>
                             
     {% endif%}
