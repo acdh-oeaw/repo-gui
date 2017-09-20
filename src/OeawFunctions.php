@@ -525,7 +525,65 @@ class OeawFunctions {
         
         return $result;
     }
-        
+
+    /**
+     * 
+     * create the page navigation html code
+     * 
+     * @param array $resourceData Delivers the properties of the resource
+     * @return array $widget Returns the cite-this widget as HTML
+     */
+    public function createCiteThisWidget(array $resourceData): array {
+
+		//MLA Format
+		$widget["MLA"] = ["creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "createdDate" => ""];
+
+		//Get creator(s)
+		if (isset($resourceData["table"]["acdh:hasCreator"])) {
+			foreach ($resourceData["table"]["acdh:hasCreator"] as $key => $creator) {			
+				if ($key > 0) {
+					$widget["MLA"]["creators"] .= ", " . $creator["title"];
+				} else {
+					$widget["MLA"]["creators"] = $creator["title"];
+				}			
+			}
+		}
+
+		//Get contributor(s) 
+		if (isset($resourceData["table"]["acdh:hasContributor"])) {
+			foreach ($resourceData["table"]["acdh:hasContributor"] as $key => $contributor) {			
+				if ($key > 0) {
+					$widget["MLA"]["contributors"] .= ", " . $contributor["title"];
+				} else {
+					$widget["MLA"]["contributors"] = $contributor["title"];
+				}			
+			}
+		}
+
+		//Get title
+		if (isset($resourceData["table"]["acdh:hasTitle"])) {
+			$title = $resourceData["table"]["acdh:hasTitle"][0];
+			$widget["MLA"]["title"] = $title;
+		}
+		
+		//Get isPartOf		
+		if (isset($resourceData["table"]["acdh:isPartOf"])) {
+			$isPartOf = $resourceData["table"]["acdh:isPartOf"][0]["title"];
+			$widget["MLA"]["isPartOf"] = ' <em>'.$isPartOf.'.</em>';		
+		}
+		
+		//Get created date
+		if (isset($resourceData["table"]["acdh:hasCreatedDate"])) {
+			$createdDate = $resourceData["table"]["acdh:hasCreatedDate"][0];
+			$createdDate = strtotime($createdDate);
+			$widget["MLA"]["createdDate"] = date('Y',$createdDate);			
+		}
+
+		$widget["MLA"]["string"] = '<span>'.$widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["createdDate"].'.</span>';
+
+		return $widget;
+	}
+
     /**
      * 
      * Creates the EasyRdf_Resource by uri
