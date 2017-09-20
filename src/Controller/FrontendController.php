@@ -679,7 +679,7 @@ class FrontendController extends ControllerBase {
         if (count($result) < 0){
             $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
         }
-        
+
         $uid = \Drupal::currentUser()->id();
         
         $datatable['#theme'] = 'oeaw_complex_search_res';

@@ -17,17 +17,13 @@
     </div>
 	
     {% for item in result %}
+        
         <div class="res-el col-block col-lg-12">
 		
             {% if item.image %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  		
 
-                
-            {% if item.specialLabel %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE873;</i>
-                    <span class="res-title"><a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">{{ item.specialLabel }}</a></span>
-                </div>
-            {% elseif item.title %}
+            
+            {% if item.title %}
                 <div class="res-property">
                     <i class="material-icons">&#xE873;</i>
                     <span class="res-title"><a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">{{ item.title }}</a></span>
@@ -52,13 +48,17 @@
                 </div>
             {% endif%}
 
+           
             {% if item.rdfType %}
                 <div class="res-property">
                     <i class="material-icons">&#xE54E;</i>
-                    <span class="res-rdftype"><a href="{{ item.rdfTypeUri }}">{{ item.rdfType }}</a></span>
+                    {% for key,value in item.rdfType %}
+                        {% if key == "typeName" %}
+                            <span class="res-rdfType"><a href="{{ url('<front>') }}oeaw_complexsearch/&type={{ value }}/10">{{ value }}</a></span>
+                        {% endif %}
+                    {% endfor %}
                 </div>
-            {% endif%}		        
-
+            {% endif%}
 
             {% if item.creationdate %}
                 <div class="res-property">
@@ -73,10 +73,10 @@
                     <span class="res-ispartof">Part of: <a href="{{ url('<front>') }}oeaw_detail/{{ item.isPartOfUri }}">{{ item.isPartOfTitle }}</a></span>
                 </div>
             {% endif%}            
-
+            
             {% if item.description %}
-                <div class="res-property res-property-desc">
-                    <i class="material-icons">&#xE88F;</i>	
+                <div class="res-property res-property-description">
+                    <i class="material-icons">&#xE88F;</i>
                     <span class="res-description">{{ item.description }}</span>
                 </div>            
             {% endif%}
