@@ -602,7 +602,15 @@ class FrontendController extends ControllerBase {
         return $form;
     }
     
-    
+    /**
+     * 
+     * The complex search frontend function
+     * 
+     * @param string $metavalue
+     * @param string $limit
+     * @param string $page
+     * @return array
+     */
     public function oeaw_complexsearch(string $metavalue, string $limit = "10", string $page = "0"):array {
 
         drupal_get_messages('error', TRUE);
@@ -620,37 +628,19 @@ class FrontendController extends ControllerBase {
         $metavalue = str_replace(' ', '+', $metavalue);
         
         $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);        
+      
+        $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
+        $count = $this->OeawStorage->runUserSparql($countSparql);
+        $total = (int)count($count);
+        //create data for the pagination
+        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
         
-        //if we have only types selected then we need to
-        if((count($searchStr) == 1) && (isset($searchStr['type']))){
-            $countSparql = $this->OeawStorage->getACDHTypes();
-            $rs = array();
-            $i = 0;
-            $total = (int)count($countSparql);
-            foreach($countSparql as $val){
-                $res[$i]['uri'] = $val['type'];
-                $res[$i]['obj'] = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type']);
-                $res[$i]['rdfTypes'] = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type']);
-                $res[$i]['description'] = "";
-                //$res[$i]['typeCount'] = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type'])." (".$val['typeCount'].")";
-                $i++;                
-            }
-        }else {        
-            $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
-            $count = $this->OeawStorage->runUserSparql($countSparql);
-            $total = (int)count($count);
-            //create data for the pagination
-            $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
-        
-            //echo $pageData["end"];
-            if ($pageData['totalPages'] > 1) {
-                $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
-            }
-            $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end']);        
-            $res = $this->OeawStorage->runUserSparql($sparql);
+        if ($pageData['totalPages'] > 1) {
+            $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
         }
+        $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end']);        
+        $res = $this->OeawStorage->runUserSparql($sparql);
         
-
         if(count($res) > 0){
             $i = 0;
             foreach($res as $r){
