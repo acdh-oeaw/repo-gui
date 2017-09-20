@@ -513,11 +513,12 @@ class FrontendController extends ControllerBase {
                 $pageData = $this->OeawFunctions->createPaginationData($pagelimit, $page, $total);
                 $pagination = "";                
                 if ($pageData['totalPages'] > 1) {
-                    $results['pagination'] =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
+                    $results['pagination'] =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $pagelimit);
                 }
+                
                 $childResult = array();
                 //if we have acdh has identifier then we will check the children data too
-                $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $pageData['end']);
+                $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
                 if(count($childrenData) > 0){
                     $childResult = $this->OeawFunctions->createChildrenViewData($childrenData);
                 }
@@ -529,8 +530,14 @@ class FrontendController extends ControllerBase {
             $response->send();
             return;            
         }
+        
+       
 
         
+
+
+
+
         /*
         $query = "";
         if(isset($results['query']) && isset($results['queryType'])){
