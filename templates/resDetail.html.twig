@@ -268,8 +268,8 @@
     {% endif%}
     
     {% if result['table']['acdh:hasAuthor'] %}
-    	<h3 class="single-res-heading">About the Contributor(s)</h3>
-        {% for value in result['table']['acdh:hasCreator'] %}            
+    	<h3 class="single-res-heading">About the Autor(s)</h3>
+        {% for value in result['table']['acdh:hasAuthor'] %}            
             <div class="res-property">
                 <i class="material-icons">&#xE7FD;</i>
                 {% if value['insideUri'] %}
@@ -284,7 +284,7 @@
     
     {% if result['table']['acdh:hasContributor'] %}
     	<h3 class="single-res-heading">About the Contributor(s)</h3>
-        {% for value in result['table']['acdh:hasCreator'] %}            
+        {% for value in result['table']['acdh:hasContributor'] %}            
             <div class="res-property">
                 <i class="material-icons">&#xE7FE;</i>
                 {% if value['insideUri'] %}
