@@ -528,7 +528,7 @@ class OeawFunctions {
 
     /**
      * 
-     * create the page navigation html code
+     * Create the HTML content of the cite-this widget on single resource view
      * 
      * @param array $resourceData Delivers the properties of the resource
      * @return array $widget Returns the cite-this widget as HTML
