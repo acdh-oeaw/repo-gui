@@ -31,41 +31,47 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE7FB;</i> 
                     <ul>
-                    {% for name in result['table']['acdh:hasAuthor'].value %}                                        
+                    {% for value in result['table']['acdh:hasAuthor'] %}
                         <span class="res-contributor">
-                            <a href="{{ url('<front>') }}oeaw_detail/{{ cycle(result['table']['acdh_hasAuthor'].inside_url, loop.index0) }}">
-                                <li>
-                                    {% if result['table']['acdh_hasAuthor']['title'][loop.index - 1] %}
-                                        {{ result['table']['acdh_hasAuthor']['title'][loop.index - 1] }}
-                                    {% else %}
-                                        {{ result['table']['acdh_hasAuthor']['value'][loop.index - 1] }}
-                                    {% endif %} 
-                                </li>
-                            </a>
-                        </span>  
-                    {% endfor %}	
+                            <li>
+                                {% if value['insideUri'] %}
+                                    <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                                {% else %}
+                                <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                                    <a href="{{ value['uri'] }}">{{ value['title'] }}</a> 
+                                {% endif%}
+                            </li>    
+                        </span>
+                    {% endfor %}
                     </ul>
-                </div>
-            {% endif%}
-
+                </div>                
+            {% endif%}	
+            
             {% if result['table']['acdh:hasContributor'] %}
                 <div class="res-property">
-                    <i class="material-icons">&#xE7FE;</i>
-                    {% for name in result['table']['acdh_hasContributor']['title'] %}
-                        {% if cycle(result['table']['acdh_hasContributor']['insideUri'], loop.index0)%}
-                            <span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ cycle(result['table']['acdh_hasContributor']['insideUri'], loop.index0) }}">{{ name }}</a></span>  
-                        {% else %}
-                            <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                            <span class="res-contributor"><a href="{{ cycle(result['table']['acdh_hasContributor'].contributorUri, loop.index0) }}">{{ name }}</a></span>  
-                        {% endif%}
-                    {% endfor %}	
-                </div>
-            {% endif%}					
+                    <i class="material-icons">&#xE7FE;</i> 
+                    <ul>
+                    {% for value in result['table']['acdh:hasContributor'] %}
+                        <span class="res-contributor">
+                            <li>
+                                {% if value['insideUri'] %}
+                                    <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                                {% else %}
+                                <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                                    <a href="{{ value['uri'] }}">{{ value['title'] }}</a> 
+                                {% endif%}
+                            </li>    
+                        </span>
+                    {% endfor %}
+                    </ul>
+                </div>                
+            {% endif%}	
 
-            {% if result['table']['acdh:created'] %}
+            
+            {% if result['table']['acdh:hasCreatedDate'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>	
-                    <span class="res-creationdate">{{ result['table']['acdh:created'] }}</span>
+                    <span class="res-creationdate">{{ result['table']['acdh:hasCreatedDate'] }}</span>
                 </div>
             {% endif%}	           	
 
