@@ -153,7 +153,6 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
             
             $query = $q->getQuery();
-
             $result = $this->fedora->runSparql($query);
             
             $fields = $result->getFields();             

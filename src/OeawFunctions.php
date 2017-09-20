@@ -872,6 +872,8 @@ class OeawFunctions {
     
     /**
      * 
+     * OLD FUNCTION
+     * 
      * create the data for the children resource in the detail view
      * 
      * @param array $data
@@ -990,7 +992,7 @@ class OeawFunctions {
                     $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
                     
                     //we will skip the title for the resource identifier
-                    if($p != RC::idProp()){
+                    if($p != RC::idProp() || ( ($p == RC::idProp()) && (strpos($classUri, 'id.acdh.oeaw.ac.at') == false) ) ){
                         $title = $OeawStorage->getTitleByIdentifier($classUri);
                     }
                     
@@ -1000,7 +1002,7 @@ class OeawFunctions {
                             $result['acdh_'.$propertyShortcut]['insideUri'] = base64_encode($title[0]['uri']);
                         }
                         //we will skip the identifer, there we do not need the title
-                        if($p != RC::idProp()){
+                        if($p != RC::idProp() || ( ($p == RC::idProp()) && (strpos($classUri, 'id.acdh.oeaw.ac.at') == false) ) ){
                             $result['table'][$propertyShortcut][$key]['title'] = $title[0]['title'];
                             $result['table'][$propertyShortcut][$key]['insideUri'] = base64_encode($title[0]['uri']);
                         }                        
