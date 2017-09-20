@@ -51,9 +51,9 @@
             {% if result['table']['acdh_hasContributor'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FE;</i>
-                    {% for name in result['table']['acdh_hasContributor'].contributorName %}
-                        {% if cycle(result['table']['acdh_hasContributor'].inside_url, loop.index0)%}
-                            <span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ cycle(result['table']['acdh_hasContributor'].inside_url, loop.index0) }}">{{ name }}</a></span>  
+                    {% for name in result['table']['acdh_hasContributor']['title'] %}
+                        {% if cycle(result['table']['acdh_hasContributor']['insideUri'], loop.index0)%}
+                            <span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ cycle(result['table']['acdh_hasContributor']['insideUri'], loop.index0) }}">{{ name }}</a></span>  
                         {% else %}
                             <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                             <span class="res-contributor"><a href="{{ cycle(result['table']['acdh_hasContributor'].contributorUri, loop.index0) }}">{{ name }}</a></span>  
@@ -74,7 +74,7 @@
                     <i class="material-icons">&#xE335;</i>	
                     <span class="res-ispartof">Part of:
                     {% for title in result['table']['acdh:isPartOf'].title %}
-                        <a href="{{ url('<front>') }}oeaw_detail/{{ cycle(result['table']['acdh:isPartOf'].inside_url, loop.index0) }}">{{ cycle(result['table']['acdh:isPartOf'].title, loop.index0)  }} </a>
+                        <a href="{{ url('<front>') }}oeaw_detail/{{ cycle(result['table']['acdh:isPartOf']['insideUri'], loop.index0) }}">{{ cycle(result['table']['acdh:isPartOf']['title'], loop.index0)  }} </a>
                     {% endfor %}
                     </span>
                 </div>
