@@ -20,10 +20,10 @@
                 </div>
             {% endif%} 
 
-            {% if result['table']['acdh_rdf:type'] %}
+            {% if result['acdh_rdf:type'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE54E;</i>
-                    <span class="res-rdftype"><a href="{{ result['table']['acdh_rdf:type']['insideUri'] }}">{{ result['table']['acdh_rdf:type']['title'] }}</a></span>
+                    <span class="res-rdftype"><a href="{{ result['acdh_rdf:type']['insideUri'] }}">{{ result['acdh_rdf:type']['title'] }}</a></span>
                 </div>
             {% endif%}		
 
@@ -77,19 +77,19 @@
 
             
             {% if result['table']['acdh:isPartOf'] %}
-                {% for value in result['table']['acdh:isPartOf'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE335;</i>
                     <span class="res-ispartof">Part of:
+                    {% for value in result['table']['acdh:isPartOf'] %}                
                         {% if value['insideUri'] %}
                             <span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a></span>  
                         {% else %}
                             <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                             <span class="res-contributor"><a href="{{ value['uri'] }}">{{ value['title'] }}</a></span>  
-                        {% endif%}
+                        {% endif%}                    
+                    {% endfor %}
                     </span>
                 </div>
-                {% endfor %}
             {% endif%}	
 	
         {% if result['table']['image'] %}</div>{% endif%}
@@ -99,7 +99,7 @@
                 <div class="single-res-thumb">
                     <a href="{{ result['table']['image'] }}"><img src="{{ result['table']['image'] }}"></a>
                 </div>
-                <span class="res-thumb-info">Thumbnail of {{ result['resourceTitle'].value.0 }}</span>
+                <span class="res-thumb-info">Thumbnail of {{ result['resourceTitle'] }}</span>
             </div>
         {% endif%}
                 
@@ -274,7 +274,7 @@
     	<h3 class="single-res-heading">Summary</h3>    
         <div class="res-property">
             <i class="material-icons">&#xE88F;</i>
-            <span class="res-description">{{ result['table']['acdh:hasDescription'][0] }}</span>
+            <span class="res-description">{{ result['table']['acdh:hasDescription'] }}</span>
         </div>
                             
     {% endif%}
