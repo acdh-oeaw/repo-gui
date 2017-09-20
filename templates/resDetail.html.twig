@@ -323,9 +323,9 @@
     <div class="cite-selector">
             <div class="cite-style selected">
             	MLA
-            	<a href="#" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
-            	title="MLA (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities. <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
-            		<i class="material-icons">&#xE88E;</i>
+            	<a href="javascript://" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
+            	title="&quot;MLA (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
+            		<i class="material-icons">&#xE88F;</i>
             	</a>
             </div>
     </div>	
@@ -339,9 +339,8 @@
 	</figure>
 
     {% if childResult %}
-
+		<h3 class="single-res-heading">Child Resources</h3>
         <div>
-            <h3 class="single-res-heading">Child Resources</h3>
             <div >
                 {% if result['pagination'] %}
                     <div>
@@ -349,8 +348,8 @@
                             {{ result['pagination']|raw }}
                         </ul>
                     </div>
-                {% endif%}
                 <br>
+                {% endif%}
             </div>
         </div>        
         {% for cItem in childResult %}
