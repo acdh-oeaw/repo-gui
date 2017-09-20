@@ -50,7 +50,7 @@ class FrontendController extends ControllerBase {
      *
      * @param int $limit Amount of resources to get
      * @param int $page nth Page for pagination
-     * @paran string $order Order resources by, usage: ASC/DESC(?property)
+     * @param string $order Order resources by, usage: ASC/DESC(?property)
      *
      * @return array
      */

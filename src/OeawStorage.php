@@ -84,7 +84,7 @@ class OeawStorage {
      * @param int $limit Amount of resources to get
      * @param int $offset Offset for further pages
      * @param bool $count Whether to get the count of resources
-     * @paran string $order Order resources by, usage: ASC/DESC(?property)
+     * @param string $order Order resources by, usage: ASC/DESC(?property)
      *
      * @return Array     
      */
