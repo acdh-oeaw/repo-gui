@@ -516,7 +516,6 @@ class FrontendController extends ControllerBase {
                     $results['pagination'] =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $pagelimit);
                 }
                 
-                $childResult = array();
                 //if we have acdh has identifier then we will check the children data too
                 $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
                 if(count($childrenData) > 0){
@@ -531,13 +530,6 @@ class FrontendController extends ControllerBase {
             return;            
         }
         
-       
-
-        
-
-
-
-
         /*
         $query = "";
         if(isset($results['query']) && isset($results['queryType'])){
@@ -679,7 +671,6 @@ class FrontendController extends ControllerBase {
         if (count($result) < 0){
             $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
         }
-
         $uid = \Drupal::currentUser()->id();
         
         $datatable['#theme'] = 'oeaw_complex_search_res';

@@ -361,19 +361,19 @@
     {% if childResult %}
     
     
-    <div>
-        <h3 class="single-res-heading">Child Resources</h3>
-        <div >
-            {% if result['pagination'] %}
-                <div>
-                    <ul>
-                        {{ result['pagination']|raw }}
-                    </ul>
-                </div>
-            {% endif%}
-            <br>
-        </div>
-    </div>        
+        <div>
+            <h3 class="single-res-heading">Child Resources</h3>
+            <div >
+                {% if result['pagination'] %}
+                    <div>
+                        <ul>
+                            {{ result['pagination']|raw }}
+                        </ul>
+                    </div>
+                {% endif%}
+                <br>
+            </div>
+        </div>        
         {% for cItem in childResult %}
             <div class="child-res">
                 
@@ -386,8 +386,8 @@
 
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <a href="{{ cItem.rdfTypeUri }}">
-                        <span class="res-rdftype">{{ cItem.types }}</span>
+                <a href="{{url('<front>') }}oeaw_complexsearch/&type={{ cItem.typeName }}/10">
+                        <span class="res-rdftype">{{ cItem.typeName }}</span>
                 </a>
             </div>
 

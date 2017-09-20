@@ -862,6 +862,9 @@ class OeawFunctions {
         for ($x = 0; $x <= count($data) - 1; $x++) {
             $result[$x] = $data[$x];
             $result[$x]['insideUri'] = base64_encode($data[$x]['uri']);
+            if(isset($data[$x]['uri'])){
+                $result[$x]['typeName'] = explode('https://vocabs.acdh.oeaw.ac.at/#', $data[$x]['types'])[1];
+            }
         }
         
         return $result;
@@ -889,10 +892,10 @@ class OeawFunctions {
             $childResult[$i]['title']= $r->getMetadata()->get(\Drupal\oeaw\ConnData::$title);
             $childResult[$i]['description'] = $r->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
             $rdfType = $r->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
-            if (isset($rdfType) && $rdfType) {						
+            if (isset($rdfType) && $rdfType) {
                 foreach ($rdfType as $type) {
                     if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
-                        $childResult[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
+                        $childResult[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];
                         $childResult[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$childResult[$i]["rdfType"]);
                         //Add a space between capital letters
                         $childResult[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $childResult[$i]["rdfType"]);
