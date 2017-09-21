@@ -80,10 +80,15 @@ class OeawStorage {
     
     /*
      * Get the root elements from fedora
-     * 
+     *
+     * @param int $limit Amount of resources to get
+     * @param int $offset Offset for further pages
+     * @param bool $count Whether to get the count of resources
+     * @param string $order Order resources by, usage: ASC/DESC(?property)
+     *
      * @return Array     
      */
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "?title"): array {
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "ASC(?title)" ): array {
         
         if($offset < 0) { $offset = 0; }
         

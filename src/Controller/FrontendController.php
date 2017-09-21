@@ -47,10 +47,15 @@ class FrontendController extends ControllerBase {
     /**
      * 
      * The root Resources list     
-     * 
+     *
+     * @param int $limit Amount of resources to get
+     * @param int $page nth Page for pagination
+     * @param string $order Order resources by, usage: ASC/DESC(?property)
+     *
      * @return array
      */
-    public function roots_list(string $limit = "10", string $page = "0", string $order = "?title"): array {
+    public function roots_list(string $limit = "10", string $page = "0", string $order = "ASC(?title)" ): array {
+        
         drupal_get_messages('error', TRUE);
         // get the root resources
         // sparql result fields - uri, title
