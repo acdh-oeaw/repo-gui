@@ -91,7 +91,7 @@
         {% if result['image'] %}	
             <div class="res-inside-wrap col-lg-6 ">	
                 <div class="single-res-thumb">
-                    <a href="{{ result['image'] }}"><img src="{{ result['image'] }}"></a>
+                    <a data-lightbox="{{ result['resourceTitle'] }}" href="{{ result['image'] }}"><img src="{{ result['image'] }}"></a>
                 </div>
                 <span class="res-thumb-info">Thumbnail of {{ result['resourceTitle'] }}</span>
             </div>
@@ -323,12 +323,12 @@
     <div class="cite-selector">
             <div class="cite-style selected">
             	MLA
-            	<a href="javascript://" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
+            	<a href="javascript://" id="cite-tooltip-mla" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
             	title="&quot;MLA (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
             		<i class="material-icons">&#xE88F;</i>
             	</a>
             </div>
-    </div>	
+    </div>
 
     <div class="bd-clipboard"><span class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span></div>
 	
