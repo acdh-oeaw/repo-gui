@@ -318,51 +318,29 @@
         {% endfor %}			
     {% endif%}
  
-    
-
-    
-    
-    
-   
     <h3 class="single-res-heading">Cite Resource</h3>
 
     <div class="cite-selector">
-            <div class="cite-style selected">BibTeX</div>
-            <div class="cite-style">AMA</div>
-            <div class="cite-style">APA</div>
-            <div class="cite-style">Frontiers</div>
-            <div class="cite-style">Harvard</div>
-            <div class="cite-style">IEEE</div>
-            <div class="cite-style">LNCS</div>
-            <div class="cite-style">MLA</div>
-            <div class="cite-style">RIS</div>
+            <div class="cite-style selected">
+            	MLA
+            	<a href="javascript://" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
+            	title="&quot;MLA (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
+            		<i class="material-icons">&#xE88F;</i>
+            	</a>
+            </div>
     </div>	
 
     <div class="bd-clipboard"><span class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span></div>
 	
-<figure class="highlight">
-<pre>
-<code class="language-bibtex" data-lang="scss">
-@misc { 1,  
-{% if result['dcterm_contributor'] %}
-  author   = { {% for name in result['dcterm_contributor'].contributorName %}{{ name }}{% endfor %} }, 
-{% endif%}
-{% if result['dc_title'] %}
-  title    = { {{ result['dc_title'].value.0 }} }, 
-{% endif%}
-{% if extras['fedora_created'] %}
-  year     = { {{ extras['fedora_created'].value.creationYear }} }, 
-{% endif%}
-}
-</code>
-</pre>
-</figure>
+	<figure class="highlight">
+	
+		{{ extras.CiteThisWidget.MLA.string | raw }}
+	
+	</figure>
 
     {% if childResult %}
-    
-    
+		<h3 class="single-res-heading">Child Resources</h3>
         <div>
-            <h3 class="single-res-heading">Child Resources</h3>
             <div >
                 {% if result['pagination'] %}
                     <div>
@@ -370,8 +348,8 @@
                             {{ result['pagination']|raw }}
                         </ul>
                     </div>
-                {% endif%}
                 <br>
+                {% endif%}
             </div>
         </div>        
         {% for cItem in childResult %}

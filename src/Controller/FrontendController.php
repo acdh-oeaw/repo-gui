@@ -481,6 +481,8 @@ class FrontendController extends ControllerBase {
             $results = array();
             //get the root table data
             $results = $this->OeawFunctions->createDetailViewTable($rootMeta);
+            $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
+            
             //$results = $this->OeawFunctions->createDetailTableData($uri);
             
             if(empty($results)){                
