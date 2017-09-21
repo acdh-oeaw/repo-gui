@@ -83,18 +83,15 @@ class OeawStorage {
      * 
      * @return Array     
      */
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "?title" ): array {
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "?title"): array {
         
         if($offset < 0) { $offset = 0; }
         
         $getResult = array();
         
         try {
-                       
-            
             $q = new Query();
-            $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));    
-            //$q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Project' ))->setSubVar('?uri'));
+            $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
             $q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Collection' ))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);

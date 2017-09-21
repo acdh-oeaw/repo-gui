@@ -1010,7 +1010,7 @@ class OeawFunctions {
      * this will generate an array with the Resource data.
      * The Table will contains the resource properties with the values in array.
      * 
-     * There will be also some additonal data:
+     * There will be also some additional data:
      * - resourceTitle -> the Main Resource Title
      * - uri -> the Main Resource Uri
      * - insideUri -> the base64_encoded uri to the gui browsing
@@ -1065,21 +1065,22 @@ class OeawFunctions {
                             $result['table'][$propertyShortcut][$key]['insideUri'] = base64_encode($title[0]['uri']);
                         }                        
                     }
-                    /*
-                    if($p == \Drupal\oeaw\ConnData::$rdfType){
-                        echo $val;
-                        echo "<br>";
-                        echo $key;
-                    }
-                */
                     
+                    //if the acdhImage is available or the ebucore MIME
+                    if($p == \Drupal\oeaw\ConnData::$rdfType){
+                        if($val == \Drupal\oeaw\ConnData::$acdhImage){
+                            $result['image'] = $resourceUri;
+                        }
+                    }
                 }
                 
                 if(get_class($val) == "EasyRdf\Literal" ){
                     $result['table'][$propertyShortcut][$key] = $val->getValue();
+                    //we dont have the image yet but we have a MIME
+                    if( ($p == \Drupal\oeaw\ConnData::$ebucoreMime) && (!isset($result['image'])) && (strpos($val, 'image') !== false) ) {
+                        $result['image'] = $resourceUri;
+                    }
                 }
-                
-                
             }
         }
         

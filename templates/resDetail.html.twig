@@ -11,7 +11,7 @@
     </h3> 
     
     <div class="single-res-overview single-res-overview-basic">
-        {% if result['table']['image'] %}<div class="res-inside-wrap col-lg-6 ">{% endif%}
+        {% if result['image'] %}<div class="res-inside-wrap col-lg-6 ">{% endif%}
             
             {%  if result['table']['acdh:hasTitle'] %}
                 <div class="res-property">
@@ -86,12 +86,12 @@
                 </div>
             {% endif%}	
 	
-        {% if result['table']['image'] %}</div>{% endif%}
+        {% if result['image'] %}</div>{% endif%}
 		
-        {% if result['table']['image'] %}	
+        {% if result['image'] %}	
             <div class="res-inside-wrap col-lg-6 ">	
                 <div class="single-res-thumb">
-                    <a href="{{ result['table']['image'] }}"><img src="{{ result['table']['image'] }}"></a>
+                    <a href="{{ result['image'] }}"><img src="{{ result['image'] }}"></a>
                 </div>
                 <span class="res-thumb-info">Thumbnail of {{ result['resourceTitle'] }}</span>
             </div>
