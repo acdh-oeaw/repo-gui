@@ -50,7 +50,7 @@ class FrontendController extends ControllerBase {
      * 
      * @return array
      */
-    public function roots_list(string $limit = "10", string $page = "0", string $order = "?title" ): array {
+    public function roots_list(string $limit = "10", string $page = "0", string $order = "?title"): array {
         drupal_get_messages('error', TRUE);
         // get the root resources
         // sparql result fields - uri, title
@@ -89,23 +89,20 @@ class FrontendController extends ControllerBase {
                 $rdfTypePrefix = "";
                 $hasImageType = false;  
                 if (isset($rdfType) && $rdfType) {
-                    
                     if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {
                         $rdfTypePrefix = "acdh";   
-                    }
-                    
+                    }                    
                     if ($rdfType == \Drupal\oeaw\ConnData::$imageProperty) {
                         $hasImageType = true;
                     }
                 } else {
                     $rdfTypePrefix = "none"; 
-                }    
+                }
 
                 //Only list items with either acdh rdfType or no rdfType
                 if (!empty($rdfTypePrefix)) {
-
                     // check that the value is an Url or not
-                    $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");                
+                    $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");
                     //create details and editing urls
                     if($decodeUrl){
                         $res[$i]['resUri'] = $decodeUrl;
@@ -120,9 +117,9 @@ class FrontendController extends ControllerBase {
 
                     $creationdate = $value["creationdate"];
                     $creationdate = strtotime($creationdate);
-                    $res[$i]["creationdate"] = date('F jS, Y',$creationdate);                
+                    $res[$i]["creationdate"] = date('F jS, Y',$creationdate);
 
-                    $contributor = $value["contributor"];	                
+                    $contributor = $value["contributor"];
                     if (isset($contributor) && $contributor) {
                         $res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
                         $res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);

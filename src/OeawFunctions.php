@@ -995,7 +995,7 @@ class OeawFunctions {
                     if($p != RC::idProp() || ( ($p == RC::idProp()) && (strpos($classUri, 'id.acdh.oeaw.ac.at') == false) ) ){
                         $title = $OeawStorage->getTitleByIdentifier($classUri);
                     }
-                    
+                    //add the title to the resources
                     if(count($title) > 0){
                         if($p == \Drupal\oeaw\ConnData::$rdfType){
                             $result['acdh_'.$propertyShortcut]['title'] = $title[0]['title'];
@@ -1007,11 +1007,21 @@ class OeawFunctions {
                             $result['table'][$propertyShortcut][$key]['insideUri'] = base64_encode($title[0]['uri']);
                         }                        
                     }
+                    /*
+                    if($p == \Drupal\oeaw\ConnData::$rdfType){
+                        echo $val;
+                        echo "<br>";
+                        echo $key;
+                    }
+                */
+                    
                 }
                 
                 if(get_class($val) == "EasyRdf\Literal" ){
                     $result['table'][$propertyShortcut][$key] = $val->getValue();
                 }
+                
+                
             }
         }
         
