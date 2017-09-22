@@ -446,10 +446,9 @@ class FrontendController extends ControllerBase  {
      * @param Request $request
      * @param string $limit
      * @param string $page
-     * @param type $pageCaller : 0 = children, 1 = inverse table
      * @return array
      */
-    public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "0", int $pageCaller = 0): array {
+    public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "0"): array {
         drupal_get_messages('error', TRUE);
         
         if (empty($uri)) {
@@ -511,7 +510,7 @@ class FrontendController extends ControllerBase  {
             if(count($identifiers) > 0){
                 $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
                 
-                $inverseData = $this->OeawStorage->getInverseViewData($identifiers);                
+                //$inverseData = $this->OeawStorage->getInverseViewData($identifiers);                
                 $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);
                 
                 $total = (int)count($countData);
@@ -548,8 +547,8 @@ class FrontendController extends ControllerBase  {
         */
      
        //check the Dissemination services
-        $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
-
+       // $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
+        $dissServices =array();
         if(count($dissServices) > 0){
             $extras['dissServ'] = $dissServices;
         }
@@ -1088,6 +1087,42 @@ class FrontendController extends ControllerBase  {
         $response->headers->set('Content-Type', 'application/json');
         
         return $response;
+        
+    }
+    
+    /**
+     * 
+     * @param string $data
+     * @param string $limit
+     * @param string $page
+     * @return Response
+     */
+    public function oeaw_inverse_result(string $data){
+
+        $invData = array();
+        
+        if(!empty($data)){
+            $uri = base64_decode($data);
+            $res = $this->OeawStorage->getInverseViewDataByURL($uri);
+            
+            if(count($res) <= 0){                
+                $invData["data"] = array();
+            }else {
+                for ($index = 0; $index <= count($res) - 1; $index++) {
+                    if(!empty($res[$index]['prop']) && !empty($res[$index]['title']) && !empty($res[$index]['insideUri'])){
+                        $title = $res[$index]['title'];
+                        $insideUri = $res[$index]['insideUri'];
+                        $invData["data"][$index] = array($res[$index]['prop'], "<a href='$insideUri'>$title</a>");
+                    }
+                }
+            }
+        }
+        
+        $response = new Response();
+        $response->setContent(json_encode($invData));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+        
         
     }
     

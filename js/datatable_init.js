@@ -10,11 +10,24 @@ jq2(function( $ ) {
         });
         
         
-        jq2('table.inverseTable').DataTable({
-            "pageLength": 25,
-            searching: true,
-            "info": false,
-            paging: true
+        
+        jq2( "#showInverse" ).click(function() {
+            
+            jq2('#inverseTableDiv').show("slow");
+            jq2('#showInverse').hide("slow");
+            
+            var uri = jq2('#showInverse').data('tableuri');
+            jq2('table.inverseTable').DataTable({                
+                //"processing": true,
+                //"serverSide": true,
+                //"ajax": 'https://fedora.localhost/browser/oeaw_inverse_result/urim/10/0'
+                "ajax": {
+                    "url": "/browser/oeaw_inverse_result/"+uri,
+                    "data": function ( d ) {
+                        d.limit = d.draw;
+                    }
+                }
+            });
         });
         
         
@@ -30,7 +43,7 @@ jq2(function( $ ) {
                 jq2.ajax({
                     url: '/oeaw_delete/'+deleteVal,
                     data: deleteVal,
-                    success: function(data) {
+                    success: function(data, status) {
                         if(data.result == true){
                             trParent.hide();
                         }                    

@@ -838,6 +838,56 @@ class OeawStorage {
         
     }
     
+    
+    public function getInverseViewDataByURL(string $url): array{
+        
+        $result = array();
+        
+        $where .= '<'.$url.'> <'.RC::get("fedoraIdProp").'> ?obj .'
+                . '?uri ?prop ?obj .'
+                . 'MINUS { ?uri <'.RC::get("fedoraIdProp").'> ?obj  } . MINUS { ?uri <'.RC::get("fedoraRelProp").'> ?obj  } ';
+                
+        $select = '
+            select DISTINCT ?uri ?prop ?obj where { ';
+        $end = ' } ';
+        
+        $string = $select.$where.$end;
+        
+        try {
+            $q = new SimpleQuery($string);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields(); 
+            $res = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+            $i = 0;
+            foreach($res as $r){
+                foreach($r as $k => $v){                    
+                    $result[$i][$k] = $v;
+                    if($k == "uri"){
+                        $title = $this->OeawFunctions->getTitleByUri($v);
+                        $result[$i]["title"] = $title;
+                        $result[$i]["insideUri"] = base64_encode($v);
+                    }
+                    if($k == "prop"){                        
+                        $shortcut = $this->OeawFunctions->createPrefixesFromString($v);
+                        $result[$i]["shortcut"] = $shortcut;
+                    }
+                }
+                $i++;
+            }
+            
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+    }
+    
+    
     /**
      * 
      * Create the data for the InverseViews by the Resource Identifier
@@ -845,7 +895,7 @@ class OeawStorage {
      * @param array $data
      * @return array
      */
-    public function getInverseViewData(array $data): array{
+    public function getInverseViewDataByIdentifier(array $data): array{
         
         $result = array();
         $num = count($data);

@@ -1033,7 +1033,6 @@ class OeawFunctions {
         //get the resources and remove fedora properties
         $properties = array();
         $properties = $data->propertyUris();
-              
         foreach ($properties as $key => $val){
             if (strpos($val, 'fedora.info') !== false) {
                 unset($properties[$key]);
@@ -1063,13 +1062,17 @@ class OeawFunctions {
                         if($p != RC::idProp() || ( ($p == RC::idProp()) && (strpos($classUri, 'id.acdh.oeaw.ac.at') == false) ) ){
                             $result['table'][$propertyShortcut][$key]['title'] = $title[0]['title'];
                             $result['table'][$propertyShortcut][$key]['insideUri'] = base64_encode($title[0]['uri']);
-                        }                        
+                        }
                     }
                     
                     //if the acdhImage is available or the ebucore MIME
                     if($p == \Drupal\oeaw\ConnData::$rdfType){
                         if($val == \Drupal\oeaw\ConnData::$acdhImage){
                             $result['image'] = $resourceUri;
+                        }
+                        //check that the resource has Binary or not
+                        if($val == \Drupal\oeaw\ConnData::$fedoraBinary){
+                            $result['hasBinary'] = $resourceUri;
                         }
                     }
                 }
