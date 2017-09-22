@@ -235,7 +235,13 @@
         	<i class="material-icons">&#xE89F;</i>	
                 {% for key, ds in extras['dissServ'] %}
                     <div class="res-act-button">
-                        <a href="{{ ds }}?format={{ key }}" ><span>{{ key|upper }} Access</span></a>
+                        {% if key == "gui" %}
+                            <a href="{{ ds }}?format={{ key }}" ><span>COPY URL</span></a>
+                        {% elseif key == "raw" %}    
+                            <a href="{{ ds }}?format={{ key }}" ><span>DOWNLOAD BINARY</span></a>
+                        {% else %}
+                            <a href="{{ ds }}?format={{ key }}" ><span>{{ key|upper }} Access</span></a>
+                        {% endif %}
                     </div>               
                 {% endfor %}  
         </div>                       

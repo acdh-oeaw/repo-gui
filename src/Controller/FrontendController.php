@@ -32,8 +32,10 @@ use TCPDF;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 
-class FrontendController extends ControllerBase {
+
+class FrontendController extends ControllerBase  {
     
     private $OeawStorage;
     private $OeawFunctions;
@@ -438,14 +440,16 @@ class FrontendController extends ControllerBase {
     
     /**
      * 
-     * This will generate the detail view when a user clicked the detail href on a result page
-     * 
+     * The detail view of the Resource with the existing children resources
      * 
      * @param string $uri
      * @param Request $request
+     * @param string $limit
+     * @param string $page
+     * @param type $pageCaller : 0 = children, 1 = inverse table
      * @return array
      */
-    public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "0"): array {
+    public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "0", int $pageCaller = 0): array {
         drupal_get_messages('error', TRUE);
         
         if (empty($uri)) {
@@ -454,7 +458,7 @@ class FrontendController extends ControllerBase {
             $response->send();
             return;            
         }
-        
+        if($limit == "0"){ $limit = "10"; }
         $uri = base64_decode($uri);        
         $hasBinary = "";  
         $inverseData = array();
@@ -507,7 +511,7 @@ class FrontendController extends ControllerBase {
             if(count($identifiers) > 0){
                 $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
                 
-                //$inverseData = $this->OeawStorage->getInverseViewData($identifiers);                
+                $inverseData = $this->OeawStorage->getInverseViewData($identifiers);                
                 $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);
                 
                 $total = (int)count($countData);
@@ -543,25 +547,9 @@ class FrontendController extends ControllerBase {
         }
         */
      
-       if(empty($results["hasBinary"])){
-            $results["hasBinary"] = "";
-        }
-
-        /*
-        if(isset($results['rdf_type']['value'])) {
-            foreach ($results['rdf_type']['value'] as $rdfMatch) {
-                if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfMatch)) {                    
-                    $extras["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfMatch)[1];
-                    $extras["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$extras["rdfType"]);
-                    $extras["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $extras["rdfType"]); 
-                    break;
-                }
-            }	        
-        }  
-        */
-
        //check the Dissemination services
         $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
+
         if(count($dissServices) > 0){
             $extras['dissServ'] = $dissServices;
         }
@@ -578,8 +566,7 @@ class FrontendController extends ControllerBase {
             '#result' => $results,
             '#extras' => $extras,
             '#userid' => $uid,            
-            #'#query' => $query,
-            '#hasBinary' => $results["hasBinary"],
+            #'#query' => $query,            
             '#childResult' => $childResult,            
             '#attached' => [
                 'library' => [
