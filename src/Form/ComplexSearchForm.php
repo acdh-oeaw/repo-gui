@@ -49,7 +49,6 @@ class ComplexSearchForm extends FormBase
             $count = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type'])." (".$val['typeCount'].")";
             $rs[$type] = $count;
         }
-        
         $resData["fields"] = $rs;
         if(count($resData["fields"]) > 0){
             $this->createBox($form, $resData);
@@ -71,16 +70,23 @@ class ComplexSearchForm extends FormBase
         }
         
         
-        $form['date_start_date'] = [
-            '#type' => 'date',           
-            '#date_format' => 'd-m-Y',
-            '#title' => t('Start date'),
+        $form['datebox']['title'] = [
+            '#markup' => 'Date of Publication<br>',
+            '#attributes' => array(
+                'class' => array(''),
+            ),
         ];
         
-        $form['date_end_date'] = [
+        $form['datebox']['date_start_date'] = [
+            '#type' => 'date',           
+            '#date_format' => 'd-m-Y',
+            '#prefix' => t('Start date'),
+        ];
+        
+        $form['datebox']['date_end_date'] = [
             '#type' => 'date',
             '#date_format' => 'd-m-Y',
-            '#title' => t('End date'),
+            '#prefix' => t('End date'),
         ];
         
         return $form;
@@ -89,7 +95,7 @@ class ComplexSearchForm extends FormBase
     
     /**
      * 
-     * Create the checbox templates
+     * Create the checkbox templates
      * 
      * @param array $form
      * @param array $data
@@ -98,11 +104,10 @@ class ComplexSearchForm extends FormBase
     private function createBox(array &$form, array $data){
         
         $form['search'][$data["type"]] = array(
-            '#type' => 'checkboxes',            
+            '#type' => 'checkboxes',
             '#title' => $this->t($data["title"]),
             '#attributes' => array(
                 'class' => array('checkbox-custom'),
-                //'onClick' => 'window.location = "'.base_path().'browser/oeaw_complexsearch/q=type'.$data["title"].'/10/0";'
             ),
             '#options' =>
                 $data["fields"]

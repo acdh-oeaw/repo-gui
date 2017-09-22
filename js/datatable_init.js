@@ -10,6 +10,14 @@ jq2(function( $ ) {
         });
         
         
+        jq2('table.inverseTable').DataTable({
+            "pageLength": 25,
+            searching: true,
+            "info": false,
+            paging: true
+        });
+        
+        
         jq2('a#delete').click(function(e){ //on add input button click
             
             e.preventDefault();
