@@ -128,29 +128,23 @@
 	            {% endfor %}
 	        </tbody>
 	    </table>
-            {% if extras.inverseData %}
+            <div class="res-act-button">
+                <a href="#" id="showInverse" data-tableuri="{{result['insideUri']}}">Show Inverse Table</a>
+            </div>
+            <div id="inverseTableDiv" style="display: none;">
                 <h3>Inverse Data</h3>
                 <table class="inverseTable table table-striped" cellspacing="0" width="100%">
-                   <thead>
+                    <thead>
                         <tr>                        
                             <th>Property</th>
                             <th>Value(s)</th>
                         </tr>
                     </thead>
-                    <tbody>                    
-                        {% for item in extras.inverseData %}
-                            <tr>                            
-                                <td>
-                                    {{ item.shortcut }}
-                                </td>
-                                <td>
-                                    <a href="{{ item.insideUri }}"> <b>{{ item.title }} </b></a>
-                                </td>
-                            </tr>
-                        {% endfor %}                                          
-                    </tbody>        
-                </table>   
-            {% endif %}
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>    
+            
                     
             {% if userid == 1  %}
                 <!--  The ACL rights  -->    
