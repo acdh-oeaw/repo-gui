@@ -642,6 +642,7 @@ class FrontendController extends ControllerBase  {
             $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
         }
         $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end']);        
+        
         $res = $this->OeawStorage->runUserSparql($sparql);
         
         if(count($res) > 0){
@@ -649,7 +650,7 @@ class FrontendController extends ControllerBase  {
             foreach($res as $r){
                 if( !empty($r['uri']) ){
                     $result[$i]['resUri'] = base64_encode($r['uri']);
-                    $result[$i]['title'] = $r['obj'];
+                    $result[$i]['title'] = $r['title'];
                     
                     if($r['rdfTypes']){
                         $x = 0;
@@ -657,16 +658,12 @@ class FrontendController extends ControllerBase  {
                         
                         foreach ($types as  $t){
                             if (strpos($t, RC::vocabsNmsp()) !== false) {
-                                $tr = $this->OeawFunctions->getTitleByTheFedIdNameSpace($t);
-                                
-                                if(count($tr) > 0){
-                                    $result[$i]['rdfType']['typeUri'] = base64_encode($tr[0]['uri']);
-                                    $result[$i]['rdfType']['typeName'] = $tr[0]['title'];
-                                }
+                                $result[$i]['rdfType']['typeName'] = str_replace(RC::vocabsNmsp(), "", $t);
                             }
                         }
                     }
                     $result[$i]['description'] = $r['description'];
+                    $result[$i]['createdDate'] = $r['createdDate'];
                     $i++;
                 }
             }
