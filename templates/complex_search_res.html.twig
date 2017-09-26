@@ -74,37 +74,34 @@
                 </div>
             {% endif%}            
             
+            
+            
+            
             {% if item.description %}
-                <div class="res-property res-property-description">
-                    <i class="material-icons">&#xE88F;</i>
+                <div class="res-property res-property-desc">
+                    <i class="material-icons">&#xE88F;</i>	
                     <span class="res-description">{{ item.description }}</span>
-                </div>            
+                </div>
             {% endif%}
-
 
             <div class="res-actions">
 
                 {% if item.description %}
                     <div class="res-act-button res-act-button-summary closed">
-                        <i class="material-icons">&#xE145;</i>
-                        <span>Show Summary</span>
+                            <i class="material-icons">&#xE145;</i>
+                            <span>Show Summary</span>
                     </div>
                 {% endif%}
 
                 <div class="res-act-button">
-                    <a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">
+                    <a href="{{ url('<front>') }}/oeaw_detail/{{ item.resUri }}">
                         <i class="material-icons">&#xE873;</i>
-                        <span>Detailed View </span>
+                        <span>Detailed View</span>
                     </a>	
-                </div>
-
-                <!--
-                <div class="res-act-button">
-                        <i class="material-icons">&#xE885;</i>
-                        <span>Add To Favorites</span>
-                </div>
-                -->            	
-            </div>
+                </div>          	
+            </div>	
+            
+           
 
             {% if item.image %}</div>{% endif%}
 
