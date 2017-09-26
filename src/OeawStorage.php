@@ -767,7 +767,60 @@ class OeawStorage {
     }
     
     
+    public function getPersonViewData(string $uri, string $limit, string $offset, bool $count = false): array {
+        
+        if($offset < 0) { $offset = 0; }
+        $result = array();
+        $select = "";
+        $where = "";
+        $limitStr = "";
+        $queryStr = "";
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        if($count == false){
+            $select = 'SELECT ?uri ?title ?description (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';
+            $limitStr = ' LIMIT '.$limit.'
+            OFFSET '.$offset.' ';
+        }else {
+            $select = 'SELECT (COUNT(?uri) as ?count) ';
+        }
+        
+        $where = '
+            WHERE {
+                <'.$uri.'> <'.RC::get("fedoraIdProp").'> ?obj .
+                ?uri <'.\Drupal\oeaw\ConnData::$contributor.'> ?obj
+                OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .}
+                OPTIONAL { ?uri <'.\Drupal\oeaw\ConnData::$description.'> ?description .}
+                <'.$uri.'>  <'.\Drupal\oeaw\ConnData::$rdfType.'> ?type .
+                FILTER regex(str(?type),"vocabs.acdh","i") .
+            }
+            ';
+        
+        $groupBy = ' GROUP BY ?uri ?title ?description ORDER BY ASC( fn:lower-case(?title))';
+        
+        $queryStr = $select.$where.$groupBy.$limitStr;
+        
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields(); 
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+        
+        
+    }
+    
     /**
+     * 
+     * Get the necessary data for the children view
      * 
      * @param string $uri  the root uri
      * @param string $limit the pagination limit

@@ -10,17 +10,16 @@ jq2(function( $ ) {
         });
         
         
-        
+        //the inverse table setup
         jq2( "#showInverse" ).click(function() {
-            
+            //show the table
             jq2('#inverseTableDiv').show("slow");
+            //hide the button
             jq2('#showInverse').hide("slow");
-            
+            //get the uri
             var uri = jq2('#showInverse').data('tableuri');
-            jq2('table.inverseTable').DataTable({                
-                //"processing": true,
-                //"serverSide": true,
-                //"ajax": 'https://fedora.localhost/browser/oeaw_inverse_result/urim/10/0'
+            //genereate the data
+            jq2('table.inverseTable').DataTable({
                 "ajax": {
                     "url": "/browser/oeaw_inverse_result/"+uri,
                     "data": function ( d ) {

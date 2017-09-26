@@ -461,14 +461,13 @@ class FrontendController extends ControllerBase  {
         $uri = base64_decode($uri);        
         $hasBinary = "";  
         $inverseData = array();
+        $person = false;
+        $childResult = array();
+        $rules = array();
+        $ACL = array();
         
         $fedora = $this->OeawFunctions->initFedora();
-        
-        $childResult = array();
-        
-        $uid = \Drupal::currentUser()->id();
-        $rules = array();
-        
+        $uid = \Drupal::currentUser()->id();        
         $rules = $this->OeawFunctions->getRules($uri, $fedora);
         
         if(count($rules) <= 0){
@@ -478,7 +477,6 @@ class FrontendController extends ControllerBase  {
             return;
         }
         
-        $ACL = array();
         $ACL = $this->OeawFunctions->checkRules($rules);
         $results['ACL'] = $ACL;
         
@@ -490,8 +488,6 @@ class FrontendController extends ControllerBase  {
             //get the root table data
             $results = $this->OeawFunctions->createDetailViewTable($rootMeta);
             $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
-            
-            //$results = $this->OeawFunctions->createDetailTableData($uri);
             
             if(empty($results)){                
                 $msg = base64_encode("The resource has no metadata!");
@@ -510,8 +506,22 @@ class FrontendController extends ControllerBase  {
             if(count($identifiers) > 0){
                 $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
                 
-                //$inverseData = $this->OeawStorage->getInverseViewData($identifiers);                
-                $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);
+                
+                
+                if(isset($results['table']['rdf:type'])){
+                    foreach($results['table']['rdf:type'] as $rt){
+                        if((isset($rt['uri'])) && (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhPerson) !== false)){
+                            $person = true;
+                        }
+                    }
+                }
+
+                if($person == false){
+                    $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);
+                }else {
+                    $countData = $this->OeawStorage->getPersonViewData($uri, $limit, $page, true);
+                }
+                
                 
                 $total = (int)count($countData);
                 if($limit == "0") { $pagelimit = "10"; } else { $pagelimit = $limit; }
@@ -524,7 +534,11 @@ class FrontendController extends ControllerBase  {
                 }
                 
                 //if we have acdh has identifier then we will check the children data too
-                $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
+                if($person == false){
+                    $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
+                }else{
+                    $childrenData = $this->OeawStorage->getPersonViewData($uri, $pagelimit, $pageData['end']);
+                }
                 if(count($childrenData) > 0){
                     $childResult = $this->OeawFunctions->createChildrenViewData($childrenData);
                 }
@@ -555,7 +569,7 @@ class FrontendController extends ControllerBase  {
         
         // Pass fedora uri so it can be linked in the template
         $extras["fedoraURI"] = $uri;
-        
+        $extras["personChild"] = $person;
         if(count($inverseData) > 0){
             $extras['inverseData'] = $inverseData;
         }
@@ -1092,9 +1106,9 @@ class FrontendController extends ControllerBase  {
     
     /**
      * 
-     * @param string $data
-     * @param string $limit
-     * @param string $page
+     * This function is for the oeaw_detail view. to the user can get the inverse table data
+     * 
+     * @param string $data - the resource url     
      * @return Response
      */
     public function oeaw_inverse_result(string $data){
@@ -1122,8 +1136,6 @@ class FrontendController extends ControllerBase  {
         $response->setContent(json_encode($invData));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
-        
-        
     }
     
     

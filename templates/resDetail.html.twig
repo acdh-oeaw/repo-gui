@@ -338,8 +338,14 @@
 	
 	</figure>
 
+    {% if extras['personChild'] == false %}
+        {% set childTitle = "Child Resources"%}
+    {% else %}
+        {% set childTitle = "Contributed to"%}
+    {% endif %}
+    
     {% if childResult %}
-		<h3 class="single-res-heading">Child Resources</h3>
+        <h3 class="single-res-heading">{{ childTitle }}</h3>
         <div>
             <div >
                 {% if result['pagination'] %}

@@ -67,8 +67,9 @@ class ConnData
     public static $person = "https://vocabs.acdh.oeaw.ac.at/#Person";
     public static $hasLastName = "https://vocabs.acdh.oeaw.ac.at/#hasLastName";
     public static $hasFirstName = "https://vocabs.acdh.oeaw.ac.at/#hasFirstName";
-    public static $acdhImage = "https://vocabs.acdh.oeaw.ac.at/#Image";
+    public static $acdhImage = "https://vocabs.acdh.oeaw.ac.at/#hasTitleImage";
     public static $ebucoreMime = "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType";
+    public static $acdhPerson = "https://vocabs.acdh.oeaw.ac.at/#Person";
       
     
 }
