@@ -70,6 +70,7 @@ class ConnData
     public static $acdhImage = "https://vocabs.acdh.oeaw.ac.at/#hasTitleImage";
     public static $ebucoreMime = "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType";
     public static $acdhPerson = "https://vocabs.acdh.oeaw.ac.at/#Person";
+    public static $acdhHasCreatedDate = "https://vocabs.acdh.oeaw.ac.at/#hasCreatedDate";
       
     
 }

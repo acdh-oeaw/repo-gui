@@ -287,13 +287,14 @@ class OeawFunctions {
         if($count == true){
             $select = "SELECT (COUNT(?uri) as ?count) ";
         }else {
-            $select = 'SELECT ?uri ?prop ?obj ?description (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
+            $select = 'SELECT ?uri ?prop ?obj ?description ?title ?createdDate (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
                        (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
                        (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) ';
         }
         
         $conditions = "";
         $query .= "?uri ?prop ?obj . \n
+            ?uri <".RC::titleProp()."> ?title . \n
             FILTER( ?prop IN (<".RC::titleProp().">, <".\Drupal\oeaw\ConnData::$description.">, <".\Drupal\oeaw\ConnData::$contributor."> )) .   \n";
         
         if(isset($data["words"])){
@@ -363,10 +364,11 @@ class OeawFunctions {
         }
         $query .= "OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/#hasDescription> ?description .}                
     	OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/#hasAuthor> ?author .}	    	
-        OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/#hasContributor> ?contrib .}	
-    	OPTIONAL {?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?rdfType . }";
+        OPTIONAL{ ?uri <". \Drupal\oeaw\ConnData::$contributor."> ?contrib .}	
+    	OPTIONAL {?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?rdfType . }
+        OPTIONAL {?uri <". \Drupal\oeaw\ConnData::$acdhHasCreatedDate."> ?createdDate . }";
         
-        $query = $select." Where { ".$conditions." ".$query." } GROUP BY ?uri ?prop ?obj ?description  ORDER BY ?obj ";
+        $query = $select." Where { ".$conditions." ".$query." } GROUP BY ?title ?prop ?obj ?description ?uri ?createdDate ORDER BY ?obj ";
         if($limit){
             $query .= " LIMIT ".$limit." ";
             
