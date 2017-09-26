@@ -766,7 +766,16 @@ class OeawStorage {
         }        
     }
     
-    
+    /**
+     * 
+     * 
+     * 
+     * @param string $uri - the main resource fedora uri
+     * @param string $limit - limit for paging
+     * @param string $offset - offset for paging
+     * @param bool $count - count query or normal
+     * @return array
+     */
     public function getPersonViewData(string $uri, string $limit, string $offset, bool $count = false): array {
         
         if($offset < 0) { $offset = 0; }
@@ -790,7 +799,7 @@ class OeawStorage {
                 ?uri <'.\Drupal\oeaw\ConnData::$contributor.'> ?obj
                 OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .}
                 OPTIONAL { ?uri <'.\Drupal\oeaw\ConnData::$description.'> ?description .}
-                <'.$uri.'>  <'.\Drupal\oeaw\ConnData::$rdfType.'> ?type .
+                ?uri  <'.\Drupal\oeaw\ConnData::$rdfType.'> ?type .
                 FILTER regex(str(?type),"vocabs.acdh","i") .
             }
             ';
