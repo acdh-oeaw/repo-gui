@@ -112,7 +112,13 @@
             <tbody>
                 {% for key,value in result['table'] %}
                     <tr>
-                        <td>{{ key }}</td>
+                        <td>
+                            {{ key }}
+                           <!-- <a href="javascript://" id="cite-tooltip-{{ key }}" data-toggle="cite-tooltip-{{ key }}"  data-placement="right" data-html="true" data-trigger="focus"
+                                title="&quot;{{ key }} (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
+                                <i class="material-icons">&#xE88F;</i>-->
+                            </a>
+                        </td>
                         <td>
                             {% for val in value %}
                                 {% if val['title'] %}
@@ -338,10 +344,12 @@
 	
 	</figure>
 
-    {% if extras['personChild'] == false %}
-        {% set childTitle = "Child Resources"%}
-    {% else %}
+    {% if extras['personChild'] == "concept" %}
+        {% set childTitle = "Narrower(s)"%}
+    {% elseif  extras['personChild'] == "person" %}
         {% set childTitle = "Contributed to"%}
+    {% else %}
+        {% set childTitle = "Child Resource(s)"%}
     {% endif %}
     
     {% if childResult %}
