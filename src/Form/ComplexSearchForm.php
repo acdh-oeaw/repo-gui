@@ -71,22 +71,25 @@ class ComplexSearchForm extends FormBase
         
         
         $form['datebox']['title'] = [
-            '#markup' => 'Date of Publication<br>',
-            '#attributes' => array(
-                'class' => array(''),
-            ),
+            '#markup' => '<h3 class="extra-filter-heading">Date of Publication</h3>'
         ];
         
         $form['datebox']['date_start_date'] = [
-            '#type' => 'date',           
-            '#date_format' => 'd-m-Y',
-            '#prefix' => t('Start date'),
+		  '#type' => 'textfield',
+		  '#title' => $this->t('From'),
+            '#attributes' => array(
+                'class' => array('date-filter start-date-filter'),
+                'placeholder' => t('yyyy/mm/dd'),
+            )
         ];
         
         $form['datebox']['date_end_date'] = [
-            '#type' => 'date',
-            '#date_format' => 'd-m-Y',
-            '#prefix' => t('End date'),
+		  '#type' => 'textfield',
+		  '#title' => $this->t('Until'),
+            '#attributes' => array(
+                'class' => array('date-filter end-date-filter'),
+                'placeholder' => t('yyyy/mm/dd'),
+            )
         ];
         
         return $form;
