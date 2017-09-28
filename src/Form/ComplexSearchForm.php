@@ -79,7 +79,7 @@ class ComplexSearchForm extends FormBase
 		  '#title' => $this->t('From'),
             '#attributes' => array(
                 'class' => array('date-filter start-date-filter'),
-                'placeholder' => t('yyyy/mm/dd'),
+                'placeholder' => t('dd/mm/yyyy'),
             )
         ];
         
@@ -88,7 +88,7 @@ class ComplexSearchForm extends FormBase
 		  '#title' => $this->t('Until'),
             '#attributes' => array(
                 'class' => array('date-filter end-date-filter'),
-                'placeholder' => t('yyyy/mm/dd'),
+                'placeholder' => t('dd/mm/yyyy'),
             )
         ];
         
@@ -223,10 +223,14 @@ class ComplexSearchForm extends FormBase
         }
         
         if(!empty($startDate) && !empty($endDate)){
+            $startDate = str_replace('/', '-', $startDate);
+            $startDate = date("Ymd", strtotime($startDate));
+            $endDate = str_replace('/', '-', $endDate);
+            $endDate = date("Ymd", strtotime($endDate));
             $extras["start_date"] = $startDate;
             $extras["end_date"] = $endDate;
         }
-        
+    
         $metaVal = $this->OeawFunctions->convertSearchString($metavalue, $extras);
         $metaVal = urlencode($metaVal);
         $form_state->setRedirect('oeaw_complexsearch', ["metavalue" => $metaVal, "limit" => 10]); 
