@@ -1040,7 +1040,17 @@ class OeawFunctions {
                 unset($properties[$key]);
             }
         }
+        //reorder the array because have missing keys
+        $properties = array_values($properties);
         
+        $acdhProp = $OeawStorage->getPropDataToExpertTable($properties);
+        /*echo "<pre>";
+        var_dump($acdhProp);
+        var_dump($properties);
+        echo "</pre>";
+*/
+
+
         foreach ($properties as $p){
             $propertyShortcut = $this->createPrefixesFromString($p);
             

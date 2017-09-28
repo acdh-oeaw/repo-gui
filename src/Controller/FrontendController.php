@@ -461,7 +461,7 @@ class FrontendController extends ControllerBase  {
         $uri = base64_decode($uri);        
         $hasBinary = "";  
         $inverseData = array();
-        $person = false;
+        $specialType = "child";
         $childResult = array();
         $rules = array();
         $ACL = array();
@@ -495,7 +495,7 @@ class FrontendController extends ControllerBase  {
                 $response->send();
                 return;            
             }  
-            
+            //check the acdh:hasIdentifier data to the child view
             $identifiers = array();
             if(count($results['table']['acdh:hasIdentifier']) > 0){
                 foreach($results['table']['acdh:hasIdentifier'] as $i){
@@ -505,23 +505,25 @@ class FrontendController extends ControllerBase  {
             
             if(count($identifiers) > 0){
                 $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
-                
-                
-                
+                //we checks if the acdh:Person is available then we will get the Person Detail view data
                 if(isset($results['table']['rdf:type'])){
                     foreach($results['table']['rdf:type'] as $rt){
                         if((isset($rt['uri'])) && (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhPerson) !== false)){
-                            $person = true;
+                            $specialType = "person";
+                        }
+                        if((isset($rt['uri'])) && ( (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhConcept) !== false) || (strpos($rt['uri'], \Drupal\oeaw\ConnData::$skosConcept) !== false) ) ){
+                            $specialType = "concept";
                         }
                     }
                 }
 
-                if($person == false){
-                    $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);
-                }else {
+                if($specialType == "person"){
                     $countData = $this->OeawStorage->getPersonViewData($uri, $limit, $page, true);
+                }elseif($specialType == "concept"){
+                    $countData = $this->OeawStorage->getConceptViewData($uri, $limit, $page, true);
+                }else {
+                    $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
                 }
-                
                 
                 $total = (int)count($countData);
                 if($limit == "0") { $pagelimit = "10"; } else { $pagelimit = $limit; }
@@ -534,11 +536,14 @@ class FrontendController extends ControllerBase  {
                 }
                 
                 //if we have acdh has identifier then we will check the children data too
-                if($person == false){
-                    $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
-                }else{
+                 if($specialType == "person"){
                     $childrenData = $this->OeawStorage->getPersonViewData($uri, $pagelimit, $pageData['end']);
+                }elseif($specialType == "concept"){
+                    $childrenData = $this->OeawStorage->getConceptViewData($uri, $pagelimit, $pageData['end']);
+                }else {
+                    $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
                 }
+                
                 if(count($childrenData) > 0){
                     $childResult = $this->OeawFunctions->createChildrenViewData($childrenData);
                 }
@@ -569,7 +574,7 @@ class FrontendController extends ControllerBase  {
         
         // Pass fedora uri so it can be linked in the template
         $extras["fedoraURI"] = $uri;
-        $extras["personChild"] = $person;
+        $extras["personChild"] = $specialType;
         if(count($inverseData) > 0){
             $extras['inverseData'] = $inverseData;
         }

@@ -144,7 +144,14 @@ class OeawStorage {
     }
 
    
-    
+    /**
+     * 
+     * Get the reource title by its acdh:hasIdentifier property
+     * 
+     * @param string $string
+     * @return array
+     * 
+     */
     public function getTitleByIdentifier(string $string): array{
         $getResult = array();
         
@@ -174,7 +181,59 @@ class OeawStorage {
         }
     }
     
+    /**
+     * Create the 
+     * 
+     * @param array $data
+     * @return type
+     */
+    public function getPropDataToExpertTable(array $data){
+        $result = array();
+
+        if(count($data) > 0){
+            $where = "";
+            $i = 0;
+            
+            foreach ($data as $key => $value){
+                $where .= " { ";
+                $where .= "?uri <".RC::get('fedoraIdProp')."> <".$value."> . ";
+                $where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
+                $where .= "?uri <".\Drupal\oeaw\ConnData::$rdfsLabel."> ?title . ";
+                $where .= "?uri <".\Drupal\oeaw\ConnData::$rdfsComment."> ?comment . ";
+                $where .= " } ";
+
+                if($i != count($data) - 1){
+                    $where .= " UNION ";
+                }
+                $i++;
+            }   
+            $select = 'SELECT DISTINCT ?title ?uri ?comment ?identifier WHERE { ';
+            $queryStr = $select.$where." } ";
+            
+            try {
+                $q = new SimpleQuery($queryStr);
+                $query = $q->getQuery();
+                $res = $this->fedora->runSparql($query);
+            
+                $fields = $res->getFields(); 
+                $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+                return $result;
+
+            } catch (Exception $ex) {
+                return $result;
+            } catch (\GuzzleHttp\Exception\ClientException $ex){
+                return $result;
+            }
+        }
+        
+        return $result;
+    }
     
+    /***
+     * 
+     * 
+     */
     public function getResourceTitle(string $uri): array {
          $getResult = array();
         
@@ -768,7 +827,68 @@ class OeawStorage {
     
     /**
      * 
+     * Create the Sparql Query for the Concept skos:narrower view
      * 
+     * @param string $uri - the main resource fedora uri
+     * @param string $limit - limit for paging
+     * @param string $offset - offset for paging
+     * @param bool $count - count query or normal
+     * @return array
+     */
+    public function getConceptViewData(string $uri, string $limit, string $offset, bool $count = false): array {
+        
+        if($offset < 0) { $offset = 0; }
+        $result = array();
+        $select = "";
+        $where = "";
+        $limitStr = "";
+        $queryStr = "";
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        if($count == false){
+            $select = 'SELECT ?uri ?title ?description ?identifier (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';
+            $limitStr = ' LIMIT '.$limit.'
+            OFFSET '.$offset.' ';
+        }else {
+            $select = 'SELECT (COUNT(?uri) as ?count) ';
+        }
+        
+        $where = '
+            WHERE {
+                <'.$uri.'> <'.\Drupal\oeaw\ConnData::$skosNarrower.'> ?identifier .
+                ?uri <'.RC::get("fedoraIdProp").'> ?identifier .                
+                ?uri <'.RC::get("fedoraTitleProp").'> ?title .
+                OPTIONAL { ?uri <'.\Drupal\oeaw\ConnData::$description.'> ?description .}
+                ?uri  <'.\Drupal\oeaw\ConnData::$rdfType.'> ?type .
+                FILTER regex(str(?type),"vocabs.acdh","i") .
+            }
+            ';
+        
+        $groupBy = ' GROUP BY ?title ?uri ?description ?identifier ORDER BY ASC( fn:lower-case(?title))';
+        
+        $queryStr = $select.$where.$groupBy.$limitStr;
+        
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields(); 
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+        
+        
+    }
+    
+    /**
+     * 
+     * Create the Sparql Query for the Person contributed view
      * 
      * @param string $uri - the main resource fedora uri
      * @param string $limit - limit for paging
@@ -823,8 +943,6 @@ class OeawStorage {
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             return $result;
         }
-        
-        
     }
     
     /**
@@ -900,7 +1018,13 @@ class OeawStorage {
         
     }
     
-    
+    /**
+     * 
+     * Create the Inverse table data by URL
+     * 
+     * @param string $url
+     * @return array
+     */
     public function getInverseViewDataByURL(string $url): array{
         
         $result = array();

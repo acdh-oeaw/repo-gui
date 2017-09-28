@@ -15,7 +15,7 @@ jq2(function( $ ) {
             //show the table
             jq2('#inverseTableDiv').show("slow");
             //hide the button
-            jq2('#showInverse').hide("slow");
+            jq2('#showInverse').parent().hide("slow");
             //get the uri
             var uri = jq2('#showInverse').data('tableuri');
             //genereate the data
