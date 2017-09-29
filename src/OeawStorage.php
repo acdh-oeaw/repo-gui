@@ -103,6 +103,7 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhImage, '?hasTitleImage'), true);
             
             $q2 = new Query();
             $q2->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?y'));
@@ -110,7 +111,7 @@ class OeawStorage {
             $q->addSubquery($q2);    
       
             if($count == false){
-                $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image'));
+                $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image', '?hasTitleImage'));
                 $q->setOrderBy(array($order));
                 $q->setLimit($limit);
                 $q->setOffset($offset); 
@@ -711,16 +712,14 @@ class OeawStorage {
             $q = new Query();
             $q->setSelect(array('?uri'));
             $q->addParameter((new HasValue(RC::idProp(), $string))->setSubVar('?uri'));
-           
+            $q->addParameter((new HasValue(\Drupal\oeaw\ConnData::$rdfType, \Drupal\oeaw\ConnData::$image))->setSubVar('?uri'));
             $query = $q->getQuery();
             $result = $this->fedora->runSparql($query);
-            
             foreach($result as $r){
                 if($r->uri){
                     $return = $r->uri->getUri();
                 }
             }
-            
             return $return;         
         } catch (Exception $ex) {            
             $msg = base64_encode($ex->getMessage());

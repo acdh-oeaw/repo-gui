@@ -20,7 +20,7 @@
         
         <div class="res-el col-block col-lg-12">
 		
-            {% if item.hasTitleImage %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  		
+            {% if item.image %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  		
 
             
             {% if item.title %}
@@ -101,12 +101,12 @@
             
            
 
-            {% if item.hasTitleImage %}</div>{% endif%}
+            {% if item.image %}</div>{% endif%}
 
-            {% if item.hasTitleImage %}	
+            {% if item.image %}	
                 <div class="res-inside-wrap col-lg-6 ">	
                     <div class="single-res-thumb">
-                        <a href="{{ item.hasTitleImage }}"><img src="{{ item.hasTitleImage }}"></a>
+                        <a href="{{ item.image }}"><img src="{{ item.image }}"></a>
                     </div>
                 </div>
             {% endif%}            
