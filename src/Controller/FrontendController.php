@@ -89,73 +89,27 @@ class FrontendController extends ControllerBase  {
         $uid = \Drupal::currentUser()->id();
         
         if(count($result) > 0){
-            $i = 0;            
+            $i = 0;
             foreach($result as $value){
-                // our roots are Collections
-                $rdfType = 'https://vocabs.acdh.oeaw.ac.at/#Collection';
-                $rdfTypePrefix = "";
-                $hasImageType = false;  
-                if (isset($rdfType) && $rdfType) {
-                    if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {
-                        $rdfTypePrefix = "acdh";   
-                    }                    
-                    if ($rdfType == \Drupal\oeaw\ConnData::$imageProperty) {
-                        $hasImageType = true;
-                    }
-                } else {
-                    $rdfTypePrefix = "none"; 
+                $res[$i]["title"] = $value['title'];
+                $res[$i]["resUri"] = base64_encode($value['uri']);
+                $res[$i]["description"] = $value["description"];
+                $res[$i]["rdfType"] = "Collection";
+                
+                if($value['image']){
+                    $res[$i]["image"] = $value['image'];
                 }
-
-                //Only list items with either acdh rdfType or no rdfType
-                if (!empty($rdfTypePrefix)) {
-                    // check that the value is an Url or not
-                    $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");
-                    //create details and editing urls
-                    if($decodeUrl){
-                        $res[$i]['resUri'] = $decodeUrl;
-                        if($uid !== 0){
-                            $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
-                            $res[$i]['delete'] = "/oeaw_delete/".$decodeUrl;
-                        }
+                if($value['hasTitleImage']){
+                    $imageUrl = $this->OeawStorage->getImageByIdentifier($value['hasTitleImage']);
+                    if($imageUrl){
+                        $res[$i]["image"] = $imageUrl;
                     }
-                    $res[$i]["uri"] = $value["uri"];
-                    $res[$i]["title"] = $value["title"];
-                    $res[$i]["description"] = $value["description"];
-
-                    $creationdate = $value["creationdate"];
-                    $creationdate = strtotime($creationdate);
-                    $res[$i]["creationdate"] = date('F jS, Y',$creationdate);
-
-                    $contributor = $value["contributor"];
-                    if (isset($contributor) && $contributor) {
-                        $res[$i]["contributorName"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-                        $res[$i]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-                    }
-
-                    if (isset($rdfType) && $rdfType) {
-                        $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
-                        $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
-                        $res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
-                    }	
-
-                    if ($hasImageType) {
-                        $res[$i]["image"] = $value["uri"];
-                    } else {
-                        $thumbnail = $value["image"];
-                        if (isset($thumbnail) && $thumbnail) {
-                            $imgData = $this->OeawStorage->getImage($thumbnail);
-                            if (isset($imgData) && $imgData) {
-                                    $res[$i]["image"] = $imgData;
-                            }
-                        }
-                    }
-                    $i++;
                 }
+                $i++;
             }
             $decodeUrl = "";            
         } else {
             $errorMSG = drupal_set_message(t('Problem during the root listing'), 'error', FALSE);
-            
         }
         
         //create the datatable values and pass the twig template name what we want to use
@@ -682,7 +636,7 @@ class FrontendController extends ControllerBase  {
                     if($r['hasTitleImage']){
                         $imageUrl = $this->OeawStorage->getImageByIdentifier($r['hasTitleImage']);
                         if($imageUrl){
-                            $result[$i]['hasTitleImage'] = $imageUrl;
+                            $result[$i]['image'] = $imageUrl;
                         }
                     }
                     $i++;
