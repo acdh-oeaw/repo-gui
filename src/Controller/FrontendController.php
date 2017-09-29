@@ -93,8 +93,15 @@ class FrontendController extends ControllerBase  {
             foreach($result as $value){
                 $res[$i]["title"] = $value['title'];
                 $res[$i]["resUri"] = base64_encode($value['uri']);
-                $res[$i]["description"] = $value["description"];
-                $res[$i]["rdfType"] = "Collection";
+                if($value["description"]){
+                    $res[$i]["description"] = $value["description"];
+                }                
+                $res[$i]["rdfType"] = array("Collection");
+                if($value['creationdate']){
+                    $time = strtotime($value['creationdate']);
+                    $newTime = date('Y-m-d', $time);
+                    $res[$i]["createdDate"] = $newTime;
+                }
                 
                 if($value['image']){
                     $res[$i]["image"] = $value['image'];
@@ -125,7 +132,7 @@ class FrontendController extends ControllerBase  {
         
         if(isset($res) && $res !== null && !empty($res)){            
             $header = array_keys($res[0]);
-            $datatable['#theme'] = 'oeaw_keyword_search_res';
+            $datatable['#theme'] = 'oeaw_complex_search_res';
             $datatable['#result'] = $res;
             $datatable['#search'] = $search;
             $datatable['#header'] = $header;
