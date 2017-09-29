@@ -1043,13 +1043,8 @@ class OeawFunctions {
         //reorder the array because have missing keys
         $properties = array_values($properties);
         
-        $acdhProp = $OeawStorage->getPropDataToExpertTable($properties);
-        /*echo "<pre>";
-        var_dump($acdhProp);
-        var_dump($properties);
-        echo "</pre>";
-*/
-
+        //it will be the function for the cache
+        //$acdhProp = $OeawStorage->getPropDataToExpertTable($properties);
 
         foreach ($properties as $p){
             $propertyShortcut = $this->createPrefixesFromString($p);
@@ -1085,6 +1080,16 @@ class OeawFunctions {
                         //check that the resource has Binary or not
                         if($val == \Drupal\oeaw\ConnData::$fedoraBinary){
                             $result['hasBinary'] = $resourceUri;
+                        }
+                    }
+                    
+                    //simply check the acdh:hasTitleImage for the root resources too.
+                    if($p == \Drupal\oeaw\ConnData::$acdhImage){
+                        
+                        $imgUrl = "";
+                        $imgUrl = $OeawStorage->getImageByIdentifier($val->getUri());
+                        if($imgUrl){
+                            $result['image'] = $imgUrl;
                         }
                     }
                 }

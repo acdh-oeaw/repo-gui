@@ -692,6 +692,49 @@ class OeawStorage {
         }  
     }
     
+    /**
+     * 
+     * Get the image by the identifier
+     * 
+     * @param string $string - image acdh:hasIdentifier value
+     * @return string - the fedora url of the image
+     * 
+     */
+    public function getImageByIdentifier(string $string): string{
+        
+        $return = "";
+        if (empty($string)) {
+            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+        }
+       
+        try{            
+            $q = new Query();
+            $q->setSelect(array('?uri'));
+            $q->addParameter((new HasValue(RC::idProp(), $string))->setSubVar('?uri'));
+           
+            $query = $q->getQuery();
+            $result = $this->fedora->runSparql($query);
+            
+            foreach($result as $r){
+                if($r->uri){
+                    $return = $r->uri->getUri();
+                }
+            }
+            
+            return $return;         
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return $return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return $return;
+        }  
+    }
+    
     /*
      * 
      * Get the resource thumbnail image
