@@ -100,7 +100,7 @@ class OeawStorage {
             $q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Collection' ))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreatedDate, '?creationdate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhImage, '?hasTitleImage'), true);
