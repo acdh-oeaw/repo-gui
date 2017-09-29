@@ -508,10 +508,16 @@ class FrontendController extends ControllerBase  {
                 //we checks if the acdh:Person is available then we will get the Person Detail view data
                 if(isset($results['table']['rdf:type'])){
                     foreach($results['table']['rdf:type'] as $rt){
-                        if((isset($rt['uri'])) && (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhPerson) !== false)){
+                        if((isset($rt['uri'])) && 
+                                (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhPerson) !== false)){
                             $specialType = "person";
                         }
-                        if((isset($rt['uri'])) && ( (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhConcept) !== false) || (strpos($rt['uri'], \Drupal\oeaw\ConnData::$skosConcept) !== false) ) ){
+                        //is it a concept or not
+                        if((isset($rt['uri'])) && 
+                                ( (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhConcept) !== false) 
+                                || 
+                                (strpos($rt['uri'], \Drupal\oeaw\ConnData::$skosConcept) !== false) ) 
+                            ){
                             $specialType = "concept";
                         }
                     }
@@ -565,9 +571,9 @@ class FrontendController extends ControllerBase  {
         }
         */
      
-       //check the Dissemination services
-       // $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
         $dissServices =array();
+        //check the Dissemination services
+        $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
         if(count($dissServices) > 0){
             $extras['dissServ'] = $dissServices;
         }
@@ -646,7 +652,7 @@ class FrontendController extends ControllerBase  {
         if ($pageData['totalPages'] > 1) {
             $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
         }
-        $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end']);        
+        $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end']);
         
         $res = $this->OeawStorage->runUserSparql($sparql);
         
@@ -667,8 +673,18 @@ class FrontendController extends ControllerBase  {
                             }
                         }
                     }
-                    $result[$i]['description'] = $r['description'];
-                    $result[$i]['createdDate'] = $r['createdDate'];
+                    if($r['description']){
+                        $result[$i]['description'] = $r['description'];
+                    }
+                    if($r['createdDate']){
+                        $result[$i]['createdDate'] = $r['createdDate'];
+                    }
+                    if($r['hasTitleImage']){
+                        $imageUrl = $this->OeawStorage->getImageByIdentifier($r['hasTitleImage']);
+                        if($imageUrl){
+                            $result[$i]['hasTitleImage'] = $imageUrl;
+                        }
+                    }
                     $i++;
                 }
             }

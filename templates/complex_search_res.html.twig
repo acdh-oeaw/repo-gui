@@ -20,7 +20,7 @@
         
         <div class="res-el col-block col-lg-12">
 		
-            {% if item.image %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  		
+            {% if item.hasTitleImage %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  		
 
             
             {% if item.title %}
@@ -75,8 +75,6 @@
             {% endif%}            
             
             
-            
-            
             {% if item.description %}
                 <div class="res-property res-property-desc">
                     <i class="material-icons">&#xE88F;</i>	
@@ -103,12 +101,12 @@
             
            
 
-            {% if item.image %}</div>{% endif%}
+            {% if item.hasTitleImage %}</div>{% endif%}
 
-            {% if item.image %}	
+            {% if item.hasTitleImage %}	
                 <div class="res-inside-wrap col-lg-6 ">	
                     <div class="single-res-thumb">
-                        <a href="{{ item.image }}"><img src="{{ item.image }}"></a>
+                        <a href="{{ item.hasTitleImage }}"><img src="{{ item.hasTitleImage }}"></a>
                     </div>
                 </div>
             {% endif%}            

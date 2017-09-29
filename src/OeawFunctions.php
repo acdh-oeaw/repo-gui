@@ -287,7 +287,7 @@ class OeawFunctions {
         if($count == true){
             $select = "SELECT (COUNT(?uri) as ?count) ";
         }else {
-            $select = 'SELECT DISTINCT ?uri ?description ?title ?createdDate (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
+            $select = 'SELECT DISTINCT ?uri ?description ?title ?createdDate ?hasTitleImage (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
                        (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
                        (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) ';
         }
@@ -366,9 +366,10 @@ class OeawFunctions {
     	OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/#hasAuthor> ?author .}	    	
         OPTIONAL{ ?uri <". \Drupal\oeaw\ConnData::$contributor."> ?contrib .}	
     	OPTIONAL {?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?rdfType . }
+        OPTIONAL{ ?uri <". \Drupal\oeaw\ConnData::$acdhImage."> ?hasTitleImage .}                
         OPTIONAL {?uri <". \Drupal\oeaw\ConnData::$acdhHasCreatedDate."> ?createdDate . }";
         
-        $query = $select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?createdDate ORDER BY ?title ";
+        $query = $select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?createdDate ORDER BY ?title ";
         if($limit){
             $query .= " LIMIT ".$limit." ";
             
