@@ -287,7 +287,7 @@ class OeawFunctions {
         if($count == true){
             $select = "SELECT (COUNT(?uri) as ?count) ";
         }else {
-            $select = 'SELECT ?uri ?prop ?obj ?description ?title ?createdDate (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
+            $select = 'SELECT DISTINCT ?uri ?description ?title ?createdDate (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
                        (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
                        (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) ';
         }
@@ -368,7 +368,7 @@ class OeawFunctions {
     	OPTIONAL {?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?rdfType . }
         OPTIONAL {?uri <". \Drupal\oeaw\ConnData::$acdhHasCreatedDate."> ?createdDate . }";
         
-        $query = $select." Where { ".$conditions." ".$query." } GROUP BY ?title ?prop ?obj ?description ?uri ?createdDate ORDER BY ?obj ";
+        $query = $select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?createdDate ORDER BY ?title ";
         if($limit){
             $query .= " LIMIT ".$limit." ";
             
