@@ -115,15 +115,6 @@ oeaw_admin_form:
     options:
         _admin_route: TRUE
 
-oeaw_classes_result:    
-    path: '/oeaw_classes_result/{data}/{limit}/{page}'
-    defaults:
-        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_classes_result'
-        limit: "0"
-        page: "0"
-    requirements:        
-        _access: 'TRUE'
-
 oeaw.autocomplete:
     path: '/oeaw/autocomplete/{prop1}/{fieldName}'
     defaults:
