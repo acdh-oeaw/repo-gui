@@ -4,17 +4,14 @@
 	
     <div class="res-el res-info col-block col-lg-12">
         <div class="result-basic-info">
-            <span class="results-info-bar">{{ totalResultAmount }} Results Found</span>
+            <span class="results-info-bar">{{ totalResultAmount }} Results</span>
             <span class="results-info-bar">Page {{ currentPage }} of {{ totalPages }}</span>
-            {% if pagination %}
-            	<span class="results-info-bar">{{ pagination|raw }}</span>
-            {% endif%}
-            <span class="results-info-bar">Results per Page
+            <span class="results-info-bar">Items per Page
 				<div class="pagination-dropdown dropdown">
 				  <button class="btn btn-secondary dropdown-toggle" type="button" id="resPerPageButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				    10
 				  </button>
-				  <div class="dropdown-menu" aria-labelledby="resPerPageButton">
+				  <div class="dropdown-menu" aria-labelledby="resPerPageButton" id="resPerPageButton">
 				    <a class="dropdown-item" href="#">10</a>
 				    <a class="dropdown-item" href="#">25</a>
 				    <a class="dropdown-item" href="#">50</a>
@@ -26,16 +23,19 @@
 				  <button class="btn btn-secondary dropdown-toggle" type="button" id="sortByButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				    Title (ASC)
 				  </button>
-				  <div class="dropdown-menu" aria-labelledby="sortByButton">
-				    <a class="dropdown-item" href="#">Resource Title (ASC)</a>
-				    <a class="dropdown-item" href="#">Resource Title (DESC)</a>
-				    <a class="dropdown-item" href="#">Publication Date (ASC)</a>
-				    <a class="dropdown-item" href="#">Publication Date (DESC)</a>
-				    <a class="dropdown-item" href="#">Resource Type (ASC)</a>
-				    <a class="dropdown-item" href="#">Resource Type (DESC)</a>
+				  <div class="dropdown-menu" aria-labelledby="sortByButton" id="sortByDropdown">
+				    <a class="dropdown-item" href="#">Title (ASC)</a>
+				    <a class="dropdown-item" href="#">Title (DESC)</a>
+				    <a class="dropdown-item" href="#">Date (ASC)</a>
+				    <a class="dropdown-item" href="#">Date (DESC)</a>
+				    <a class="dropdown-item" href="#">Type (ASC)</a>
+				    <a class="dropdown-item" href="#">Type (DESC)</a>
 				  </div>
 				</div>
             </span>
+            {% if pagination %}
+            	<span class="results-info-bar">{{ pagination|raw }}</span>
+            {% endif%}
         </div>	
 
     </div>
