@@ -1117,6 +1117,11 @@ class OeawFunctions {
                     if( ($p == \Drupal\oeaw\ConnData::$ebucoreMime) && (!isset($result['image'])) && (strpos($val, 'image') !== false) ) {
                         $result['image'] = $resourceUri;
                     }
+                    if( $p == \Drupal\oeaw\ConnData::$hasBinarySize ) {
+                        if($val->getValue()){
+                            $result['table'][$propertyShortcut][$key] = $this->formatSizeUnits($val->getValue());
+                        }
+                    }
                 }
             }
         }
@@ -1408,6 +1413,46 @@ class OeawFunctions {
         }        
         return $res;
     }
+    
+    
+     /**
+     * 
+     * Create nice format from file sizes
+     * 
+     * @param type $bytes
+     * @return string
+     */
+    public function formatSizeUnits(string $bytes): string
+    {
+        if ($bytes >= 1073741824)
+        {
+            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
+        }
+        elseif ($bytes >= 1048576)
+        {
+            $bytes = number_format($bytes / 1048576, 2) . ' MB';
+        }
+        elseif ($bytes >= 1024)
+        {
+            $bytes = number_format($bytes / 1024, 2) . ' KB';
+        }
+        elseif ($bytes > 1)
+        {
+            $bytes = $bytes . ' bytes';
+        }
+        elseif ($bytes == 1)
+        {
+            $bytes = $bytes . ' byte';
+        }
+        else
+        {
+            $bytes = '0 bytes';
+        }
+
+        return $bytes;
+    }
+
+    
     
     /**
      * 

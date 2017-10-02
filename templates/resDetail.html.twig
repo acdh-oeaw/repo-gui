@@ -19,6 +19,13 @@
                     <span class="res-title">{{ result['table']['acdh:hasTitle'][0] }}</span>
                 </div>
             {% endif%} 
+            
+            {%  if result['table']['acdh:hasBinarySize'][0] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE2BC;</i>
+                    <span class="res-binarySize">{{ result['table']['acdh:hasBinarySize'][0] }}</span>
+                </div>
+            {% endif%} 
 
             {% if result['acdh_rdf:type'] %}
                 <div class="res-property">
@@ -31,7 +38,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE7FB;</i>                     
                     {% for value in result['table']['acdh:hasAuthor'] %}
-                        <span class="res-contributor">                            
+                        <span class="res-author">                            
                             {% if value['insideUri'] %}
                                 <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a> <br>
                             {% else %}
