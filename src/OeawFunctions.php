@@ -438,6 +438,14 @@ class OeawFunctions {
     }
     
 
+    /**
+     * 
+     * Check the Resource Rules and display the users/grants
+     * 
+     * @param array $rules
+     * @return array
+     * 
+     */
     public function checkRules(array $rules): array{
         $ACL = array();
         
@@ -486,23 +494,12 @@ class OeawFunctions {
      * @param string $uri
      * @return type
      */
-    public function getRules(string $uri, \acdhOeaw\fedora\Fedora $fedora): array{
+    public function getRules(string $uri, \acdhOeaw\fedora\FedoraResource $fedoraRes): array{
         $result = array();
-                
-        $fedora->begin();
         
-        try{
-            $res = $fedora->getResourceByUri($uri);
-        } catch (Exception $ex) {
-            return array();
-        }catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            return array();
-        }
-        
-        $aclObj = $res->getAcl();
+        $aclObj = $fedoraRes->getAcl();
         $result = $aclObj->getRules();
-        $fedora->commit();
-       
+        
         return $result;
     }
     
@@ -554,53 +551,53 @@ class OeawFunctions {
      */
     public function createCiteThisWidget(array $resourceData): array {
 
-		//MLA Format
-		$widget["MLA"] = ["creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "createdDate" => ""];
+        //MLA Format
+        $widget["MLA"] = ["creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "createdDate" => ""];
 
-		//Get creator(s)
-		if (isset($resourceData["table"]["acdh:hasCreator"])) {
-			foreach ($resourceData["table"]["acdh:hasCreator"] as $key => $creator) {			
-				if ($key > 0) {
-					$widget["MLA"]["creators"] .= ", " . $creator["title"];
-				} else {
-					$widget["MLA"]["creators"] = $creator["title"];
-				}			
-			}
-		}
+        //Get creator(s)
+        if (isset($resourceData["table"]["acdh:hasCreator"])) {
+                foreach ($resourceData["table"]["acdh:hasCreator"] as $key => $creator) {			
+                        if ($key > 0) {
+                                $widget["MLA"]["creators"] .= ", " . $creator["title"];
+                        } else {
+                                $widget["MLA"]["creators"] = $creator["title"];
+                        }			
+                }
+        }
 
-		//Get contributor(s) 
-		if (isset($resourceData["table"]["acdh:hasContributor"])) {
-			foreach ($resourceData["table"]["acdh:hasContributor"] as $key => $contributor) {			
-				if ($key > 0) {
-					$widget["MLA"]["contributors"] .= ", " . $contributor["title"];
-				} else {
-					$widget["MLA"]["contributors"] = $contributor["title"];
-				}			
-			}
-		}
+        //Get contributor(s) 
+        if (isset($resourceData["table"]["acdh:hasContributor"])) {
+                foreach ($resourceData["table"]["acdh:hasContributor"] as $key => $contributor) {			
+                        if ($key > 0) {
+                                $widget["MLA"]["contributors"] .= ", " . $contributor["title"];
+                        } else {
+                                $widget["MLA"]["contributors"] = $contributor["title"];
+                        }			
+                }
+        }
 
-		//Get title
-		if (isset($resourceData["table"]["acdh:hasTitle"])) {
-			$title = $resourceData["table"]["acdh:hasTitle"][0];
-			$widget["MLA"]["title"] = $title;
-		}
-		
-		//Get isPartOf		
-		if (isset($resourceData["table"]["acdh:isPartOf"])) {
-			$isPartOf = $resourceData["table"]["acdh:isPartOf"][0]["title"];
-			$widget["MLA"]["isPartOf"] = ' <em>'.$isPartOf.'.</em>';		
-		}
-		
-		//Get created date
-		if (isset($resourceData["table"]["acdh:hasCreatedDate"])) {
-			$createdDate = $resourceData["table"]["acdh:hasCreatedDate"][0];
-			$createdDate = strtotime($createdDate);
-			$widget["MLA"]["createdDate"] = date('Y',$createdDate);			
-		}
+        //Get title
+        if (isset($resourceData["table"]["acdh:hasTitle"])) {
+                $title = $resourceData["table"]["acdh:hasTitle"][0];
+                $widget["MLA"]["title"] = $title;
+        }
 
-		$widget["MLA"]["string"] = '<span>'.$widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["createdDate"].'.</span>';
+        //Get isPartOf		
+        if (isset($resourceData["table"]["acdh:isPartOf"])) {
+                $isPartOf = $resourceData["table"]["acdh:isPartOf"][0]["title"];
+                $widget["MLA"]["isPartOf"] = ' <em>'.$isPartOf.'.</em>';		
+        }
 
-		return $widget;
+        //Get created date
+        if (isset($resourceData["table"]["acdh:hasCreatedDate"])) {
+                $createdDate = $resourceData["table"]["acdh:hasCreatedDate"][0];
+                $createdDate = strtotime($createdDate);
+                $widget["MLA"]["createdDate"] = date('Y',$createdDate);			
+        }
+
+        $widget["MLA"]["string"] = '<span>'.$widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["createdDate"].'.</span>';
+
+        return $widget;
 	}
 
     /**

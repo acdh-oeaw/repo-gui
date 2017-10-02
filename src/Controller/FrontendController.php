@@ -420,6 +420,7 @@ class FrontendController extends ControllerBase  {
     public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "0"): array {
         drupal_get_messages('error', TRUE);
         
+        
         if (empty($uri)) {
             $msg = base64_encode("The URI is missing");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -436,35 +437,51 @@ class FrontendController extends ControllerBase  {
         $ACL = array();
         
         $fedora = $this->OeawFunctions->initFedora();
-        $uid = \Drupal::currentUser()->id();        
+        $uid = \Drupal::currentUser()->id();
         
-        $rules = $this->OeawFunctions->getRules($uri, $fedora);
+        $fedoraRes = array();
         
-        if(count($rules) <= 0){
-            $msg = base64_encode("The Resource Rules are not reachable!");
+        try{
+            $fedoraRes = $fedora->getResourceByUri($uri);
+            $rootMeta = $fedoraRes->getMetadata();
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+            $msg = base64_encode("URI NOT EXISTS");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
         }
         
-        $ACL = $this->OeawFunctions->checkRules($rules);
-        $results['ACL'] = $ACL;
-        
-        $rootGraph = $this->OeawFunctions->makeGraph($uri);
-        $rootMeta =  $this->OeawFunctions->makeMetaData($uri);
-
         if(count($rootMeta) > 0){
+            
+            $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
+            
+             if(count($rules) <= 0){
+                $msg = base64_encode("The Resource Rules are not reachable!");
+                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+                $response->send();
+                return;
+            }
+        
+            $ACL = $this->OeawFunctions->checkRules($rules);
+            $results['ACL'] = $ACL;
+            
             $results = array();
             //get the root table data
             $results = $this->OeawFunctions->createDetailViewTable($rootMeta);
-            $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
-            
-            if(empty($results)){                
+                        
+            if(count($results) == 0){                
                 $msg = base64_encode("The resource has no metadata!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
                 return;            
             }  
+            $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
+            
             //check the acdh:hasIdentifier data to the child view
             $identifiers = array();
             if(count($results['table']['acdh:hasIdentifier']) > 0){
@@ -481,38 +498,20 @@ class FrontendController extends ControllerBase  {
                         if((isset($rt['uri'])) && 
                                 (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhPerson) !== false)){
                             $specialType = "person";
+                            $countData = $this->OeawStorage->getPersonViewData($uri, $limit, $page, true);
                         }
                         //is it a concept or not
-                        if((isset($rt['uri'])) && 
+                        else if((isset($rt['uri'])) && 
                                 ( (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhConcept) !== false) 
                                 || 
                                 (strpos($rt['uri'], \Drupal\oeaw\ConnData::$skosConcept) !== false) ) 
                             ){
                             $specialType = "concept";
-                        }
-                        if((isset($rt['uri'])) && 
-                                (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhProject) !== false)){
-                            $specialType = "project";
-                        }
-                        if((isset($rt['uri'])) && 
-                                (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhInstitute) !== false)){
-                            $specialType = "institute";
+                            $countData = $this->OeawStorage->getConceptViewData($uri, $limit, $page, true);
+                        }else {
+                            $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
                         }
                     }
-                }
-
-                if($specialType == "person"){
-                    $countData = $this->OeawStorage->getPersonViewData($uri, $limit, $page, true);
-                }elseif($specialType == "concept"){
-                    $countData = $this->OeawStorage->getConceptViewData($uri, $limit, $page, true);
-                }elseif($specialType == "project"){
-                    //$countData = $this->OeawStorage->getConceptViewData($uri, $limit, $page, true);
-                    $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);
-                }elseif($specialType == "institute"){
-                    //$countData = $this->OeawStorage->getConceptViewData($uri, $limit, $page, true);
-                    $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
-                }else {
-                    $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
                 }
                 
                 $total = (int)count($countData);
@@ -561,7 +560,7 @@ class FrontendController extends ControllerBase  {
         if(count($dissServices) > 0){
             $extras['dissServ'] = $dissServices;
         }
-        
+       
         // Pass fedora uri so it can be linked in the template
         $extras["fedoraURI"] = $uri;
         $extras["personChild"] = $specialType;
