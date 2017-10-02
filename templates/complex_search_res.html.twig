@@ -4,16 +4,40 @@
 	
     <div class="res-el res-info col-block col-lg-12">
         <div class="result-basic-info">
-            {{ searchedValues }}
+            <span class="results-info-bar">{{ totalResultAmount }} Results Found</span>
+            <span class="results-info-bar">Page {{ currentPage }} of {{ totalPages }}</span>
+            {% if pagination %}
+            	<span class="results-info-bar">{{ pagination|raw }}</span>
+            {% endif%}
+            <span class="results-info-bar">Results per Page
+				<div class="pagination-dropdown dropdown">
+				  <button class="btn btn-secondary dropdown-toggle" type="button" id="resPerPageButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    10
+				  </button>
+				  <div class="dropdown-menu" aria-labelledby="resPerPageButton">
+				    <a class="dropdown-item" href="#">10</a>
+				    <a class="dropdown-item" href="#">25</a>
+				    <a class="dropdown-item" href="#">50</a>
+				  </div>
+				</div>
+            </span>
+            <span class="results-info-bar">Sort by
+				<div class="pagination-dropdown dropdown">
+				  <button class="btn btn-secondary dropdown-toggle" type="button" id="sortByButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    Title (ASC)
+				  </button>
+				  <div class="dropdown-menu" aria-labelledby="sortByButton">
+				    <a class="dropdown-item" href="#">Resource Title (ASC)</a>
+				    <a class="dropdown-item" href="#">Resource Title (DESC)</a>
+				    <a class="dropdown-item" href="#">Publication Date (ASC)</a>
+				    <a class="dropdown-item" href="#">Publication Date (DESC)</a>
+				    <a class="dropdown-item" href="#">Resource Type (ASC)</a>
+				    <a class="dropdown-item" href="#">Resource Type (DESC)</a>
+				  </div>
+				</div>
+            </span>
         </div>	
-         
-        {% if pagination %}
-            <div>                
-                <ul>
-                    {{ pagination|raw }}
-                </ul>    
-            </div>    
-        {% endif%}       
+
     </div>
 	
     {% for item in result %}
