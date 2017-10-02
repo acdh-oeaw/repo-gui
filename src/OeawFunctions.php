@@ -489,8 +489,16 @@ class OeawFunctions {
     public function getRules(string $uri, \acdhOeaw\fedora\Fedora $fedora): array{
         $result = array();
                 
-        $fedora->begin();        
-        $res = $fedora->getResourceByUri($uri);        
+        $fedora->begin();
+        
+        try{
+            $res = $fedora->getResourceByUri($uri);
+        } catch (Exception $ex) {
+            return array();
+        }catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+            return array();
+        }
+        
         $aclObj = $res->getAcl();
         $result = $aclObj->getRules();
         $fedora->commit();
@@ -502,8 +510,16 @@ class OeawFunctions {
     public function grantAccess(string $uri, string $user, \acdhOeaw\fedora\Fedora $fedora): array{
         $result = array();
         
-        $fedora->begin();        
-        $res = $fedora->getResourceByUri($uri);
+        $fedora->begin();
+        
+        try{
+            $res = $fedora->getResourceByUri($uri);
+        } catch (Exception $ex) {
+            return array();
+        }catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+            return array();
+        }
+        
         $aclObj = $res->getAcl();
         $aclObj->grant(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
         $aclObj = $res->getAcl();

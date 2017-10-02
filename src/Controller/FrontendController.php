@@ -429,6 +429,7 @@ class FrontendController extends ControllerBase  {
         
         $fedora = $this->OeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();        
+        
         $rules = $this->OeawFunctions->getRules($uri, $fedora);
         
         if(count($rules) <= 0){
@@ -481,6 +482,14 @@ class FrontendController extends ControllerBase  {
                             ){
                             $specialType = "concept";
                         }
+                        if((isset($rt['uri'])) && 
+                                (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhProject) !== false)){
+                            $specialType = "project";
+                        }
+                        if((isset($rt['uri'])) && 
+                                (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhInstitute) !== false)){
+                            $specialType = "institute";
+                        }
                     }
                 }
 
@@ -488,6 +497,12 @@ class FrontendController extends ControllerBase  {
                     $countData = $this->OeawStorage->getPersonViewData($uri, $limit, $page, true);
                 }elseif($specialType == "concept"){
                     $countData = $this->OeawStorage->getConceptViewData($uri, $limit, $page, true);
+                }elseif($specialType == "project"){
+                    //$countData = $this->OeawStorage->getConceptViewData($uri, $limit, $page, true);
+                    $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);
+                }elseif($specialType == "institute"){
+                    //$countData = $this->OeawStorage->getConceptViewData($uri, $limit, $page, true);
+                    $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
                 }else {
                     $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
                 }
