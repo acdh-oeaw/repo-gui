@@ -87,7 +87,7 @@ class FrontendController extends ControllerBase  {
         $result = $this->OeawStorage->getRootFromDB($limit, $page, false, $order);
 
         $uid = \Drupal::currentUser()->id();
-        
+
         if(count($result) > 0){
             $i = 0;
             foreach($result as $value){
@@ -96,7 +96,15 @@ class FrontendController extends ControllerBase  {
                 if($value["description"]){
                     $res[$i]["description"] = $value["description"];
                 }                
-                $res[$i]["rdfType"] = array("Collection");
+                if(count($value["rdfTypes"]) > 0){
+                    $types = explode(",", $value["rdfTypes"]);
+                    foreach($types as $t){
+                        if (strpos($t, 'vocabs.acdh.oeaw.ac.at') !== false) {
+                            $res[$i]["rdfType"][] = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $t);
+                        }
+                    }
+                }
+                
                 if($value['creationdate']){
                     $time = strtotime($value['creationdate']);
                     $newTime = date('Y-m-d', $time);

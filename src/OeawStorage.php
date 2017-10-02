@@ -104,6 +104,7 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhImage, '?hasTitleImage'), true);
+            $q->addParameter(new HasTriple('?uri', self::$sparqlPref["rdfType"], '?rdfType'));
             
             $q2 = new Query();
             $q2->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?y'));
@@ -111,12 +112,14 @@ class OeawStorage {
             $q->addSubquery($q2);    
       
             if($count == false){
-                $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image', '?hasTitleImage'));
+                $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image', '?hasTitleImage', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
                 $q->setOrderBy(array($order));
+                $q->setGroupBy(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image', '?hasTitleImage'));
                 $q->setLimit($limit);
                 $q->setOffset($offset); 
             }else {
                 $q->setSelect(array('(COUNT(?uri) as ?count)'));
+                
                 $q->setOrderBy(array('?uri'));
             }
             
@@ -886,6 +889,7 @@ class OeawStorage {
         $limitStr = "";
         $queryStr = "";
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        
         if($count == false){
             $select = 'SELECT ?uri ?title ?description ?identifier (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';
             $limitStr = ' LIMIT '.$limit.'
