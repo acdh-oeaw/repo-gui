@@ -40,7 +40,6 @@
                             {% endif%}                            
                         </span>
                     {% endfor %}
-                    </ul>
                 </div>                
             {% endif%}	
             
@@ -84,8 +83,8 @@
                         {% endfor %}                        
                     </span>
                 </div>
-            {% endif%}	
-	
+            {% endif%}
+            
         {% if result['image'] %}</div>{% endif%}
 		
         {% if result['image'] %}	
@@ -96,7 +95,7 @@
                 <span class="res-thumb-info">Thumbnail of {{ result['resourceTitle'] }}</span>
             </div>
         {% endif%}
-                
+        
     </div>
 	
 	
@@ -230,54 +229,68 @@
             {% endif %}
 	</div>	
 
-    {% if extras['dissServ'] %}
-        <div class="res-property">
-        	<i class="material-icons">&#xE89F;</i>	
-                {% for key, ds in extras['dissServ'] %}
-                    <div class="res-act-button">
-                        {% if key == "gui" %}
-                            <a href="{{ ds }}?format={{ key }}" ><span>COPY URL</span></a>
-                        {% elseif key == "raw" %}    
-                            <a href="{{ ds }}?format={{ key }}" ><span>DOWNLOAD BINARY</span></a>
-                        {% else %}
-                            <a href="{{ ds }}?format={{ key }}" ><span>{{ key|upper }} Access</span></a>
-                        {% endif %}
-                    </div>               
-                {% endfor %}  
-        </div>                       
-    {% endif %}    	
-
-    <div class="res-property">
-    	<i class="material-icons">&#xE0B2;</i>    	
-    	<div class="res-act-button">
-        	<a href="{{ result['uri'] }}">
-        		<span>View in Fedora</span>
-        	</a>	
-    	</div>           	
-    </div>
-
-    {% if userid != 0  %}
-        {% if query %} 
-            <div class="res-property">
-                <i class="material-icons">&#xE53B;</i>       	
-                <div class="res-act-button">
-                    <a href="/oeaw_query/{{ query }}">
-                        <span>View Query Result</span>
-                    </a>	
-                </div>          	
-            </div>
-        {% endif %}	
-    {% endif %}	
-
-
+    
     {% if result['table']['acdh:hasDescription'][0] %}
-    	<h3 class="single-res-heading">Summary</h3>    
+        <h3 class="single-res-heading">Summary</h3>    
         <div class="res-property">
             <i class="material-icons">&#xE88F;</i>
             <span class="res-description">{{ result['table']['acdh:hasDescription'][0] }}</span>
         </div>
-                            
     {% endif%}
+    
+
+    {% if result['table']['acdh:hasPid'] %}
+    	<h3 class="single-res-heading">PID</h3>    
+        <div class="res-property">
+            <i class="material-icons"></i>
+            {% for value in result['table']['acdh:hasPid'] %}
+                <span class="res-pid">                            
+                {% if value['insideUri'] %}
+                    <span class="res-pid"><a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a></span> <br>
+                {% else %}
+                    <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                    <span class="res-pid"><a href="{{ value['uri'] }}">{{ value['uri'] }}</a></span>  <br>
+                {% endif%}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif%}
+    
+    
+    {% if result['table']['rdfs:seeAlso'] %}
+    	<h3 class="single-res-heading">See Also</h3>    
+        <div class="res-property">
+            <i class="material-icons"></i>
+            {% for value in result['table']['rdfs:seeAlso'] %}
+                <span class="res-seeAlso">                            
+                {% if value['insideUri'] %}
+                    <span class="res-seeAlso"><a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a></span> <br>
+                {% else %}
+                    <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                    <span class="res-seeAlso"><a href="{{ value['uri'] }}">{{ value['uri'] }}</a></span>  <br>
+                {% endif%}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif%}
+    
+    {% if result['table']['acdh:hasLocationURL'] %}
+    	<h3 class="single-res-heading">Location Url</h3>    
+        <div class="res-property">
+            <i class="material-icons"></i>
+            {% for value in result['table']['acdh:hasLocationURL'] %}
+                <span class="res-locationUrl">
+                {% if value['insideUri'] %}
+                    <span class="res-locationUrl"><a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a></span> <br>
+                {% else %}
+                    <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                    <span class="res-locationUrl"><a href="{{ value['uri'] }}">{{ value['uri'] }}</a></span>  <br>
+                {% endif%}
+                </span>
+            {% endfor %}
+        </div>
+    {% endif%}
+    
     
     {% if result['table']['acdh:hasAuthor'] %}
     	<h3 class="single-res-heading">About the Autor(s)</h3>
