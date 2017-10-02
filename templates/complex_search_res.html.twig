@@ -6,7 +6,7 @@
         <div class="result-basic-info">
             <span class="results-info-bar">{{ totalResultAmount }} Results</span>
             <span class="results-info-bar">Page {{ currentPage }} of {{ totalPages }}</span>
-            <span class="results-info-bar">Items per Page
+            <span class="results-info-bar">Items
 				<div class="pagination-dropdown dropdown">
 				  <button class="btn btn-secondary dropdown-toggle" type="button" id="resPerPageButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 				    10
@@ -34,7 +34,7 @@
 				</div>
             </span>
             {% if pagination %}
-            	<span class="results-info-bar">{{ pagination|raw }}</span>
+            	<span class="results-info-bar pagination-span">{{ pagination|raw }}</span>
             {% endif%}
         </div>	
 
