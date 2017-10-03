@@ -3,16 +3,40 @@
 {% else %}
     <div class="res-el res-info col-block col-lg-12">
         <div class="result-basic-info">
-            {{ searchedValues }}
+            <span class="results-info-bar">{{ totalResultAmount }} Results</span>
+            <span class="results-info-bar">Page {{ currentPage }} of {{ totalPages }}</span>
+            <span class="results-info-bar">Items
+				<div class="pagination-dropdown dropdown">
+				  <button class="btn btn-secondary dropdown-toggle" type="button" id="resPerPageButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    10
+				  </button>
+				  <div class="dropdown-menu" aria-labelledby="resPerPageButton" id="resPerPageButton">
+				    <a class="dropdown-item" href="#">10</a>
+				    <a class="dropdown-item" href="#">25</a>
+				    <a class="dropdown-item" href="#">50</a>
+				  </div>
+				</div>
+            </span>
+            <span class="results-info-bar">Sort by
+				<div class="pagination-dropdown dropdown">
+				  <button class="btn btn-secondary dropdown-toggle" type="button" id="sortByButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				    Title (ASC)
+				  </button>
+				  <div class="dropdown-menu" aria-labelledby="sortByButton" id="sortByDropdown">
+				    <a class="dropdown-item" href="#">Title (ASC)</a>
+				    <a class="dropdown-item" href="#">Title (DESC)</a>
+				    <a class="dropdown-item" href="#">Date (ASC)</a>
+				    <a class="dropdown-item" href="#">Date (DESC)</a>
+				    <a class="dropdown-item" href="#">Type (ASC)</a>
+				    <a class="dropdown-item" href="#">Type (DESC)</a>
+				  </div>
+				</div>
+            </span>
+            {% if pagination %}
+            	<span class="results-info-bar pagination-span">{{ pagination|raw }}</span>
+            {% endif%}
         </div>	
-         
-        {% if pagination %}
-            <div>                
-                <ul>
-                    {{ pagination|raw }}
-                </ul>    
-            </div>    
-        {% endif%}       
+
     </div>
         
     {% for item in result %}

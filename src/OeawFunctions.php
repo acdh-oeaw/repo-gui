@@ -395,18 +395,18 @@ class OeawFunctions {
     public function createPaginationHTML(string $actualPage, string $page, $tpages, $limit): string {
        
         $adjacents = 2;
-        $prevlabel = "&lsaquo; Prev";
-        $nextlabel = "Next &rsaquo;";
+        $prevlabel = "<i class='material-icons'>&#xE5CB;</i>";
+        $nextlabel = "<i class='material-icons'>&#xE5CC;</i>";
         $out = "";
         
         $tpages = $tpages -1;
         // previous
         if ($page == 0) {
-            $out.= "<li style='display: block; float:left; padding: 5px;'><span>" . $prevlabel . "</span></li>";
+            $out.= "<li class='pagination-item'><span>" . $prevlabel . "</span></li>";
         } elseif ($page == 1) {
-            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/browser/" .$actualPage."/" .$limit . "/".$page."'>" . $prevlabel . "</a></li>";
+            $out.= "<li class='pagination-item'><a  href='/browser/" .$actualPage."/" .$limit . "/".$page."'>" . $prevlabel . "</a></li>";
         } else {
-            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/browser/".$actualPage."/" .$limit . "/" . ($page - 1) . "'>" . $prevlabel . "</a>\n</li>";
+            $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . ($page - 1) . "'>" . $prevlabel . "</a>\n</li>";
         }
 
         $pmin = ($page > $adjacents) ? ($page - $adjacents) : 0;
@@ -414,23 +414,23 @@ class OeawFunctions {
         
         for ($i = $pmin; $i <= $pmax; $i++) {
             if ($i == $page) {
-                $out.= "<li  style='display: block; float:left; padding: 5px;'  class=\"active\"><a href=''>" . $i . "</a></li>\n";
+                $out.= "<li class='pagination-item active'><a href=''>" . $i . "</a></li>\n";
             } elseif ($i == 0) {
-                $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/browser/".$actualPage."/" .$limit . "/'>" . $i . "</a>\n</li>";
+                $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/'>" . $i . "</a>\n</li>";
             } else {
-                $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/browser/".$actualPage."/" .$limit . "/" . $i . "'>" . $i . "</a>\n</li>";
+                $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . $i . "'>" . $i . "</a>\n</li>";
             }
         }
 
         // next
         if ($page < $tpages) {
-            $out.= "<li style='display: block; float:left; padding: 5px;'><a  href='/browser/".$actualPage."/" .$limit . "/" . ($page + 1) . "'>" . $nextlabel . "</a>\n</li>";
+            $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . ($page + 1) . "'>" . $nextlabel . "</a>\n</li>";
         } else {
-            $out.= "<li style='display: block; float:left; padding: 5px;'><span style=''>" . $nextlabel . "</span></li>";
+            $out.= "<li class='pagination-item'><span style=''>" . $nextlabel . "</span></li>";
         }
         
         if ($page < ($tpages - $adjacents)) {
-            $out.= "<li style='display: block; float:left; padding: 5px;'>Last Page: <a style='' href='/browser/".$actualPage."/" .$limit . "/" . $tpages . "'>" . $tpages . "</a></li>";
+            $out.= "<li class='pagination-item'><a style='' href='/browser/".$actualPage."/" .$limit . "/" . $tpages . "'><i class='material-icons'>&#xE5DD;</i></a></li>";
         }
         $out.= "";
         

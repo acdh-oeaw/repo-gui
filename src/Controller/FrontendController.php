@@ -144,7 +144,19 @@ class FrontendController extends ControllerBase  {
             $datatable['#result'] = $res;
             $datatable['#search'] = $search;
             $datatable['#header'] = $header;
-            $datatable['#searchedValues'] = $i . ' top-level elements have been found.';
+            //$datatable['#searchedValues'] = $i . ' top-level elements have been found.';
+            $datatable['#totalResultAmount'] = $i;
+			if (empty($pageData['page']) OR $pageData['page'] == 0) {
+			    $datatable['#currentPage'] = 1;
+			} else {
+			    $datatable['#currentPage'] = $pageData['page'];
+			}
+			if (empty($pageData['page'])) {
+			    $datatable['#totalPages'] = 1;
+			} else {
+			    $datatable['#totalPages'] = $pageData['totalPages'];
+			}
+
         }        
 
         return $datatable;
@@ -684,7 +696,18 @@ class FrontendController extends ControllerBase  {
         $datatable['#pagination'] = $pagination;
         $datatable['#errorMSG'] = $errorMSG;
         $datatable['#result'] = $result;
-        $datatable['#searchedValues'] = $total . ' elements containing "' . $metavalue . '" have been found.';
+        //$datatable['#searchedValues'] = $total . ' elements containing "' . $metavalue . '" have been found.';
+        $datatable['#totalResultAmount'] = $total;
+		if (empty($pageData['page']) OR $pageData['page'] == 0) {
+		    $datatable['#currentPage'] = 1;
+		} else {
+		    $datatable['#currentPage'] = $pageData['page'];
+		}
+		if (empty($pageData['page'])) {
+		    $datatable['#totalPages'] = 1;
+		} else {
+		    $datatable['#totalPages'] = $pageData['totalPages'];
+		}
 
         return $datatable;
     }

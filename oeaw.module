@@ -27,7 +27,7 @@ function oeaw_theme() {
   ]; 
   
   $theme['oeaw_complex_search_res'] = [
-    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null, 'search' => NULL, 'pagination' => NULL],
+    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null, 'search' => NULL, 'pagination' => NULL, 'totalResultAmount' => NULL, 'currentPage' => NULL, 'totalPages' => NULL,],
     'template' => 'complex_search_res',
   ];
 
