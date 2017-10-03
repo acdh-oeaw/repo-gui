@@ -1099,7 +1099,6 @@ class OeawFunctions {
                     
                     //simply check the acdh:hasTitleImage for the root resources too.
                     if($p == \Drupal\oeaw\ConnData::$acdhImage){
-                        
                         $imgUrl = "";
                         $imgUrl = $OeawStorage->getImageByIdentifier($val->getUri());
                         if($imgUrl){

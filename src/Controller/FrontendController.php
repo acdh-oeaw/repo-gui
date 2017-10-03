@@ -456,6 +456,7 @@ class FrontendController extends ControllerBase  {
             return;
         }
         
+        
         if(count($rootMeta) > 0){
             
             $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
