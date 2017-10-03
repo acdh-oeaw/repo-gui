@@ -46,12 +46,8 @@ class OeawFunctions {
      */   
     public function initFedora(): Fedora{
         // setup fedora
-        //$time_start = microtime(true);
         $fedora = array();
         $fedora = new Fedora();
-        /*$time_end = microtime(true);
-        $execution_time = number_format(($time_end - $time_start), 2);
-        echo '<b>Total Execution Time: of the initFedora</b> '.$execution_time.' seconds<br>';*/
         return $fedora;
     }
     
@@ -87,7 +83,7 @@ class OeawFunctions {
      * 
      */
     public function createPaginationData(int $limit, int $page, int $total): array {
-        //$time_start = microtime(true);
+        
         $totalPages = 0;
         $res = array();
         
@@ -117,10 +113,7 @@ class OeawFunctions {
         $res["end"] = $end;
         $res["page"] = $page;
         $res["totalPages"] = $totalPages;
-        /*
-        $time_end = microtime(true);
-        $execution_time = number_format(($time_end - $time_start), 2);
-        echo '<b>Total Execution Time: of the paginationdata</b> '.$execution_time.' seconds<br>';*/
+        
         return $res;
     }
     
@@ -163,7 +156,6 @@ class OeawFunctions {
      * 
      */
     public function getCurrentPageForPagination(): string{
-        //$time_start = microtime(true);
         $currentPath = "";
         $currentPage = "";
         
@@ -171,10 +163,6 @@ class OeawFunctions {
         $currentPage = substr($currentPath, 1);
         $currentPage = explode("/", $currentPage);        
         $currentPage = $currentPage[0].'/'.$currentPage[1];
-        /*
-        $time_end = microtime(true);
-        $execution_time = number_format(($time_end - $time_start), 2);
-        echo '<b>Total Execution Time: of the currentPageForPagination</b> '.$execution_time.' seconds<br>';*/
         return $currentPage;
     }
     
@@ -292,8 +280,26 @@ class OeawFunctions {
         return $res;    
     }
     
-    public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false): string{
-        
+    public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "titleasc"): string{
+
+		//Let's process the order argument
+		switch ($order) {
+		    case "titleasc":
+		        $order = "ASC(?title)";
+		        break;
+		    case "titledesc":
+		        $order = "DESC(?title)";
+		        break;
+		    case "dateasc":
+		        $order = "ASC(?createdDate)";
+		        break;
+		    case "datedesc":
+		        $order = "DESC(?createdDate)";
+		        break;
+		    default:
+		        $order = "ASC(?title)";
+		}
+
         $wordsQuery = "";
         $query = "";
         if($count == true){
@@ -381,7 +387,7 @@ class OeawFunctions {
         OPTIONAL{ ?uri <". \Drupal\oeaw\ConnData::$acdhImage."> ?hasTitleImage .}                
         OPTIONAL {?uri <". \Drupal\oeaw\ConnData::$acdhHasCreatedDate."> ?createdDate . }";
         
-        $query = $select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?createdDate ORDER BY ?title ";
+        $query = $select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?createdDate ORDER BY " . $order;
         if($limit){
             $query .= " LIMIT ".$limit." ";
             
@@ -392,7 +398,6 @@ class OeawFunctions {
 
         return $query;
     }
-    
     
     
     /**
@@ -407,7 +412,6 @@ class OeawFunctions {
      */
     public function createPaginationHTML(string $actualPage, string $page, $tpages, $limit): string {
        
-        //$time_start = microtime(true);
         $adjacents = 2;
         $prevlabel = "<i class='material-icons'>&#xE5CB;</i>";
         $nextlabel = "<i class='material-icons'>&#xE5CC;</i>";
@@ -419,7 +423,7 @@ class OeawFunctions {
 	        //Don't show prev if we are on the first page
             //$out.= "<li class='pagination-item'><span>" . $prevlabel . "</span></li>";
         } else {
-            $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . $page . "'>" . $prevlabel . "</a>\n</li>";
+            $out.= "<li class='pagination-item'><a data-pagination='" . $page . "'>" . $prevlabel . "</a>\n</li>";
         }
 
         $pmin = ($page > $adjacents) ? ($page - $adjacents) : 1;
@@ -427,28 +431,25 @@ class OeawFunctions {
         
         for ($i = $pmin; $i <= $pmax; $i++) {
             if ($i-1 == $page) {
-                $out.= "<li class='pagination-item active'><a href=''>" . $i . "</a></li>\n";
+                $out.= "<li class='pagination-item active'><a data-pagination='".$i."'>" . $i . "</a></li>\n";
             } else {
-                $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . $i . "'>" . $i . "</a>\n</li>";
+                $out.= "<li class='pagination-item'><a data-pagination='" . $i . "'>" . $i . "</a>\n</li>";
             }
         }
 
         // next
         if ($page < $tpages-1) {
-            $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . ($page + 2) . "'>" . $nextlabel . "</a>\n</li>";
+            $out.= "<li class='pagination-item'><a data-pagination='" . ($page + 2) . "'>" . $nextlabel . "</a>\n</li>";
         } else {
 	        //Don't show next if we are on the last page
             //$out.= "<li class='pagination-item'><span style=''>" . $nextlabel . "</span></li>";
         }
         
         if ($page < ($tpages - $adjacents)) {
-            $out.= "<li class='pagination-item'><a style='' href='/browser/".$actualPage."/" .$limit . "/" . $tpages . "'><i class='material-icons'>&#xE5DD;</i></a></li>";
+            $out.= "<li class='pagination-item'><a data-pagination='" . $tpages . "'><i class='material-icons'>&#xE5DD;</i></a></li>";
         }
         $out.= "";
-       
-        /*$time_end = microtime(true);
-        $execution_time = number_format(($time_end - $time_start), 2);
-        echo '<b>Total Execution Time: of the PaginationHtml</b> '.$execution_time.' seconds<br>';*/
+        
         return $out;
     }
     
@@ -462,7 +463,6 @@ class OeawFunctions {
      * 
      */
     public function checkRules(array $rules): array{
-        //$time_start = microtime(true); 
         $ACL = array();
         
         //check the rules
@@ -498,10 +498,7 @@ class OeawFunctions {
                 }
             }
         }
-        /*
-        $time_end = microtime(true);
-        $execution_time = number_format(($time_end - $time_start), 2);        
-        echo '<b>Total Execution Time: of the checkRules</b> '.$execution_time.' seconds<br>';*/
+        
         return $ACL;
     }
     
@@ -514,17 +511,11 @@ class OeawFunctions {
      * @return type
      */
     public function getRules(string $uri, \acdhOeaw\fedora\FedoraResource $fedoraRes): array{
-        //$time_start = microtime(true); 
         $result = array();
         
         $aclObj = $fedoraRes->getAcl();
         $result = $aclObj->getRules();
         
-        /*
-        $time_end = microtime(true);
-        $execution_time = number_format(($time_end - $time_start), 2);
-        echo '<b>Total Execution Time: of the getRules</b> '.$execution_time.' seconds<br>';
-        */
         return $result;
     }
     
@@ -575,7 +566,7 @@ class OeawFunctions {
      * @return array $widget Returns the cite-this widget as HTML
      */
     public function createCiteThisWidget(array $resourceData): array {
-        //$time_start = microtime(true);
+
         //MLA Format
         $widget["MLA"] = ["creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "createdDate" => ""];
 
@@ -622,11 +613,6 @@ class OeawFunctions {
 
         $widget["MLA"]["string"] = '<span>'.$widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["createdDate"].'.</span>';
 
-        /*
-        $time_end = microtime(true);
-        $execution_time = number_format(($time_end - $time_start), 2);
-        echo '<b>Total Execution Time: of the citewidget</b> '.$execution_time.' seconds<br>';
-        */
         return $widget;
 	}
 
@@ -1065,10 +1051,8 @@ class OeawFunctions {
      * @return array
      */
     public function createDetailViewTable(\EasyRdf\Resource $data): array{
-        
-        //$time_start = microtime(true); 
-        
         $result = array();
+        
         $OeawStorage = new OeawStorage();
         
         if(empty($data)){
@@ -1081,7 +1065,6 @@ class OeawFunctions {
         //get the resources and remove fedora properties
         $properties = array();
         $properties = $data->propertyUris();
-        
         foreach ($properties as $key => $val){
             if (strpos($val, 'fedora.info') !== false) {
                 unset($properties[$key]);
@@ -1092,9 +1075,7 @@ class OeawFunctions {
         
         //it will be the function for the cache
         //$acdhProp = $OeawStorage->getPropDataToExpertTable($properties);
-        
-        $searchTitle = array();
-        
+
         foreach ($properties as $p){
             $propertyShortcut = $this->createPrefixesFromString($p);
             
@@ -1103,13 +1084,11 @@ class OeawFunctions {
                 if(get_class($val) == "EasyRdf\Resource" ){
                     $classUri = $val->getUri();
                     $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
-                    $result['table'][$propertyShortcut][$key]['title'] = $classUri;
                     
                     //we will skip the title for the resource identifier
                     if($p != RC::idProp() || ( ($p == RC::idProp()) && (strpos($classUri, 'id.acdh.oeaw.ac.at') == false) ) ){
-                        $searchTitle[] = $classUri;
+                        $title = $OeawStorage->getTitleByIdentifier($classUri);
                     }
-                    /*
                     //add the title to the resources
                     if(count($title) > 0){
                         if($p == \Drupal\oeaw\ConnData::$rdfType){
@@ -1122,7 +1101,7 @@ class OeawFunctions {
                             $result['table'][$propertyShortcut][$key]['insideUri'] = base64_encode($title[0]['uri']);
                         }
                     }
-                    */
+                    
                     //if the acdhImage is available or the ebucore MIME
                     if($p == \Drupal\oeaw\ConnData::$rdfType){
                         if($val == \Drupal\oeaw\ConnData::$acdhImage){
@@ -1136,6 +1115,7 @@ class OeawFunctions {
                     
                     //simply check the acdh:hasTitleImage for the root resources too.
                     if($p == \Drupal\oeaw\ConnData::$acdhImage){
+                        
                         $imgUrl = "";
                         $imgUrl = $OeawStorage->getImageByIdentifier($val->getUri());
                         if($imgUrl){
@@ -1159,52 +1139,11 @@ class OeawFunctions {
             }
         }
         
-
-        //get the not literal propertys TITLE
-        $existinTitles = array();
-        $existinTitles = $OeawStorage->getTitlyByIdentifierArray($searchTitle);
-        
-        
-        
-        foreach($existinTitles as $v ){
-            $keys = array();
-            if($this->in_array_r($v['identifier'], $result['table'], false, $keys) == true){
-                foreach($keys as $key => $val){
-                    if($result['table'][$key]){
-                        foreach($result['table'][$key] as $pKey => $pVal){
-                            if($pVal['title'] == $v['identifier']){
-                                $result['table'][$key][$pKey]['title'] = $v['title'];
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        /*
-        $time_end = microtime(true);
-        $execution_time = ($time_end - $time_start);
-        echo '<b>Total Execution Time: of the createDetailViewTable</b> '.$execution_time.' seconds<br>';
-        */
         $result['resourceTitle'] = $resourceTitle;
         $result['uri'] = $resourceUri;
         $result['insideUri'] = base64_encode($resourceUri);
         
         return $result;
-    }
-    
-    function in_array_r(string $needle, array $haystack, bool $strict = false, array &$keys): bool {
-        
-        foreach ($haystack as $key => $item) {
-            if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && $this->in_array_r($needle, $item, $strict, $keys))) {
-                //we checking only the propertys
-                if (strpos($key, ':') !== false) {
-                    $keys[$key] = $needle;
-                }
-                return true;
-            }
-        }
-
-        return false;
     }
     
     /**

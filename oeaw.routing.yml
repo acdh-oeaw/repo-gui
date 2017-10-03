@@ -51,15 +51,16 @@ oeaw_keywordsearch:
     _access: 'TRUE'
 
 oeaw_complexsearch:
-  path: '/oeaw_complexsearch/{metavalue}/{limit}/{page}'
+  path: '/discover/{metavalue}/{order}/{limit}/{page}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_complexsearch'
-    limit: "0"
-    page: "0"
+    order: "titleasc"
+    limit: "10"
+    page: "1"
   requirements:
     _permission: 'access content'
     _access: 'TRUE'
-       
+
 oeaw_resources:
   path: '/oeaw_resources/{metakey}/{metavalue}'
   defaults:
@@ -67,18 +68,7 @@ oeaw_resources:
   requirements:
     _permission: 'access content'
     _access: 'TRUE'
-    
-oeaw_roots:
-  path: '/discover/{limit}/{page}'
-  defaults:
-    _controller: '\Drupal\oeaw\Controller\FrontendController::roots_list'
-    limit: "0"
-    page: "0"
-  requirements:
-    _permission: 'access content'    
-    _access: 'TRUE'
- 
- 
+
 oeaw_multi_new_resource:
   path: '/oeaw_multi_new_resource'
   defaults:

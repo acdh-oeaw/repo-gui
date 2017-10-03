@@ -56,7 +56,7 @@ class FrontendController extends ControllerBase  {
      *
      * @return array
      */
-    public function roots_list(string $limit = "10", string $page = "0", string $order = "ASC(?title)" ): array {
+    public function roots_list(string $limit = "10", string $page = "0", string $order = "titleasc" ): array {
         
         drupal_get_messages('error', TRUE);
         // get the root resources
@@ -432,8 +432,7 @@ class FrontendController extends ControllerBase  {
     public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "0"): array {
         drupal_get_messages('error', TRUE);
         
-        //$time_start = microtime(true); 
-
+        
         if (empty($uri)) {
             $msg = base64_encode("The URI is missing");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -448,7 +447,6 @@ class FrontendController extends ControllerBase  {
         $childResult = array();
         $rules = array();
         $ACL = array();
-        $extras = array();
         
         $fedora = $this->OeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
@@ -470,12 +468,11 @@ class FrontendController extends ControllerBase  {
             return;
         }
         
-        
         if(count($rootMeta) > 0){
             
             $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
             
-             if(count($rules) == 0){
+             if(count($rules) <= 0){
                 $msg = base64_encode("The Resource Rules are not reachable!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
@@ -495,20 +492,17 @@ class FrontendController extends ControllerBase  {
                 $response->send();
                 return;            
             }  
-            
             $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
             
             //check the acdh:hasIdentifier data to the child view
             $identifiers = array();
             if(count($results['table']['acdh:hasIdentifier']) > 0){
                 foreach($results['table']['acdh:hasIdentifier'] as $i){
-                    
                     $identifiers[] = $i['uri'];
                 }
             }
             
             if(count($identifiers) > 0){
-               // $ts = microtime(true);
                 $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
                 //we checks if the acdh:Person is available then we will get the Person Detail view data
                 if(isset($results['table']['rdf:type'])){
@@ -554,12 +548,7 @@ class FrontendController extends ControllerBase  {
                 if(count($childrenData) > 0){
                     $childResult = $this->OeawFunctions->createChildrenViewData($childrenData);
                 }
-                /*
-                $te = microtime(true);
-                $execution_timee = number_format(($te - $ts), 2);
-                echo '<b>Total Execution Time: of the kiegeszito toablak</b> '.$execution_timee.' seconds<br>';*/
             }
-             
             
         } else {
             $msg = base64_encode("The resource has no metadata!");
@@ -568,22 +557,6 @@ class FrontendController extends ControllerBase  {
             return;            
         }
         
-        
-     
-        $dissServices =array();
-        //check the Dissemination services
-        $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
-        if(count($dissServices) > 0){
-            $extras['dissServ'] = $dissServices;
-        }
-     
-        // Pass fedora uri so it can be linked in the template
-        $extras["fedoraURI"] = $uri;
-        $extras["personChild"] = $specialType;
-        if(count($inverseData) > 0){
-            $extras['inverseData'] = $inverseData;
-        }
-     
         /*
         $query = "";
         if(isset($results['query']) && isset($results['queryType'])){
@@ -592,7 +565,21 @@ class FrontendController extends ControllerBase  {
             }
         }
         */
+     
+        $dissServices =array();
+        //check the Dissemination services
+        $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
+        if(count($dissServices) > 0){
+            $extras['dissServ'] = $dissServices;
+        }
        
+        // Pass fedora uri so it can be linked in the template
+        $extras["fedoraURI"] = $uri;
+        $extras["personChild"] = $specialType;
+        if(count($inverseData) > 0){
+            $extras['inverseData'] = $inverseData;
+        }
+        
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,
@@ -606,12 +593,7 @@ class FrontendController extends ControllerBase  {
                 ]
             ]
         );
-        
-        /*
-        $time_end = microtime(true);
-        $execution_time = ($time_end - $time_start);
-        echo '<b>Total Execution Time: of the Detail view:</b> '.$execution_time.' seconds';    
-        */
+                
         return $datatable;
              
     }
@@ -638,96 +620,115 @@ class FrontendController extends ControllerBase  {
      * @param string $page
      * @return array
      */
-    public function oeaw_complexsearch(string $metavalue, string $limit = "10", string $page = "1"):array {
+    public function oeaw_complexsearch(string $metavalue, string $limit = "10", string $page = "1", string $order = "titleasc" ):array {
 
-        drupal_get_messages('error', TRUE);
-        
-        $res = array();        
-        $errorMSG = array();  
-        //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
-        $page = (int)$page - 1;
-        $limit = (int)$limit;
-        $result = array();
-        $pagination = "";        
-        //get the current page for the pagination        
-        $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
+		//If the discover page calls the root resources forward to the root_list method
+		if ($metavalue == 'root') {
 
-        $metavalue = urldecode($metavalue);
-        $metavalue = str_replace(' ', '+', $metavalue);
-        
-        $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);        
-      
-        $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
-        $count = $this->OeawStorage->runUserSparql($countSparql);
-        $total = (int)count($count);
-        //create data for the pagination
-        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
-        
-        if ($pageData['totalPages'] > 1) {
-            $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
-        }
-        $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end']);
-        
-        $res = $this->OeawStorage->runUserSparql($sparql);
-        
-        if(count($res) > 0){
-            $i = 0;
-            foreach($res as $r){
-                if( !empty($r['uri']) ){
-                    $result[$i]['resUri'] = base64_encode($r['uri']);
-                    $result[$i]['title'] = $r['title'];
-                    
-                    if($r['rdfTypes']){
-                        $x = 0;
-                        $types = explode(",", $r['rdfTypes']);
-                        
-                        foreach ($types as  $t){
-                            if (strpos($t, RC::vocabsNmsp()) !== false) {
-                                $result[$i]['rdfType']['typeName'] = str_replace(RC::vocabsNmsp(), "", $t);
-                            }
-                        }
-                    }
-                    if($r['description']){
-                        $result[$i]['description'] = $r['description'];
-                    }
-                    if($r['createdDate']){
-                        $result[$i]['createdDate'] = $r['createdDate'];
-                    }
-                    if($r['hasTitleImage']){
-                        $imageUrl = $this->OeawStorage->getImageByIdentifier($r['hasTitleImage']);
-                        if($imageUrl){
-                            $result[$i]['image'] = $imageUrl;
-                        }
-                    }
-                    $i++;
-                }
-            }
-        }
-       
-        if (count($result) < 0){
-            $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
-        }
-        $uid = \Drupal::currentUser()->id();
-        
-        $datatable['#theme'] = 'oeaw_complex_search_res';
-        $datatable['#userid'] = $uid;
-        $datatable['#pagination'] = $pagination;
-        $datatable['#errorMSG'] = $errorMSG;
-        $datatable['#result'] = $result;
-        //$datatable['#searchedValues'] = $total . ' elements containing "' . $metavalue . '" have been found.';
-        $datatable['#totalResultAmount'] = $total;
-		if (empty($pageData['page']) OR $pageData['page'] == 0) {
-		    $datatable['#currentPage'] = 1;
+			//Get the cookies if they are already set
+			$limitCookie = $_COOKIE["resultsPerPage"];
+			$orderCookie = $_COOKIE["resultsOrder"];
+			//If a cookie setting exists and the query is coming without a specific parameter
+			if (!empty($pageCookie) && empty($limit)) {
+				$limit = $limitCookie;
+			}
+			if (!empty($orderCookie) && empty($order)) {
+				$order = $orderCookie;
+			}
+			return $this->roots_list($limit,$page,$order);
+
 		} else {
-		    $datatable['#currentPage'] = $pageData['page'];
-		}
-		if (empty($pageData['page'])) {
-		    $datatable['#totalPages'] = 1;
-		} else {
-		    $datatable['#totalPages'] = $pageData['totalPages'];
-		}
+	
+	        drupal_get_messages('error', TRUE);
+	        
+	        $res = array();        
+	        $errorMSG = array();  
+	        //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
+	        $page = (int)$page - 1;
+	        $limit = (int)$limit;
+	        $result = array();
+	        $pagination = "";        
+	        //get the current page for the pagination        
+	        $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
+	
+	        $metavalue = urldecode($metavalue);
+	        $metavalue = str_replace(' ', '+', $metavalue);
+	        
+	        $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);        
+	      
+	        $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
+	        $count = $this->OeawStorage->runUserSparql($countSparql);
+	        $total = (int)count($count);
+	        //create data for the pagination
+	        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
+	        
+	        if ($pageData['totalPages'] > 1) {
+	            $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
+	        }
+	        $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
+	        
+	        $res = $this->OeawStorage->runUserSparql($sparql);
+	        
+	        if(count($res) > 0){
+	            $i = 0;
+	            foreach($res as $r){
+	                if( !empty($r['uri']) ){
+	                    $result[$i]['resUri'] = base64_encode($r['uri']);
+	                    $result[$i]['title'] = $r['title'];
+	                    
+	                    if($r['rdfTypes']){
+	                        $x = 0;
+	                        $types = explode(",", $r['rdfTypes']);
+	                        
+	                        foreach ($types as  $t){
+	                            if (strpos($t, RC::vocabsNmsp()) !== false) {
+	                                $result[$i]['rdfType']['typeName'] = str_replace(RC::vocabsNmsp(), "", $t);
+	                            }
+	                        }
+	                    }
+	                    if($r['description']){
+	                        $result[$i]['description'] = $r['description'];
+	                    }
+	                    if($r['createdDate']){
+	                        $result[$i]['createdDate'] = $r['createdDate'];
+	                    }
+	                    if($r['hasTitleImage']){
+	                        $imageUrl = $this->OeawStorage->getImageByIdentifier($r['hasTitleImage']);
+	                        if($imageUrl){
+	                            $result[$i]['image'] = $imageUrl;
+	                        }
+	                    }
+	                    $i++;
+	                }
+	            }
+	        }
+	       
+	        if (count($result) < 0){
+	            $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
+	        }
+	        $uid = \Drupal::currentUser()->id();
+	        
+	        $datatable['#theme'] = 'oeaw_complex_search_res';
+	        $datatable['#userid'] = $uid;
+	        $datatable['#pagination'] = $pagination;
+	        $datatable['#errorMSG'] = $errorMSG;
+	        $datatable['#result'] = $result;
+	        //$datatable['#searchedValues'] = $total . ' elements containing "' . $metavalue . '" have been found.';
+	        $datatable['#totalResultAmount'] = $total;
+			if (empty($pageData['page']) OR $pageData['page'] == 0) {
+			    $datatable['#currentPage'] = 1;
+			} else {
+			    $datatable['#currentPage'] = $pageData['page'];
+			}
+			if (empty($pageData['page'])) {
+			    $datatable['#totalPages'] = 1;
+			} else {
+			    $datatable['#totalPages'] = $pageData['totalPages'];
+			}
+	
+	        return $datatable;
 
-        return $datatable;
+		}
     }
     
      /**
