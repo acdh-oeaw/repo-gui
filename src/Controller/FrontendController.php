@@ -620,13 +620,14 @@ class FrontendController extends ControllerBase  {
      * @param string $page
      * @return array
      */
-    public function oeaw_complexsearch(string $metavalue, string $limit = "10", string $page = "0"):array {
+    public function oeaw_complexsearch(string $metavalue, string $limit = "10", string $page = "1"):array {
 
         drupal_get_messages('error', TRUE);
         
         $res = array();        
-        $errorMSG = array();        
-        $page = (int)$page;
+        $errorMSG = array();  
+        //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
+        $page = (int)$page - 1;
         $limit = (int)$limit;
         $result = array();
         $pagination = "";        

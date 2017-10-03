@@ -399,34 +399,32 @@ class OeawFunctions {
         $nextlabel = "<i class='material-icons'>&#xE5CC;</i>";
         $out = "";
         
-        $tpages = $tpages -1;
+        $tpages = $tpages;
         // previous
         if ($page == 0) {
-            $out.= "<li class='pagination-item'><span>" . $prevlabel . "</span></li>";
-        } elseif ($page == 1) {
-            $out.= "<li class='pagination-item'><a  href='/browser/" .$actualPage."/" .$limit . "/".$page."'>" . $prevlabel . "</a></li>";
+	        //Don't show prev if we are on the first page
+            //$out.= "<li class='pagination-item'><span>" . $prevlabel . "</span></li>";
         } else {
-            $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . ($page - 1) . "'>" . $prevlabel . "</a>\n</li>";
+            $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . $page . "'>" . $prevlabel . "</a>\n</li>";
         }
 
-        $pmin = ($page > $adjacents) ? ($page - $adjacents) : 0;
+        $pmin = ($page > $adjacents) ? ($page - $adjacents) : 1;
         $pmax = ($page < ($tpages - $adjacents)) ? ($page + $adjacents) : $tpages;
         
         for ($i = $pmin; $i <= $pmax; $i++) {
-            if ($i == $page) {
+            if ($i-1 == $page) {
                 $out.= "<li class='pagination-item active'><a href=''>" . $i . "</a></li>\n";
-            } elseif ($i == 0) {
-                $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/'>" . $i . "</a>\n</li>";
             } else {
                 $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . $i . "'>" . $i . "</a>\n</li>";
             }
         }
 
         // next
-        if ($page < $tpages) {
-            $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . ($page + 1) . "'>" . $nextlabel . "</a>\n</li>";
+        if ($page < $tpages-1) {
+            $out.= "<li class='pagination-item'><a  href='/browser/".$actualPage."/" .$limit . "/" . ($page + 2) . "'>" . $nextlabel . "</a>\n</li>";
         } else {
-            $out.= "<li class='pagination-item'><span style=''>" . $nextlabel . "</span></li>";
+	        //Don't show next if we are on the last page
+            //$out.= "<li class='pagination-item'><span style=''>" . $nextlabel . "</span></li>";
         }
         
         if ($page < ($tpages - $adjacents)) {
