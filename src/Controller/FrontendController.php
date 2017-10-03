@@ -432,7 +432,8 @@ class FrontendController extends ControllerBase  {
     public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "0"): array {
         drupal_get_messages('error', TRUE);
         
-        
+        //$time_start = microtime(true); 
+
         if (empty($uri)) {
             $msg = base64_encode("The URI is missing");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -447,6 +448,7 @@ class FrontendController extends ControllerBase  {
         $childResult = array();
         $rules = array();
         $ACL = array();
+        $extras = array();
         
         $fedora = $this->OeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
@@ -473,7 +475,7 @@ class FrontendController extends ControllerBase  {
             
             $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
             
-             if(count($rules) <= 0){
+             if(count($rules) == 0){
                 $msg = base64_encode("The Resource Rules are not reachable!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
@@ -493,17 +495,20 @@ class FrontendController extends ControllerBase  {
                 $response->send();
                 return;            
             }  
+            
             $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
             
             //check the acdh:hasIdentifier data to the child view
             $identifiers = array();
             if(count($results['table']['acdh:hasIdentifier']) > 0){
                 foreach($results['table']['acdh:hasIdentifier'] as $i){
+                    
                     $identifiers[] = $i['uri'];
                 }
             }
             
             if(count($identifiers) > 0){
+               // $ts = microtime(true);
                 $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
                 //we checks if the acdh:Person is available then we will get the Person Detail view data
                 if(isset($results['table']['rdf:type'])){
@@ -549,7 +554,12 @@ class FrontendController extends ControllerBase  {
                 if(count($childrenData) > 0){
                     $childResult = $this->OeawFunctions->createChildrenViewData($childrenData);
                 }
+                /*
+                $te = microtime(true);
+                $execution_timee = number_format(($te - $ts), 2);
+                echo '<b>Total Execution Time: of the kiegeszito toablak</b> '.$execution_timee.' seconds<br>';*/
             }
+             
             
         } else {
             $msg = base64_encode("The resource has no metadata!");
@@ -558,6 +568,22 @@ class FrontendController extends ControllerBase  {
             return;            
         }
         
+        
+     
+        $dissServices =array();
+        //check the Dissemination services
+        $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
+        if(count($dissServices) > 0){
+            $extras['dissServ'] = $dissServices;
+        }
+     
+        // Pass fedora uri so it can be linked in the template
+        $extras["fedoraURI"] = $uri;
+        $extras["personChild"] = $specialType;
+        if(count($inverseData) > 0){
+            $extras['inverseData'] = $inverseData;
+        }
+     
         /*
         $query = "";
         if(isset($results['query']) && isset($results['queryType'])){
@@ -566,21 +592,7 @@ class FrontendController extends ControllerBase  {
             }
         }
         */
-     
-        $dissServices =array();
-        //check the Dissemination services
-        $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
-        if(count($dissServices) > 0){
-            $extras['dissServ'] = $dissServices;
-        }
        
-        // Pass fedora uri so it can be linked in the template
-        $extras["fedoraURI"] = $uri;
-        $extras["personChild"] = $specialType;
-        if(count($inverseData) > 0){
-            $extras['inverseData'] = $inverseData;
-        }
-        
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,
@@ -594,7 +606,12 @@ class FrontendController extends ControllerBase  {
                 ]
             ]
         );
-                
+        
+        /*
+        $time_end = microtime(true);
+        $execution_time = ($time_end - $time_start);
+        echo '<b>Total Execution Time: of the Detail view:</b> '.$execution_time.' seconds';    
+        */
         return $datatable;
              
     }

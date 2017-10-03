@@ -19,27 +19,21 @@
     {% for item in result %}
         <div class="res-el col-block col-lg-12">
 		
-            {% if item.image %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  		
+            {% if item.image %}<div class="res-inside-wrap col-lg-6 ">{% endif%}
 
-                
-            {% if item.specialLabel %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE873;</i>
-                    <span class="res-title"><a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">{{ item.specialLabel }}</a></span>
-                </div>
-            {% elseif item.title %}
+            {% if item.title %}
                 <div class="res-property">
                     <i class="material-icons">&#xE873;</i>
                     <span class="res-title"><a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">{{ item.title }}</a></span>
                 </div>
-            {% endif%}    
+            {% endif%}
 
             {% if item.authors %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FB;</i>
                     {% for author in item.authors %}  	
                     	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ author.authorUri }}">{{ author.authorName }}</a></span>
-                    {% endfor %}	
+                    {% endfor %}
                 </div>
             {% endif%}
 

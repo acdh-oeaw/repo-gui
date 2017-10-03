@@ -147,6 +147,56 @@ class OeawStorage {
         }
     }
 
+    /**
+     * 
+     * Get the titles for the detail view property values
+     * 
+     * @param array $data : Array with the identifiers
+     * @return array : results array with the identifiers and the titles
+     * 
+     */
+    public function getTitlyByIdentifierArray(array $data): array{
+        $result = array();
+
+        if(count($data) > 0){
+            $where = "";
+            $i = 0;
+            
+            foreach ($data as $key => $value){
+                $where .= " { ";
+                $where .= "?uri <".RC::get('fedoraIdProp')."> <".$value."> . ";
+                $where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
+                $where .= "?uri <".RC::titleProp()."> ?title . ";
+                $where .= " } ";
+
+                if($i != count($data) - 1){
+                    $where .= " UNION ";
+                }
+                $i++;
+            }   
+            $select = 'SELECT DISTINCT ?title ?identifier WHERE { ';
+            $queryStr = $select.$where." } ";
+            
+            try {
+                $q = new SimpleQuery($queryStr);
+                $query = $q->getQuery();
+                $res = $this->fedora->runSparql($query);
+            
+                $fields = $res->getFields(); 
+                $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+                return $result;
+
+            } catch (Exception $ex) {
+                return $result;
+            } catch (\GuzzleHttp\Exception\ClientException $ex){
+                return $result;
+            }
+        }
+        
+        return $result;
+    }
+    
    
     /**
      * 
@@ -1004,7 +1054,7 @@ class OeawStorage {
      * 
      */
     public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false): array {
-        
+        //$time_start = microtime(true);
         if (count($ids) < 0) { return array(); }
         if($offset < 0) { $offset = 0; }
         $result = array();
@@ -1052,6 +1102,11 @@ class OeawStorage {
             
             $fields = $res->getFields(); 
             $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+            /*
+            $time_end = microtime(true);
+            $execution_time = number_format(($time_end - $time_start), 2);
+            echo '<b>Total Execution Time: of the childrenView</b> '.$execution_time.' seconds<br>';*/
             
             return $result;
 

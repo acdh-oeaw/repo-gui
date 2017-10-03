@@ -46,8 +46,12 @@ class OeawFunctions {
      */   
     public function initFedora(): Fedora{
         // setup fedora
+        //$time_start = microtime(true);
         $fedora = array();
         $fedora = new Fedora();
+        /*$time_end = microtime(true);
+        $execution_time = number_format(($time_end - $time_start), 2);
+        echo '<b>Total Execution Time: of the initFedora</b> '.$execution_time.' seconds<br>';*/
         return $fedora;
     }
     
@@ -83,7 +87,7 @@ class OeawFunctions {
      * 
      */
     public function createPaginationData(int $limit, int $page, int $total): array {
-        
+        //$time_start = microtime(true);
         $totalPages = 0;
         $res = array();
         
@@ -113,7 +117,10 @@ class OeawFunctions {
         $res["end"] = $end;
         $res["page"] = $page;
         $res["totalPages"] = $totalPages;
-        
+        /*
+        $time_end = microtime(true);
+        $execution_time = number_format(($time_end - $time_start), 2);
+        echo '<b>Total Execution Time: of the paginationdata</b> '.$execution_time.' seconds<br>';*/
         return $res;
     }
     
@@ -156,6 +163,7 @@ class OeawFunctions {
      * 
      */
     public function getCurrentPageForPagination(): string{
+        //$time_start = microtime(true);
         $currentPath = "";
         $currentPage = "";
         
@@ -163,6 +171,10 @@ class OeawFunctions {
         $currentPage = substr($currentPath, 1);
         $currentPage = explode("/", $currentPage);        
         $currentPage = $currentPage[0].'/'.$currentPage[1];
+        /*
+        $time_end = microtime(true);
+        $execution_time = number_format(($time_end - $time_start), 2);
+        echo '<b>Total Execution Time: of the currentPageForPagination</b> '.$execution_time.' seconds<br>';*/
         return $currentPage;
     }
     
@@ -382,6 +394,7 @@ class OeawFunctions {
     }
     
     
+    
     /**
      * 
      * create the page navigation html code
@@ -394,6 +407,7 @@ class OeawFunctions {
      */
     public function createPaginationHTML(string $actualPage, string $page, $tpages, $limit): string {
        
+        //$time_start = microtime(true);
         $adjacents = 2;
         $prevlabel = "<i class='material-icons'>&#xE5CB;</i>";
         $nextlabel = "<i class='material-icons'>&#xE5CC;</i>";
@@ -433,7 +447,10 @@ class OeawFunctions {
             $out.= "<li class='pagination-item'><a style='' href='/browser/".$actualPage."/" .$limit . "/" . $tpages . "'><i class='material-icons'>&#xE5DD;</i></a></li>";
         }
         $out.= "";
-        
+       
+        /*$time_end = microtime(true);
+        $execution_time = number_format(($time_end - $time_start), 2);
+        echo '<b>Total Execution Time: of the PaginationHtml</b> '.$execution_time.' seconds<br>';*/
         return $out;
     }
     
@@ -447,6 +464,7 @@ class OeawFunctions {
      * 
      */
     public function checkRules(array $rules): array{
+        //$time_start = microtime(true); 
         $ACL = array();
         
         //check the rules
@@ -482,7 +500,10 @@ class OeawFunctions {
                 }
             }
         }
-        
+        /*
+        $time_end = microtime(true);
+        $execution_time = number_format(($time_end - $time_start), 2);        
+        echo '<b>Total Execution Time: of the checkRules</b> '.$execution_time.' seconds<br>';*/
         return $ACL;
     }
     
@@ -495,11 +516,17 @@ class OeawFunctions {
      * @return type
      */
     public function getRules(string $uri, \acdhOeaw\fedora\FedoraResource $fedoraRes): array{
+        //$time_start = microtime(true); 
         $result = array();
         
         $aclObj = $fedoraRes->getAcl();
         $result = $aclObj->getRules();
         
+        /*
+        $time_end = microtime(true);
+        $execution_time = number_format(($time_end - $time_start), 2);
+        echo '<b>Total Execution Time: of the getRules</b> '.$execution_time.' seconds<br>';
+        */
         return $result;
     }
     
@@ -550,7 +577,7 @@ class OeawFunctions {
      * @return array $widget Returns the cite-this widget as HTML
      */
     public function createCiteThisWidget(array $resourceData): array {
-
+        //$time_start = microtime(true);
         //MLA Format
         $widget["MLA"] = ["creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "createdDate" => ""];
 
@@ -597,6 +624,11 @@ class OeawFunctions {
 
         $widget["MLA"]["string"] = '<span>'.$widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["createdDate"].'.</span>';
 
+        /*
+        $time_end = microtime(true);
+        $execution_time = number_format(($time_end - $time_start), 2);
+        echo '<b>Total Execution Time: of the citewidget</b> '.$execution_time.' seconds<br>';
+        */
         return $widget;
 	}
 
@@ -1035,8 +1067,10 @@ class OeawFunctions {
      * @return array
      */
     public function createDetailViewTable(\EasyRdf\Resource $data): array{
-        $result = array();
         
+        //$time_start = microtime(true); 
+        
+        $result = array();
         $OeawStorage = new OeawStorage();
         
         if(empty($data)){
@@ -1049,6 +1083,7 @@ class OeawFunctions {
         //get the resources and remove fedora properties
         $properties = array();
         $properties = $data->propertyUris();
+        
         foreach ($properties as $key => $val){
             if (strpos($val, 'fedora.info') !== false) {
                 unset($properties[$key]);
@@ -1059,7 +1094,9 @@ class OeawFunctions {
         
         //it will be the function for the cache
         //$acdhProp = $OeawStorage->getPropDataToExpertTable($properties);
-
+        
+        $searchTitle = array();
+        
         foreach ($properties as $p){
             $propertyShortcut = $this->createPrefixesFromString($p);
             
@@ -1068,11 +1105,13 @@ class OeawFunctions {
                 if(get_class($val) == "EasyRdf\Resource" ){
                     $classUri = $val->getUri();
                     $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
+                    $result['table'][$propertyShortcut][$key]['title'] = $classUri;
                     
                     //we will skip the title for the resource identifier
                     if($p != RC::idProp() || ( ($p == RC::idProp()) && (strpos($classUri, 'id.acdh.oeaw.ac.at') == false) ) ){
-                        $title = $OeawStorage->getTitleByIdentifier($classUri);
+                        $searchTitle[] = $classUri;
                     }
+                    /*
                     //add the title to the resources
                     if(count($title) > 0){
                         if($p == \Drupal\oeaw\ConnData::$rdfType){
@@ -1085,7 +1124,7 @@ class OeawFunctions {
                             $result['table'][$propertyShortcut][$key]['insideUri'] = base64_encode($title[0]['uri']);
                         }
                     }
-                    
+                    */
                     //if the acdhImage is available or the ebucore MIME
                     if($p == \Drupal\oeaw\ConnData::$rdfType){
                         if($val == \Drupal\oeaw\ConnData::$acdhImage){
@@ -1122,11 +1161,52 @@ class OeawFunctions {
             }
         }
         
+
+        //get the not literal propertys TITLE
+        $existinTitles = array();
+        $existinTitles = $OeawStorage->getTitlyByIdentifierArray($searchTitle);
+        
+        
+        
+        foreach($existinTitles as $v ){
+            $keys = array();
+            if($this->in_array_r($v['identifier'], $result['table'], false, $keys) == true){
+                foreach($keys as $key => $val){
+                    if($result['table'][$key]){
+                        foreach($result['table'][$key] as $pKey => $pVal){
+                            if($pVal['title'] == $v['identifier']){
+                                $result['table'][$key][$pKey]['title'] = $v['title'];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /*
+        $time_end = microtime(true);
+        $execution_time = ($time_end - $time_start);
+        echo '<b>Total Execution Time: of the createDetailViewTable</b> '.$execution_time.' seconds<br>';
+        */
         $result['resourceTitle'] = $resourceTitle;
         $result['uri'] = $resourceUri;
         $result['insideUri'] = base64_encode($resourceUri);
         
         return $result;
+    }
+    
+    function in_array_r(string $needle, array $haystack, bool $strict = false, array &$keys): bool {
+        
+        foreach ($haystack as $key => $item) {
+            if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && $this->in_array_r($needle, $item, $strict, $keys))) {
+                //we checking only the propertys
+                if (strpos($key, ':') !== false) {
+                    $keys[$key] = $needle;
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
     
     /**
