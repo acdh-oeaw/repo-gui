@@ -301,6 +301,23 @@
             {% endif %}
 	</div>	
 
+        
+    {% if extras['dissServ'] %}
+        <div class="res-property">
+        	<i class="material-icons">&#xE89F;</i>	
+                {% for key, ds in extras['dissServ'] %}
+                    <div class="res-act-button">                        
+                        {% if key == "raw" %}    
+                            <a href="{{ ds }}?format={{ key }}" ><span>DOWNLOAD BINARY</span></a>
+                        {% else %}
+                            <a href="{{ ds }}?format={{ key }}" ><span>{{ key|upper }} Access</span></a>
+                        {% endif %}
+                    </div>               
+                {% endfor %}  
+        </div>                       
+    {% endif %}    	
+    
+        
     
     {% if result['table']['acdh:hasDescription'][0] %}
         <h3 class="single-res-heading">Summary</h3>    
