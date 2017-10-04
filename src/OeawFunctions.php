@@ -1089,6 +1089,7 @@ class OeawFunctions {
                     $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
                     $result['table'][$propertyShortcut][$key]['title'] = $classUri;
                     
+                    
                     //we will skip the title for the resource identifier
                     if($p != RC::idProp() ){
                         //$title = $OeawStorage->getTitleByIdentifier($classUri);
