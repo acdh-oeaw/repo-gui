@@ -1089,12 +1089,12 @@ class OeawFunctions {
                     $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
                     $result['table'][$propertyShortcut][$key]['title'] = $classUri;
                     
-                    
                     //we will skip the title for the resource identifier
                     if($p != RC::idProp() ){
                         //$title = $OeawStorage->getTitleByIdentifier($classUri);
                         $searchTitle[] = $classUri;
                     }
+                    
                     /*
                     //add the title to the resources
                     if(count($title) > 0){
@@ -1150,7 +1150,7 @@ class OeawFunctions {
         //get the not literal propertys TITLE
         $existinTitles = array();
         $existinTitles = $OeawStorage->getTitlyByIdentifierArray($searchTitle);
-      
+
         $resKeys = array_keys($result['table']);
         //change the titles
         foreach($resKeys as $k){
@@ -1163,6 +1163,9 @@ class OeawFunctions {
                                 $result['acdh_'.$k]['insideUri'] = base64_encode($val['uri']);
                             }
                             $result['table'][$k][$key]['title'] = $t['title'];
+                        }
+                        if($t['uri'] != $val['uri']){
+                            $result['table'][$k][$key]['insideUri'] = base64_encode($t['uri']);
                         }
                     }
                 }

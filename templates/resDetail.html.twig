@@ -207,6 +207,24 @@
                 </div>
             {% endif%}
             
+            {% if result['table']['acdh:hasRelatedProject'] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE7FE;</i>
+                    Related project(s): 
+                    {% for value in result['table']['acdh:hasRelatedProject'] %}
+                        <span class="res-contributor">                            
+                            {% if value['insideUri'] %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>, 
+                            {% else %}
+                            <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a> , 
+                            {% endif%}                            
+                        </span>
+                    {% endfor %}
+                    </ul>
+                </div>                
+            {% endif%}
+            
             {% if result['table']['rdfs:seeAlso'] %}                
                 <div class="res-property">
                     <i class="material-icons">&#xE02F;</i>
@@ -261,7 +279,7 @@
                         <td>
                             {% for val in value %}
                                 {% if (val['title']) and (val['insideUri']) %}
-                                    <a href="{{ val['insideUri'] }}">{{ val['title'] }} {{ val['uri'] }}</a> <br>
+                                    <a href="{{ val['insideUri'] }}">{{ val['title'] }} </a> <br>
                                 {% elseif val['title'] %}
                                     <a href="{{ val['uri'] }}">{{ val['title'] }}</a> <br>
                                 {% elseif val['uri'] %}

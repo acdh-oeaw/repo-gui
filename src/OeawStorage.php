@@ -115,7 +115,7 @@ class OeawStorage {
         try {
             $q = new Query();
             $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
-            $q->addParameter((new HasValue(self::$sparqlPref["rdfType"], 'https://vocabs.acdh.oeaw.ac.at/#Collection' ))->setSubVar('?uri'));
+            $q->addParameter((new HasValue(\Drupal\oeaw\ConnData::$rdfType, 'https://vocabs.acdh.oeaw.ac.at/#Collection' ))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreatedDate, '?creationdate'), true);
@@ -530,47 +530,7 @@ class OeawStorage {
             $rdfType = self::$sparqlPref["rdfType"];
             $dcID = RC::idProp();            
             $owlClass = self::$sparqlPref["owlClass"];
-            
-            $q = new Query();            
-            $q->setSelect(array('?id', '?collection'));            
-            
-            $q->addParameter((new HasValue($rdfType, $owlClass))->setSubVar('?class'));
-            $q->addParameter(new HasTriple('?class', $dcID, '?id'));
-            
-            $q2 = new Query();
-            $q2->setJoinClause('optional');            
-            
-            $q->addSubquery($q2);
-            
-            /*
-            
-            $q3 = new Query();            
-            $q3->addParameter((new HasValue($rdfsSubClass, 'https://vocabs.acdh.oeaw.ac.at/#Collection'))->setSubVar('?class'));            
-            $q2->addSubquery($q3);
-            
-            $q4 = new Query();
-            $q4->setJoinClause('union');
-            $q4->addParameter((new HasValue($rdfsSubClass, 'https://vocabs.acdh.oeaw.ac.at/#DigitalCollection'))->setSubVar('?class'));
-            $q2->addSubquery($q4);
-            
-            $q5 = new Query();
-            $q5->setJoinClause('union');
-            $q5->addParameter((new HasValue($dcID, 'https://vocabs.acdh.oeaw.ac.at/#Collection'))->setSubVar('?class'));
-            $q2->addSubquery($q5);
-            
-            
-            $q6 = new Query();
-            $q6->setJoinClause('union');
-            $q6->addParameter((new HasValue($dcID, 'https://vocabs.acdh.oeaw.ac.at/#DigitalCollection'))->setSubVar('?class'));
-            $q2->addSubquery($q6);
-            //VALUES ?collection {true}
-            $q2->addParameter((new HasValue('?collection' '{true}'))->setSubVar('VALUES'));;
-            $query = $q->getQuery();
-            
-             * 
-             * 
-        */
-
+         
             $query=
                 self::$prefixes . ' 
                     SELECT 
@@ -677,25 +637,7 @@ class OeawStorage {
             
             $q->setOrderBy(array('?id'));
             $query = $q->getQuery();
-         
-            //HasTriple('?class', array('(', 'rdfs:subClassOf', '/', '^', 'dct:identifier', ')', '*'), 'acdh:DigitalCollection')
-
-/*
-            $query = self::$prefixes . ' 
-                    SELECT 
-                        ?id ?label 
-                    WHERE {
-                        {
-                            { <' . $classURI . '> dct:identifier / ^rdfs:domain ?property . }
-                            UNION
-                            { <' . $classURI . '> rdfs:subClassOf / (^dct:identifier / rdfs:subClassOf)* / ^rdfs:domain ?property . }
-                        }
-                        ?property dct:identifier ?id
-                        OPTIONAL {
-                            ?property dct:label ?label .
-                        }
-                    } Order BY (?id)           
-                ';*/
+      
             $result = $this->fedora->runSparql($query);
             $fields = $result->getFields(); 
             $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
@@ -1411,6 +1353,8 @@ class OeawStorage {
         }  
     }
     
+    
+    
     /**
      * 
      * Get the titles for the detail view property values
@@ -1437,7 +1381,7 @@ class OeawStorage {
                 }
                 $i++;
             }   
-            $select = 'SELECT DISTINCT ?title ?identifier WHERE { ';
+            $select = 'SELECT DISTINCT ?title ?identifier ?uri WHERE { ';
             $queryStr = $select.$where." } ";
             
             try {
