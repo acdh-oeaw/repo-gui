@@ -72,7 +72,7 @@ class FrontendController extends ControllerBase  {
         //count all root resource for the pagination
         $countRes = $this->OeawStorage->getRootFromDB(0,0,true);
         $countRes = $countRes[0]["count"];
-                
+        
         if($countRes == 0){
             $errorMSG = drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
         }
@@ -84,7 +84,7 @@ class FrontendController extends ControllerBase  {
             if($page < 0){ $page = 0; }
         }
         
-        $page = $page - 1;
+        //$page = $page - 1;
         
         $result = $this->OeawStorage->getRootFromDB($limit, $page, false, $order);
         
@@ -487,7 +487,7 @@ class FrontendController extends ControllerBase  {
             $results = array();
             //get the root table data
             $results = $this->OeawFunctions->createDetailViewTable($rootMeta);
-                        
+            
             if(count($results) == 0){                
                 $msg = base64_encode("The resource has no metadata!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -574,7 +574,7 @@ class FrontendController extends ControllerBase  {
         if(count($dissServices) > 0){
             $extras['dissServ'] = $dissServices;
         }
-       
+        
         // Pass fedora uri so it can be linked in the template
         $extras["fedoraURI"] = $uri;
         $extras["personChild"] = $specialType;
