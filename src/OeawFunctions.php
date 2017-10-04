@@ -1160,11 +1160,9 @@ class OeawFunctions {
                         if($t['identifier'] == $val['title']){
                             if($k == "rdf:type"){
                                 $result['acdh_'.$k]['title'] = $t['title'];
-                                $result['acdh_'.$k]['insideUri'] = base64_encode($val['uri']);
+                                $result['acdh_'.$k]['insideUri'] = base64_encode($t['uri']);
                             }
                             $result['table'][$k][$key]['title'] = $t['title'];
-                        }
-                        if($t['uri'] != $val['uri']){
                             $result['table'][$k][$key]['insideUri'] = base64_encode($t['uri']);
                         }
                     }
