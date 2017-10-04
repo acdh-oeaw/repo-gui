@@ -35,6 +35,7 @@
             {% if result['acdh_rdf:type'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE54E;</i>
+                    Type: 
                     <span class="res-rdftype"><a href="{{ url('<front>') }}oeaw_complexsearch/&type={{ result['acdh_rdf:type']['title'] }}/10">{{ result['acdh_rdf:type']['title'] }}</a></span>
                 </div>
             {% endif%}		
@@ -133,6 +134,14 @@
                     <i class="material-icons">&#xE8F4;</i>
                     Access Restriction: 
                     <span class="res-binarySize">{{ result['table']['acdh:hasAccessRestriction'][0] }}</span>
+                </div>
+            {% endif%}
+            
+            {%  if result['table']['acdh:hasSchema'][0] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE8F4;</i>
+                    Schema: 
+                    <span class="res-binarySize">{{ result['table']['acdh:hasSchema'][0] }}</span>
                 </div>
             {% endif%}
 
