@@ -84,6 +84,8 @@ class FrontendController extends ControllerBase  {
             if($page < 0){ $page = 0; }
         }
         
+        $page = $page - 1;
+        
         $result = $this->OeawStorage->getRootFromDB($limit, $page, false, $order);
         
         $uid = \Drupal::currentUser()->id();
