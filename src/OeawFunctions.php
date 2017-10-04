@@ -285,10 +285,10 @@ class OeawFunctions {
 		//Let's process the order argument
 		switch ($order) {
 		    case "titleasc":
-		        $order = "ASC(?title)";
+		        $order = "ASC( fn:lower-case(?title))";
 		        break;
 		    case "titledesc":
-		        $order = "DESC(?title)";
+		        $order = "DESC( fn:lower-case(?title))";
 		        break;
 		    case "dateasc":
 		        $order = "ASC(?createdDate)";
@@ -297,11 +297,12 @@ class OeawFunctions {
 		        $order = "DESC(?createdDate)";
 		        break;
 		    default:
-		        $order = "ASC(?title)";
+		        $order = "ASC( fn:lower-case(?title))";
 		}
 
         $wordsQuery = "";
         $query = "";
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         if($count == true){
             $select = "SELECT (COUNT(?uri) as ?count) ";
         }else {
@@ -387,7 +388,7 @@ class OeawFunctions {
         OPTIONAL{ ?uri <". \Drupal\oeaw\ConnData::$acdhImage."> ?hasTitleImage .}                
         OPTIONAL {?uri <". \Drupal\oeaw\ConnData::$acdhHasCreatedDate."> ?createdDate . }";
         
-        $query = $select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?createdDate ORDER BY " . $order;
+        $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?createdDate ORDER BY " . $order;
         if($limit){
             $query .= " LIMIT ".$limit." ";
             
