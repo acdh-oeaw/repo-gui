@@ -1144,21 +1144,19 @@ class OeawFunctions {
             }
         }
         
+      
         //get the not literal propertys TITLE
         $existinTitles = array();
         $existinTitles = $OeawStorage->getTitlyByIdentifierArray($searchTitle);
-         
-         
-         
-        foreach($existinTitles as $v ){
-            $keys = array();
-            if($this->in_array_r($v['identifier'], $result['table'], false, $keys) == true){
-                foreach($keys as $key => $val){
-                    if($result['table'][$key]){
-                        foreach($result['table'][$key] as $pKey => $pVal){
-                            if($pVal['title'] == $v['identifier']){
-                                $result['table'][$key][$pKey]['title'] = $v['title'];
-                            }
+      
+        $resKeys = array_keys($result['table']);
+        //change the titles
+        foreach($resKeys as $k){
+            foreach($result['table'][$k] as $key => $val){
+                if(is_array($val)){
+                    foreach($existinTitles as $t){
+                        if($t['identifier'] == $val['title']){
+                            $result['table'][$k][$key]['title'] = $t['title'];
                         }
                     }
                 }
@@ -1491,6 +1489,7 @@ class OeawFunctions {
         return $bytes;
     }
 
+    
     function in_array_r(string $needle, array $haystack, bool $strict = false, array &$keys): bool {
         foreach ($haystack as $key => $item) {
             if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && $this->in_array_r($needle, $item, $strict, $keys))) {

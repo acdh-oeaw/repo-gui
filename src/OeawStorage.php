@@ -1061,7 +1061,7 @@ class OeawStorage {
         $where .= ')';
         $groupBy = ' }  GROUP BY ?uri ?title ?description ORDER BY ASC( fn:lower-case(?title))';
         
-        $queryStr = $select.$where.$groupBy.$limitStr;       
+        $queryStr = $select.$where.$groupBy.$limitStr;
         
         try {
             $q = new SimpleQuery($queryStr);
@@ -1437,7 +1437,7 @@ class OeawStorage {
             }   
             $select = 'SELECT DISTINCT ?title ?identifier WHERE { ';
             $queryStr = $select.$where." } ";
-             
+            
             try {
                 $q = new SimpleQuery($queryStr);
                 $query = $q->getQuery();
