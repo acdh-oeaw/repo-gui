@@ -8,10 +8,14 @@
                 <i class="material-icons">&#xE896;</i>
                 <span>Switch to Expert-View</span>
         </div>
+        <div class="res-act-button res-act-button-copy-url" id="res-act-button-copy-url">
+                <i class="material-icons">&#xE157;</i>
+                <span href="javascript://" id="copy-url-tooltip" data-toggle="copy-url-tooltip"  data-placement="bottom" data-html="true" data-trigger="manual" title="Copied to Clipboard!">Copy Resource Link</span>
+        </div>
     </h3> 
     
     <div class="single-res-overview single-res-overview-basic">
-        {% if result['image'] %}<div class="res-inside-wrap col-lg-6 ">{% endif%}
+        {% if result['image'] %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
             
             {%  if result['table']['acdh:hasTitle'] %}
                 <div class="res-property">
@@ -40,10 +44,10 @@
                     {% for value in result['table']['acdh:hasAuthor'] %}
                         <span class="res-author">                            
                             {% if value['insideUri'] %}
-                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a> ;
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>, 
                             {% else %}
                             <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a> ;
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>, 
                             {% endif%}                            
                         </span>
                     {% endfor %}
@@ -56,10 +60,10 @@
                     {% for value in result['table']['acdh:hasContributor'] %}
                         <span class="res-contributor">                            
                             {% if value['insideUri'] %}
-                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a> ;
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>, 
                             {% else %}
                             <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>  ;
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a> , 
                             {% endif%}                            
                         </span>
                     {% endfor %}
@@ -67,7 +71,6 @@
                 </div>                
             {% endif%}	
 
-            
             {% if result['table']['acdh:hasCreatedDate'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>	
@@ -75,7 +78,6 @@
                 </div>
             {% endif%}	           	
 
-            
             {% if result['table']['acdh:isPartOf'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE335;</i>
@@ -83,22 +85,46 @@
                         <span class="res-contributor">
                         {% for value in result['table']['acdh:isPartOf'] %}
                             {% if value['insideUri'] %}
-                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a> ;
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>, 
                             {% else %}
                                 <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->                                
-                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a> ;
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>, 
                             {% endif%}                    
                         {% endfor %}
                         </span>
                     </span>
                 </div>
             {% endif%}
-            
-            
+
+            {%  if result['table']['acdh:hasLicence'][0] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE8F4;</i>
+                    <span class="res-binarySize">{{ result['table']['acdh:hasLicence'][0] }}</span>
+                </div>
+            {% endif%}
+
+             {% if result['table']['acdh:hasLocationURL'] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE55C;</i>
+                    <span class="res-locationUrl">Location:
+                    {% for value in result['table']['acdh:hasLocationURL'] %}
+                        <span class="res-locationUrl">
+                        {% if value['insideUri'] %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% else %}
+                            <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% endif%}
+                        </span>
+                    {% endfor %}
+                    </span>
+                </div>
+            {% endif%}
+
             {% if result['table']['acdh:hasPid'] %}
                 <div class="res-property">
-                    <i class="material-icons"></i>
-                    <span class="res-pid">PiD:
+                    <i class="material-icons">&#xE90D;</i>
+                    <span class="res-pid">PID:
                     {% for value in result['table']['acdh:hasPid'] %}
                         <span class="res-pid">                            
                         {% if value['insideUri'] %}
@@ -115,33 +141,15 @@
             
             {% if result['table']['rdfs:seeAlso'] %}                
                 <div class="res-property">
-                    <i class="material-icons"></i>
+                    <i class="material-icons">&#xE02F;</i>
                     <span class="res-seeAlso">See Also:
                     {% for value in result['table']['rdfs:seeAlso'] %}
                         <span class="res-seeAlso">                            
                         {% if value['insideUri'] %}
-                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a> ;
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>, 
                         {% else %}
                             <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a> ;
-                        {% endif%}
-                        </span>
-                    {% endfor %}
-                    </span>
-                </div>
-            {% endif%}
-            
-             {% if result['table']['acdh:hasLocationURL'] %}
-                <div class="res-property">
-                    <i class="material-icons"></i>
-                    <span class="res-locationUrl">Location Url:
-                    {% for value in result['table']['acdh:hasLocationURL'] %}
-                        <span class="res-locationUrl">
-                        {% if value['insideUri'] %}
-                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                        {% else %}
-                            <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>, 
                         {% endif%}
                         </span>
                     {% endfor %}
@@ -152,7 +160,7 @@
         {% if result['image'] %}</div>{% endif%}
 		
         {% if result['image'] %}	
-            <div class="res-inside-wrap col-lg-6 ">	
+            <div class="res-inside-wrap col-lg-4 ">	
                 <div class="single-res-thumb">
                     <a data-lightbox="{{ result['resourceTitle'] }}" href="{{ result['image'] }}"><img src="{{ result['image'] }}"></a>
                 </div>
