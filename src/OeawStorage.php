@@ -122,8 +122,10 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhImage, '?hasTitleImage'), true);
-            $q->addParameter(new HasTriple('?uri', self::$sparqlPref["rdfType"], '?rdfType'));
-            
+            if($count == false){
+		        $q->addParameter(new HasTriple('?uri', self::$sparqlPref["rdfType"], '?rdfType'));    
+            }
+
             $q2 = new Query();
             $q2->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?y'));
             $q2->setJoinClause('filter not exists');
