@@ -1076,6 +1076,8 @@ class OeawFunctions {
         //it will be the function for the cache
         //$acdhProp = $OeawStorage->getPropDataToExpertTable($properties);
 
+        $searchTitle = array();
+        
         foreach ($properties as $p){
             $propertyShortcut = $this->createPrefixesFromString($p);
             
@@ -1084,11 +1086,14 @@ class OeawFunctions {
                 if(get_class($val) == "EasyRdf\Resource" ){
                     $classUri = $val->getUri();
                     $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
+                    $result['table'][$propertyShortcut][$key]['title'] = $classUri;
                     
                     //we will skip the title for the resource identifier
                     if($p != RC::idProp() || ( ($p == RC::idProp()) && (strpos($classUri, 'id.acdh.oeaw.ac.at') == false) ) ){
-                        $title = $OeawStorage->getTitleByIdentifier($classUri);
+                        //$title = $OeawStorage->getTitleByIdentifier($classUri);
+                        $searchTitle[] = $classUri;
                     }
+                    /*
                     //add the title to the resources
                     if(count($title) > 0){
                         if($p == \Drupal\oeaw\ConnData::$rdfType){
@@ -1101,7 +1106,7 @@ class OeawFunctions {
                             $result['table'][$propertyShortcut][$key]['insideUri'] = base64_encode($title[0]['uri']);
                         }
                     }
-                    
+                    */
                     //if the acdhImage is available or the ebucore MIME
                     if($p == \Drupal\oeaw\ConnData::$rdfType){
                         if($val == \Drupal\oeaw\ConnData::$acdhImage){
@@ -1133,6 +1138,27 @@ class OeawFunctions {
                     if( $p == \Drupal\oeaw\ConnData::$hasBinarySize ) {
                         if($val->getValue()){
                             $result['table'][$propertyShortcut][$key] = $this->formatSizeUnits($val->getValue());
+                        }
+                    }
+                }
+            }
+        }
+        
+        //get the not literal propertys TITLE
+        $existinTitles = array();
+        $existinTitles = $OeawStorage->getTitlyByIdentifierArray($searchTitle);
+         
+         
+         
+        foreach($existinTitles as $v ){
+            $keys = array();
+            if($this->in_array_r($v['identifier'], $result['table'], false, $keys) == true){
+                foreach($keys as $key => $val){
+                    if($result['table'][$key]){
+                        foreach($result['table'][$key] as $pKey => $pVal){
+                            if($pVal['title'] == $v['identifier']){
+                                $result['table'][$key][$pKey]['title'] = $v['title'];
+                            }
                         }
                     }
                 }
@@ -1465,6 +1491,19 @@ class OeawFunctions {
         return $bytes;
     }
 
+    function in_array_r(string $needle, array $haystack, bool $strict = false, array &$keys): bool {
+        foreach ($haystack as $key => $item) {
+            if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && $this->in_array_r($needle, $item, $strict, $keys))) {
+                //we checking only the propertys
+                if (strpos($key, ':') !== false) {
+                    $keys[$key] = $needle;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    
     
     
     /**

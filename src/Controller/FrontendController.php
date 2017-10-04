@@ -85,7 +85,7 @@ class FrontendController extends ControllerBase  {
         }
         
         $result = $this->OeawStorage->getRootFromDB($limit, $page, false, $order);
-
+        
         $uid = \Drupal::currentUser()->id();
 
         if(count($result) > 0){
@@ -621,114 +621,114 @@ class FrontendController extends ControllerBase  {
      * @return array
      */
     public function oeaw_complexsearch(string $metavalue, string $limit = "10", string $page = "1", string $order = "titleasc" ):array {
+        drupal_get_messages('error', TRUE);
+        
+        //If the discover page calls the root resources forward to the root_list method
+        if ($metavalue == 'root') {
 
-		//If the discover page calls the root resources forward to the root_list method
-		if ($metavalue == 'root') {
+            //Get the cookies if they are already set
+            $limitCookie = $_COOKIE["resultsPerPage"];
+            $orderCookie = $_COOKIE["resultsOrder"];
+            //If a cookie setting exists and the query is coming without a specific parameter
+            if (!empty($pageCookie) && empty($limit)) {
+                    $limit = $limitCookie;
+            }
+            if (!empty($orderCookie) && empty($order)) {
+                    $order = $orderCookie;
+            }
+            return $this->roots_list($limit,$page,$order);
 
-			//Get the cookies if they are already set
-			$limitCookie = $_COOKIE["resultsPerPage"];
-			$orderCookie = $_COOKIE["resultsOrder"];
-			//If a cookie setting exists and the query is coming without a specific parameter
-			if (!empty($pageCookie) && empty($limit)) {
-				$limit = $limitCookie;
-			}
-			if (!empty($orderCookie) && empty($order)) {
-				$order = $orderCookie;
-			}
-			return $this->roots_list($limit,$page,$order);
+        } else {
 
-		} else {
-	
-	        drupal_get_messages('error', TRUE);
-	        
-	        $res = array();        
-	        $errorMSG = array();  
-	        //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
-	        $page = (int)$page - 1;
-	        $limit = (int)$limit;
-	        $result = array();
-	        $pagination = "";        
-	        //get the current page for the pagination        
-	        $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
-	
-	        $metavalue = urldecode($metavalue);
-	        $metavalue = str_replace(' ', '+', $metavalue);
-	        
-	        $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);        
-	      
-	        $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
-	        $count = $this->OeawStorage->runUserSparql($countSparql);
-	        $total = (int)count($count);
-	        //create data for the pagination
-	        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
-	        
-	        if ($pageData['totalPages'] > 1) {
-	            $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
-	        }
-	        $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
-	        
-	        $res = $this->OeawStorage->runUserSparql($sparql);
-	        
-	        if(count($res) > 0){
-	            $i = 0;
-	            foreach($res as $r){
-	                if( !empty($r['uri']) ){
-	                    $result[$i]['resUri'] = base64_encode($r['uri']);
-	                    $result[$i]['title'] = $r['title'];
-	                    
-	                    if($r['rdfTypes']){
-	                        $x = 0;
-	                        $types = explode(",", $r['rdfTypes']);
-	                        
-	                        foreach ($types as  $t){
-	                            if (strpos($t, RC::vocabsNmsp()) !== false) {
-	                                $result[$i]['rdfType']['typeName'] = str_replace(RC::vocabsNmsp(), "", $t);
-	                            }
-	                        }
-	                    }
-	                    if($r['description']){
-	                        $result[$i]['description'] = $r['description'];
-	                    }
-	                    if($r['createdDate']){
-	                        $result[$i]['createdDate'] = $r['createdDate'];
-	                    }
-	                    if($r['hasTitleImage']){
-	                        $imageUrl = $this->OeawStorage->getImageByIdentifier($r['hasTitleImage']);
-	                        if($imageUrl){
-	                            $result[$i]['image'] = $imageUrl;
-	                        }
-	                    }
-	                    $i++;
-	                }
-	            }
-	        }
-	       
-	        if (count($result) < 0){
-	            $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
-	        }
-	        $uid = \Drupal::currentUser()->id();
-	        
-	        $datatable['#theme'] = 'oeaw_complex_search_res';
-	        $datatable['#userid'] = $uid;
-	        $datatable['#pagination'] = $pagination;
-	        $datatable['#errorMSG'] = $errorMSG;
-	        $datatable['#result'] = $result;
-	        //$datatable['#searchedValues'] = $total . ' elements containing "' . $metavalue . '" have been found.';
-	        $datatable['#totalResultAmount'] = $total;
-			if (empty($pageData['page']) OR $pageData['page'] == 0) {
-			    $datatable['#currentPage'] = 1;
-			} else {
-			    $datatable['#currentPage'] = $pageData['page'];
-			}
-			if (empty($pageData['page'])) {
-			    $datatable['#totalPages'] = 1;
-			} else {
-			    $datatable['#totalPages'] = $pageData['totalPages'];
-			}
-	
-	        return $datatable;
+            $res = array();        
+            $errorMSG = array();  
+            //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
+            $page = (int)$page - 1;
+            $limit = (int)$limit;
+            $result = array();
+            $pagination = "";        
+            //get the current page for the pagination        
+            $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
 
-		}
+            $metavalue = urldecode($metavalue);
+            $metavalue = str_replace(' ', '+', $metavalue);
+
+            $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);        
+
+            $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
+            $count = $this->OeawStorage->runUserSparql($countSparql);
+            $total = (int)count($count);
+            //create data for the pagination
+            $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
+
+            if ($pageData['totalPages'] > 1) {
+                $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
+            }
+            $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
+
+            $res = $this->OeawStorage->runUserSparql($sparql);
+
+            if(count($res) > 0){
+                $i = 0;
+                foreach($res as $r){
+                    if( !empty($r['uri']) ){
+                        $result[$i]['resUri'] = base64_encode($r['uri']);
+                        $result[$i]['title'] = $r['title'];
+
+                        if($r['rdfTypes']){
+                            $x = 0;
+                            $types = explode(",", $r['rdfTypes']);
+
+                            foreach ($types as  $t){
+                                if (strpos($t, RC::vocabsNmsp()) !== false) {
+                                    $result[$i]['rdfType']['typeName'] = str_replace(RC::vocabsNmsp(), "", $t);
+                                }
+                            }
+                        }
+                        if($r['description']){
+                            $result[$i]['description'] = $r['description'];
+                        }
+                        if($r['createdDate']){
+                            $result[$i]['createdDate'] = $r['createdDate'];
+                        }
+                        if($r['hasTitleImage']){
+                            $imageUrl = $this->OeawStorage->getImageByIdentifier($r['hasTitleImage']);
+                            if($imageUrl){
+                                $result[$i]['image'] = $imageUrl;
+                            }
+                        }
+                        $i++;
+                    }
+                }
+            }
+
+            if (count($result) < 0){
+                $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
+            }
+            $uid = \Drupal::currentUser()->id();
+
+            $datatable['#theme'] = 'oeaw_complex_search_res';
+            $datatable['#userid'] = $uid;
+            $datatable['#pagination'] = $pagination;
+            $datatable['#errorMSG'] = $errorMSG;
+            $datatable['#result'] = $result;
+            //$datatable['#searchedValues'] = $total . ' elements containing "' . $metavalue . '" have been found.';
+            $datatable['#totalResultAmount'] = $total;
+            
+            if (empty($pageData['page']) OR $pageData['page'] == 0) {
+                $datatable['#currentPage'] = 1;
+            } else {
+                $datatable['#currentPage'] = $pageData['page'];
+            }
+            if (empty($pageData['page'])) {
+                $datatable['#totalPages'] = 1;
+            } else {
+                $datatable['#totalPages'] = $pageData['totalPages'];
+            }
+
+            return $datatable;
+
+        }
     }
     
      /**
