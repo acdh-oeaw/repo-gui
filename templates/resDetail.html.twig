@@ -97,10 +97,26 @@
             {% if result['table']['acdh:hasCreatedDate'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
-                    CreatedDate:
+                    Created Date:
                     <span class="res-creationdate">{{ result['table']['acdh:hasCreatedDate'][0] }}</span>
                 </div>
-            {% endif%}	           	
+            {% endif%}
+            
+            {% if result['table']['acdh:hasCreationStartDate'][0] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE8DF;</i>
+                    Creation Start Date:
+                    <span class="res-creationdate">{{ result['table']['acdh:hasCreationStartDate'][0] }}</span>
+                </div>
+            {% endif%}
+            
+            {% if result['table']['acdh:hasCreationEndDate'][0] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE8DF;</i>
+                    Creation End Date:
+                    <span class="res-creationdate">{{ result['table']['acdh:hasCreationEndDate'][0] }}</span>
+                </div>
+            {% endif%}
 
             {% if result['table']['acdh:isPartOf'] %}
                 <div class="res-property">
@@ -121,6 +137,14 @@
                 </div>
             {% endif%}
 
+            {% if result['table']['acdh:hasExtent'][0] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE8DF;</i>
+                    Extent:
+                    <span class="res-creationdate">{{ result['table']['acdh:hasExtent'][0] }}</span>
+                </div>
+            {% endif%}
+            
             {%  if result['table']['acdh:hasLicence'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8F4;</i>
