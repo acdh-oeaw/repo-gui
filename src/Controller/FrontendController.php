@@ -69,10 +69,11 @@ class FrontendController extends ControllerBase  {
         
         $limit = (int)$limit;
         $page = (int)$page;
+        $page = $page - 1;
+        
         //count all root resource for the pagination
         $countRes = $this->OeawStorage->getRootFromDB(0,0,true);
         $countRes = $countRes[0]["count"];
-                
         if($countRes == 0){
             $errorMSG = drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
         }
@@ -84,13 +85,11 @@ class FrontendController extends ControllerBase  {
             if($page < 0){ $page = 0; }
         }
         
-        $page = $page - 1;
-
         //get the current page for the pagination        
         $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
 
         //create data for the pagination
-        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $countRes);
+        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, 2);
 		$pagination = "";
         if ($pageData['totalPages'] > 1) {
             $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
