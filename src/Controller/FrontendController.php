@@ -89,7 +89,7 @@ class FrontendController extends ControllerBase  {
         $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
 
         //create data for the pagination
-        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, 2);
+        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $countRes);
 		$pagination = "";
         if ($pageData['totalPages'] > 1) {
             $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
