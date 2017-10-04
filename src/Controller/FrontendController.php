@@ -85,7 +85,17 @@ class FrontendController extends ControllerBase  {
         }
         
         $page = $page - 1;
-        
+
+        //get the current page for the pagination        
+        $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
+
+        //create data for the pagination
+        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $countRes);
+		$pagination = "";
+        if ($pageData['totalPages'] > 1) {
+            $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
+        }
+
         $result = $this->OeawStorage->getRootFromDB($limit, $page, false, $order);
         
         $uid = \Drupal::currentUser()->id();
@@ -146,6 +156,7 @@ class FrontendController extends ControllerBase  {
             $datatable['#result'] = $res;
             $datatable['#search'] = $search;
             $datatable['#header'] = $header;
+            $datatable['#pagination'] = $pagination;
             //$datatable['#searchedValues'] = $i . ' top-level elements have been found.';
             $datatable['#totalResultAmount'] = $i;
 			if (empty($pageData['page']) OR $pageData['page'] == 0) {
