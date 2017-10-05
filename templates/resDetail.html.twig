@@ -400,9 +400,15 @@
         <div class="res-property">
         	<i class="material-icons">&#xE89F;</i>	
                 {% for key, ds in extras['dissServ'] %}
-                    <div class="res-act-button">                        
+                    <div class="res-act-button">
+                        {% if result['acdh_rdf:type']['title'] == "Resource" %}
+                             {% set rawTitle = "DOWNLOAD BINARY"%}
+                        {% else %}
+                            {% set rawTitle = "Raw Access"%}
+                        {% endif %}
+                        
                         {% if key == "raw" %}    
-                            <a href="{{ ds }}?format={{ key }}" ><span>DOWNLOAD BINARY</span></a>
+                            <a href="{{ ds }}?format={{ key }}" ><span>{{ rawTitle }}</span></a>
                         {% else %}
                             <a href="{{ ds }}?format={{ key }}" ><span>{{ key|upper }} Access</span></a>
                         {% endif %}
