@@ -161,11 +161,24 @@
                 </div>
             {% endif%}
             
-            {%  if result['table']['acdh:hasSchema'][0] %}
+            {%  if result['table']['acdh:hasSchema'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8F4;</i>
-                    Schema: 
-                    <span class="res-binarySize">{{ result['table']['acdh:hasSchema'][0] }}</span>
+                    Schema:
+                    {% if result['table']['acdh:hasSchema'] is iterable %}
+                        {% for value in result['table']['acdh:hasSchema'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% else %}
+                                <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% endif%}
+                        {% endfor %}
+                    {% else %}
+                        <span class="res-binarySize">{{ result['table']['acdh:hasSchema'][0] }}</span>
+                    {% endif %}
                 </div>
             {% endif%}
 
