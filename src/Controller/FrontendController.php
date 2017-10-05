@@ -522,7 +522,7 @@ class FrontendController extends ControllerBase  {
                         if((isset($rt['uri'])) && 
                                 (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhPerson) !== false)){
                             $specialType = "person";
-                            $countData = $this->OeawStorage->getPersonViewData($uri, $limit, $page, true);
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, \Drupal\oeaw\ConnData::$contributor);
                         }
                         //is it a concept or not
                         else if((isset($rt['uri'])) && 
@@ -531,7 +531,15 @@ class FrontendController extends ControllerBase  {
                                 (strpos($rt['uri'], \Drupal\oeaw\ConnData::$skosConcept) !== false) ) 
                             ){
                             $specialType = "concept";
-                            $countData = $this->OeawStorage->getConceptViewData($uri, $limit, $page, true);
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, \Drupal\oeaw\ConnData::$skosNarrower);
+                        }
+                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhProject) !== false)) {
+                            $specialType = "project";
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, \Drupal\oeaw\ConnData::$hasRelatedProject);
+                        }
+                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhInstitute) !== false)) {
+                            $specialType = "institute";
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, \Drupal\oeaw\ConnData::$hasMember);
                         }else {
                             $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
                         }
@@ -548,14 +556,22 @@ class FrontendController extends ControllerBase  {
                     $results['pagination'] =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $pagelimit);
                 }
                 
-                //if we have acdh has identifier then we will check the children data too
-                 if($specialType == "person"){
-                    $childrenData = $this->OeawStorage->getPersonViewData($uri, $pagelimit, $pageData['end']);
-                }elseif($specialType == "concept"){
-                    $childrenData = $this->OeawStorage->getConceptViewData($uri, $pagelimit, $pageData['end']);
-                }else {
-                    $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
-                }
+                switch ($specialType) {
+                    case "person":
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, \Drupal\oeaw\ConnData::$contributor);
+                        break;
+                    case "concept":
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, \Drupal\oeaw\ConnData::$skosNarrower);
+                        break;
+                    case "project":
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, \Drupal\oeaw\ConnData::$hasRelatedProject);
+                        break;
+                    case "institute":
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, \Drupal\oeaw\ConnData::$hasMember);
+                        break;
+                    default:
+                        $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
+                }       
                 
                 if(count($childrenData) > 0){
                     $childResult = $this->OeawFunctions->createChildrenViewData($childrenData);

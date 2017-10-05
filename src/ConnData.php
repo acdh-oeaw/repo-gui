@@ -51,6 +51,8 @@ class ConnData
     public static $hasFirstName = "https://vocabs.acdh.oeaw.ac.at/#hasFirstName";
     public static $acdhImage = "https://vocabs.acdh.oeaw.ac.at/#hasTitleImage";
     public static $hasBinarySize = "https://vocabs.acdh.oeaw.ac.at/#hasBinarySize";
+    public static $hasRelatedProject = "https://vocabs.acdh.oeaw.ac.at/#hasRelatedProject";
+    public static $hasMember = "https://vocabs.acdh.oeaw.ac.at/#hasMember";
     public static $ebucoreMime = "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType";
     public static $skosNarrower = "http://www.w3.org/2004/02/skos/core#narrower";
     public static $acdhHasCreatedDate = "https://vocabs.acdh.oeaw.ac.at/#hasCreatedDate";
