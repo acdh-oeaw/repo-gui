@@ -38,7 +38,7 @@ class ComplexSearchForm extends FormBase
         
         //$this->createTypeData();
         
-        $resData["title"] = "Type of Resource";
+        $resData["title"] = "Type of Entity";
         $resData["type"] = "searchbox_types";
         $resFields = $this->OeawStorage->getACDHTypes(true);
         
