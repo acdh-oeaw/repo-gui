@@ -408,8 +408,8 @@ class OeawFunctions {
             if($page){
                 $query .= " OFFSET ".$page." ";
             }
-        }        
-
+        }
+        
         return $query;
     }
     
@@ -598,24 +598,42 @@ class OeawFunctions {
 
         //Get creator(s)
         if (isset($resourceData["table"]["acdh:hasCreator"])) {
-                foreach ($resourceData["table"]["acdh:hasCreator"] as $key => $creator) {			
-                        if ($key > 0) {
-                                $widget["MLA"]["creators"] .= ", " . $creator["title"];
-                        } else {
-                                $widget["MLA"]["creators"] = $creator["title"];
-                        }			
-                }
+            foreach ($resourceData["table"]["acdh:hasCreator"] as $key => $creator) {
+                if ($key > 0) {
+                    if(isset($creator["title"])){
+                        $widget["MLA"]["creators"] .= ", " . $creator["title"];
+                    }else{
+                        $widget["MLA"]["creators"] .= ", " . $creator;
+                    }
+
+                } else {
+                    if(isset($creator["title"])){
+                        $widget["MLA"]["creators"] = $creator["title"];
+                    }else{
+                        $widget["MLA"]["creators"] = $creator;
+                    }
+                }			
+            }
         }
 
         //Get contributor(s) 
         if (isset($resourceData["table"]["acdh:hasContributor"])) {
-                foreach ($resourceData["table"]["acdh:hasContributor"] as $key => $contributor) {			
-                        if ($key > 0) {
-                                $widget["MLA"]["contributors"] .= ", " . $contributor["title"];
-                        } else {
-                                $widget["MLA"]["contributors"] = $contributor["title"];
-                        }			
-                }
+            foreach ($resourceData["table"]["acdh:hasContributor"] as $key => $contributor) {			
+                if ($key > 0) {
+                    if(isset($contributor["title"])){
+                        $widget["MLA"]["contributors"] .= ", " . $contributor["title"];
+                    }else{
+                        $widget["MLA"]["contributors"] .= ", " . $contributor;
+                    }
+                } else {
+                    if(isset($contributor["title"])){
+                        $widget["MLA"]["contributors"] = $contributor["title"];
+                    }else{
+                        $widget["MLA"]["contributors"] = $contributor;
+                    }
+                        
+                }			
+            }
         }
 
         //Get title
@@ -986,82 +1004,6 @@ class OeawFunctions {
         return $result;
     }
     
-    /**
-     * 
-     * OLD FUNCTION
-     * 
-     * create the data for the children resource in the detail view
-     * 
-     * @param array $data
-     * @return array
-     */
-    public function createChildrenDetailTableData(array $data): array{
-        
-        if(empty($data)){
-            return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error');
-        }
-        
-        $i = 0;
-        $childResult = array();
-        $uid = \Drupal::currentUser()->id();
-        
-        foreach($data as $r){
-            $childResult[$i]['uri']= $r->getUri();                
-            $childResult[$i]['title']= $r->getMetadata()->get(\Drupal\oeaw\ConnData::$title);
-            $childResult[$i]['description'] = $r->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
-            $rdfType = $r->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
-            if (isset($rdfType) && $rdfType) {
-                foreach ($rdfType as $type) {
-                    if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
-                        $childResult[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];
-                        $childResult[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$childResult[$i]["rdfType"]);
-                        //Add a space between capital letters
-                        $childResult[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $childResult[$i]["rdfType"]);
-                        break;
-                    }
-                }  						
-            }
-                
-            $imageThumbnail = $r->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
-            $imageRdfType = $r->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
-
-            
-            //check the thumbnail
-            if($imageThumbnail && $imageThumbnail !== NULL){
-                //check the resource type
-                if(get_class($imageThumbnail) == "EasyRdf\Resource"){
-                    $imgUri = $imageThumbnail->getUri();
-                }
-                
-                if(!empty($imgUri)){
-                    $OeawStorage = new OeawStorage();
-                    $childThumb = $OeawStorage->getImage($imgUri);
-                    
-                    if(!empty($childThumb)){
-                        $childResult[$i]['thumbnail'] = $childThumb;
-                    }
-                }
-            }else if(!empty($imageRdfType)){
-                //if we dont have a thumbnail then maybe it is an IMAGE Resource
-                foreach($imageRdfType as $rdfVal){
-                    if($rdfVal->getUri() == \Drupal\oeaw\ConnData::$imageProperty){
-                        $childResult[$i]['thumbnail'] = $r->getUri();
-                    }
-                }
-            }
-            
-            $decUrlChild = $this->isURL($r->getUri(), "decode");
-
-            $childResult[$i]['detail'] = "/oeaw_detail/".$decUrlChild;
-            if($uid !== 0){
-                $childResult[$i]['edit'] = "/oeaw_edit/".$decUrlChild;
-                $childResult[$i]['delete'] = $decUrlChild;
-            } 
-            $i++;
-        }
-        return $childResult;
-    }
-
 
     /**
      * 
@@ -1202,130 +1144,6 @@ class OeawFunctions {
         return $result;
     }
     
-    /**
-     * 
-     * create table data for the root resource in the detail view.
-     * changes the uris to prefixes
-     * 
-     * @param string $uri
-     * @return array
-     */
-    public function createDetailTableData(string $uri): array{
-        
-        $OeawStorage = new OeawStorage();
-        
-        if(empty($uri)){
-            return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error');
-        }
-        
-        $results = array();
-        $resVal = "";
-        $rootMeta =  $this->makeMetaData($uri);
-        $specLbl = "";
-        if(count($rootMeta) > 0){
-            $i = 0;
-            
-            foreach($rootMeta->propertyUris($uri) as $v){
-                $x = 0;
-                foreach($rootMeta->all($v) as $item){
-            
-                    // if there is a thumbnail
-                    if($v == \Drupal\oeaw\ConnData::$imageThumbnail){
-                        if($item){                                                    
-                            $imgData = $OeawStorage->getImage($item);
-                            if($imgData){                                
-                                $results["image"] = $imgData;
-                            }
-                        }
-                    }else if($v == \Drupal\oeaw\ConnData::$rdfType){
-                        if($item == \Drupal\oeaw\ConnData::$imageProperty){
-                            $hasImage = $uri;
-                            $results["image"] = $uri;
-                        }
-                        
-                        //if we have an acdh namespace in the rdftype
-                        if (strpos($item, \Drupal\oeaw\ConnData::$acdhNamespace) !== false) {
-                            //then we need to check the special rdf types
-                            //f.e. Person, and so on
-                            $specLbl = $this->checkSpecialRdfType($item, $rootMeta);
-                            if($specLbl){
-                                $results["specialLabel"] = $specLbl;
-                            }
-                        }
-                    }                    
-                    // thumbnail end
-                    
-                    if(get_class($item) == "EasyRdf\Resource"){
-                        if($this->createPrefixesFromString($v) === false){
-                            return drupal_set_message(t('Error in function: createPrefixesFromString'), 'error');
-                        }
-                        
-                        //check the title based on the acdh id
-                        if($item->getUri()){                            
-                            $resVal = $item->getUri();
-                            //get the resource title
-                            $property = $this->createPrefixesFromString($v);
-                            $propertyRep = str_replace(":","_",$property);
-                            
-                            // we dont need the title for the identifiers
-                            if ($v != RC::idProp()) {                                
-                                if(count($this->getTitleByTheFedIdNameSpace($resVal)) > 0 ){
-                                    $resValTitle = "";
-                                    $resValTitle = $this->getTitleByTheFedIdNameSpace($resVal);
-
-                                    //we have a title for the resource
-                                    if($resValTitle){
-                                        $results[$propertyRep]["title"][$x] = $resValTitle[0]["title"];
-                                    }
-                                }
-                            }
-                            
-                            $results[$propertyRep]["property"] = $property;
-                            $results[$propertyRep]["value"][] = $resVal;
-                           
-                            //create the HASH URL for the table value
-                            if($this->getFedoraUrlHash($resVal)){
-                                $results[$propertyRep]["inside_url"][] = $this->getFedoraUrlHash($resVal);
-                            }
-                        }
-                        
-                        if($item->getUri() == \Drupal\oeaw\ConnData::$fedoraBinary){ $results["hasBinary"] = $uri; }
-
-                    }else if(get_class($item) == "EasyRdf\Literal"){
-                                                
-                        if($this->createPrefixesFromString($v) === false){
-                            return drupal_set_message(t('Error in function: createPrefixesFromString'), 'error');
-                        }
-                        
-                        if($v == \Drupal\oeaw\ConnData::$acdhQuery){
-                            $results['query'] = $item->__toString();
-                        }
-                        if($v == \Drupal\oeaw\ConnData::$acdhQueryType){
-                            $results['queryType'] = $item->__toString();
-                        }
-                        
-                        $property = $this->createPrefixesFromString($v);
-                        $propertyRep = str_replace(":","_",$property);
-                        $results[$propertyRep]["property"] = $property;
-                        $results[$propertyRep]["value"][] = $item->__toString();
-                    }else {
-                        if($this->createPrefixesFromString($v) === false){
-                            return drupal_set_message(t('Error in function: createPrefixesFromString'), 'error');
-                        }
-                        $property = $this->createPrefixesFromString($v);
-                        $propertyRep = str_replace(":","_",$property);
-                        $results[$propertyRep]["property"] = $property;
-                        $results[$propertyRep]["value"][] = $item;
-                    }
-                    $x++;
-                }
-                
-                $i++;                    
-            } 
-        }
-        
-        return $results;
-    }
     
     /**
      * 
