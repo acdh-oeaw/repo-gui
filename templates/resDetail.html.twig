@@ -36,7 +36,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE54E;</i>
                     Type: 
-                    <span class="res-rdftype"><a href="{{ url('<front>') }}oeaw_complexsearch/&type={{ result['acdh_rdf:type']['title'] }}/10">{{ result['acdh_rdf:type']['title'] }}</a></span>
+                    <span class="res-rdftype"><a href="{{ url('<front>') }}discover/&type={{ result['acdh_rdf:type']['title'] }}/10">{{ result['acdh_rdf:type']['title'] }}</a></span>
                 </div>
             {% endif%}		
 
@@ -494,7 +494,7 @@
 
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <a href="{{url('<front>') }}oeaw_complexsearch/&type={{ cItem.typeName }}/10">
+                <a href="{{url('<front>') }}discover/&type={{ cItem.typeName }}/10">
                         <span class="res-rdftype">{{ cItem.typeName }}</span>
                 </a>
             </div>

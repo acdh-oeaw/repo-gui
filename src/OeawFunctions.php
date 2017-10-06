@@ -61,14 +61,27 @@ class OeawFunctions {
     public function getResourceDissServ(string $uri): array {
         
         $result = array();
-        
-        $fedora = $this->initFedora();
-        $res = $fedora->getResourceByUri($uri); //or any other way to get the FedoraResource object
-        $id = $res->getId();
-        foreach($res->getDissServices() as $k => $v) {
-            $result[$k] = $id;            
+        if($uri){
+            $fedora = $this->initFedora();
+            try{
+                $res = $fedora->getResourceByUri($uri); //or any other way to get the FedoraResource object
+                $id = $res->getId();
+                foreach($res->getDissServices() as $k => $v) {
+                    $result[$k] = $id;            
+                }
+                return $result;
+            } catch (Exception $ex) {
+                $msg = base64_encode('Error in function: '.__FUNCTION__);
+                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+                $response->send();
+                return;
+            } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+                $msg = base64_encode('Error in function: '.__FUNCTION__);
+                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+                $response->send();
+                return;
+            }
         }
-        
         return $result;
     }
     
@@ -505,18 +518,30 @@ class OeawFunctions {
     
     /**
      * 
-     * Get the Fedora Resource Rules
+     * * Get the Fedora Resource Rules
      * If it is empty, then it is a private resource
      * 
      * @param string $uri
-     * @return type
+     * @param FedoraResource $fedoraRes
+     * @return array
      */
     public function getRules(string $uri, \acdhOeaw\fedora\FedoraResource $fedoraRes): array{
         $result = array();
         
-        $aclObj = $fedoraRes->getAcl();
-        $result = $aclObj->getRules();
-        
+        try{
+            $aclObj = $fedoraRes->getAcl();
+            $result = $aclObj->getRules();
+        }catch (Exception $ex) {
+            $msg = base64_encode('Error in function: '.__FUNCTION__);
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+            $msg = base64_encode('Error in function: '.__FUNCTION__);
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }
         return $result;
     }
     

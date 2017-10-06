@@ -79,7 +79,7 @@
                     <i class="material-icons">&#xE54E;</i>
                     {% for key,value in item.rdfType %}
                         {% if key == "typeName" %}
-                            <span class="res-rdfType"><a href="{{ url('<front>') }}oeaw_complexsearch/&type={{ value }}/10">{{ value }}</a></span>
+                            <span class="res-rdfType"><a href="{{ url('<front>') }}discover/&type={{ value }}/10">{{ value }}</a></span>
                         {% endif %}
                     {% endfor %}
                 </div>
