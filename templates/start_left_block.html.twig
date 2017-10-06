@@ -4,22 +4,62 @@
 	
     {% for item in result %}
         <div class="res-el col-block col-lg-12">
+		
+        {% if item.image %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
    
-            {% if item.specialLabel %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE873;</i>
-                    <span class="res-title"><a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">{{ item.specialLabel }}</a></span>
-                </div>
-            {% elseif item.title %}
+            {% if item.title %}
                 <div class="res-property">
                     <i class="material-icons">&#xE873;</i>
                     <span class="res-title"><a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">{{ item.title }}</a></span>
                 </div>
             {% endif%}    
 
+            {% if item.rdfType %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE54E;</i>
+                    Type: 
+                    {% for key,value in item.rdfType %}
+                        {% if key == "typeName" %}
+                            <span class="res-rdfType"><a href="{{ url('<front>') }}oeaw_complexsearch/&type={{ value }}/10">{{ value }}</a></span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif%}
+            
+            {% if item.isPartOfTitle %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE335;</i>	
+                    <span class="res-ispartof">Part of: <a href="{{ url('<front>') }}oeaw_detail/{{ item.isPartOfUri }}">{{ item.isPartOfTitle }}</a></span>
+                </div>
+            {% endif%}    
+            
+            {% if item.creationdate %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE8DF;</i>	
+                    <span class="res-creationdate">{{ item.creationdate }}</span>
+                </div>
+            {% endif%}
+            
+            {% if item.hasCreationStartDate %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE8DF;</i>	
+                    Creation start:
+                    <span class="res-creationdate">{{ item.hasCreationStartDate }}</span>
+                </div>
+            {% endif%}
+            
+            {% if item.hasCreationEndDate %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE8DF;</i>
+                    Creation end:
+                    <span class="res-creationdate">{{ item.hasCreationEndDate }}</span>
+                </div>
+            {% endif%}
+            
             {% if item.authors %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FB;</i>
+                    Author(s):
                     {% for author in item.authors %}  	
                     	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ author.authorUri }}">{{ author.authorName }}</a></span>
                     {% endfor %}	
@@ -29,36 +69,12 @@
             {% if item.contributors %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FE;</i>
+                    Contributor(s):
                     {% for contributor in item.contributors %}  	
                     	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ contributor.contributorUri }}">{{ contributor.contributorName }}</a></span>
                     {% endfor %}	
                 </div>
             {% endif%}
-
-            {% if item.rdfType %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE54E;</i>
-                    {% for key,value in item.rdfType %}
-                        {% if key == "typeName" %}
-                            <span class="res-rdfType"><a href="{{ url('<front>') }}oeaw_complexsearch/&type={{ value }}/10">{{ value }}</a></span>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            {% endif%}
-            
-            {% if item.creationdate %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE8DF;</i>	
-                    <span class="res-creationdate">{{ item.creationdate }}</span>
-                </div>
-            {% endif%}
-
-            {% if item.isPartOfTitle %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE335;</i>	
-                    <span class="res-ispartof">Part of: <a href="{{ url('<front>') }}oeaw_detail/{{ item.isPartOfUri }}">{{ item.isPartOfTitle }}</a></span>
-                </div>
-            {% endif%}            
 
             {% if item.description %}
                 <div class="res-property res-property-desc">
@@ -91,7 +107,15 @@
                 </div>
                 -->            	
             </div>           
-  
+            {% if item.image %}</div>{% endif%}
+
+            {% if item.image %}	
+                <div class="res-inside-wrap col-lg-4 ">	
+                    <div class="single-res-thumb">
+                        <a href="{{ item.image }}"><img src="{{ item.image }}"></a>
+                    </div>
+                </div>
+            {% endif%}   
             	                                        
         </div>
     {% endfor %} 

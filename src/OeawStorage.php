@@ -119,6 +119,8 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreatedDate, '?creationdate'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreationStartDate, '?hasCreationStartDate'), true);
+            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreationEndDate, '?hasCreationEndDate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhImage, '?hasTitleImage'), true);
@@ -132,9 +134,9 @@ class OeawStorage {
             $q->addSubquery($q2);    
       
             if($count == false){
-                $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image', '?hasTitleImage', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
+                $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
                 $q->setOrderBy(array($order));
-                $q->setGroupBy(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image', '?hasTitleImage'));
+                $q->setGroupBy(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate'));
                 $q->setLimit($limit);
                 $q->setOffset($offset); 
             }else {

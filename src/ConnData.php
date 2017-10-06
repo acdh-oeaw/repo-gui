@@ -56,6 +56,8 @@ class ConnData
     public static $ebucoreMime = "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType";
     public static $skosNarrower = "http://www.w3.org/2004/02/skos/core#narrower";
     public static $acdhHasCreatedDate = "https://vocabs.acdh.oeaw.ac.at/#hasCreatedDate";
+    public static $acdhHasCreationStartDate = "https://vocabs.acdh.oeaw.ac.at/#hasCreationStartDate";
+    public static $acdhHasCreationEndDate = "https://vocabs.acdh.oeaw.ac.at/#hasCreationEndDate";
     public static $title = "https://vocabs.acdh.oeaw.ac.at/#hasTitle";
     public static $description = "https://vocabs.acdh.oeaw.ac.at/#hasDescription";
     public static $hasDissService = "https://vocabs.acdh.oeaw.ac.at/#hasDissService";
