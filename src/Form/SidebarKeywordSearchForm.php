@@ -44,8 +44,8 @@ class SidebarKeywordSearchForm extends FormBase
         
         $rs = array();
         foreach($resFields as $val){            
-            $type = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type']);
-            $count = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type'])." (".$val['typeCount'].")";
+            $type = str_replace('https://vocabs.acdh.oeaw.ac.at/schema#', '', $val['type']);
+            $count = str_replace('https://vocabs.acdh.oeaw.ac.at/schema#', '', $val['type'])." (".$val['typeCount'].")";
             $rs[$type] = $count;
         }
         $resData["fields"] = $rs;

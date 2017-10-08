@@ -115,7 +115,7 @@ class OeawStorage {
         try {
             $q = new Query();
             $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
-            $q->addParameter((new HasValue(\Drupal\oeaw\ConnData::$rdfType, 'https://vocabs.acdh.oeaw.ac.at/#Collection' ))->setSubVar('?uri'));
+            $q->addParameter((new HasValue(\Drupal\oeaw\ConnData::$rdfType, 'https://vocabs.acdh.oeaw.ac.at/schema#Collection' ))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreatedDate, '?creationdate'), true);
@@ -542,13 +542,13 @@ class OeawStorage {
                             ?class dct:identifier ?id .
                             OPTIONAL {
                               {
-                                {?class rdfs:subClassOf* <https://vocabs.acdh.oeaw.ac.at/#Collection>}
+                                {?class rdfs:subClassOf* <https://vocabs.acdh.oeaw.ac.at/schema#Collection>}
                                 UNION
-                                {?class rdfs:subClassOf* <https://vocabs.acdh.oeaw.ac.at/#DigitalCollection>}
+                                {?class rdfs:subClassOf* <https://vocabs.acdh.oeaw.ac.at/schema#DigitalCollection>}
                                 UNION
-                                {?class dct:identifier <https://vocabs.acdh.oeaw.ac.at/#Collection>}
+                                {?class dct:identifier <https://vocabs.acdh.oeaw.ac.at/schema#Collection>}
                                 UNION
-                                {?class dct:identifier <https://vocabs.acdh.oeaw.ac.at/#DigitalCollection>}
+                                {?class dct:identifier <https://vocabs.acdh.oeaw.ac.at/schema#DigitalCollection>}
                               }
                               VALUES ?collection {true}
                             }
@@ -1221,7 +1221,7 @@ class OeawStorage {
             $queryStr = "
                 WHERE {
                     ?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type .
-                    FILTER (regex(str(?type), 'https://vocabs.acdh.oeaw.ac.at/#', 'i'))
+                    FILTER (regex(str(?type), 'https://vocabs.acdh.oeaw.ac.at/schema#', 'i'))
                 }
                 GROUP BY ?type
                 ORDER BY ?uri
