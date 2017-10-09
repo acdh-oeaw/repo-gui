@@ -24,7 +24,7 @@ class AutoCompleteForm extends FormBase
     */
     public function buildForm(array $form, FormStateInterface $form_state) {
         
-        $assd = "https://vocabs.acdh.oeaw.ac.at/#depositor";
+        $assd = "https://vocabs.acdh.oeaw.ac.at/schema#depositor";
         
         $label = "test";
         

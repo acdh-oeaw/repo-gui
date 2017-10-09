@@ -997,7 +997,7 @@ class OeawFunctions {
             $result[$x] = $data[$x];
             $result[$x]['insideUri'] = base64_encode($data[$x]['uri']);
             if(isset($data[$x]['uri'])){
-                $result[$x]['typeName'] = explode('https://vocabs.acdh.oeaw.ac.at/#', $data[$x]['types'])[1];
+                $result[$x]['typeName'] = explode('https://vocabs.acdh.oeaw.ac.at/schema#', $data[$x]['types'])[1];
             }
         }
         

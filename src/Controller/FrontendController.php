@@ -111,7 +111,7 @@ class FrontendController extends ControllerBase  {
                     $types = explode(",", $value["rdfTypes"]);
                     foreach($types as $t){
                         if (strpos($t, 'vocabs.acdh.oeaw.ac.at') !== false) {
-                            $res[$i]["rdfType"][] = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $t);
+                            $res[$i]["rdfType"][] = str_replace('https://vocabs.acdh.oeaw.ac.at/schema#', '', $t);
                         }
                     }
                 }
@@ -859,7 +859,7 @@ class FrontendController extends ControllerBase  {
                                 if ($type == \Drupal\oeaw\ConnData::$imageProperty) {
                                     $hasImageType = true; 
                                 } else if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
-                                    $result[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $type)[1];	 
+                                    $result[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/schema#', $type)[1];	 
                                     $result[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$result[$i]["rdfType"]);
                                     //Add a space between capital letters
                                     $result[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $result[$i]["rdfType"]);
@@ -1310,7 +1310,7 @@ class FrontendController extends ControllerBase  {
                         $rdfTypes = explode(',', $rdfTypes);
                         foreach ($rdfTypes as $rdfType) {
                             if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {                            
-                            $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/#', $rdfType)[1]; 
+                            $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/schema#', $rdfType)[1]; 
                             $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
                             $res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
                                 break;  

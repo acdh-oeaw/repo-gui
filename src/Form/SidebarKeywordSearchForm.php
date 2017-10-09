@@ -33,6 +33,91 @@ class SidebarKeywordSearchForm extends FormBase
     */
     public function buildForm(array $form, FormStateInterface $form_state) 
     {   
+
+        $this->createSearchInput($form);
+        
+        //$this->createTypeData();
+        
+        $resData["title"] = "Resource Types";
+        $resData["type"] = "searchbox_types";
+        $resFields = $this->OeawStorage->getACDHTypes(true);
+        
+        $rs = array();
+        foreach($resFields as $val){            
+            $type = str_replace('https://vocabs.acdh.oeaw.ac.at/schema#', '', $val['type']);
+            $count = str_replace('https://vocabs.acdh.oeaw.ac.at/schema#', '', $val['type'])." (".$val['typeCount'].")";
+            $rs[$type] = $count;
+        }
+        $resData["fields"] = $rs;
+        if(count($resData["fields"]) > 0){
+            $this->createBox($form, $resData);
+        }
+        
+        $formatData["title"] = "Format";
+        $formatData["type"] = "searchbox_format";
+        $formatFields = $this->OeawStorage->getMimeTypes();
+        $frm = array();
+        foreach($formatFields as $val){            
+            $type = $val['mime'];
+            $count = $val['mime']." (".$val['mimeCount'].")";
+            $frm[$type] = $count;
+        }
+        $formatData["fields"] = $frm;
+        
+        if(count($formatData["fields"]) > 0){
+            $this->createBox($form, $formatData);
+        }
+        
+        
+        $form['date_start_date'] = [
+            '#type' => 'date',           
+            '#date_format' => 'd-m-Y',
+            '#title' => t('Start date'),
+        ];
+        
+        $form['date_end_date'] = [
+            '#type' => 'date',
+            '#date_format' => 'd-m-Y',
+            '#title' => t('End date'),
+        ];
+        
+       
+        
+        return $form;
+        
+    }
+    
+    /**
+     * 
+     * Create the checbox templates
+     * 
+     * @param array $form
+     * @param array $data
+     * 
+     */
+    private function createBox(array &$form, array $data){
+        
+        $form['search'][$data["type"]] = array(
+            '#type' => 'checkboxes',
+            '#options' =>
+                $data["fields"],
+            '#attributes' => array(
+                'class' => array('form-checkbox-custom'),
+            ),
+            '#title' => $this->t($data["title"])
+        );
+    }
+    
+    
+    /**
+     * 
+     * this function creates the search input field 
+     * 
+     * @param array $form
+     * @return array
+     */
+    private function createSearchInput(array &$form){
+
         $propertys = array();
         $searchTerms = array();
         $basePath = base_path();

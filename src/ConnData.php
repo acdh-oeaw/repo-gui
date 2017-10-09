@@ -11,7 +11,7 @@ class ConnData
             . 'PREFIX dct: <http://purl.org/dc/terms/> '
             . 'PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> '
             . 'PREFIX premis: <http://www.loc.gov/premis/rdf/v1#> '
-            . 'PREFIX acdh: <https://vocabs.acdh.oeaw.ac.at/#> '
+            . 'PREFIX acdh: <https://vocabs.acdh.oeaw.ac.at/schema#> '
             . 'PREFIX fedora: <http://fedora.info/definitions/v4/repository#> '
             . 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> '
             . 'PREFIX owl: <http://www.w3.org/2002/07/owl#>';
@@ -29,7 +29,7 @@ class ConnData
         "http://www.w3.org/2000/01/rdf-schema#" => "rdfs",
         "http://www.w3.org/ns/ldp#" => "ldp",
         "http://www.iana.org/assignments/relation/" => "iana",
-        "https://vocabs.acdh.oeaw.ac.at/#" => "acdh",        
+        "https://vocabs.acdh.oeaw.ac.at/schema#" => "acdh",        
         "https://id.acdh.oeaw.ac.at/" => "acdhID",
         "http://purl.org/dc/elements/1.1/" => "dc",
         "http://purl.org/dc/terms/" => "dct",
@@ -44,44 +44,44 @@ class ConnData
     
     
     //special RDF types
-    public static $acdhNamespace = "https://vocabs.acdh.oeaw.ac.at/#";
+    public static $acdhNamespace = "https://vocabs.acdh.oeaw.ac.at/schema#";
     
     //propertys
-    public static $hasLastName = "https://vocabs.acdh.oeaw.ac.at/#hasLastName";
-    public static $hasFirstName = "https://vocabs.acdh.oeaw.ac.at/#hasFirstName";
-    public static $acdhImage = "https://vocabs.acdh.oeaw.ac.at/#hasTitleImage";
-    public static $hasBinarySize = "https://vocabs.acdh.oeaw.ac.at/#hasBinarySize";
-    public static $hasRelatedProject = "https://vocabs.acdh.oeaw.ac.at/#hasRelatedProject";
-    public static $hasMember = "https://vocabs.acdh.oeaw.ac.at/#hasMember";
+    public static $hasLastName = "https://vocabs.acdh.oeaw.ac.at/schema#hasLastName";
+    public static $hasFirstName = "https://vocabs.acdh.oeaw.ac.at/schema#hasFirstName";
+    public static $acdhImage = "https://vocabs.acdh.oeaw.ac.at/schema#hasTitleImage";
+    public static $hasBinarySize = "https://vocabs.acdh.oeaw.ac.at/schema#hasBinarySize";
+    public static $hasRelatedProject = "https://vocabs.acdh.oeaw.ac.at/schema#hasRelatedProject";
+    public static $hasMember = "https://vocabs.acdh.oeaw.ac.at/schema#hasMember";
     public static $ebucoreMime = "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType";
     public static $skosNarrower = "http://www.w3.org/2004/02/skos/core#narrower";
-    public static $acdhHasCreatedDate = "https://vocabs.acdh.oeaw.ac.at/#hasCreatedDate";
-    public static $acdhHasCreationStartDate = "https://vocabs.acdh.oeaw.ac.at/#hasCreationStartDate";
-    public static $acdhHasCreationEndDate = "https://vocabs.acdh.oeaw.ac.at/#hasCreationEndDate";
-    public static $title = "https://vocabs.acdh.oeaw.ac.at/#hasTitle";
-    public static $description = "https://vocabs.acdh.oeaw.ac.at/#hasDescription";
-    public static $hasDissService = "https://vocabs.acdh.oeaw.ac.at/#hasDissService";
-    public static $contributor = "https://vocabs.acdh.oeaw.ac.at/#hasContributor";
-    public static $author = "https://vocabs.acdh.oeaw.ac.at/#hasAuthor";
+    public static $acdhHasCreatedDate = "https://vocabs.acdh.oeaw.ac.at/schema#hasCreatedDate";
+    public static $acdhHasCreationStartDate = "https://vocabs.acdh.oeaw.ac.at/schema#hasCreationStartDate";
+    public static $acdhHasCreationEndDate = "https://vocabs.acdh.oeaw.ac.at/schema#hasCreationEndDate";
+    public static $title = "https://vocabs.acdh.oeaw.ac.at/schema#hasTitle";
+    public static $description = "https://vocabs.acdh.oeaw.ac.at/schema#hasDescription";
+    public static $hasDissService = "https://vocabs.acdh.oeaw.ac.at/schema#hasDissService";
+    public static $contributor = "https://vocabs.acdh.oeaw.ac.at/schema#hasContributor";
+    public static $author = "https://vocabs.acdh.oeaw.ac.at/schema#hasAuthor";
     public static $creationdate = "http://fedora.info/definitions/v4/repository#created";
-    public static $isPartOf = "https://vocabs.acdh.oeaw.ac.at/#isPartOf";
-    public static $providesMime = "https://vocabs.acdh.oeaw.ac.at/#providesMime";
+    public static $isPartOf = "https://vocabs.acdh.oeaw.ac.at/schema#isPartOf";
+    public static $providesMime = "https://vocabs.acdh.oeaw.ac.at/schema#providesMime";
     public static $rdfsLabel = "http://www.w3.org/2000/01/rdf-schema#label";
     public static $fedoraBinary = "http://fedora.info/definitions/v4/repository#Binary";
     public static $foafName = "http://xmlns.com/foaf/0.1/name";
-    public static $acdhQuery = "https://vocabs.acdh.oeaw.ac.at/#query";
-    public static $acdhQueryType = "https://vocabs.acdh.oeaw.ac.at/#querytype";
+    public static $acdhQuery = "https://vocabs.acdh.oeaw.ac.at/schema#query";
+    public static $acdhQueryType = "https://vocabs.acdh.oeaw.ac.at/schema#querytype";
     public static $rdfsComment = "http://www.w3.org/2000/01/rdf-schema#comment";
     
     
     
     
     //schema types    
-    public static $image = "https://vocabs.acdh.oeaw.ac.at/#Image";
-    public static $acdhPerson = "https://vocabs.acdh.oeaw.ac.at/#Person";
-    public static $acdhProject = "https://vocabs.acdh.oeaw.ac.at/#Project ";
-    public static $acdhInstitute = "https://vocabs.acdh.oeaw.ac.at/#Institute";
-    public static $acdhConcept = "https://vocabs.acdh.oeaw.ac.at/#Concept";
+    public static $image = "https://vocabs.acdh.oeaw.ac.at/schema#Image";
+    public static $acdhPerson = "https://vocabs.acdh.oeaw.ac.at/schema#Person";
+    public static $acdhProject = "https://vocabs.acdh.oeaw.ac.at/schema#Project ";
+    public static $acdhInstitute = "https://vocabs.acdh.oeaw.ac.at/schema#Institute";
+    public static $acdhConcept = "https://vocabs.acdh.oeaw.ac.at/schema#Concept";
     public static $skosConcept = "http://www.w3.org/2004/02/skos/core#Concept";
     public static $imageProperty = "http://xmlns.com/foaf/0.1/Image";
     public static $imageThumbnail = "http://xmlns.com/foaf/0.1/thumbnail";
