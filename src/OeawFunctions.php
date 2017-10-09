@@ -302,23 +302,23 @@ class OeawFunctions {
     
     public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "titleasc"): string{
 
-		//Let's process the order argument
-		switch ($order) {
-		    case "titleasc":
-		        $order = "ASC( fn:lower-case(?title))";
-		        break;
-		    case "titledesc":
-		        $order = "DESC( fn:lower-case(?title))";
-		        break;
-		    case "dateasc":
-		        $order = "ASC(?createdDate)";
-		        break;
-		    case "datedesc":
-		        $order = "DESC(?createdDate)";
-		        break;
-		    default:
-		        $order = "ASC( fn:lower-case(?title))";
-		}
+        //Let's process the order argument
+        switch ($order) {
+            case "titleasc":
+                $order = "ASC( fn:lower-case(?title))";
+                break;
+            case "titledesc":
+                $order = "DESC( fn:lower-case(?title))";
+                break;
+            case "dateasc":
+                $order = "ASC(?createdDate)";
+                break;
+            case "datedesc":
+                $order = "DESC(?createdDate)";
+                break;
+            default:
+                $order = "ASC( fn:lower-case(?title))";
+        }
 
         $wordsQuery = "";
         $query = "";
@@ -362,34 +362,31 @@ class OeawFunctions {
             
             $td = explode('+', $data["type"]);
             $not = false;
+            $or = false;
             $storage =  new OeawStorage();
             $acdhTypes = $storage->getACDHTypes();
-            
-
+        
             if(count($acdhTypes) > 0){
+                $query .= " { ";    
                 foreach($td as $dtype){                        
                     foreach($acdhTypes as $t){
                         
                         $val = explode(RC::get('fedoraVocabsNamespace'), $t["type"]);
                         $val = strtolower($val[1]);
                         
-                        if($dtype == "or"){ continue; }
+                        if($dtype == "or"){ $or = true; continue;}
                         
-                        if($dtype == "not"){                        
-                            $not = true;
+                        if( ($dtype == "not") || ($dtype == "and") ){
                             continue;
                         }
                         
                         if (strpos(strtolower($dtype), $val) !== false) {
-                            if($not == true){
-                                $query .= "filter not exists { SELECT * WHERE { ?uri <".RC::get('drupalRdfType')."> <".$t['type']."> . } }\n";                            
-                                $not = false;
-                            }else {
-                                $query .= "filter exists { SELECT * WHERE { ?uri <".RC::get('drupalRdfType')."> <".$t['type']."> . } }\n";
-                            }
+                            if($or == true){$query .= " UNION "; $or = false;}
+                            $query .= " { SELECT * WHERE { ?uri <".RC::get('drupalRdfType')."> <".$t['type']."> . } }\n";
                         }
                     }
                 }
+                $query .= " } ";
             }            
         }
         
@@ -406,7 +403,7 @@ class OeawFunctions {
         OPTIONAL{ ?uri <". RC::get('drupalHasContributor')."> ?contrib .}	
     	OPTIONAL {?uri <".RC::get('drupalRdfType')."> ?rdfType . }
         OPTIONAL{ ?uri <". RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
-        OPTIONAL {?uri <". \Drupal\oeaw\ConnData::$acdhHasCreatedDate."> ?createdDate . }";
+        OPTIONAL {?uri <". RC::get('drupalHasCreatedDate')."> ?createdDate . }";
         
         $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?createdDate ORDER BY " . $order;
         if($limit){
@@ -416,7 +413,7 @@ class OeawFunctions {
                 $query .= " OFFSET ".$page." ";
             }
         }
-        
+       
         return $query;
     }
     
