@@ -161,9 +161,9 @@ class FrontendController extends ControllerBase  {
 			if (empty($pageData['page']) OR $pageData['page'] == 0) {
 			    $datatable['#currentPage'] = 1;
 			} else {
-			    $datatable['#currentPage'] = $pageData['page'];
+			    $datatable['#currentPage'] = $pageData['page'] + 1;
 			}
-			if (empty($pageData['page'])) {
+			if (empty($pageData)) {
 			    $datatable['#totalPages'] = 1;
 			} else {
 			    $datatable['#totalPages'] = $pageData['totalPages'];
@@ -688,13 +688,13 @@ class FrontendController extends ControllerBase  {
             $datatable['#result'] = $result;
             //$datatable['#searchedValues'] = $total . ' elements containing "' . $metavalue . '" have been found.';
             $datatable['#totalResultAmount'] = $total;
-            
+
             if (empty($pageData['page']) OR $pageData['page'] == 0) {
                 $datatable['#currentPage'] = 1;
             } else {
-                $datatable['#currentPage'] = $pageData['page'];
+                $datatable['#currentPage'] = $pageData['page'] + 1;
             }
-            if (empty($pageData['page'])) {
+            if (empty($pageData)) {
                 $datatable['#totalPages'] = 1;
             } else {
                 $datatable['#totalPages'] = $pageData['totalPages'];
