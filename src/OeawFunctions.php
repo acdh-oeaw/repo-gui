@@ -403,7 +403,7 @@ class OeawFunctions {
         }
         $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?description .}                
     	OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/schema#hasAuthor> ?author .}	    	
-        OPTIONAL{ ?uri <". \RC::get('drupalHasContributor')."> ?contrib .}	
+        OPTIONAL{ ?uri <". RC::get('drupalHasContributor')."> ?contrib .}	
     	OPTIONAL {?uri <".RC::get('drupalRdfType')."> ?rdfType . }
         OPTIONAL{ ?uri <". RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
         OPTIONAL {?uri <". \Drupal\oeaw\ConnData::$acdhHasCreatedDate."> ?createdDate . }";
