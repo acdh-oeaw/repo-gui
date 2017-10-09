@@ -163,7 +163,7 @@ class FrontendController extends ControllerBase  {
 			} else {
 			    $datatable['#currentPage'] = $pageData['page'] + 1;
 			}
-			if (empty($pageData)) {
+			if (empty($pageData) OR $pageData['totalPages'] == 0) {
 			    $datatable['#totalPages'] = 1;
 			} else {
 			    $datatable['#totalPages'] = $pageData['totalPages'];
@@ -694,7 +694,7 @@ class FrontendController extends ControllerBase  {
             } else {
                 $datatable['#currentPage'] = $pageData['page'] + 1;
             }
-            if (empty($pageData)) {
+            if (empty($pageData) OR $pageData['totalPages'] == 0) {
                 $datatable['#totalPages'] = 1;
             } else {
                 $datatable['#totalPages'] = $pageData['totalPages'];
