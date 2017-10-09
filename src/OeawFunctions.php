@@ -334,7 +334,7 @@ class OeawFunctions {
         $conditions = "";
         $query .= "?uri ?prop ?obj . \n
             ?uri <".RC::titleProp()."> ?title . \n
-            FILTER( ?prop IN (<".RC::titleProp().">, <".RC::get('hasDescription').">, <".RC::get('drupalHasContributor')."> )) .   \n";
+            FILTER( ?prop IN (<".RC::titleProp().">, <".RC::get('drupalHasDescription').">, <".RC::get('drupalHasContributor')."> )) .   \n";
         
         if(isset($data["words"])){
             $wd = explode('+', $data["words"]);
