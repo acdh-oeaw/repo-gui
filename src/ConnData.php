@@ -49,9 +49,8 @@ class ConnData
     //propertys
     public static $hasLastName = "https://vocabs.acdh.oeaw.ac.at/schema#hasLastName";
     public static $hasFirstName = "https://vocabs.acdh.oeaw.ac.at/schema#hasFirstName";
-    public static $acdhImage = "https://vocabs.acdh.oeaw.ac.at/schema#hasTitleImage";
-    public static $hasBinarySize = "https://vocabs.acdh.oeaw.ac.at/schema#hasBinarySize";
-    public static $hasRelatedProject = "https://vocabs.acdh.oeaw.ac.at/schema#hasRelatedProject";
+    
+    
     public static $hasMember = "https://vocabs.acdh.oeaw.ac.at/schema#hasMember";
     public static $ebucoreMime = "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType";
     public static $skosNarrower = "http://www.w3.org/2004/02/skos/core#narrower";
@@ -59,16 +58,16 @@ class ConnData
     public static $acdhHasCreationStartDate = "https://vocabs.acdh.oeaw.ac.at/schema#hasCreationStartDate";
     public static $acdhHasCreationEndDate = "https://vocabs.acdh.oeaw.ac.at/schema#hasCreationEndDate";
     public static $title = "https://vocabs.acdh.oeaw.ac.at/schema#hasTitle";
-    public static $description = "https://vocabs.acdh.oeaw.ac.at/schema#hasDescription";
-    public static $hasDissService = "https://vocabs.acdh.oeaw.ac.at/schema#hasDissService";
-    public static $contributor = "https://vocabs.acdh.oeaw.ac.at/schema#hasContributor";
+    
+    
+    
     public static $author = "https://vocabs.acdh.oeaw.ac.at/schema#hasAuthor";
     public static $creationdate = "http://fedora.info/definitions/v4/repository#created";
-    public static $isPartOf = "https://vocabs.acdh.oeaw.ac.at/schema#isPartOf";
-    public static $providesMime = "https://vocabs.acdh.oeaw.ac.at/schema#providesMime";
+    
     public static $rdfsLabel = "http://www.w3.org/2000/01/rdf-schema#label";
     public static $fedoraBinary = "http://fedora.info/definitions/v4/repository#Binary";
     public static $foafName = "http://xmlns.com/foaf/0.1/name";
+    
     public static $acdhQuery = "https://vocabs.acdh.oeaw.ac.at/schema#query";
     public static $acdhQueryType = "https://vocabs.acdh.oeaw.ac.at/schema#querytype";
     public static $rdfsComment = "http://www.w3.org/2000/01/rdf-schema#comment";
@@ -76,16 +75,10 @@ class ConnData
     
     
     
-    //schema types    
-    public static $image = "https://vocabs.acdh.oeaw.ac.at/schema#Image";
-    public static $acdhPerson = "https://vocabs.acdh.oeaw.ac.at/schema#Person";
-    public static $acdhProject = "https://vocabs.acdh.oeaw.ac.at/schema#Project ";
-    public static $acdhInstitute = "https://vocabs.acdh.oeaw.ac.at/schema#Institute";
-    public static $acdhConcept = "https://vocabs.acdh.oeaw.ac.at/schema#Concept";
-    public static $skosConcept = "http://www.w3.org/2004/02/skos/core#Concept";
+    //schema types
     public static $imageProperty = "http://xmlns.com/foaf/0.1/Image";
     public static $imageThumbnail = "http://xmlns.com/foaf/0.1/thumbnail";
-    public static $rdfType = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+    
     
       
     

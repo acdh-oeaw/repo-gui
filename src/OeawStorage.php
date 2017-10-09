@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 use acdhOeaw\util\SparqlEndpoint;
 //use zozlak\util\Config;
-use acdhOeaw\util\RepoConfig as RC;;
+use acdhOeaw\util\RepoConfig as RC;
 
 
 class OeawStorage {
@@ -115,17 +115,17 @@ class OeawStorage {
         try {
             $q = new Query();
             $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
-            $q->addParameter((new HasValue(\Drupal\oeaw\ConnData::$rdfType, 'https://vocabs.acdh.oeaw.ac.at/schema#Collection' ))->setSubVar('?uri'));
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
+            $q->addParameter((new HasValue(RC::get("drupalRdfType"), 'https://vocabs.acdh.oeaw.ac.at/schema#Collection' ))->setSubVar('?uri'));
+            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
+            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributor'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreatedDate, '?creationdate'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreationStartDate, '?hasCreationStartDate'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreationEndDate, '?hasCreationEndDate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhImage, '?hasTitleImage'), true);
+            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasTitleImage'), '?hasTitleImage'), true);
             if($count == false){
-		        $q->addParameter(new HasTriple('?uri', self::$sparqlPref["rdfType"], '?rdfType'));    
+		        $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfType'), '?rdfType'));    
             }
 
             $q2 = new Query();
@@ -267,7 +267,7 @@ class OeawStorage {
             
             $q = new Query();            
             $q->addParameter(new HasTriple($uri, RC::titleProp(), '?title'), true);            
-            $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);
+            $q->addParameter(new HasTriple($uri, RC::get('drupalHasContributor'), '?contributor'), true);
             $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
             $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
             
@@ -413,7 +413,7 @@ class OeawStorage {
 
         try {        
                         
-            $foafName = self::$sparqlPref["foafName"];
+            
             $rdfsLabel = self::$sparqlPref["rdfsLabel"];            
 
             $q = new Query();            
@@ -423,20 +423,19 @@ class OeawStorage {
                 //Query parameters for the properties we want to get, true stands for optional
                 $q->addParameter((new HasTriple('?uri', RC::titleProp(), '?title')), true);
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$author, '?author'), true);           
-                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$description, '?description'), true);
+                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
                 $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?label'), true);
-                $q->addParameter(new HasTriple('?uri', $foafName, '?name'), true);         
-                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$contributor, '?contributor'), true);            
+                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributor'), true);            
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
-                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$rdfType, '?rdfType'), true);
+                $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfType'), '?rdfType'), true);
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
                 //Select and aggregate multiple sets of values into a comma seperated string
-                $q->setSelect(array('?uri', '?title', '?description', '?label', '?name', '?creationdate', '?isPartOf', '?firstName', '?lastName', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
-                $q->setGroupBy(array('?uri', '?title', '?description', '?label', '?name', '?creationdate', '?isPartOf', '?firstName', '?lastName'));
+                $q->setSelect(array('?uri', '?title', '?description', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
+                $q->setGroupBy(array('?uri', '?title', '?description', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName'));
                 //If it's a person order by their name, if not by resource title
-                if ($value == \Drupal\oeaw\ConnData::$person) {
+                if ($value == RC::get('drupalPerson') ) {
                         $q->setOrderBy(array('?firstName'));
                 } else {
                         $q->setOrderBy(array('?title'));
@@ -487,12 +486,12 @@ class OeawStorage {
         $getResult = array();
         
         try {        
-            $rdfType = self::$sparqlPref["rdfType"];
+            
             $rdfsLabel = self::$sparqlPref["rdfsLabel"];
             $owlClass = self::$sparqlPref["owlClass"];
            
             $q = new Query();
-            $q->addParameter((new HasValue($rdfType, $owlClass))->setSubVar('?uri'));
+            $q->addParameter((new HasValue(RC::get('drupalRdfType'), $owlClass))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?title'));
             $q->setSelect(array('?uri', '?title'));
             $q->setOrderBy(array('UCASE(str(?title))'));
@@ -529,7 +528,7 @@ class OeawStorage {
         $getResult = array();
         
         try {            
-            $rdfType = self::$sparqlPref["rdfType"];
+            
             $dcID = RC::idProp();            
             $owlClass = self::$sparqlPref["owlClass"];
          
@@ -679,7 +678,7 @@ class OeawStorage {
             $q = new Query();
             $q->setSelect(array('?uri'));
             $q->addParameter((new HasValue(RC::idProp(), $string))->setSubVar('?uri'));
-            $q->addParameter((new HasValue(\Drupal\oeaw\ConnData::$rdfType, \Drupal\oeaw\ConnData::$image))->setSubVar('?uri'));
+            $q->addParameter((new HasValue(RC::get('drupalRdfType'), RC::get('drupalImage')))->setSubVar('?uri'));
             $query = $q->getQuery();
             $result = $this->fedora->runSparql($query);
             foreach($result as $r){
@@ -720,7 +719,7 @@ class OeawStorage {
         }
         
         if($property == null){ $property = RC::idProp(); } 
-        $rdfType = self::$sparqlPref["rdfType"];
+        
         $foafImage = self::$sparqlPref["foafImage"];
         
         $res = "";
@@ -771,7 +770,7 @@ class OeawStorage {
                 
         
         $rdfsLabel = self::$sparqlPref["rdfsLabel"];
-        $rdfType = self::$sparqlPref["rdfType"];
+        
         $foafThumbnail = self::$sparqlPref["foafThumbnail"];
         $foafImage = self::$sparqlPref["foafImage"];
         $getResult = array();
@@ -802,7 +801,7 @@ class OeawStorage {
             $q->addSubquery($q4);
             
             $q5 = new Query();
-            $q5->addParameter((new HasTriple('?res', $rdfType, '?type')));
+            $q5->addParameter((new HasTriple('?res', RC::get('drupalRdfType'), '?type')));
             $q5->setJoinClause('optional');
             $q->addSubquery($q5);
             
@@ -866,8 +865,8 @@ class OeawStorage {
                 <'.$uri.'> <'.RC::get("fedoraIdProp").'> ?obj .
                 ?uri <'.$property.'> ?obj
                 OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .}
-                OPTIONAL { ?uri <'.\Drupal\oeaw\ConnData::$description.'> ?description .}
-                ?uri  <'.\Drupal\oeaw\ConnData::$rdfType.'> ?type .
+                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?description .}
+                ?uri  <'.RC::get("drupalRdfType").'> ?type .
                 FILTER regex(str(?type),"vocabs.acdh","i") .
             }
             ';
@@ -926,8 +925,8 @@ class OeawStorage {
         $where = '
             WHERE {
                 ?uri <'.RC::get("fedoraTitleProp").'> ?title .
-                OPTIONAL { ?uri <'.\Drupal\oeaw\ConnData::$description.'> ?description .}
-                ?uri  <'.\Drupal\oeaw\ConnData::$rdfType.'> ?type .
+                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?description .}
+                ?uri  <'.RC::get("drupalRdfType").'> ?type .
                 FILTER regex(str(?type),"vocabs.acdh","i") .
                 ?uri <'.RC::get("fedoraRelProp").'>  ?isPartOf .
                 FILTER ( 
@@ -1142,7 +1141,7 @@ class OeawStorage {
             $q = new Query();
             $q->setSelect(array('?res'));
             $q->setDistinct(true);
-            $q->addParameter((new HasValue('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property))->setSubVar('?res'));
+            $q->addParameter((new HasValue(RC::get("drupalRdfType"), $property))->setSubVar('?res'));
             $q->addParameter(new MatchesRegEx(RC::titleProp(), $string), 'i');
             $query = $q->getQuery();
           
@@ -1167,14 +1166,14 @@ class OeawStorage {
     }
     
     public function getMimeTypes(){
-        $rdfType = self::$sparqlPref["rdfType"];
+        
         $getResult = array();
         
         try {
             $q = new Query();
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasDissService, '?dissId'));
+            $q->addParameter(new HasTriple('?uri', RC::get('fedoraHasServiceProp'), '?dissId'));
             $q->addParameter(new HasTriple('?dissuri', RC::idProp(), '?dissId'));
-            $q->addParameter(new HasTriple('?dissuri', \Drupal\oeaw\ConnData::$providesMime, '?mime'));
+            $q->addParameter(new HasTriple('?dissuri', RC::get('drupalProvidesMime'), '?mime'));
             
             $q->setSelect(array('?mime', '(COUNT(?mime) as ?mimeCount)'));
             $q->setOrderBy(array('?mime'));
@@ -1209,7 +1208,7 @@ class OeawStorage {
      */
     public function getACDHTypes(bool $count = false) :array
     {        
-        $rdfType = self::$sparqlPref["rdfType"];        
+            
         $getResult = array();
         
         try {            
@@ -1220,7 +1219,7 @@ class OeawStorage {
             }
             $queryStr = "
                 WHERE {
-                    ?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?type .
+                    ?uri <".RC::get('drupalRdfType')."> ?type .
                     FILTER (regex(str(?type), 'https://vocabs.acdh.oeaw.ac.at/schema#', 'i'))
                 }
                 GROUP BY ?type
@@ -1263,12 +1262,12 @@ class OeawStorage {
     
     public function getClassesForSideBar():array
     {        
-        $rdfType = self::$sparqlPref["rdfType"];        
+        
         $getResult = array();
         
         try {            
             $q = new Query();
-            $q->addParameter(new HasTriple('?uri', $rdfType, '?type'));
+            $q->addParameter(new HasTriple('?uri', RC::get("drupalRdfType"), '?type'));
             $q->setSelect(array('?type', '(COUNT(?type) as ?typeCount)'));
             $q->setOrderBy(array('?uri'));
             $q->setGroupBy(array('?type'));

@@ -12,6 +12,7 @@ use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\oeaw\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
+use acdhOeaw\util\RepoConfig as RC;
 
 class ComplexSearchForm extends FormBase
 {
@@ -45,8 +46,8 @@ class ComplexSearchForm extends FormBase
         $rs = array();
         //create the resource type data
         foreach($resFields as $val){
-            $type = str_replace('https://vocabs.acdh.oeaw.ac.at/schema#', '', $val['type']);
-            $count = str_replace('https://vocabs.acdh.oeaw.ac.at/schema#', '', $val['type'])." (".$val['typeCount'].")";
+            $type = str_replace(RC::get('fedoraVocabsNamespace'), '', $val['type']);
+            $count = str_replace(RC::get('fedoraVocabsNamespace'), '', $val['type'])." (".$val['typeCount'].")";
             $rs[$type] = $count;
         }
         $resData["fields"] = $rs;

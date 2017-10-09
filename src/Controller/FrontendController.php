@@ -111,7 +111,7 @@ class FrontendController extends ControllerBase  {
                     $types = explode(",", $value["rdfTypes"]);
                     foreach($types as $t){
                         if (strpos($t, 'vocabs.acdh.oeaw.ac.at') !== false) {
-                            $res[$i]["rdfType"][] = str_replace('https://vocabs.acdh.oeaw.ac.at/schema#', '', $t);
+                            $res[$i]["rdfType"][] = str_replace(RC::get('fedoraVocabsNamespace'), '', $t);
                         }
                     }
                 }
@@ -266,48 +266,6 @@ class FrontendController extends ControllerBase  {
         
         return $response;
     }
-        
-    /**
-     * 
-     * Here the oeaw module menu is generating with the available menupoints
-     * 
-     * @return array
-    */
-    public function oeaw_menu(): array {
-        
-        drupal_get_messages('error', TRUE);
-        $table = array();
-        $header = array('id' => t('MENU'));
-        $rows = array();
-        
-        $uid = \Drupal::currentUser()->id();
-            
-        $link = Link::fromTextAndUrl('List All Root Resource', Url::fromRoute('oeaw_roots'));
-        $rows[0] = array('data' => array($link));
-
-        $link1 = Link::fromTextAndUrl('Search by Meta data And URI', Url::fromRoute('oeaw_search'));
-        $rows[1] = array('data' => array($link1));
-        
-        //if the user is anonymus then we hide the add resource menu
-        if($uid !== 0){
-            $link2 = Link::fromTextAndUrl('Add New Resource', Url::fromRoute('oeaw_multi_new_resource'));
-            $rows[2] = array('data' => array($link2));
-        }
-        
-        $link3 = Link::fromTextAndUrl('Deposition Agreement', Url::fromRoute('oeaw_depagree_base'));
-        $rows[3] = array('data' => array($link3));
-        
-        $table = array(
-            '#type' => 'table',
-            '#header' => $header,
-            '#rows' => $rows,
-            '#attributes' => array(
-                'id' => 'oeaw-table',
-            ),
-        );
-        return $table;
-    }
-        
     
     public function oeaw_error_page(string $errorMSG){
         if (empty($errorMSG)) {
@@ -520,24 +478,24 @@ class FrontendController extends ControllerBase  {
                 if(isset($results['table']['rdf:type'])){
                     foreach($results['table']['rdf:type'] as $rt){
                         if((isset($rt['uri'])) && 
-                                (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhPerson) !== false)){
+                                (strpos($rt['uri'], RC::get('drupalPerson')) !== false)){
                             $specialType = "person";
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, \Drupal\oeaw\ConnData::$contributor);
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalHasContributor'));
                         }
                         //is it a concept or not
                         else if((isset($rt['uri'])) && 
-                                ( (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhConcept) !== false) 
+                                ( (strpos($rt['uri'], RC::get('drupalConcept')) !== false) 
                                 || 
-                                (strpos($rt['uri'], \Drupal\oeaw\ConnData::$skosConcept) !== false) ) 
+                                (strpos($rt['uri'], RC::get('drupalSkosConcept')) !== false) ) 
                             ){
                             $specialType = "concept";
                             $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, \Drupal\oeaw\ConnData::$skosNarrower);
                         }
-                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhProject) !== false)) {
+                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalProject') ) !== false)) {
                             $specialType = "project";
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, \Drupal\oeaw\ConnData::$hasRelatedProject);
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalRelatedProject'));
                         }
-                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], \Drupal\oeaw\ConnData::$acdhInstitute) !== false)) {
+                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalInstitute')) !== false)) {
                             $specialType = "institute";
                             $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, \Drupal\oeaw\ConnData::$hasMember);
                         }else {
@@ -558,13 +516,13 @@ class FrontendController extends ControllerBase  {
                 
                 switch ($specialType) {
                     case "person":
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, \Drupal\oeaw\ConnData::$contributor);
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalHasContributor'));
                         break;
                     case "concept":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, \Drupal\oeaw\ConnData::$skosNarrower);
                         break;
                     case "project":
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, \Drupal\oeaw\ConnData::$hasRelatedProject);
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalRelatedProject'));
                         break;
                     case "institute":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, \Drupal\oeaw\ConnData::$hasMember);
@@ -626,19 +584,7 @@ class FrontendController extends ControllerBase  {
              
     }
     
-    
-    /**
-     * 
-     * The searching page FORM
-     * 
-     * @return type
-     */
-    public function oeaw_search() {    
-        drupal_get_messages('error', TRUE);
-        $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\SearchForm');
-        return $form;
-    }
-    
+   
     /**
      * 
      * The complex search frontend function
@@ -758,297 +704,7 @@ class FrontendController extends ControllerBase  {
 
         }
     }
-    
-     /**
-     * 
-     * This contains the keyword search page results
-     * 
-     * @return array
-     */
-    public function oeaw_keywordsearch(string $metavalue):array {
-
-        drupal_get_messages('error', TRUE);
-                
-        $errorMSG = array();
-        
-        if(empty($metavalue)){
-            return drupal_set_message(t('There is no data -> Search'), 'error');        
-        }
-        
-        $uid = \Drupal::currentUser()->id();
-        //decode the search variable
-        $metavalue = urldecode($metavalue);                   
-        
-        $fedora = new Fedora();
-        
-        //we will search in the title, name, fedoraid
-        $keywordSearch = array(
-            'title'  => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$title, $metavalue),
-            'description'  => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$description, $metavalue),
-            'contributor'  => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$contributor, $metavalue),
-            'name'   => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$foafName, $metavalue),
-            'acdhId' => $fedora->getResourcesByPropertyRegEx(RC::get('fedoraIdProp'), $metavalue),
-        );
-        
-        $result = array();
-        $uniqueMatches = array();
-	$i = 0;
-        foreach ($keywordSearch as $searchedIn) {            
-            foreach ($searchedIn as $match) {
-                //If we have some matches we get the uri and then create details to display				
-                if(!empty($match->getUri())){   
-                    $matchURI = $match->getUri();
-
-                    //Ignore duplicate results
-                    if (!in_array($matchURI, $uniqueMatches)) {
-                        $uniqueMatches[] = $matchURI;
-                        //Title and the URI
-                        $result[$i]["title"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$title);
-                        $result[$i]["resUri"] = base64_encode($matchURI);
-                        //Literal class information
-                        $result[$i]["description"] = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$description);
-                        $creationdate = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$creationdate);
-                        $creationdate = strtotime($creationdate);
-                        $result[$i]["creationdate"] = date('F jS, Y',$creationdate);
-
-                        //Resource author and contributor information
-                        $contributors = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$contributor);
-                        if (isset($contributors) && $contributors) {
-                            $c = 0;
-                            foreach ($contributors as $contributor) {
-                                $contributorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-                                if ($contributorName) {
-                                    //If there are multiple people then add a comma in between
-                                    if ($c > 0) {
-                                        $result[$i]["contributors"][$c-1]["contributorName"] .= ",";     
-                                    }								
-                                    $result[$i]["contributors"][$c]["contributorName"] = $contributorName;
-                                    $result[$i]["contributors"][$c]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-                                    $c++;
-                                }    
-                            }    
-                        }
-	                    
-                        $authors = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$author);
-                        if (isset($authors) && $authors) {
-                            $a = 0;
-                            foreach ($authors as $author) {
-                                $authorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($author);
-                                if ($authorName) {
-                                    //If there are multiple people then add a comma in between
-                                    if ($a > 0) {
-                                        $result[$i]["authors"][$a-1]["authorName"] .= ",";     
-                                    }
-                                    $result[$i]["authors"][$a]["authorName"] = $authorName;
-                                    $result[$i]["authors"][$a]["authorUri"] = $this->OeawFunctions->getFedoraUrlHash($author);
-                                    $a++;
-                                }    
-                            }
-                        }
-	
-                        $isPartOf = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$isPartOf);
-                        if (isset($isPartOf) && $isPartOf) {
-                            $result[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
-                            $result[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
-                        }
-
-                        $hasImageType = false;
-                        $rdfType = $match->getMetadata()->all(\Drupal\oeaw\ConnData::$rdfType);
-                        if (isset($rdfType) && $rdfType) {						
-                            foreach ($rdfType as $type) {
-                                if ($type == \Drupal\oeaw\ConnData::$imageProperty) {
-                                    $hasImageType = true; 
-                                } else if (preg_match("/vocabs.acdh.oeaw.ac.at/", $type)) {
-                                    $result[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/schema#', $type)[1];	 
-                                    $result[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$result[$i]["rdfType"]);
-                                    //Add a space between capital letters
-                                    $result[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $result[$i]["rdfType"]);
-                                    break;
-                                }	 	
-                            }  						
-                        }
-
-                        if ($hasImageType) {
-                                $result[$i]["image"] = $matchURI;
-                        } else {
-                            $thumbnail = $match->getMetadata()->get(\Drupal\oeaw\ConnData::$imageThumbnail);
-                            if (isset($thumbnail) && $thumbnail) {
-                                $imgData = $this->OeawStorage->getImage($thumbnail);
-                                if (isset($imgData) && $imgData) {
-                                    $result[$i]["image"] = $imgData;
-                                }	
-                            }						
-                        }
-                        $i++;
-	            }
-                }
-            }
-        } 
-
-        if (empty($result)){
-            $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
-        }
-		
-        $datatable['#theme'] = 'oeaw_keyword_search_res';
-        $datatable['#userid'] = $uid;
-        $datatable['#errorMSG'] = $errorMSG;
-        $datatable['#result'] = $result;
-        $datatable['#searchedValues'] = count($result) . ' elements containing "' . $metavalue . '" have been found.';
-
-        return $datatable;
-    } 
-
-    /**
-     * 
-     * This contains the search page results
-     * 
-     * @return array
-     */
-    public function oeaw_resources(string $metakey, string $metavalue):array {
-
-        drupal_get_messages('error', TRUE);
-        
-        $errorMSG = array();
-        
-        if(empty($metakey) || empty($metavalue)){
-            return drupal_set_message(t('There is no data -> Search'), 'error');        
-        }
-        
-        $uid = \Drupal::currentUser()->id();
-        //normal string seacrh
-        $metakey = base64_decode($metakey);
-        $metavalue = base64_decode($metavalue);
-        $metakey = $this->OeawFunctions->createUriFromPrefix($metakey);
-        if($metakey === false){
-            drupal_set_message(t('Error in function: createUriFromPrefix '), 'error'); 
-            return;
-        }
-    
-        $stringSearch = $this->OeawStorage->searchForData($metavalue, $metakey);            
-        
-        $fedora = new Fedora();
-        
-        //we will search in the title, name, fedoraid
-        $idSearch = array(
-            'title'  => $fedora->getResourcesByPropertyRegEx('http://purl.org/dc/elements/1.1/title', $metavalue),
-            'name'   => $fedora->getResourcesByPropertyRegEx(\Drupal\oeaw\ConnData::$foafName, $metavalue),
-            'acdhId' => $fedora->getResourcesByPropertyRegEx(RC::get('fedoraIdProp'), $metavalue),
-        );
-
-        $x = 0;
-        $data = array();
-        $datatable = array();
-        
-        foreach ($idSearch as $i) {            
-            foreach ($i as $j) {
-                //if there is any property which contains the searched value then
-                // we get the uri and 
-                if(!empty($j->getUri())){
-                    //get the resource identifier f.e.: id.acdh.oeaw.ac.at.....                    
-                    $identifier = $fedora->getResourceByUri($j->getUri())->getMetadata()->getResource('http://purl.org/dc/terms/identifier');
-                    
-                    if(!empty($identifier)){
-                        //get the resources which is part of this identifier
-                        $identifier = $identifier->getUri();                        
-
-                        $ids = $this->OeawStorage->searchForData($identifier, $metakey);
-                        
-                        //generate the result array
-                        foreach($ids as $v){                            
-                            if(!$v["uri"]){
-                                break;
-                            }
-                            $data[$x]["uri"] = $v["uri"];
-                            
-                            if(empty($v["title"])){
-                                $v["title"] = "";
-                            }
-                            $data[$x]["title"] = $v["title"];
-                            $x++;
-                        }
-                    }else {                       
-                        $data[$x]["uri"] = $j->getUri();
-                        $data[$x]["value"] = $metavalue;
-                        $data[$x]["title"] = $j->getMetadata()->label()->__toString();
-                        $x++;
-                    }
-                }
-            }
-        }
-       
-        if(!empty($data) && !empty($stringSearch)){
-            $data = array_merge($data, $stringSearch);
-        }elseif (empty($data)) {
-            $data = $stringSearch;
-        }
-
-        if(count($data) > 0){
-            $i = 0;
-          
-            foreach($data as $value){
-                                
-                // check that the value is an Url or not
-                if($value["res"]){
-                    $decodeUrl = $this->OeawFunctions->isURL($value["res"], "decode");
-                
-                    //create details and editing urls
-                    if($decodeUrl){
-                        $res[$i]['detail'] = "/oeaw_detail/".$decodeUrl;
-                        if($uid !== 0){
-                            $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
-                            $res[$i]['delete'] = "/oeaw_delete/".$decodeUrl;
-                        }
-                    }                
-                    $res[$i]["uri"] = $value["res"];
-                }
-                
-                if($value["thumb"]){
-                    if($this->OeawStorage->getImage($value["thumb"])){
-                        $res[$i]['thumb'] = $this->OeawStorage->getImage($value["thumb"]);
-                    }
-                }
-                
-                if($value["image"]){                    
-                    $res[$i]['image'] = $value["res"];
-                }
-                
-                $res[$i]["title"] = $value["title"];
-                $i++;
-            }
-             $searchArray = array(
-                "metaKey" => $metakey,
-                "metaValue" => $metavalue
-            );
-            $decodeUrl = "";
-            
-        }else {
-            $errorMSG = drupal_set_message(t('There is no data -> Search'), 'error');    
-        }
-      
-        $searchArray = array(
-            "metaKey" => $metakey,
-            "metaValue" => $metavalue            
-        );
-        
-        $datatable = array(
-            '#userid' => $uid,
-            '#errorMSG' => $errorMSG,            
-            '#attached' => [
-                'library' => [
-                'oeaw/oeaw-styles', 
-                ]
-            ]
-        );
-     
-        if(isset($res) && $res !== null && !empty($res)){
-            $datatable['#theme'] = 'oeaw_search_res_dt';
-            $datatable['#result'] = $res;
-            $datatable['#searchedValues'] = $searchArray;
-        }
-        
-        return $datatable;
-       
-    }
+   
     
     
     /**
@@ -1213,7 +869,7 @@ class FrontendController extends ControllerBase  {
     
         
     /**
-     * 
+     *  OLD func
      * Get the classes data from the sidebar class list block
      * and display them
      * 
@@ -1310,7 +966,7 @@ class FrontendController extends ControllerBase  {
                         $rdfTypes = explode(',', $rdfTypes);
                         foreach ($rdfTypes as $rdfType) {
                             if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {                            
-                            $res[$i]["rdfType"] = explode('https://vocabs.acdh.oeaw.ac.at/schema#', $rdfType)[1]; 
+                            $res[$i]["rdfType"] = explode(RC::get('fedoraVocabsNamespace'), $rdfType)[1]; 
                             $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
                             $res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
                                 break;  

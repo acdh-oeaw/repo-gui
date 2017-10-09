@@ -62,13 +62,20 @@ class OeawFunctions {
         
         $result = array();
         if($uri){
+            
             $fedora = $this->initFedora();
+           
             try{
+                
                 $res = $fedora->getResourceByUri($uri); //or any other way to get the FedoraResource object
                 $id = $res->getId();
-                foreach($res->getDissServices() as $k => $v) {
-                    $result[$k] = $id;            
+                
+                if($res->getDissServices()){
+                    foreach($res->getDissServices() as $k => $v) {
+                        $result[$k] = $id;            
+                    }
                 }
+                
                 return $result;
             } catch (Exception $ex) {
                 $msg = base64_encode('Error in function: '.__FUNCTION__);
@@ -327,7 +334,7 @@ class OeawFunctions {
         $conditions = "";
         $query .= "?uri ?prop ?obj . \n
             ?uri <".RC::titleProp()."> ?title . \n
-            FILTER( ?prop IN (<".RC::titleProp().">, <".\Drupal\oeaw\ConnData::$description.">, <".\Drupal\oeaw\ConnData::$contributor."> )) .   \n";
+            FILTER( ?prop IN (<".RC::titleProp().">, <".RC::get('hasDescription').">, <".RC::get('drupalHasContributor')."> )) .   \n";
         
         if(isset($data["words"])){
             $wd = explode('+', $data["words"]);
@@ -363,7 +370,7 @@ class OeawFunctions {
                 foreach($td as $dtype){                        
                     foreach($acdhTypes as $t){
                         
-                        $val = explode('https://vocabs.acdh.oeaw.ac.at/schema#', $t["type"]);
+                        $val = explode(RC::get('fedoraVocabsNamespace'), $t["type"]);
                         $val = strtolower($val[1]);
                         
                         if($dtype == "or"){ continue; }
@@ -375,10 +382,10 @@ class OeawFunctions {
                         
                         if (strpos(strtolower($dtype), $val) !== false) {
                             if($not == true){
-                                $query .= "filter not exists { SELECT * WHERE { ?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <".$t['type']."> . } }\n";                            
+                                $query .= "filter not exists { SELECT * WHERE { ?uri <".RC::get('drupalRdfType')."> <".$t['type']."> . } }\n";                            
                                 $not = false;
                             }else {
-                                $query .= "filter exists { SELECT * WHERE { ?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <".$t['type']."> . } }\n";
+                                $query .= "filter exists { SELECT * WHERE { ?uri <".RC::get('drupalRdfType')."> <".$t['type']."> . } }\n";
                             }
                         }
                     }
@@ -394,11 +401,11 @@ class OeawFunctions {
             //(?date < "2017-10-20T00:00:00+00:00"^^xsd:dateTime && ?date > "2017-05-11T00:00:00+00:00"^^xsd:dateTime) .
             $query .= "FILTER (?date < '".$maxdate->format(DATE_ATOM)."' ^^xsd:dateTime && ?date > '".$mindate->format(DATE_ATOM)."'^^xsd:dateTime)  \n";
         }
-        $query .= "OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/schema#hasDescription> ?description .}                
+        $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?description .}                
     	OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/schema#hasAuthor> ?author .}	    	
-        OPTIONAL{ ?uri <". \Drupal\oeaw\ConnData::$contributor."> ?contrib .}	
-    	OPTIONAL {?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?rdfType . }
-        OPTIONAL{ ?uri <". \Drupal\oeaw\ConnData::$acdhImage."> ?hasTitleImage .}                
+        OPTIONAL{ ?uri <". \RC::get('drupalHasContributor')."> ?contrib .}	
+    	OPTIONAL {?uri <".RC::get('drupalRdfType')."> ?rdfType . }
+        OPTIONAL{ ?uri <". RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
         OPTIONAL {?uri <". \Drupal\oeaw\ConnData::$acdhHasCreatedDate."> ?createdDate . }";
         
         $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?createdDate ORDER BY " . $order;
@@ -968,7 +975,7 @@ class OeawFunctions {
     public function checkSpecialRdfType(string $rdfType, \EasyRdf\Resource $rootMeta): string{
         $result = "";
         
-        if($rdfType == \Drupal\oeaw\ConnData::$person ){
+        if($rdfType == RC::get('drupalPerson') ){
             $fn = $rootMeta->get(\Drupal\oeaw\ConnData::$hasFirstName);
             $ln = $rootMeta->get(\Drupal\oeaw\ConnData::$hasLastName);
             
@@ -997,7 +1004,7 @@ class OeawFunctions {
             $result[$x] = $data[$x];
             $result[$x]['insideUri'] = base64_encode($data[$x]['uri']);
             if(isset($data[$x]['uri'])){
-                $result[$x]['typeName'] = explode('https://vocabs.acdh.oeaw.ac.at/schema#', $data[$x]['types'])[1];
+                $result[$x]['typeName'] = explode(RC::get('fedoraVocabsNamespace'), $data[$x]['types'])[1];
             }
         }
         
@@ -1065,7 +1072,7 @@ class OeawFunctions {
                     /*
                     //add the title to the resources
                     if(count($title) > 0){
-                        if($p == \Drupal\oeaw\ConnData::$rdfType){
+                        if($p == RC::get('drupalRdfType')){
                             $result['acdh_'.$propertyShortcut]['title'] = $title[0]['title'];
                             $result['acdh_'.$propertyShortcut]['insideUri'] = base64_encode($title[0]['uri']);
                         }
@@ -1077,8 +1084,8 @@ class OeawFunctions {
                     }
                     */
                     //if the acdhImage is available or the ebucore MIME
-                    if($p == \Drupal\oeaw\ConnData::$rdfType){
-                        if($val == \Drupal\oeaw\ConnData::$acdhImage){
+                    if($p == RC::get("drupalRdfType")){
+                        if($val == RC::get('drupalHasTitleImage')){
                             $result['image'] = $resourceUri;
                         }
                         //check that the resource has Binary or not
@@ -1088,7 +1095,7 @@ class OeawFunctions {
                     }
                     
                     //simply check the acdh:hasTitleImage for the root resources too.
-                    if($p == \Drupal\oeaw\ConnData::$acdhImage){
+                    if($p == RC::get('drupalHasTitleImage')){
                         
                         $imgUrl = "";
                         $imgUrl = $OeawStorage->getImageByIdentifier($val->getUri());
@@ -1104,7 +1111,7 @@ class OeawFunctions {
                     if( ($p == \Drupal\oeaw\ConnData::$ebucoreMime) && (!isset($result['image'])) && (strpos($val, 'image') !== false) ) {
                         $result['image'] = $resourceUri;
                     }
-                    if( $p == \Drupal\oeaw\ConnData::$hasBinarySize ) {
+                    if( $p == RC::get('fedoraExtentProp') ) {
                         if($val->getValue()){
                             $result['table'][$propertyShortcut][$key] = $this->formatSizeUnits($val->getValue());
                         }
