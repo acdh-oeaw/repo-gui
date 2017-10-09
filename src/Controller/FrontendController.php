@@ -489,7 +489,7 @@ class FrontendController extends ControllerBase  {
                                 (strpos($rt['uri'], RC::get('drupalSkosConcept')) !== false) ) 
                             ){
                             $specialType = "concept";
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, \Drupal\oeaw\ConnData::$skosNarrower);
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalSkosNarrower'));
                         }
                         else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalProject') ) !== false)) {
                             $specialType = "project";
@@ -497,7 +497,7 @@ class FrontendController extends ControllerBase  {
                         }
                         else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalInstitute')) !== false)) {
                             $specialType = "institute";
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, \Drupal\oeaw\ConnData::$hasMember);
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalHasMember'));
                         }else {
                             $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
                         }
@@ -519,13 +519,13 @@ class FrontendController extends ControllerBase  {
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalHasContributor'));
                         break;
                     case "concept":
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, \Drupal\oeaw\ConnData::$skosNarrower);
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalSkosNarrower'));
                         break;
                     case "project":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalRelatedProject'));
                         break;
                     case "institute":
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, \Drupal\oeaw\ConnData::$hasMember);
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalHasMember'));
                         break;
                     default:
                         $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
