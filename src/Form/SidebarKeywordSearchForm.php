@@ -1,7 +1,6 @@
-<?php
+<?php 
 
 namespace Drupal\oeaw\Form;
-
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
@@ -34,95 +33,11 @@ class SidebarKeywordSearchForm extends FormBase
     */
     public function buildForm(array $form, FormStateInterface $form_state) 
     {   
-        $this->createSearchInput($form);
-        
-        //$this->createTypeData();
-        
-        $resData["title"] = "Resource Types";
-        $resData["type"] = "searchbox_types";
-        $resFields = $this->OeawStorage->getACDHTypes(true);
-        
-        $rs = array();
-        foreach($resFields as $val){            
-            $type = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type']);
-            $count = str_replace('https://vocabs.acdh.oeaw.ac.at/#', '', $val['type'])." (".$val['typeCount'].")";
-            $rs[$type] = $count;
-        }
-        $resData["fields"] = $rs;
-        if(count($resData["fields"]) > 0){
-            $this->createBox($form, $resData);
-        }
-        
-        $formatData["title"] = "Format";
-        $formatData["type"] = "searchbox_format";
-        $formatFields = $this->OeawStorage->getMimeTypes();
-        $frm = array();
-        foreach($formatFields as $val){            
-            $type = $val['mime'];
-            $count = $val['mime']." (".$val['mimeCount'].")";
-            $frm[$type] = $count;
-        }
-        $formatData["fields"] = $frm;
-        
-        if(count($formatData["fields"]) > 0){
-            $this->createBox($form, $formatData);
-        }
-        
-        
-        $form['date_start_date'] = [
-            '#type' => 'date',           
-            '#date_format' => 'd-m-Y',
-            '#title' => t('Start date'),
-        ];
-        
-        $form['date_end_date'] = [
-            '#type' => 'date',
-            '#date_format' => 'd-m-Y',
-            '#title' => t('End date'),
-        ];
-        
-       
-        
-        return $form;
-        
-    }
-    
-    /**
-     * 
-     * Create the checbox templates
-     * 
-     * @param array $form
-     * @param array $data
-     * 
-     */
-    private function createBox(array &$form, array $data){
-        
-        $form['search'][$data["type"]] = array(
-            '#type' => 'checkboxes',
-            '#options' =>
-                $data["fields"],
-            '#attributes' => array(
-                'class' => array('form-checkbox-custom'),
-            ),
-            '#title' => $this->t($data["title"])
-        );
-    }
-    
-    
-    /**
-     * 
-     * this function creates the search input field 
-     * 
-     * @param array $form
-     * @return array
-     */
-    private function createSearchInput(array &$form){
-        
         $propertys = array();
         $searchTerms = array();
         $basePath = base_path();
         $propertys = $this->OeawStorage->getAllPropertyForSearch();
-        
+  
         if(empty($propertys)){
              drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SidebarKeywordSearchForm '), 'error');
              return $form;
@@ -131,12 +46,9 @@ class SidebarKeywordSearchForm extends FormBase
             // get the fields from the sparql query 
             $fields = array_keys($propertys[0]);        
             $searchTerms = $this->OeawFunctions->createPrefixesFromArray($propertys, $fields);
-
             $searchTerms = $searchTerms["p"];
             asort($searchTerms);
-
             if(count($searchTerms) > 0) {
-
                 foreach($searchTerms as $terms){
                     $select[$terms] = t($terms);
                 }
@@ -153,7 +65,6 @@ class SidebarKeywordSearchForm extends FormBase
                 } else {
 	                $defaultterm = "";
                 }			    
-
                 $form['metavalue'] = array(
                   '#type' => 'textfield',
                   '#attributes' => array(
@@ -162,7 +73,6 @@ class SidebarKeywordSearchForm extends FormBase
 				  ),                            
                   '#required' => TRUE,
                 );
-
                 $form['actions']['#type'] = 'actions';
                 $form['actions']['submit'] = array(
                   '#type' => 'submit',
@@ -172,8 +82,6 @@ class SidebarKeywordSearchForm extends FormBase
 				  ),                   
                   '#button_type' => 'primary',
                 );
-
-                /*
                 $form['examples'] = array(
                   '#type' => 'container',
                   '#attributes' => array(
@@ -191,7 +99,6 @@ class SidebarKeywordSearchForm extends FormBase
 				  ),                   
                   '#button_type' => 'primary',
                 );
-
                 $form['examples']['example-2'] = array(
                   '#type' => 'container',
                   '#markup' => $this->t('Media'),
@@ -202,7 +109,6 @@ class SidebarKeywordSearchForm extends FormBase
                   '#button_type' => 'primary',
                 );
                 
-
                 $form['examples']['example-3'] = array(
                   '#type' => 'container',
                   '#markup' => $this->t('History'),
@@ -213,14 +119,16 @@ class SidebarKeywordSearchForm extends FormBase
                   '#button_type' => 'primary',
                 );
                 
-*/
-                
+                return $form;
             } else {            
                 drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SidebarKeywordSearchForm'), 'error');
-                
+                return $form;
             }
         }
+        
+        
     }
+    
     
     public function validateForm(array &$form, FormStateInterface $form_state) 
     {
@@ -233,43 +141,14 @@ class SidebarKeywordSearchForm extends FormBase
     public function submitForm(array &$form, FormStateInterface $form_state) {
         
         $metavalue = $form_state->getValue('metavalue');
-        
-        $types = $form_state->getValue('searchbox_types');
-        $types = array_filter($types);
-        $formats = $form_state->getValue('searchbox_format');
-        $formats = array_filter($formats);
-        
-        $startDate = $form_state->getValue('date_start_date');
-        $endDate = $form_state->getValue('date_end_date');
-                
-        if(count($types) > 0){
-            foreach ($types as $t){
-                $extras["type"][] = strtolower($t);
-            }
-        }
-        
-        if(count($formats) > 0){
-            foreach ($formats as $f){
-                $extras["formats"][] = strtolower($f);
-            }
-        }
-        
-        if(!empty($startDate) && !empty($endDate)){
-            $extras["start_date"] = $startDate;
-            $extras["end_date"] = $endDate;
-        }        
-        
-        $metaVal = $this->OeawFunctions->convertSearchString($metavalue, $extras);        
-        
         // Data AND thun NOT editions type:Collection NOT Person date:[20170501 TO 20171020]
+                
+        //$metaVal = $this->OeawFunctions->convertSearchString($metavalue);        
         
-        $metaVal = urlencode($metaVal);
-        
+     
         //$form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metaVal]); 
         $form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metavalue]); 
-        
     
     }
   
 }
-

@@ -363,10 +363,10 @@ class OeawFunctions {
                 foreach($td as $dtype){                        
                     foreach($acdhTypes as $t){
                         
-                        $val = explode('https://vocabs.acdh.oeaw.ac.at/#', $t["type"]);
+                        $val = explode('https://vocabs.acdh.oeaw.ac.at/schema#', $t["type"]);
                         $val = strtolower($val[1]);
                         
-                        if($dtype == "and"){ continue; }
+                        if($dtype == "or"){ continue; }
                         
                         if($dtype == "not"){                        
                             $not = true;
@@ -394,8 +394,8 @@ class OeawFunctions {
             //(?date < "2017-10-20T00:00:00+00:00"^^xsd:dateTime && ?date > "2017-05-11T00:00:00+00:00"^^xsd:dateTime) .
             $query .= "FILTER (?date < '".$maxdate->format(DATE_ATOM)."' ^^xsd:dateTime && ?date > '".$mindate->format(DATE_ATOM)."'^^xsd:dateTime)  \n";
         }
-        $query .= "OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/#hasDescription> ?description .}                
-    	OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/#hasAuthor> ?author .}	    	
+        $query .= "OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/schema#hasDescription> ?description .}                
+    	OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/schema#hasAuthor> ?author .}	    	
         OPTIONAL{ ?uri <". \Drupal\oeaw\ConnData::$contributor."> ?contrib .}	
     	OPTIONAL {?uri <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ?rdfType . }
         OPTIONAL{ ?uri <". \Drupal\oeaw\ConnData::$acdhImage."> ?hasTitleImage .}                
