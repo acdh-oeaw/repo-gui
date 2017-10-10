@@ -118,9 +118,9 @@ class OeawStorage {
             $q->addParameter((new HasValue(RC::get("drupalRdfType"), 'https://vocabs.acdh.oeaw.ac.at/schema#Collection' ))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributor'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreatedDate, '?creationdate'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreationStartDate, '?hasCreationStartDate'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$acdhHasCreationEndDate, '?hasCreationEndDate'), true);
+            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreatedDate'), '?creationdate'), true);
+            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreationStartDate'), '?hasCreationStartDate'), true);
+            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreationEndDate'), '?hasCreationEndDate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
             $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasTitleImage'), '?hasTitleImage'), true);
@@ -224,8 +224,8 @@ class OeawStorage {
                 $where .= " { ";
                 $where .= "?uri <".RC::get('fedoraIdProp')."> <".$value."> . ";
                 $where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
-                $where .= "?uri <".\Drupal\oeaw\ConnData::$rdfsLabel."> ?title . ";
-                $where .= "?uri <".\Drupal\oeaw\ConnData::$rdfsComment."> ?comment . ";
+                $where .= "?uri <".RC::get('drupalRdfsLabel')."> ?title . ";
+                $where .= "?uri <".RC::get('drupalRdfsComment')."> ?comment . ";
                 $where .= " } ";
 
                 if($i != count($data) - 1){
@@ -422,7 +422,7 @@ class OeawStorage {
             if($count == false){
                 //Query parameters for the properties we want to get, true stands for optional
                 $q->addParameter((new HasTriple('?uri', RC::titleProp(), '?title')), true);
-                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$author, '?author'), true);           
+                $q->addParameter(new HasTriple('?uri', RC::get('drupalAuthor'), '?author'), true);           
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
                 $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?label'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributor'), true);            
@@ -1220,13 +1220,13 @@ class OeawStorage {
             $queryStr = "
                 WHERE {
                     ?uri <".RC::get('drupalRdfType')."> ?type .
-                    FILTER (regex(str(?type), 'https://vocabs.acdh.oeaw.ac.at/schema#', 'i'))
+                    FILTER (regex(str(?type), '".RC::vocabsNmsp()."', 'i'))
                 }
                 GROUP BY ?type
-                ORDER BY ?uri
+                ORDER BY ?type
                 ";
             $queryStr = $select.$queryStr;
-            
+
             $q = new SimpleQuery($queryStr);            
             $query = $q->getQuery();
 
