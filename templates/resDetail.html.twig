@@ -477,34 +477,34 @@
     {% endif %}
     
     {% if childResult %}
-        <h3 class="single-res-heading">{{ childTitle }}</h3>
-        <div>
-            <div >
-                {% if result['pagination'] %}
-                    <div>
-                        <ul>
-                            {{ result['pagination']|raw }}
-                        </ul>
-                    </div>
-                <br>
-                {% endif%}
-            </div>
-        </div>        
+	    <div class="res-el res-info res-child-info col-block col-lg-12">
+	        <div class="result-basic-info">
+	            <span class="results-info-bar"><h3>{{ childTitle }}</h3></span>
+	            {% if result['pagination'] %}
+	            	<span class="results-info-bar pagination-span">{{ result['pagination']|raw }}</span>
+	            {% endif%}
+	        </div>
+	    </div>
+
         {% for cItem in childResult %}
             <div class="child-res">
                 
             <div class="res-property">
                 <i class="material-icons">&#xE873;</i>
-                <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">                                         
-                        <span class="res-title">{{ cItem.title }}</span>
-                </a>		
+                <span class="res-title">
+	                <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">                                         
+	                	{{ cItem.title }}
+	                </a>
+                </span>		
             </div>
 
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <a href="{{url('<front>') }}discover/&type={{ cItem.typeName }}/10">
-                        <span class="res-rdftype">{{ cItem.typeName }}</span>
-                </a>
+                <span class="res-rdftype">
+	                <a href="{{url('<front>') }}discover/&type={{ cItem.typeName }}/10">
+	                        {{ cItem.typeName }}
+	                </a>
+                </span>
             </div>
 
             {% if cItem.description %}

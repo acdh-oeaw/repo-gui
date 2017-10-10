@@ -566,7 +566,7 @@ class FrontendController extends ControllerBase  {
         if(count($inverseData) > 0){
             $extras['inverseData'] = $inverseData;
         }
-        
+
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,
