@@ -394,16 +394,16 @@ class OeawFunctions {
             $mindate = new \DateTime($data["mindate"]);
             $maxdate = new \DateTime($data["maxdate"]);
             
-            $conditions .= " ?uri <http://fedora.info/definitions/v4/repository#lastModified> ?date . \n";
+            $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
             //(?date < "2017-10-20T00:00:00+00:00"^^xsd:dateTime && ?date > "2017-05-11T00:00:00+00:00"^^xsd:dateTime) .
-            $query .= "FILTER (?date < '".$maxdate->format(DATE_ATOM)."' ^^xsd:dateTime && ?date > '".$mindate->format(DATE_ATOM)."'^^xsd:dateTime)  \n";
+            $query .= "FILTER (?date < '".$maxdate->format('Y-m-d')."' && ?date > '".$mindate->format('Y-m-d')."')  \n";
         }
         $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?description .}                
-    	OPTIONAL{ ?uri <https://vocabs.acdh.oeaw.ac.at/schema#hasAuthor> ?author .}	    	
-        OPTIONAL{ ?uri <". RC::get('drupalHasContributor')."> ?contrib .}	
-    	OPTIONAL {?uri <".RC::get('drupalRdfType')."> ?rdfType . }
-        OPTIONAL{ ?uri <". RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
-        OPTIONAL {?uri <". RC::get('drupalHasCreatedDate')."> ?createdDate . }";
+    	OPTIONAL{ ?uri <".RC::get('drupalAuthor')."> ?author .}	    	
+        OPTIONAL{ ?uri <".RC::get('drupalHasContributor')."> ?contrib .}	
+    	OPTIONAL{ ?uri <".RC::get('drupalRdfType')."> ?rdfType . }
+        OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
+        OPTIONAL{ ?uri <".RC::get('drupalHasCreatedDate')."> ?createdDate . }";
         
         $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?createdDate ORDER BY " . $order;
         if($limit){
@@ -413,7 +413,7 @@ class OeawFunctions {
                 $query .= " OFFSET ".$page." ";
             }
         }
-       
+        
         return $query;
     }
     
