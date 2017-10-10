@@ -104,7 +104,8 @@ class FrontendController extends ControllerBase  {
             foreach($result as $value){
                 $res[$i]["title"] = $value['title'];
                 $res[$i]["resUri"] = base64_encode($value['uri']);
-                if($value["description"]){
+                
+                if(isset($value["description"]) && !empty($value["description"]) ){
                     $res[$i]["description"] = $value["description"];
                 }                
                 if(count($value["rdfTypes"]) > 0){
@@ -116,16 +117,16 @@ class FrontendController extends ControllerBase  {
                     }
                 }
                 
-                if($value['creationdate']){
-                    $time = strtotime($value['creationdate']);
+                if( isset($value['availableDate']) && !empty($value['availableDate']) ){
+                    $time = strtotime($value['availableDate']);
                     $newTime = date('Y-m-d', $time);
-                    $res[$i]["createdDate"] = $newTime;
+                    $res[$i]["availableDate"] = $newTime;
                 }
                 
-                if($value['image']){
+                if( isset($value['image']) && !empty($value['image']) ){
                     $res[$i]["image"] = $value['image'];
                 }
-                if($value['hasTitleImage']){
+                if( isset($value['hasTitleImage']) && !empty($value['hasTitleImage']) ){
                     $imageUrl = $this->OeawStorage->getImageByIdentifier($value['hasTitleImage']);
                     if($imageUrl){
                         $res[$i]["image"] = $imageUrl;
@@ -868,190 +869,7 @@ class FrontendController extends ControllerBase  {
         return $response;
     }
     
-    
-        
-    /**
-     *  OLD func
-     * Get the classes data from the sidebar class list block
-     * and display them
-     * 
-     * @return array
-     */
-    public function oeaw_classes_result(string $data, string $limit = "10", string $page = "0"): array{
-        drupal_get_messages('error', TRUE);
-        
-        if(empty($data)){
-            drupal_set_message(t('There is no data -> Search'), 'error');
-            return;
-        }
-        
-        $datatable = array();
-        
-        $interPathArray = array();
-        $classesArr = array();
-        $res = array();        
-        $errorMSG = array();
-        $pagination = "";
-        
-        $page = (int)$page;
-        $limit = (int)$limit;        
-        //get the current page for the pagination        
-        $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
-        
-        $classesArr = explode(":", base64_decode($data));
-        $property = $classesArr[0];
-        $value =  $classesArr[1];
-        
-        if (strpos($value, '(') !== false) {
-            $val = explode(' (', $value);
-            if(count($val) > 0){
-                $value = $val[0];
-            }
-        }
-        
-        $uid = \Drupal::currentUser()->id();
-        if(!empty($property) && !empty($value)){
-            //get all data
-            $countRes = $this->OeawStorage->getDataByProp('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property.':'.$value, 0, 0, true);
-            $total = (int)$countRes[0]["count"];
-                
-            if($countRes == 0){
-                $errorMSG = drupal_set_message(t('There is no data in the Database!'), 'error', FALSE);
-            }
-            //create data for the pagination
-            $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
-        
-            if ($pageData['totalPages'] > 1) {
-                $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
-            }
-            
-            //get the search result
-            $result = $this->OeawStorage->getDataByProp('http://www.w3.org/1999/02/22-rdf-syntax-ns#type', $property.':'.$value, $limit, $pageData['end']);
-            
-            if(count($result) > 0){
-                $i = 0;
-                foreach($result as $value){	            
-
-                    // check that the value is an Url or not
-                    $decodeUrl = $this->OeawFunctions->isURL($value["uri"], "decode");
-
-                    //create details and editing urls
-                    if($decodeUrl){
-                        //$res[$i]['detail'] = "/oeaw_detail/".$decodeUrl;
-                        $res[$i]['resUri'] = $decodeUrl;
-                        /*if($uid !== 0){
-                            $res[$i]['edit'] = "/oeaw_edit/".$decodeUrl;
-                            $res[$i]['delete'] = $decodeUrl;
-                        }*/
-                    }
-
-                    $res[$i]["uri"] = $value["uri"];
-                    $res[$i]["title"] = $value["title"];
-                    if(isset($value["firstName"]) && $value["lastName"]){
-                        $res[$i]["specialLabel"] = $value["firstName"].' '.$value["lastName"];
-                    }
-                    if(isset($value["description"])){
-                        $res[$i]["description"] = $value["description"];
-                    }
-                    $creationdate = $value["creationdate"];
-                    $creationdate = strtotime($creationdate);
-                    $res[$i]["creationdate"] = date('F jS, Y',$creationdate);
-
-                    $isPartOf = $value["isPartOf"];
-                    if (isset($isPartOf) && $isPartOf) {
-                        $res[$i]["isPartOfTitle"] = $this->OeawFunctions->getTitleByTheFedIdNameSpace($isPartOf);
-                        $res[$i]["isPartOfUri"] = $this->OeawFunctions->getFedoraUrlHash($isPartOf);
-                    }
-
-                    $rdfTypes = $value["rdfTypes"];                       
-                    if (isset($rdfTypes) && $rdfTypes) {
-                        $rdfTypes = explode(',', $rdfTypes);
-                        foreach ($rdfTypes as $rdfType) {
-                            if (preg_match("/vocabs.acdh.oeaw.ac.at/", $rdfType)) {                            
-                            $res[$i]["rdfType"] = explode(RC::get('fedoraVocabsNamespace'), $rdfType)[1]; 
-                            $res[$i]["rdfTypeUri"] = "/oeaw_classes_result/" . base64_encode('acdh:'.$res[$i]["rdfType"]);
-                            $res[$i]["rdfType"] = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $res[$i]["rdfType"]);
-                                break;  
-                            }
-                        }
-                    }
-
-                    //Resource author and contributor information
-                    $contributors = $value["contributors"]; 
-                    if (isset($contributors) && $contributors) {
-                        $c = 0;
-                        $contributors = explode(',', $contributors);
-                        foreach ($contributors as $contributor) {
-                            $contributorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($contributor);
-                            if ($contributorName) {
-                            //If there are multiple people then add a comma in between
-                                if ($c > 0) {
-                                    $res[$i]["contributors"][$c-1]["contributorName"] .= ",";     
-                                }								
-                                $res[$i]["contributors"][$c]["contributorName"] = $contributorName;
-                                $res[$i]["contributors"][$c]["contributorUri"] = $this->OeawFunctions->getFedoraUrlHash($contributor);
-                                $c++;
-                            }    
-                        }
-                    }
-
-                    $authors = $value["authors"]; 
-                    if (isset($authors) && $authors) {
-                        $a = 0;
-                        $authors = explode(',', $authors);
-                        foreach ($authors as $author) {
-                            $authorName = $this->OeawFunctions->getTitleByTheFedIdNameSpace($author);
-                            if ($authorName) {
-                                //If there are multiple people then add a comma in between
-                                if ($a > 0) {
-                                    $res[$i]["authors"][$a-1]["authorName"] .= ",";     
-                                }								
-                                $res[$i]["authors"][$a]["authorName"] = $authorName;
-                                $res[$i]["authors"][$a]["authorUri"] = $this->OeawFunctions->getFedoraUrlHash($author);
-                                $a++;
-                            }
-                        }
-                    }
-                    $i++;
-                }
-                
-                $searchArray = array(
-                    "metaKey" => $classesArr[0],
-                    "metaValue" => $classesArr[1]
-                );
-                $decodeUrl = "";
-
-            }else {
-                $errorMSG = drupal_set_message(t('There is no data -> Class List Search'), 'error');                
-            }
-        }else {
-            $searchArray = array();
-            $res = array();
-        }
-
-        $datatable = array(            
-            '#userid' => $uid,
-            '#errorMSG' => $errorMSG,
-            '#attached' => [
-                'library' => [
-                'oeaw/oeaw-styles', 
-                ]
-            ]
-        );
-        
-        if(isset($searchArray)) {
-	        $metaValueReadable = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $searchArray["metaValue"]);
-        }
- 
-        if(isset($res) && $res !== null && !empty($res)){
-            $datatable['#theme'] = 'oeaw_keyword_search_res';
-            $datatable['#result'] = $res;
-            $datatable['#pagination'] = $pagination;
-            $datatable['#searchedValues'] = $i . ' elements of type "' . $metaValueReadable . '" have been found.';                
-        }
-        
-        return $datatable;     
-    } 
+   
     
     
 }

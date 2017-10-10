@@ -99,10 +99,10 @@ class OeawStorage {
 		        $order = "DESC(?title)";
 		        break;
 		    case "dateasc":
-		        $order = "ASC(?creationdate)";
+		        $order = "ASC(?availableDate)";
 		        break;
 		    case "datedesc":
-		        $order = "DESC(?creationdate)";
+		        $order = "DESC(?availableDate)";
 		        break;
 		    default:
 		        $order = "ASC(?title)";
@@ -119,10 +119,10 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributor'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreatedDate'), '?creationdate'), true);
+            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasAvailableDate'), '?availableDate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreationStartDate'), '?hasCreationStartDate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreationEndDate'), '?hasCreationEndDate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
-            $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$imageThumbnail, '?image'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasTitleImage'), '?hasTitleImage'), true);
             if($count == false){
 		        $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfType'), '?rdfType'));    
@@ -134,9 +134,9 @@ class OeawStorage {
             $q->addSubquery($q2);    
       
             if($count == false){
-                $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
+                $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
                 $q->setOrderBy(array($order));
-                $q->setGroupBy(array('?uri', '?title', '?description', '?contributor', '?creationdate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate'));
+                $q->setGroupBy(array('?uri', '?title', '?description', '?contributor', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate'));
                 $q->setLimit($limit);
                 $q->setOffset($offset); 
             }else {
@@ -426,7 +426,7 @@ class OeawStorage {
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
                 $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?label'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributor'), true);            
-                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$creationdate, '?creationdate'), true);
+                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreatedDate'), '?creationdate'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfType'), '?rdfType'), true);
                 $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
