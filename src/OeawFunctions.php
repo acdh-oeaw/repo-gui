@@ -391,8 +391,25 @@ class OeawFunctions {
         }
         
         if(isset($data["mindate"]) && isset($data["maxdate"])){
-            $mindate = new \DateTime($data["mindate"]);
-            $maxdate = new \DateTime($data["maxdate"]);
+            
+            if( (bool)strtotime($data["mindate"])  ){
+                $mindate = new \DateTime($data["mindate"]);
+            }else  {
+                $msg = base64_encode("The Minimum date is wrong!");
+                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+                $response->send();
+                return;
+            }
+            if( (bool)strtotime($data["maxdate"]) ){
+                $maxdate = new \DateTime($data["maxdate"]);
+            }else  {
+                $msg = base64_encode("The Maximum date is wrong!");
+                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+                $response->send();
+                return;
+            }
+            
+            
             
             $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
             //(?date < "2017-10-20T00:00:00+00:00"^^xsd:dateTime && ?date > "2017-05-11T00:00:00+00:00"^^xsd:dateTime) .
