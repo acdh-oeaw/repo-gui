@@ -311,10 +311,10 @@ class OeawFunctions {
                 $order = "DESC( fn:lower-case(?title))";
                 break;
             case "dateasc":
-                $order = "ASC(?createdDate)";
+                $order = "ASC(?availableDate)";
                 break;
             case "datedesc":
-                $order = "DESC(?createdDate)";
+                $order = "DESC(?availableDate)";
                 break;
             default:
                 $order = "ASC( fn:lower-case(?title))";
@@ -326,7 +326,7 @@ class OeawFunctions {
         if($count == true){
             $select = "SELECT (COUNT(?uri) as ?count) ";
         }else {
-            $select = 'SELECT DISTINCT ?uri ?description ?title ?createdDate ?hasTitleImage (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
+            $select = 'SELECT DISTINCT ?uri ?description ?title ?availableDate ?hasTitleImage (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
                        (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
                        (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) ';
         }
@@ -403,9 +403,9 @@ class OeawFunctions {
         OPTIONAL{ ?uri <".RC::get('drupalHasContributor')."> ?contrib .}	
     	OPTIONAL{ ?uri <".RC::get('drupalRdfType')."> ?rdfType . }
         OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
-        OPTIONAL{ ?uri <".RC::get('drupalHasCreatedDate')."> ?createdDate . }";
+        OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
         
-        $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?createdDate ORDER BY " . $order;
+        $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?availableDate ORDER BY " . $order;
         if($limit){
             $query .= " LIMIT ".$limit." ";
             
@@ -598,7 +598,7 @@ class OeawFunctions {
     public function createCiteThisWidget(array $resourceData): array {
 
         //MLA Format
-        $widget["MLA"] = ["creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "createdDate" => ""];
+        $widget["MLA"] = ["creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => ""];
 
         //Get creator(s)
         if (isset($resourceData["table"]["acdh:hasCreator"])) {
@@ -653,13 +653,13 @@ class OeawFunctions {
         }
 
         //Get created date
-        if (isset($resourceData["table"]["acdh:hasCreatedDate"])) {
-                $createdDate = $resourceData["table"]["acdh:hasCreatedDate"][0];
-                $createdDate = strtotime($createdDate);
-                $widget["MLA"]["createdDate"] = date('Y',$createdDate);			
+        if (isset($resourceData["table"]["acdh:availableDate"])) {
+                $availableDate = $resourceData["table"]["acdh:availableDate"][0];
+                $availableDate = strtotime($availableDate);
+                $widget["MLA"]["availableDate"] = date('Y',$availableDate);			
         }
-
-        $widget["MLA"]["string"] = '<span>'.$widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["createdDate"].'.</span>';
+        
+        $widget["MLA"]["string"] = '<span>'.$widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["availableDate"].'.</span>';
 
         return $widget;
 	}

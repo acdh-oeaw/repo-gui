@@ -638,6 +638,7 @@ class FrontendController extends ControllerBase  {
             if ($pageData['totalPages'] > 1) {
                 $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
             }
+            
             $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
 
             $res = $this->OeawStorage->runUserSparql($sparql);
@@ -645,11 +646,11 @@ class FrontendController extends ControllerBase  {
             if(count($res) > 0){
                 $i = 0;
                 foreach($res as $r){
-                    if( !empty($r['uri']) ){
+                    if( isset($r['uri']) && (!empty($r['uri'])) ){
                         $result[$i]['resUri'] = base64_encode($r['uri']);
                         $result[$i]['title'] = $r['title'];
 
-                        if($r['rdfTypes']){
+                        if(isset($r['rdfTypes']) && !empty($r['rdfTypes']) ){
                             $x = 0;
                             $types = explode(",", $r['rdfTypes']);
 
@@ -659,13 +660,14 @@ class FrontendController extends ControllerBase  {
                                 }
                             }
                         }
-                        if($r['description']){
+                        if( isset($r['description']) && (!empty($r['description'])) ){
                             $result[$i]['description'] = $r['description'];
                         }
-                        if($r['createdDate']){
-                            $result[$i]['createdDate'] = $r['createdDate'];
+                        if( isset($r['availableDate']) && !empty($r['availableDate']) ){
+                            $result[$i]['availableDate'] = $r['availableDate'];
                         }
-                        if($r['hasTitleImage']){
+                       
+                        if(isset($r['hasTitleImage']) && !empty($r['hasTitleImage'])){
                             $imageUrl = $this->OeawStorage->getImageByIdentifier($r['hasTitleImage']);
                             if($imageUrl){
                                 $result[$i]['image'] = $imageUrl;
