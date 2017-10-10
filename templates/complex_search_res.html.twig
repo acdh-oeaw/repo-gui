@@ -58,6 +58,7 @@
             {% if item.authors %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FB;</i>
+                    <span class="res-prop-label">Author(s): </span>
                     {% for author in item.authors %}  	
                     	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ author.authorUri }}">{{ author.authorName }}</a></span>
                     {% endfor %}	
@@ -67,6 +68,7 @@
             {% if item.contributors %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FE;</i>
+                    <span class="res-prop-label">Contributor(s): </span>
                     {% for contributor in item.contributors %}  	
                     	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ contributor.contributorUri }}">{{ contributor.contributorName }}</a></span>
                     {% endfor %}	
@@ -77,6 +79,7 @@
             {% if item.rdfType %}
                 <div class="res-property">
                     <i class="material-icons">&#xE54E;</i>
+                    <span class="res-prop-label">Type: </span>
                     {% for key,value in item.rdfType %}
                         {% if key == "typeName" %}
                             <span class="res-rdfType"><a href="{{ url('<front>') }}discover/&type={{ value }}/10">{{ value }}</a></span>
@@ -87,7 +90,8 @@
 
             {% if item.availableDate %}
                 <div class="res-property">
-                    <i class="material-icons">&#xE8DF;</i>	
+                    <i class="material-icons">&#xE8DF;</i>
+                    <span class="res-prop-label">Available Date: </span>
                     <span class="res-creationdate">{{ item.availableDate }}</span>
                 </div>
             {% endif%}
@@ -95,7 +99,10 @@
             {% if item.isPartOfTitle %}
                 <div class="res-property">
                     <i class="material-icons">&#xE335;</i>	
-                    <span class="res-ispartof">Part of: <a href="{{ url('<front>') }}oeaw_detail/{{ item.isPartOfUri }}">{{ item.isPartOfTitle }}</a></span>
+                    <span class="res-ispartof">
+                    <span class="res-prop-label">Part of: </span>
+                    <a href="{{ url('<front>') }}oeaw_detail/{{ item.isPartOfUri }}">{{ item.isPartOfTitle }}</a>
+                    </span>
                 </div>
             {% endif%}            
             

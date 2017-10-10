@@ -27,23 +27,23 @@
             {%  if result['table']['acdh:hasBinarySize'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE2BC;</i>
-                    Binary Size:
+                    <span class="res-prop-label">Binary Size: </span>
                     <span class="res-binarySize">{{ result['table']['acdh:hasBinarySize'][0] }}</span>
                 </div>
             {% endif%} 
 
-            {% if result['acdh_rdf:type'] %}
+            {% if result['table']['acdh:rdfType'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE54E;</i>
-                    Type: 
-                    <span class="res-rdftype"><a href="{{ url('<front>') }}discover/&type={{ result['acdh_rdf:type']['title'] }}/10">{{ result['acdh_rdf:type']['title'] }}</a></span>
+                    <span class="res-prop-label">Type: </span>
+                    <span class="res-rdftype"><a href="{{ url('<front>') }}discover/&type={{ ['table']['acdh:rdfType'] }}">{{ result['table']['acdh:rdfType'] }}</a></span>
                 </div>
             {% endif%}		
 
             {% if result['table']['acdh:hasAuthor'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FB;</i>
-                    Author(s):
+                    <span class="res-prop-label">Author(s): </span>
                     {% for value in result['table']['acdh:hasAuthor'] %}
                         <span class="res-author">                            
                             {% if value['insideUri'] %}
@@ -60,7 +60,7 @@
             {% if result['table']['acdh:hasContributor'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FE;</i>
-                    Contributor(s):                  
+                    <span class="res-prop-label">Contributor(s): </span>
                     {% for value in result['table']['acdh:hasContributor'] %}
                         <span class="res-contributor">                            
                             {% if value['insideUri'] %}
@@ -78,8 +78,8 @@
             
             {% if result['table']['acdh:hasCreator'] %}
                 <div class="res-property">
-                    <i class="material-icons">&#xE7FE;</i>
-                    Creator(s): 
+                    <i class="material-icons">&#xE7FB;</i>
+                    <span class="res-prop-label">Creator(s): </span>
                     {% for value in result['table']['acdh:hasCreator'] %}
                         <span class="res-contributor">                            
                             {% if value['insideUri'] %}
@@ -97,7 +97,7 @@
             {% if result['table']['acdh:hasAvailableDate'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
-                    Available Date:
+                    <span class="res-prop-label">Available Date: </span>
                     <span class="res-creationdate">{{ result['table']['acdh:hasAvailableDate'][0] }}</span>
                 </div>
             {% endif%}
@@ -105,15 +105,16 @@
             {% if result['table']['acdh:hasCreatedDate'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
-                    Created Date:
+                    <span class="res-prop-label">Created Date: </span>
                     <span class="res-creationdate">{{ result['table']['acdh:hasCreatedDate'][0] }}</span>
                 </div>
             {% endif%}
-            
+
+			<!--
             {% if result['table']['acdh:hasCreationStartDate'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
-                    Creation Start Date:
+                    <span class="res-prop-label">Creation Start Date: </span>
                     <span class="res-creationdate">{{ result['table']['acdh:hasCreationStartDate'][0] }}</span>
                 </div>
             {% endif%}
@@ -121,16 +122,17 @@
             {% if result['table']['acdh:hasCreationEndDate'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
-                    Creation End Date:
+                    <span class="res-prop-label">Creation End Date: </span>
                     <span class="res-creationdate">{{ result['table']['acdh:hasCreationEndDate'][0] }}</span>
                 </div>
             {% endif%}
+            -->
 
             {% if result['table']['acdh:isPartOf'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE335;</i>
                     <span class="res-ispartof">
-                        Part of:
+                        <span class="res-prop-label">Part of: </span>
                         <span class="res-contributor">
                         {% for value in result['table']['acdh:isPartOf'] %}
                             {% if value['insideUri'] %}
@@ -147,16 +149,16 @@
 
             {% if result['table']['acdh:hasExtent'][0] %}
                 <div class="res-property">
-                    <i class="material-icons">&#xE8DF;</i>
-                    Extent:
+                    <i class="material-icons">&#xE2C7;</i>
+                    <span class="res-prop-label">Extent: </span>
                     <span class="res-creationdate">{{ result['table']['acdh:hasExtent'][0] }}</span>
                 </div>
             {% endif%}
             
             {%  if result['table']['acdh:hasLicence'][0] %}
                 <div class="res-property">
-                    <i class="material-icons">&#xE8F4;</i>
-                    Licence: 
+                    <i class="material-icons">&#xE90C;</i>
+                    <span class="res-prop-label">Licence: </span>
                     <span class="res-binarySize">{{ result['table']['acdh:hasLicence'][0] }}</span>
                 </div>
             {% endif%}
@@ -164,15 +166,15 @@
             {%  if result['table']['acdh:hasAccessRestriction'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8F4;</i>
-                    Access Restriction: 
+                    <span class="res-prop-label">Access: </span>
                     <span class="res-binarySize">{{ result['table']['acdh:hasAccessRestriction'][0] }}</span>
                 </div>
             {% endif%}
             
             {%  if result['table']['acdh:hasSchema'] %}
                 <div class="res-property">
-                    <i class="material-icons">&#xE8F4;</i>
-                    Schema:
+                    <i class="material-icons">&#xE241;</i>
+                    <span class="res-prop-label">Schema: </span>
                     {% if result['table']['acdh:hasSchema'] is iterable %}
                         {% for value in result['table']['acdh:hasSchema'] %}
                             {% if (value['insideUri']) and (value['title'])  %}
@@ -194,7 +196,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE55C;</i>
                     <span class="res-locationUrl">
-                        Location Url:
+                    <span class="res-prop-label">Location URL: </span>
                     {% for value in result['table']['acdh:hasLocationURL'] %}
                         <span class="res-locationUrl">
                         {% if value['insideUri'] %}
@@ -213,7 +215,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE90D;</i>
                     <span class="res-pid">
-                        PID:
+                    <span class="res-prop-label">PID: </span>
                     {% for value in result['table']['acdh:hasPid'] %}
                         <span class="res-pid">                            
                         {% if value['insideUri'] %}
@@ -231,8 +233,8 @@
             
             {% if result['table']['acdh:hasRelatedProject'] %}
                 <div class="res-property">
-                    <i class="material-icons">&#xE7FE;</i>
-                    Related project(s):
+                    <i class="material-icons">&#xE8E1;</i>
+                    <span class="res-prop-label">Related Project(s): </span>
                     {% if result['table']['acdh:hasRelatedProject'] is iterable %}
                         {% for value in result['table']['acdh:hasRelatedProject'] %}
                             <span class="res-contributor">                            
@@ -255,7 +257,8 @@
             {% if result['table']['rdfs:seeAlso'] %}                
                 <div class="res-property">
                     <i class="material-icons">&#xE02F;</i>
-                    <span class="res-seeAlso">See Also:
+                    <span class="res-seeAlso">
+                    <span class="res-prop-label">See Also: </span>
                     {% for value in result['table']['rdfs:seeAlso'] %}
                         <span class="res-seeAlso">                            
                         {% if value['insideUri'] %}
@@ -447,26 +450,42 @@
             <span class="res-description">{{ result['table']['acdh:hasDescription'][0] }}</span>
         </div>
     {% endif%}
- 
-    <h3 class="single-res-heading">Cite Resource</h3>
 
-    <div class="cite-selector">
-            <div class="cite-style selected">
-            	MLA
-            	<a href="javascript://" id="cite-tooltip-mla" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
-            	title="&quot;MLA (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
-            		<i class="material-icons">&#xE88F;</i>
-            	</a>
-            </div>
-    </div>
+	{% if extras.CiteThisWidget %}
+    	<h3 class="single-res-heading">Cite Resource</h3>
+	    <div class="cite-selector">
+	            <div class="cite-style selected">
+	            	MLA
+	            	<a href="javascript://" id="cite-tooltip-mla" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
+	            	title="&quot;MLA (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
+	            		<i class="material-icons">&#xE88F;</i>
+	            	</a>
+	            </div>
+	            <div class="cite-style">
+	            	APA
+	            	<a href="javascript://" id="cite-tooltip-apa" data-toggle="cite-tooltip-apa"  data-placement="right" data-html="true" data-trigger="focus"
+	            	title="&quot;APA (American Psychological Association) style is most commonly used to cite sources within the social sciences.&quot; <a href='https://owl.english.purdue.edu/owl/resource/560/01/'>Read more...</a>">
+	            		<i class="material-icons">&#xE88F;</i>
+	            	</a>
+	            </div>
+	            <div class="cite-style">
+	            	CMS
+	            	<a href="javascript://" id="cite-tooltip-cms" data-toggle="cite-tooltip-cms"  data-placement="right" data-html="true" data-trigger="focus"
+	            	title="&quot;The Chicago Manual of Style (CMS) covers a variety of topics from manuscript preparation and publication to grammar, usage, and documentation.&quot; <a href='https://owl.english.purdue.edu/owl/resource/717/01/'>Read more...</a>">
+	            		<i class="material-icons">&#xE88F;</i>
+	            	</a>
+	            </div>
+	    </div>
+	
+	    <div class="bd-clipboard"><span class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span></div>
+		
+		<figure class="highlight">
+		
+			{{ extras.CiteThisWidget.MLA.string | raw }}
+		
+		</figure>
 
-    <div class="bd-clipboard"><span class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span></div>
-	
-	<figure class="highlight">
-	
-		{{ extras.CiteThisWidget.MLA.string | raw }}
-	
-	</figure>
+	{% endif%}
 
     {% if extras['personChild'] == "concept" %}
         {% set childTitle = "Narrower(s)"%}

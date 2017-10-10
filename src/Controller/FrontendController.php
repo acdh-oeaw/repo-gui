@@ -119,7 +119,7 @@ class FrontendController extends ControllerBase  {
                 
                 if( isset($value['availableDate']) && !empty($value['availableDate']) ){
                     $time = strtotime($value['availableDate']);
-                    $newTime = date('Y-m-d', $time);
+                    $newTime = date('F jS, Y', $time);
                     $res[$i]["availableDate"] = $newTime;
                 }
                 
@@ -463,8 +463,7 @@ class FrontendController extends ControllerBase  {
                 $response->send();
                 return;            
             }  
-            $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
-            
+
             //check the acdh:hasIdentifier data to the child view
             $identifiers = array();
             if(count($results['table']['acdh:hasIdentifier']) > 0){
@@ -472,7 +471,18 @@ class FrontendController extends ControllerBase  {
                     $identifiers[] = $i['uri'];
                 }
             }
-            
+
+			//Get the rdfType to be displayed on the basic view
+            if(count($results['table']['rdf:type']) > 0){
+	            $rdfTypes = $results['table']['rdf:type'];
+	            foreach ($rdfTypes as $rdfType) {
+					if (strpos($rdfType['uri'], 'vocabs.acdh.oeaw.ac.at') !== false) {
+			            $results["table"]["acdh:rdfType"] = str_replace(RC::get('fedoraVocabsNamespace'), '', $rdfType['uri']);
+			            break;
+		            }
+	            }
+            }
+
             if(count($identifiers) > 0){
                 $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
                 //we checks if the acdh:Person is available then we will get the Person Detail view data
@@ -565,6 +575,18 @@ class FrontendController extends ControllerBase  {
         $extras["personChild"] = $specialType;
         if(count($inverseData) > 0){
             $extras['inverseData'] = $inverseData;
+        }
+
+        if($results["table"]["acdh:hasAvailableDate"]){
+            $time = strtotime($results["table"]["acdh:hasAvailableDate"][0]);
+            $newTime = date('F jS, Y', $time);
+            $results["table"]["acdh:hasAvailableDate"][0] = $newTime;
+        }
+
+		//Create data for cite-this widget
+		$typesToBeCited = ["Collection", "Project", "Resource", "Publication"];
+		if (in_array($results["table"]["acdh:rdfType"], $typesToBeCited)) {
+        	$extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
         }
 
         $datatable = array(
@@ -664,16 +686,17 @@ class FrontendController extends ControllerBase  {
                         if( isset($r['description']) && (!empty($r['description'])) ){
                             $result[$i]['description'] = $r['description'];
                         }
-                        if( isset($r['availableDate']) && !empty($r['availableDate']) ){
-                            $result[$i]['availableDate'] = $r['availableDate'];
-                        }
-                       
                         if(isset($r['hasTitleImage']) && !empty($r['hasTitleImage'])){
                             $imageUrl = $this->OeawStorage->getImageByIdentifier($r['hasTitleImage']);
                             if($imageUrl){
                                 $result[$i]['image'] = $imageUrl;
                             }
                         }
+				        if($r["availableDate"]){
+				            $time = strtotime($r["availableDate"]);
+				            $newTime = date('F jS, Y', $time);
+				            $result[$i]["availableDate"] = $newTime;
+				        }
                         $i++;
                     }
                 }
