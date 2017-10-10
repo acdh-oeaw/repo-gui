@@ -613,10 +613,27 @@ class OeawFunctions {
      * @return array $widget Returns the cite-this widget as HTML
      */
     public function createCiteThisWidget(array $resourceData): array {
+	    
+	    /*
+		function input argument: \EasyRdf\Resource $data
 
-        //MLA Format
-        $widget["MLA"] = ["creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => ""];
+	    $OeawStorage = new OeawStorage();
+ 
+		$creatorsData = $data->all(RC::get('drupalHasCreator'));
+		$creators = [];
+		foreach ($creatorsData as $key => $creator) {
+			$uri = $creator->getUri();
+			$creators[$key]['hasFirstName'] = $OeawStorage->getValueByUriProperty($uri, RC::get('drupalHasFirstName'));
+			$creators[$key]['hasLastName'] = $OeawStorage->getValueByUriProperty($uri, RC::get('drupalHasLastName'));
+		}
+		*/
 
+        /** MLA Format
+	     * Example:
+         * Wheelis, Mark. "Investigating Disease Outbreaks Under a Protocol to the Biological and Toxin Weapons Convention." Emerging Infectious Diseases, vol. 6, no. 6, 2000, pp. 595-600, wwwnc.cdc.gov/eid/article/6/6/00-0607_article. Accessed 8 Feb. 2009.
+         */
+        $widget["MLA"] = ["authors" => "", "creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => "", "hasHosting" => "", "hasEditor" => ""];
+		
         //Get creator(s)
         if (isset($resourceData["table"]["acdh:hasCreator"])) {
             foreach ($resourceData["table"]["acdh:hasCreator"] as $key => $creator) {
@@ -676,7 +693,7 @@ class OeawFunctions {
                 $widget["MLA"]["availableDate"] = date('Y',$availableDate);			
         }
         
-        $widget["MLA"]["string"] = '<span>'.$widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["availableDate"].'.</span>';
+        $widget["MLA"]["string"] = $widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["availableDate"];
 
         return $widget;
 	}

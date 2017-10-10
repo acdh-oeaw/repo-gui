@@ -577,7 +577,7 @@ class FrontendController extends ControllerBase  {
             $extras['inverseData'] = $inverseData;
         }
 
-        if($results["table"]["acdh:hasAvailableDate"]){
+        if(isset($results["table"]["acdh:hasAvailableDate"]) && !empty($results["table"]["acdh:hasAvailableDate"])){
             $time = strtotime($results["table"]["acdh:hasAvailableDate"][0]);
             $newTime = date('F jS, Y', $time);
             $results["table"]["acdh:hasAvailableDate"][0] = $newTime;
@@ -586,6 +586,7 @@ class FrontendController extends ControllerBase  {
 		//Create data for cite-this widget
 		$typesToBeCited = ["Collection", "Project", "Resource", "Publication"];
 		if (in_array($results["table"]["acdh:rdfType"], $typesToBeCited)) {
+			//pass $rootMeta for rdf object
         	$extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
         }
 

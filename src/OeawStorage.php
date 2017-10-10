@@ -337,10 +337,10 @@ class OeawStorage {
      * 
      * @param string $uri
      * @param string $property
-     * @return array
+     * @return string
      * 
      */
-    public function getValueByUriProperty(string $uri, string $property): array{
+    public function getValueByUriProperty(string $uri, string $property): string{
         
         if (empty($uri) || empty($property)) {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
@@ -351,16 +351,17 @@ class OeawStorage {
         try {
             
             $q = new Query();
-            $q->addParameter((new HasTriple($uri, $property, '?value')));
-            $q->setJoinClause('optional');
+            $q->addParameter((new HasValue(RC::get('fedoraIdProp'), $uri))->setSubVar('?uri'));
+            $q->addParameter(new HasTriple('?uri', $property, '?value'));
+             
             $query = $q->getQuery();
-            
+
             $result = $this->fedora->runSparql($query);
             
             $fields = $result->getFields(); 
             $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
 
-            return $getResult;                
+            return $getResult[0]["value"];                
         
         } catch (\Exception $ex) {            
             return $getResult;
