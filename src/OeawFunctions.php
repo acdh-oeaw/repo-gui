@@ -197,7 +197,7 @@ class OeawFunctions {
     public function convertSearchString(string $string, array $extras = null): string{
         
         $filters = array("type", "date", "words",);
-        $operands = array("and", "not");
+        $operands = array("or", "not");
         $positions = array();
         
         $res = "";
@@ -249,7 +249,7 @@ class OeawFunctions {
             if(isset($extras["type"])){
                 foreach($extras["type"] as $t){
                     if (strpos($tyStr, $t) == false) {
-                        $tyStr .= "and+".$t."+";
+                        $tyStr .= "or+".$t."+";
                     }
                 }
             }
@@ -270,7 +270,7 @@ class OeawFunctions {
                     $tyStr .= "".$t."+";
                 }
                 if($i != $count -1){
-                    $tyStr .= "and+";
+                    $tyStr .= "or+";
                 }                
                 $i++;
             }
