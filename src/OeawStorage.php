@@ -330,17 +330,57 @@ class OeawStorage {
             return;
         }
     }
-       
+
     /**
      * 
      * Get value by the resource uri and property
      * 
      * @param string $uri
      * @param string $property
+     * @return array
+     * 
+     */
+    public function getValueByUriProperty(string $uri, string $property): array{
+        
+        if (empty($uri) || empty($property)) {
+            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+        }
+        
+        $getResult = array();
+        try {
+            
+            $q = new Query();
+            $q->addParameter((new HasTriple($uri, $property, '?value')));
+            $q->setJoinClause('optional');
+            $query = $q->getQuery();
+            
+            $result = $this->fedora->runSparql($query);
+            
+            $fields = $result->getFields(); 
+            $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
+            return $getResult;                
+        
+        } catch (\Exception $ex) {            
+            return $getResult;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $getResult;
+        } 
+        catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex){
+            return $getResult;
+        } 
+        
+    }
+
+    /**
+     * 
+     * Get a value as string with resource uri and property
+     * 
+     * @param string $uri
+     * @param string $property
      * @return string
      * 
      */
-    public function getValueByUriProperty(string $uri, string $property): string{
+    public function getPropertyValueByUri(string $uri, string $property): string{
         
         if (empty($uri) || empty($property)) {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
@@ -371,11 +411,8 @@ class OeawStorage {
         catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex){
             return $getResult;
         } 
-        
     }
-    
-    
-    
+
     /**
      * 
      * Get all data by property and value

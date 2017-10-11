@@ -623,8 +623,8 @@ class OeawFunctions {
 		$creators = [];
 		foreach ($creatorsData as $key => $creator) {
 			$uri = $creator->getUri();
-			$creators[$key]['hasFirstName'] = $OeawStorage->getValueByUriProperty($uri, RC::get('drupalHasFirstName'));
-			$creators[$key]['hasLastName'] = $OeawStorage->getValueByUriProperty($uri, RC::get('drupalHasLastName'));
+			$creators[$key]['hasFirstName'] = $OeawStorage->getPropertyValueByUri($uri, RC::get('drupalHasFirstName'));
+			$creators[$key]['hasLastName'] = $OeawStorage->getPropertyValueByUri($uri, RC::get('drupalHasLastName'));
 		}
 		*/
 
