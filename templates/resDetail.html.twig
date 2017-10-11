@@ -32,11 +32,11 @@
                 </div>
             {% endif%} 
 
-            {% if result['table']['acdh:rdfType'] %}
+            {% if result['acdh_rdf:type'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE54E;</i>
-                    <span class="res-prop-label">Type: </span>
-                    <span class="res-rdftype"><a href="{{ url('<front>') }}discover/&type={{ ['table']['acdh:rdfType'] }}">{{ result['table']['acdh:rdfType'] }}</a></span>
+                    Type: 
+                    <span class="res-rdftype"><a href="{{ url('<front>') }}discover/&type={{ result['acdh_rdf:type']['title'] }}/10">{{ result['acdh_rdf:type']['title'] }}</a></span>
                 </div>
             {% endif%}		
 
@@ -110,7 +110,7 @@
                 </div>
             {% endif%}
 
-			<!--
+			
             {% if result['table']['acdh:hasCreationStartDate'][0] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
@@ -126,7 +126,7 @@
                     <span class="res-creationdate">{{ result['table']['acdh:hasCreationEndDate'][0] }}</span>
                 </div>
             {% endif%}
-            -->
+            
 
             {% if result['table']['acdh:isPartOf'] %}
                 <div class="res-property">
@@ -192,6 +192,25 @@
                 </div>
             {% endif%}
 
+            {% if result['table']['acdh:hasMetadata'] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE85D;</i>
+                    <span class="res-locationUrl">
+                    <span class="res-prop-label">Metadata: </span>
+                    {% for value in result['table']['acdh:hasMetadata'] %}
+                        <span class="res-locationUrl">
+                        {% if value['insideUri'] %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% else %}
+                            <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% endif%}
+                        </span>
+                    {% endfor %}
+                    </span>
+                </div>
+            {% endif%}
+            
             {% if result['table']['acdh:hasLocationURL'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE55C;</i>

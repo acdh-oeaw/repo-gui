@@ -472,17 +472,6 @@ class FrontendController extends ControllerBase  {
                 }
             }
 
-			//Get the rdfType to be displayed on the basic view
-            if(count($results['table']['rdf:type']) > 0){
-	            $rdfTypes = $results['table']['rdf:type'];
-	            foreach ($rdfTypes as $rdfType) {
-					if (strpos($rdfType['uri'], 'vocabs.acdh.oeaw.ac.at') !== false) {
-			            $results["table"]["acdh:rdfType"] = str_replace(RC::get('fedoraVocabsNamespace'), '', $rdfType['uri']);
-			            break;
-		            }
-	            }
-            }
-
             if(count($identifiers) > 0){
                 $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
                 //we checks if the acdh:Person is available then we will get the Person Detail view data
@@ -583,11 +572,11 @@ class FrontendController extends ControllerBase  {
             $results["table"]["acdh:hasAvailableDate"][0] = $newTime;
         }
 
-		//Create data for cite-this widget
-		$typesToBeCited = ["Collection", "Project", "Resource", "Publication"];
-		if (in_array($results["table"]["acdh:rdfType"], $typesToBeCited)) {
-			//pass $rootMeta for rdf object
-        	$extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
+        //Create data for cite-this widget
+        $typesToBeCited = ["Collection", "Project", "Resource", "Publication"];
+        if (in_array($results["acdh_rdf:type"]["title"], $typesToBeCited)) {
+                //pass $rootMeta for rdf object
+        $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
         }
 
         $datatable = array(

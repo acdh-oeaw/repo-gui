@@ -1155,7 +1155,7 @@ class OeawFunctions {
         //get the not literal propertys TITLE
         $existinTitles = array();
         $existinTitles = $OeawStorage->getTitlyByIdentifierArray($searchTitle);
-
+        
         $resKeys = array_keys($result['table']);
         //change the titles
         foreach($resKeys as $k){
@@ -1174,7 +1174,7 @@ class OeawFunctions {
                 }
             }
         }
-        
+      
         $result['resourceTitle'] = $resourceTitle;
         $result['uri'] = $resourceUri;
         $result['insideUri'] = base64_encode($resourceUri);
