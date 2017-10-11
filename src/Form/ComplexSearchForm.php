@@ -41,7 +41,7 @@ class ComplexSearchForm extends FormBase
         
         $resData["title"] = "Type of Entity";
         $resData["type"] = "searchbox_types";
-        $resFields = $this->OeawStorage->getACDHTypes(true);
+        $resFields = $this->OeawStorage->getACDHTypes(true, true);
         
         $rs = array();
         //create the resource type data
@@ -233,6 +233,7 @@ class ComplexSearchForm extends FormBase
         }
     
         $metaVal = $this->OeawFunctions->convertSearchString($metavalue, $extras);
+     
         $metaVal = urlencode($metaVal);
         $form_state->setRedirect('oeaw_complexsearch', ["metavalue" => $metaVal, "limit" => 10,  "page" => 1]); 
         

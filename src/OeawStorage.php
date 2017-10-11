@@ -1240,11 +1240,13 @@ class OeawStorage {
     
     /**
      * 
-     * Get the acdh rdf types
+     * Function Return the ACDH vocabs Namespace Types with a count
      * 
+     * @param bool $count -> we want only count or not
+     * @param bool $searchBox -> the complex searchbox has to skip some values
      * @return array
      */
-    public function getACDHTypes(bool $count = false) :array
+    public function getACDHTypes(bool $count = false, bool $searchBox = false) :array
     {        
             
         $getResult = array();
@@ -1255,14 +1257,22 @@ class OeawStorage {
             }else {
                 $select = "SELECT  DISTINCT ?type ";
             }
+            
+            $filter = "FILTER (regex(str(?type), '".RC::vocabsNmsp()."', 'i')) .";
+            if($searchBox == true){
+                $filter .= "FILTER (!regex(str(?type), '".RC::get('drupalImage')."', 'i')) ."
+                        . "FILTER (!regex(str(?type), '".RC::get('fedoraServiceClass')."', 'i')) .";
+            }
+            
             $queryStr = "
                 WHERE {
                     ?uri <".RC::get('drupalRdfType')."> ?type .
-                    FILTER (regex(str(?type), '".RC::vocabsNmsp()."', 'i'))
+                    $filter
                 }
                 GROUP BY ?type
                 ORDER BY ?type
                 ";
+            
             $queryStr = $select.$queryStr;
 
             $q = new SimpleQuery($queryStr);            
