@@ -1016,10 +1016,12 @@ class OeawStorage {
         
         $where .= '<'.$url.'> <'.RC::get("fedoraIdProp").'> ?obj .'
                 . '?uri ?prop ?obj .'
-                . 'MINUS { ?uri <'.RC::get("fedoraIdProp").'> ?obj  } . MINUS { ?uri <'.RC::get("fedoraRelProp").'> ?obj  } ';
+                . 'MINUS { ?uri <'.RC::get("fedoraIdProp").'> ?obj  } . MINUS { ?uri <'.RC::get("fedoraRelProp").'> ?obj  } . '
+                . '?propUri <'.RC::get("fedoraIdProp").'> ?prop .'
+                . '?propUri <'.RC::get("drupalOwlInverseOf").'> ?inverse .';
                 
         $select = '
-            select DISTINCT ?uri ?prop ?obj where { ';
+            select DISTINCT ?uri ?prop ?obj ?inverse where { ';
         $end = ' } ';
         
         $string = $select.$where.$end;

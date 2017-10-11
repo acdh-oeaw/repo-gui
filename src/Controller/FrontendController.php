@@ -870,10 +870,10 @@ class FrontendController extends ControllerBase  {
                 $invData["data"] = array();
             }else {
                 for ($index = 0; $index <= count($res) - 1; $index++) {
-                    if(!empty($res[$index]['prop']) && !empty($res[$index]['title']) && !empty($res[$index]['insideUri'])){
+                    if(!empty($res[$index]['inverse']) && !empty($res[$index]['title']) && !empty($res[$index]['insideUri'])){
                         $title = $res[$index]['title'];
                         $insideUri = $res[$index]['insideUri'];
-                        $invData["data"][$index] = array($res[$index]['prop'], "<a href='$insideUri'>$title</a>");
+                        $invData["data"][$index] = array($res[$index]['inverse'], "<a href='$insideUri'>$title</a>");
                     }
                 }
             }
