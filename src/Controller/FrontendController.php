@@ -580,7 +580,15 @@ class FrontendController extends ControllerBase  {
                 $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
             }
         }
-        
+
+		//Copy link uri
+        if(isset($results["table"]["acdh:hasIdentifier"]) && !empty($results["table"]["acdh:hasIdentifier"]) ){
+			if (array_key_exists('uri', $results["table"]["acdh:hasIdentifier"])) {
+			    $extras["niceURI"] = $results["table"]["acdh:hasIdentifier"]["uri"];
+			} else if (array_key_exists(0, $results["table"]["acdh:hasIdentifier"])) {
+				$extras["niceURI"] = $results["table"]["acdh:hasIdentifier"][0]["uri"];
+			}
+        }
 
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
@@ -685,7 +693,7 @@ class FrontendController extends ControllerBase  {
                                 $result[$i]['image'] = $imageUrl;
                             }
                         }
-				        if($r["availableDate"]){
+				        if(isset($r["availableDate"]) && !empty($r["availableDate"])){
 				            $time = strtotime($r["availableDate"]);
 				            $newTime = date('F jS, Y', $time);
 				            $result[$i]["availableDate"] = $newTime;

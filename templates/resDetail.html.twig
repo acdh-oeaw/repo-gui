@@ -8,10 +8,26 @@
                 <i class="material-icons">&#xE896;</i>
                 <span>Switch to Expert-View</span>
         </div>
-        <div class="res-act-button res-act-button-copy-url" id="res-act-button-copy-url">
-                <i class="material-icons">&#xE157;</i>
-                <span href="javascript://" id="copy-url-tooltip" data-toggle="copy-url-tooltip"  data-placement="bottom" data-html="true" data-trigger="manual" title="Copied to Clipboard!">Copy Resource Link</span>
+        {% if extras.niceURI %}
+        <div class="res-act-button res-act-button-copy-url" id="res-act-button-copy-url" data-copyuri="{{ extras.niceURI }}">
+                
+                <!--
+                <span href="javascript://" id="copy-url-tooltip" data-toggle="copy-url-tooltip"  data-placement="bottom" data-html="true" data-trigger="manual" title="Copied to Clipboard! URL: {{ extras.niceURI }}">
+                	Copy Resource Link
+                </span>
+                -->
+                <span id="copy-url-button">
+                	<i class="material-icons">&#xE157;</i>
+                	Copy Resource Link
+                </span>
+                <span id="copyLinkTextfield-wrapper">
+                	<span type="text" name="copyLinkInputBtn" id="copyLinkInputBtn" data-copyuri="{{ extras.niceURI }}">
+                		<i class="material-icons">&#xE14D;</i>
+                	</span>
+                	<input type="text" name="copyLinkTextfield" id="copyLinkTextfield" value="{{ extras.niceURI }}"/>
+                </span>
         </div>
+        {% endif %}
     </h3> 
     
     <div class="single-res-overview single-res-overview-basic">
