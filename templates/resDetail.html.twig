@@ -211,6 +211,25 @@
                 </div>
             {% endif%}
             
+            {% if result['isMetadata'] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE85D;</i>
+                    <span class="res-locationUrl">
+                    <span class="res-prop-label">isMetadataFor: </span>
+                    {% for value in result['isMetadata'] %}
+                        <span class="res-locationUrl">
+                        {% if value['insideUri'] %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% else %}
+                            <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% endif%}
+                        </span>
+                    {% endfor %}
+                    </span>
+                </div>
+            {% endif%}
+            
             {% if result['table']['acdh:hasLocationURL'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE55C;</i>

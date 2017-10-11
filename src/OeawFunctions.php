@@ -1123,6 +1123,13 @@ class OeawFunctions {
                         if($val == \Drupal\oeaw\ConnData::$fedoraBinary){
                             $result['hasBinary'] = $resourceUri;
                         }
+                        
+                        if($val == RC::get('drupalMetadata') ){
+                            $invMeta = $OeawStorage->getMetaInverseData($resourceUri);
+                            if(count($invMeta) > 0){
+                                $result['isMetadata'] = $invMeta;
+                            }
+                        }
                     }
                     
                     //simply check the acdh:hasTitleImage for the root resources too.

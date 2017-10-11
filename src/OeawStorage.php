@@ -1005,6 +1005,65 @@ class OeawStorage {
     
     /**
      * 
+     * Get the HasMetadata Inverse property by Resource Identifier
+     * 
+     * 
+     * @param string $id
+     * @return array
+     * 
+     * 
+     */
+    public function getMetaInverseData(string $uri): array{
+        $result = array();
+        
+        $where = "";
+        $where .= '<'.$uri.'> <'.RC::get("fedoraIdProp").'> ?id .'
+                . '?uri <'.RC::get("drupalHasMetadata").'> ?id .'
+                . '?invUri <'.RC::get("fedoraIdProp").'> <'.RC::get("drupalHasMetadata").'> .'
+                . '?invUri <'.RC::get("drupalOwlInverseOf").'> ?inverse .';
+        
+        $select = '
+            select ?uri ?inverse where { ';
+        $end = ' } ';
+        
+        $string = $select.$where.$end;
+        
+        try {
+            $q = new SimpleQuery($string);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields(); 
+            $res = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+            $i = 0;
+            foreach($res as $r){
+                foreach($r as $k => $v){                    
+                    $result[$i][$k] = $v;
+                    if($k == "uri"){
+                        $title = $this->OeawFunctions->getTitleByUri($v);
+                        $result[$i]["title"] = $title;
+                        $result[$i]["insideUri"] = base64_encode($v);
+                    }
+                    if($k == "prop"){                        
+                        $shortcut = $this->OeawFunctions->createPrefixesFromString($v);
+                        $result[$i]["shortcut"] = $shortcut;
+                    }
+                }
+                $i++;
+            }
+            
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+    }
+    
+    /**
+     * 
      * Create the Inverse table data by URL
      * 
      * @param string $url
