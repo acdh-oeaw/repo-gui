@@ -574,10 +574,13 @@ class FrontendController extends ControllerBase  {
 
         //Create data for cite-this widget
         $typesToBeCited = ["Collection", "Project", "Resource", "Publication"];
-        if (in_array($results["acdh_rdf:type"]["title"], $typesToBeCited)) {
+        if(isset($results["acdh_rdf:type"]["title"]) && !empty($results["acdh_rdf:type"]["title"]) ){
+            if (in_array($results["acdh_rdf:type"]["title"], $typesToBeCited)) {
                 //pass $rootMeta for rdf object
-        $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
+                $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
+            }
         }
+        
 
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
