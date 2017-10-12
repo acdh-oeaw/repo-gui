@@ -400,10 +400,14 @@ class FrontendController extends ControllerBase  {
      * @param string $page
      * @return array
      */
-    public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "0"): array {
+    public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "1"): array {
         drupal_get_messages('error', TRUE);
-        
-        
+
+        //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
+        if ($page > 0) {
+            $page = $page-1;
+        }
+
         if (empty($uri)) {
             $msg = base64_encode("The URI is missing");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -418,7 +422,7 @@ class FrontendController extends ControllerBase  {
         $childResult = array();
         $rules = array();
         $ACL = array();
-        
+
         $fedora = $this->OeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
         
