@@ -1058,7 +1058,7 @@ class OeawFunctions {
         $result = array();
         
         $OeawStorage = new OeawStorage();
-        
+
         if(empty($data)){
             return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error');
         }
@@ -1097,21 +1097,6 @@ class OeawFunctions {
                         //$title = $OeawStorage->getTitleByIdentifier($classUri);
                         $searchTitle[] = $classUri;
                     }
-                    
-                    /*
-                    //add the title to the resources
-                    if(count($title) > 0){
-                        if($p == RC::get('drupalRdfType')){
-                            $result['acdh_'.$propertyShortcut]['title'] = $title[0]['title'];
-                            $result['acdh_'.$propertyShortcut]['insideUri'] = base64_encode($title[0]['uri']);
-                        }
-                        //we will skip the identifer, there we do not need the title
-                        if($p != RC::idProp() || ( ($p == RC::idProp()) && (strpos($classUri, 'id.acdh.oeaw.ac.at') == false) ) ){
-                            $result['table'][$propertyShortcut][$key]['title'] = $title[0]['title'];
-                            $result['table'][$propertyShortcut][$key]['insideUri'] = base64_encode($title[0]['uri']);
-                        }
-                    }
-                    */
                     //if the acdhImage is available or the ebucore MIME
                     if($p == RC::get("drupalRdfType")){
                         if($val == RC::get('drupalHasTitleImage')){
@@ -1141,8 +1126,15 @@ class OeawFunctions {
                     }
                 }
                 
-                if(get_class($val) == "EasyRdf\Literal" ){
-                    $result['table'][$propertyShortcut][$key] = $val->getValue();
+                if( (get_class($val) == "EasyRdf\Literal") || (get_class($val) == "EasyRdf\Literal\DateTime") ){
+                    if(get_class($val) == "EasyRdf\Literal\DateTime"){
+                        $dt = $val->__toString();                        
+                        $time = strtotime($dt);
+                        $result['table'][$propertyShortcut][$key]  = date('F jS, Y', $time);
+                    }else{
+                        $result['table'][$propertyShortcut][$key] = $val->getValue();
+                    }
+                    
                     //we dont have the image yet but we have a MIME
                     if( ($p == \Drupal\oeaw\ConnData::$ebucoreMime) && (!isset($result['image'])) && (strpos($val, 'image') !== false) ) {
                         $result['image'] = $resourceUri;
