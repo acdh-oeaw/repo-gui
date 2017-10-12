@@ -112,7 +112,7 @@
             {% if item.image %}	
                 <div class="res-inside-wrap col-lg-4 ">	
                     <div class="single-res-thumb">
-                        <a href="{{ item.image }}"><img src="{{ item.image }}"></a>
+                        <a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}"><img src="{{ item.image }}"></a>
                     </div>
                 </div>
             {% endif%}   
