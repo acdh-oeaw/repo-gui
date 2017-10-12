@@ -473,6 +473,7 @@ class FrontendController extends ControllerBase  {
             }
 
             if(count($identifiers) > 0){
+                
                 $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
                 //we checks if the acdh:Person is available then we will get the Person Detail view data
                 if(isset($results['table']['rdf:type'])){
@@ -554,7 +555,7 @@ class FrontendController extends ControllerBase  {
      
         $dissServices =array();
         //check the Dissemination services
-        $dissServices = $this->OeawFunctions->getResourceDissServ($uri);
+        $dissServices = $this->OeawFunctions->getResourceDissServ($fedoraRes);
         if(count($dissServices) > 0){
             $extras['dissServ'] = $dissServices;
         }
@@ -603,7 +604,7 @@ class FrontendController extends ControllerBase  {
                 ]
             ]
         );
-                
+        
         return $datatable;
              
     }

@@ -15,11 +15,9 @@ use acdhOeaw\fedora\metadataQuery\HasTriple;
 use acdhOeaw\fedora\metadataQuery\HasValue;
 use acdhOeaw\fedora\metadataQuery\MatchesRegEx;
 
-
 use acdhOeaw\fedora\metadataQuery\Query;
 use acdhOeaw\fedora\metadataQuery\QueryParameter;
 use acdhOeaw\fedora\metadataQuery\SimpleQuery;
-
 
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -1014,6 +1012,7 @@ class OeawStorage {
      * 
      */
     public function getMetaInverseData(string $uri): array{
+        
         $result = array();
         
         $where = "";
@@ -1412,6 +1411,7 @@ class OeawStorage {
      * 
     */
     public function getTitlyByIdentifierArray(array $data): array{
+        
         $result = array();
         if(count($data) > 0){
             $where = "";

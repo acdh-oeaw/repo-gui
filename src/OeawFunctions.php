@@ -58,24 +58,18 @@ class OeawFunctions {
      * @param string $uri
      * @return array
      */
-    public function getResourceDissServ(string $uri): array {
+    public function getResourceDissServ(\acdhOeaw\fedora\FedoraResource $fedoraRes): array {
         
         $result = array();
-        if($uri){
-            
-            $fedora = $this->initFedora();
-           
+        if($fedoraRes){
             try{
-                
-                $res = $fedora->getResourceByUri($uri); //or any other way to get the FedoraResource object
-                $id = $res->getId();
-                
-                if($res->getDissServices()){
-                    foreach($res->getDissServices() as $k => $v) {
+                $id = $fedoraRes->getId();
+                $dissServ = $fedoraRes->getDissServices();
+                if($dissServ){
+                    foreach($dissServ as $k => $v) {
                         $result[$k] = $id;            
                     }
                 }
-                
                 return $result;
             } catch (Exception $ex) {
                 $msg = base64_encode('Error in function: '.__FUNCTION__);
@@ -176,6 +170,7 @@ class OeawFunctions {
      * 
      */
     public function getCurrentPageForPagination(): string{
+        
         $currentPath = "";
         $currentPage = "";
         
@@ -183,6 +178,7 @@ class OeawFunctions {
         $currentPage = substr($currentPath, 1);
         $currentPage = explode("/", $currentPage);        
         $currentPage = $currentPage[0].'/'.$currentPage[1];
+        
         return $currentPage;
     }
     
@@ -948,6 +944,7 @@ class OeawFunctions {
         else {
             $result = $string;
         }         
+        
         return $result;        
     }
 
@@ -1057,6 +1054,7 @@ class OeawFunctions {
      * @return array
      */
     public function createDetailViewTable(\EasyRdf\Resource $data): array{
+        
         $result = array();
         
         $OeawStorage = new OeawStorage();
