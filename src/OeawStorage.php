@@ -115,7 +115,7 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
             $q->addParameter((new HasValue(RC::get("drupalRdfType"), 'https://vocabs.acdh.oeaw.ac.at/schema#Collection' ))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
-            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributor'), true);
+            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributors'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreatedDate'), '?creationdate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasAvailableDate'), '?availableDate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreationStartDate'), '?hasCreationStartDate'), true);
@@ -132,9 +132,9 @@ class OeawStorage {
             $q->addSubquery($q2);    
       
             if($count == false){
-                $q->setSelect(array('?uri', '?title', '?description', '?contributor', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
+                $q->setSelect(array('?uri', '?title', '?description', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)', '(GROUP_CONCAT(DISTINCT ?contributors;separator=",") AS ?contributor)'));
                 $q->setOrderBy(array($order));
-                $q->setGroupBy(array('?uri', '?title', '?description', '?contributor', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate'));
+                $q->setGroupBy(array('?uri', '?title', '?description', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate'));
                 $q->setLimit($limit);
                 $q->setOffset($offset); 
             }else {
@@ -144,7 +144,7 @@ class OeawStorage {
             }
             
             $query = $q->getQuery();
-            
+          
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
                 $fields = $result->getFields();             
