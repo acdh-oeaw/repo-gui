@@ -96,7 +96,7 @@ class FrontendController extends ControllerBase  {
         }
 
         $result = $this->OeawStorage->getRootFromDB($limit, $page, false, $order);
-        
+       
         $uid = \Drupal::currentUser()->id();
 
         if(count($result) > 0){
@@ -403,13 +403,13 @@ class FrontendController extends ControllerBase  {
     public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "0"): array {
         drupal_get_messages('error', TRUE);
         
-        
         if (empty($uri)) {
             $msg = base64_encode("The URI is missing");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;            
         }
+        
         if($limit == "0"){ $limit = "10"; }
         $uri = base64_decode($uri);        
         $hasBinary = "";  
@@ -506,10 +506,12 @@ class FrontendController extends ControllerBase  {
                 }
                 
                 $total = (int)count($countData);
+                
                 if($limit == "0") { $pagelimit = "10"; } else { $pagelimit = $limit; }
                 
                 //create data for the pagination                
                 $pageData = $this->OeawFunctions->createPaginationData($pagelimit, $page, $total);
+
                 $pagination = "";                
                 if ($pageData['totalPages'] > 1) {
                     $results['pagination'] =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $pagelimit);
@@ -584,11 +586,11 @@ class FrontendController extends ControllerBase  {
 
 		//Copy link uri
         if(isset($results["table"]["acdh:hasIdentifier"]) && !empty($results["table"]["acdh:hasIdentifier"]) ){
-			if (array_key_exists('uri', $results["table"]["acdh:hasIdentifier"])) {
-			    $extras["niceURI"] = $results["table"]["acdh:hasIdentifier"]["uri"];
-			} else if (array_key_exists(0, $results["table"]["acdh:hasIdentifier"])) {
-				$extras["niceURI"] = $results["table"]["acdh:hasIdentifier"][0]["uri"];
-			}
+            if (array_key_exists('uri', $results["table"]["acdh:hasIdentifier"])) {
+                $extras["niceURI"] = $results["table"]["acdh:hasIdentifier"]["uri"];
+            } else if (array_key_exists(0, $results["table"]["acdh:hasIdentifier"])) {
+                    $extras["niceURI"] = $results["table"]["acdh:hasIdentifier"][0]["uri"];
+            }
         }
 
         $datatable = array(
