@@ -409,7 +409,8 @@ class OeawFunctions {
             
             $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
             //(?date < "2017-10-20T00:00:00+00:00"^^xsd:dateTime && ?date > "2017-05-11T00:00:00+00:00"^^xsd:dateTime) .
-            $query .= "FILTER (?date < '".$maxdate->format('Y-m-d')."' && ?date > '".$mindate->format('Y-m-d')."')  \n";
+            // $query .= "FILTER (?date < '".$maxdate->format(DATE_ATOM)."' ^^xsd:dateTime && ?date > '".$mindate->format(DATE_ATOM)."'^^xsd:dateTime)  \n";
+            $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
         }
         $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?description .}                
     	OPTIONAL{ ?uri <".RC::get('drupalAuthor')."> ?author .}	    	
