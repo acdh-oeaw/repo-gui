@@ -448,7 +448,7 @@ class OeawFunctions {
         $prevlabel = "<i class='material-icons'>&#xE5CB;</i>";
         $nextlabel = "<i class='material-icons'>&#xE5CC;</i>";
         $out = "";
-        
+        $actualPage;
         $tpages = $tpages;
         // previous
         if ($page == 0) {
@@ -1131,7 +1131,7 @@ class OeawFunctions {
                     if(get_class($val) == "EasyRdf\Literal\DateTime"){
                         $dt = $val->__toString();                        
                         $time = strtotime($dt);
-                        $result['table'][$propertyShortcut][$key]  = date('F jS, Y', $time);
+                        $result['table'][$propertyShortcut][$key]  = date('Y-m-d', $time);
                     }else{
                         $result['table'][$propertyShortcut][$key] = $val->getValue();
                     }

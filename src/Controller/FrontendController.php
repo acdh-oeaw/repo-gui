@@ -119,7 +119,7 @@ class FrontendController extends ControllerBase  {
                 
                 if( isset($value['availableDate']) && !empty($value['availableDate']) ){
                     $time = strtotime($value['availableDate']);
-                    $newTime = date('F jS, Y', $time);
+                    $newTime = date('Y-m-d', $time);
                     $res[$i]["availableDate"] = $newTime;
                 }
                 
@@ -576,7 +576,7 @@ class FrontendController extends ControllerBase  {
 
         if(isset($results["table"]["acdh:hasAvailableDate"]) && !empty($results["table"]["acdh:hasAvailableDate"])){
             $time = strtotime($results["table"]["acdh:hasAvailableDate"][0]);
-            $newTime = date('F jS, Y', $time);
+            $newTime = date('Y-m-d', $time);
             $results["table"]["acdh:hasAvailableDate"][0] = $newTime;
         }
 
@@ -703,7 +703,7 @@ class FrontendController extends ControllerBase  {
                         }
 				        if(isset($r["availableDate"]) && !empty($r["availableDate"])){
 				            $time = strtotime($r["availableDate"]);
-				            $newTime = date('F jS, Y', $time);
+				            $newTime = date('Y-m-d', $time);
 				            $result[$i]["availableDate"] = $newTime;
 				        }
                         $i++;
