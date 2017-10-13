@@ -433,11 +433,11 @@
                         <td>
                             {% for val in value %}
                                 {% if (val['title']) and (val['insideUri']) %}
-                                    <a href="/browser/oeaw_detail/{{ val['insideUri'] }}">{{ val['title'] }} </a> <br>1
+                                    <a href="/browser/oeaw_detail/{{ val['insideUri'] }}">{{ val['title'] }} </a> <br>
                                 {% elseif val['title'] %}
-                                    <a href="{{ val['uri'] }}">{{ val['title'] }}</a> <br>2
+                                    <a href="{{ val['uri'] }}">{{ val['title'] }}</a> <br>
                                 {% elseif val['uri'] %}
-                                    <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> <br>3
+                                    <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> <br>
                                 {% else %}
                                     {{ val }}
                                 {% endif %}
