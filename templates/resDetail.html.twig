@@ -546,22 +546,20 @@
         
     {% if extras['dissServ'] %}
         <div class="res-property">
-        	<i class="material-icons">&#xE89F;</i>	
-                {% for key, ds in extras['dissServ'] %}
+            <i class="material-icons">&#xE89F;</i>	
+            {% for key, ds in extras['dissServ'] %}
+                {% if key == "raw"  %}
+                    {% if result['table']['acdh:hasBinarySize'][0] %}
+                        <div class="res-act-button">
+                        <a href="{{ ds }}?format={{ key|url_encode }}"><span>DOWNLOAD BINARY</span></a>
+                        </div>
+                    {% endif %}    
+                {% else %}
                     <div class="res-act-button">
-                        {% if result['table']['acdh:hasBinarySize'][0] %}
-                             {% set rawTitle = "DOWNLOAD BINARY"%}
-                        {% else %}
-                            {% set rawTitle = "Raw Access"%}
-                        {% endif %}
-                        
-                        {% if key == "raw" %}
-                            <a href="{{ ds }}?format={{ key|url_encode }}"><span>{{ rawTitle }}</span></a>
-                        {% else %}
-                            <a href="{{ ds }}?format={{ key|url_encode }}"><span>{{ key|upper }} Access</span></a>
-                        {% endif %}
+                    <a href="{{ ds }}?format={{ key|url_encode }}"><span>{{ key|upper }} Access</span></a>
                     </div>               
-                {% endfor %}  
+                {% endif %}
+            {% endfor %}  
         </div>                       
     {% endif %}    	
     
