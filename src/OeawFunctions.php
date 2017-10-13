@@ -708,7 +708,7 @@ class OeawFunctions {
     public function makeMetaData(string $uri): \EasyRdf\Resource{
         
         if(empty($uri)){
-            return drupal_set_message(t('The uri is missing!'), 'error');
+            return drupal_set_message(t('Resource does not exist!'), 'error');
         }
         
         $meta = array();
@@ -718,7 +718,7 @@ class OeawFunctions {
             $meta = $fedora->getResourceByUri($uri);
             $meta = $meta->getMetadata();
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            $msg = base64_encode("URI NOT EXISTS");
+            $msg = base64_encode("Resource does not exist!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
@@ -757,7 +757,7 @@ class OeawFunctions {
             return;
         }     
         catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            $msg = base64_encode("URI NOT EXISTS");
+            $msg = base64_encode("Resource does not exist!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;

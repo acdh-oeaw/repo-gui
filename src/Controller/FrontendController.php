@@ -298,7 +298,7 @@ class FrontendController extends ControllerBase  {
     public function oeaw_query(string $uri){
         
         if (empty($uri)) {
-           return drupal_set_message(t('The uri is missing!'), 'error');
+           return drupal_set_message(t('Resource does not exist!'), 'error');
         }
         
         $uri = base64_decode($uri);
@@ -343,7 +343,7 @@ class FrontendController extends ControllerBase  {
     public function oeaw_new_success(string $uri){
         
         if (empty($uri)) {
-           return drupal_set_message(t('The uri is missing!'), 'error');
+           return drupal_set_message(t('Resource does not exist!'), 'error');
         }
         $uid = \Drupal::currentUser()->id();
         // decode the uri hash
@@ -408,7 +408,7 @@ class FrontendController extends ControllerBase  {
         }
 
         if (empty($uri)) {
-            $msg = base64_encode("The URI is missing");
+            $msg = base64_encode("Resource does not exist");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;            
@@ -432,7 +432,7 @@ class FrontendController extends ControllerBase  {
             $fedoraRes = $fedora->getResourceByUri($uri);
             $rootMeta = $fedoraRes->getMetadata();
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            $msg = base64_encode("URI NOT EXISTS");
+            $msg = base64_encode("Resource does not exist!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
@@ -831,7 +831,7 @@ class FrontendController extends ControllerBase  {
         if(!$uri){
             $matches = array(
                 "result" => false,
-                "error_msg" => "URI MISSING!"
+                "error_msg" => "Resource does not exist!"
                 );
         }
         
