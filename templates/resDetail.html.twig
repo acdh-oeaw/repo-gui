@@ -172,7 +172,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
                     <span class="res-prop-label">Available Date: </span>
-                    <span class="res-prop-value">{{ result['table']['acdh:hasAvailableDate'][0] }}</span>
+                    <span class="res-prop-value">{{ result['table']['acdh:hasAvailableDate'][0]|date("d M Y") }}</span>
                 </div>
             {% endif%}
             
@@ -180,7 +180,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
                     <span class="res-prop-label">Created Date: </span>
-                    <span class="res-prop-value">{{ result['table']['acdh:hasCreatedDate'][0] }}</span>
+                    <span class="res-prop-value">{{ result['table']['acdh:hasCreatedDate'][0]|date("d M Y") }}</span>
                 </div>
             {% endif%}
 
@@ -189,7 +189,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
                     <span class="res-prop-label">Creation Start Date: </span>
-                    <span class="res-prop-value">{{ result['table']['acdh:hasCreationStartDate'][0] }}</span>
+                    <span class="res-prop-value">{{ result['table']['acdh:hasCreationStartDate'][0]|date("d M Y") }}</span>
                 </div>
             {% endif%}
             
@@ -197,7 +197,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
                     <span class="res-prop-label">Creation End Date: </span>
-                    <span class="res-prop-value">{{ result['table']['acdh:hasCreationEndDate'][0] }}</span>
+                    <span class="res-prop-value">{{ result['table']['acdh:hasCreationEndDate'][0]|date("d M Y") }}</span>
                 </div>
             {% endif%}
             
@@ -546,22 +546,20 @@
         
     {% if extras['dissServ'] %}
         <div class="res-property">
-        	<i class="material-icons">&#xE89F;</i>	
-                {% for key, ds in extras['dissServ'] %}
+            <i class="material-icons">&#xE89F;</i>	
+            {% for key, ds in extras['dissServ'] %}
+                {% if key == "raw"  %}
+                    {% if result['table']['acdh:hasBinarySize'][0] %}
+                        <div class="res-act-button">
+                        <a href="{{ ds }}?format={{ key|url_encode }}"><span>DOWNLOAD BINARY</span></a>
+                        </div>
+                    {% endif %}    
+                {% else %}
                     <div class="res-act-button">
-                        {% if result['table']['acdh:hasBinarySize'][0] %}
-                             {% set rawTitle = "DOWNLOAD BINARY"%}
-                        {% else %}
-                            {% set rawTitle = "Raw Access"%}
-                        {% endif %}
-                        
-                        {% if key == "raw" %}
-                            <a href="{{ ds }}?format={{ key|url_encode }}"><span>{{ rawTitle }}</span></a>
-                        {% else %}
-                            <a href="{{ ds }}?format={{ key|url_encode }}"><span>{{ key|upper }} Access</span></a>
-                        {% endif %}
+                    <a href="{{ ds }}?format={{ key|url_encode }}"><span>{{ key|upper }} Access</span></a>
                     </div>               
-                {% endfor %}  
+                {% endif %}
+            {% endfor %}  
         </div>                       
     {% endif %}    	
     

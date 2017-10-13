@@ -92,7 +92,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
                     <span class="res-prop-label">Available Date: </span>
-                    <span class="res-creationdate">{{ item.availableDate }}</span>
+                    <span class="res-creationdate">{{ item.availableDate|date("d M Y") }}</span>
                 </div>
             {% endif%}
 

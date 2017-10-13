@@ -22,7 +22,6 @@ use Drupal\Core\Ajax\InvokeCommand;
 use acdhOeaw\util\RepoConfig as RC;
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
-
 use EasyRdf\Graph;
 use EasyRdf\Resource;
 
@@ -299,7 +298,7 @@ class FrontendController extends ControllerBase  {
     public function oeaw_query(string $uri){
         
         if (empty($uri)) {
-           return drupal_set_message(t('The uri is missing!'), 'error');
+           return drupal_set_message(t('Resource does not exist!'), 'error');
         }
         
         $uri = base64_decode($uri);
@@ -344,7 +343,7 @@ class FrontendController extends ControllerBase  {
     public function oeaw_new_success(string $uri){
         
         if (empty($uri)) {
-           return drupal_set_message(t('The uri is missing!'), 'error');
+           return drupal_set_message(t('Resource does not exist!'), 'error');
         }
         $uid = \Drupal::currentUser()->id();
         // decode the uri hash
@@ -409,7 +408,7 @@ class FrontendController extends ControllerBase  {
         }
 
         if (empty($uri)) {
-            $msg = base64_encode("The URI is missing");
+            $msg = base64_encode("Resource does not exist");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;            
@@ -433,7 +432,7 @@ class FrontendController extends ControllerBase  {
             $fedoraRes = $fedora->getResourceByUri($uri);
             $rootMeta = $fedoraRes->getMetadata();
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            $msg = base64_encode("URI NOT EXISTS");
+            $msg = base64_encode("Resource does not exist!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
@@ -837,7 +836,7 @@ class FrontendController extends ControllerBase  {
         if(!$uri){
             $matches = array(
                 "result" => false,
-                "error_msg" => "URI MISSING!"
+                "error_msg" => "Resource does not exist!"
                 );
         }
         
@@ -898,7 +897,7 @@ class FrontendController extends ControllerBase  {
                     if(!empty($res[$index]['inverse']) && !empty($res[$index]['title']) && !empty($res[$index]['insideUri'])){
                         $title = $res[$index]['title'];
                         $insideUri = $res[$index]['insideUri'];
-                        $invData["data"][$index] = array($res[$index]['inverse'], "<a href='$insideUri'>$title</a>");
+                        $invData["data"][$index] = array($res[$index]['inverse'], "<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
                     }
                 }
             }
