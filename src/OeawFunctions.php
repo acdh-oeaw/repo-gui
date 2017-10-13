@@ -634,7 +634,7 @@ class OeawFunctions {
 	     * Example:
          * Mörth, Karlheinz. Dictionary Gate. ACDH, 2013, hdl.handle.net/11022/0000-0000-001B-2. Accessed 12 Oct. 2017.
          */
-        $widget["MLA"] = ["authors" => "", "creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => "", "hasHosting" => "", "hasEditor" => ""];
+        $widget["MLA"] = ["authors" => "", "creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => "", "hasHosting" => "", "hasEditor" => "", "hasPid" => "", "accesedDate" => "", "acdhURI" => ""];
 
         //Get authors(s)
         if (isset($resourceData["table"]["acdh:hasAuthor"])) {
@@ -714,29 +714,35 @@ class OeawFunctions {
             $widget["MLA"]["hasHosting"] = $hasHosting;		
         }
 
+        //Get hasPid		
+        if (isset($resourceData["table"]["acdh:hasPid"])) {
+            $hasPid = $resourceData["table"]["acdh:hasPid"][0]['uri'];
+            $widget["MLA"]["hasPid"] = $hasPid;		
+        }
+
         //Get available date
-        if (isset($resourceData["table"]["acdh:availableDate"])) {
-            $availableDate = $resourceData["table"]["acdh:availableDate"][0];
+        if (isset($resourceData["table"]["acdh:hasAvailableDate"])) {
+            $availableDate = $resourceData["table"]["acdh:hasAvailableDate"][0];
             $availableDate = strtotime($availableDate);
-            $widget["MLA"]["availableDate"] = date('Y',$availableDate);			
+            $widget["MLA"]["availableDate"] = date('Y',$availableDate);
         }
         
          //Get accesed date
         $widget["MLA"]["accesedDate"] = date('d M Y');			
 
-		//Handle uri
+		//ACDH uri
         if(isset($resourceData["table"]["acdh:hasIdentifier"]) && !empty($resourceData["table"]["acdh:hasIdentifier"]) ){
             if (array_key_exists('uri', $resourceData["table"]["acdh:hasIdentifier"])) {
-                $widget["MLA"]["handleURI"] = $resourceData["table"]["acdh:hasIdentifier"]["uri"];
+                $widget["MLA"]["acdhURI"] = $resourceData["table"]["acdh:hasIdentifier"]["uri"];
             } else if (array_key_exists(0, $resourceData["table"]["acdh:hasIdentifier"])) {
-                $widget["MLA"]["handleURI"] = $resourceData["table"]["acdh:hasIdentifier"][0]["uri"];
+                $widget["MLA"]["acdhURI"] = $resourceData["table"]["acdh:hasIdentifier"][0]["uri"];
             }
         }
         
         
         //Process MLA
         //Top level resource
-        if (!$widget["MLA"]["isPartOf"]) {
+        //if (!$widget["MLA"]["isPartOf"]) {
 
             $widget["MLA"]["string"] = "";
             //AUTHORS
@@ -754,16 +760,18 @@ class OeawFunctions {
             if ($widget["MLA"]["availableDate"]) { $widget["MLA"]["string"] .= $widget["MLA"]["availableDate"].', '; }
 
             //HANDLE
-            if ($widget["MLA"]["handleURI"]) { $widget["MLA"]["string"] .= $widget["MLA"]["handleURI"].'. '; }
+            if ($widget["MLA"]["hasPid"]) { $widget["MLA"]["string"] .= $widget["MLA"]["hasPid"].'. '; }
+            else if ($widget["MLA"]["acdhURI"]) { $widget["MLA"]["string"] .= $widget["MLA"]["acdhURI"].'. '; }
 
             //DATE
             if ($widget["MLA"]["accesedDate"]) { $widget["MLA"]["string"] .= 'Accessed '.$widget["MLA"]["accesedDate"].'. '; }
 
-
+        /*
         } else {
             //Only cite top level collections for now
             return $content;
         }
+        */
 
         return $widget;
 	}

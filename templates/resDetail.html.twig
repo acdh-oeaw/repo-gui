@@ -78,6 +78,7 @@
                              {% else %}
                                  {{ value }},
                              {% endif%}
+                             <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>                
@@ -97,8 +98,9 @@
                                  <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                                  <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                              {% else %}
-                                 {{ value }},
+                                 {{ value }}
                              {% endif%}
+                             <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>                
@@ -118,8 +120,9 @@
                                  <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                                  <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                              {% else %}
-                                 {{ value }},
+                                 {{ value }}
                              {% endif%}
+                             <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>                
@@ -140,8 +143,9 @@
                                 <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                                 <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                             {% else %}
-                                {{ value }},
+                                {{ value }}
                             {% endif%}
+                            <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>                
@@ -161,8 +165,9 @@
                                 <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                                 <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                             {% else %}
-                                {{ value }},
+                                {{ value }}
                             {% endif%}
+                            <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>                
@@ -209,11 +214,12 @@
                     <span class="res-prop-value">
                         {% for value in result['table']['acdh:isPartOf'] %}
                             {% if value['insideUri'] %}
-                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>, 
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
                             {% else %}
                                 <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->                                
-                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>, 
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
                             {% endif%}
+                            <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>
@@ -225,8 +231,8 @@
                     <span class="res-prop-label">Extent: </span>
                     <span class="res-prop-value">
                         {% for value in result['table']['acdh:hasExtent'] %}
-                            <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                            {{ value }},
+                            {{ value }}
+                            <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>
@@ -244,11 +250,11 @@
                                 {% elseif value['title'] %}    
                                     <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
                                 {% elseif value['uri'] %}
-                                    <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                                     <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                                 {% else %}
                                     {{ value }}
                                 {% endif%}
+                                <span class="res-prop-delimiter">,</span>
                             {% endfor %}
                         {% else %}
                             {{ result['table']['acdh:hasLicense'][0] }}
@@ -277,9 +283,9 @@
                                 {% elseif value['title'] %}    
                                     <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
                                 {% else %}
-                                    <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                                     <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                                 {% endif%}
+                                <span class="res-prop-delimiter">,</span>
                             {% endfor %}
                         {% else %}
                             {{ result['table']['acdh:hasSchema'][0] }}
@@ -298,9 +304,9 @@
                             {% if value['insideUri'] %}
                                 <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
                             {% else %}
-                                <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                                 <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                             {% endif%}
+                            <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                         </span>
                 </div>
@@ -315,9 +321,9 @@
                             {% if value['insideUri'] %}
                                 <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
                             {% else %}
-                                <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                                 <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                             {% endif%}
+                            <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>
@@ -332,9 +338,9 @@
                             {% if value['insideUri'] %}
                                 <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
                             {% else %}
-                                <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                                 <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                             {% endif%}
+                            <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>
@@ -349,9 +355,9 @@
                             {% if value['insideUri'] %}
                                 <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
                             {% else %}
-                                <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                                 <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                             {% endif%}
+                            <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>
@@ -366,13 +372,13 @@
                         {% if result['table']['acdh:hasRelatedProject'] is iterable %}
                             {% for value in result['table']['acdh:hasRelatedProject'] %}
                                 {% if (value['insideUri']) and (value['title']) %}
-                                    <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>, 
+                                    <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
                                 {% elseif (value['title']) %}
-                                    <a href="{{ value['uri'] }}">{{ value['title'] }}</a> , 
+                                    <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
                                 {% else %}
-                                <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                                    {{ value }} ,
+                                    {{ value }}
                                 {% endif%}
+                                <span class="res-prop-delimiter">,</span>
                             {% endfor %}
                         {% else %}
                             {{ result['table']['acdh:hasRelatedProject'] }}
@@ -388,11 +394,12 @@
                     <span class="res-prop-value">
                         {% for value in result['table']['rdfs:seeAlso'] %}
                             {% if value['insideUri'] %}
-                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>, 
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
                             {% else %}
                                 <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>, 
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                             {% endif%}
+                            <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
                 </div>
@@ -551,11 +558,11 @@
                 {% if key == "raw"  %}
                     {% if result['table']['acdh:hasBinarySize'][0] %}
                         <div class="res-act-button">
-                        <a href="{{ ds }}?format={{ key|url_encode }}"><span>DOWNLOAD BINARY</span></a>
+                        <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download Binary</span></a>
                         </div>
                     {% endif %}    
                 {% else %}
-                    <div class="res-act-button">
+                    <div class="res-act-button res-diss-btn {{ key }}-btn">
                     <a href="{{ ds }}?format={{ key|url_encode }}"><span>{{ key|upper }} Access</span></a>
                     </div>               
                 {% endif %}
