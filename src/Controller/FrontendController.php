@@ -580,15 +580,6 @@ class FrontendController extends ControllerBase  {
             $results["table"]["acdh:hasAvailableDate"][0] = $newTime;
         }
 
-        //Create data for cite-this widget
-        $typesToBeCited = ["Collection", "Project", "Resource", "Publication"];
-        if(isset($results["acdh_rdf:type"]["title"]) && !empty($results["acdh_rdf:type"]["title"]) ){
-            if (in_array($results["acdh_rdf:type"]["title"], $typesToBeCited)) {
-                //pass $rootMeta for rdf object
-                $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
-            }
-        }
-
 		//Copy link uri
         if(isset($results["table"]["acdh:hasIdentifier"]) && !empty($results["table"]["acdh:hasIdentifier"]) ){
             if (array_key_exists('uri', $results["table"]["acdh:hasIdentifier"])) {
@@ -597,6 +588,20 @@ class FrontendController extends ControllerBase  {
                     $extras["niceURI"] = $results["table"]["acdh:hasIdentifier"][0]["uri"];
             }
         }
+
+        //Create data for cite-this widget
+        /*
+        $typesToBeCited = ["Collection", "Project", "Resource", "Publication"];
+        if(isset($results["acdh_rdf:type"]["title"]) && !empty($results["acdh_rdf:type"]["title"]) ){
+            if (in_array($results["acdh_rdf:type"]["title"], $typesToBeCited)) {
+                //pass $rootMeta for rdf object
+                $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
+            }
+        }
+        */
+        $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
+
+
 
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',

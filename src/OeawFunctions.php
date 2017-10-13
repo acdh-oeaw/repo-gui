@@ -630,10 +630,30 @@ class OeawFunctions {
 
         /** MLA Format
 	     * Example:
-         * Wheelis, Mark. "Investigating Disease Outbreaks Under a Protocol to the Biological and Toxin Weapons Convention." Emerging Infectious Diseases, vol. 6, no. 6, 2000, pp. 595-600, wwwnc.cdc.gov/eid/article/6/6/00-0607_article. Accessed 8 Feb. 2009.
+         * Mörth, Karlheinz. Dictionary Gate. ACDH, 2013, hdl.handle.net/11022/0000-0000-001B-2. Accessed 12 Oct. 2017.
          */
         $widget["MLA"] = ["authors" => "", "creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => "", "hasHosting" => "", "hasEditor" => ""];
-		
+
+        //Get authors(s)
+        if (isset($resourceData["table"]["acdh:hasAuthor"])) {
+            foreach ($resourceData["table"]["acdh:hasAuthor"] as $key => $author) {
+                if ($key > 0) {
+                    if(isset($author["title"])){
+                        $widget["MLA"]["authors"] .= ", " . $author["title"];
+                    }else{
+                        $widget["MLA"]["authors"] .= ", " . $author;
+                    }
+
+                } else {
+                    if(isset($author["title"])){
+                        $widget["MLA"]["authors"] = $author["title"];
+                    }else{
+                        $widget["MLA"]["authors"] = $author;
+                    }
+                }			
+            }
+        }
+
         //Get creator(s)
         if (isset($resourceData["table"]["acdh:hasCreator"])) {
             foreach ($resourceData["table"]["acdh:hasCreator"] as $key => $creator) {
@@ -683,17 +703,65 @@ class OeawFunctions {
         //Get isPartOf		
         if (isset($resourceData["table"]["acdh:isPartOf"])) {
             $isPartOf = $resourceData["table"]["acdh:isPartOf"][0]["title"];
-            $widget["MLA"]["isPartOf"] = ' <em>'.$isPartOf.'.</em>';		
+            $widget["MLA"]["isPartOf"] = $isPartOf;		
+        }
+        
+        //Get hasHosting		
+        if (isset($resourceData["table"]["acdh:hasHosting"])) {
+            $hasHosting = $resourceData["table"]["acdh:hasHosting"][0]["title"];
+            $widget["MLA"]["hasHosting"] = $hasHosting;		
         }
 
-        //Get created date
+        //Get available date
         if (isset($resourceData["table"]["acdh:availableDate"])) {
             $availableDate = $resourceData["table"]["acdh:availableDate"][0];
             $availableDate = strtotime($availableDate);
             $widget["MLA"]["availableDate"] = date('Y',$availableDate);			
         }
         
-        $widget["MLA"]["string"] = $widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["availableDate"];
+         //Get accesed date
+        $widget["MLA"]["accesedDate"] = date('d M Y');			
+
+		//Handle uri
+        if(isset($resourceData["table"]["acdh:hasIdentifier"]) && !empty($resourceData["table"]["acdh:hasIdentifier"]) ){
+            if (array_key_exists('uri', $resourceData["table"]["acdh:hasIdentifier"])) {
+                $widget["MLA"]["handleURI"] = $resourceData["table"]["acdh:hasIdentifier"]["uri"];
+            } else if (array_key_exists(0, $resourceData["table"]["acdh:hasIdentifier"])) {
+                $widget["MLA"]["handleURI"] = $resourceData["table"]["acdh:hasIdentifier"][0]["uri"];
+            }
+        }
+        
+        
+        //Process MLA
+        //Top level resource
+        if (!$widget["MLA"]["isPartOf"]) {
+
+            $widget["MLA"]["string"] = "";
+            //AUTHORS
+            if ($widget["MLA"]["authors"]) { $widget["MLA"]["string"] .= $widget["MLA"]["authors"].'. '; }
+            else if ($widget["MLA"]["creators"]) { $widget["MLA"]["string"] .= $widget["MLA"]["creators"].'. '; }
+            else if ($widget["MLA"]["contributors"]) { $widget["MLA"]["string"] .= $widget["MLA"]["contributors"].'. '; }
+            
+            //TITLE
+            if ($widget["MLA"]["title"]) { $widget["MLA"]["string"] .= '<em>'.$widget["MLA"]["title"].'.</em> '; }
+            
+            //PUBLISHER
+            if ($widget["MLA"]["hasHosting"]) { $widget["MLA"]["string"] .= $widget["MLA"]["hasHosting"].', '; }
+
+            //DATE
+            if ($widget["MLA"]["availableDate"]) { $widget["MLA"]["string"] .= $widget["MLA"]["availableDate"].', '; }
+
+            //HANDLE
+            if ($widget["MLA"]["handleURI"]) { $widget["MLA"]["string"] .= $widget["MLA"]["handleURI"].'. '; }
+
+            //DATE
+            if ($widget["MLA"]["accesedDate"]) { $widget["MLA"]["string"] .= 'Accesed '.$widget["MLA"]["accesedDate"].'. '; }
+
+
+        } else {
+            //Only cite top level collections for now
+            return false;
+        }
 
         return $widget;
 	}
