@@ -515,7 +515,7 @@ class FrontendController extends ControllerBase  {
                 if($limit == "0") { $pagelimit = "10"; } else { $pagelimit = $limit; }
                 
                 //create data for the pagination                
-                $pageData = $this->OeawFunctions->createPaginationData($pagelimit, $page, $total);
+                $pageData = $this->OeawFunctions->createPaginationData($pagelimit, (int)$page, $total);
 
                 $pagination = "";                
                 if ($pageData['totalPages'] > 1) {
