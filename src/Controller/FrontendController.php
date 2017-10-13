@@ -892,7 +892,7 @@ class FrontendController extends ControllerBase  {
                     if(!empty($res[$index]['inverse']) && !empty($res[$index]['title']) && !empty($res[$index]['insideUri'])){
                         $title = $res[$index]['title'];
                         $insideUri = $res[$index]['insideUri'];
-                        $invData["data"][$index] = array($res[$index]['inverse'], "<a href='$insideUri'>$title</a>");
+                        $invData["data"][$index] = array($res[$index]['inverse'], "<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
                     }
                 }
             }
