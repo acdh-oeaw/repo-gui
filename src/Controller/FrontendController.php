@@ -596,7 +596,7 @@ class FrontendController extends ControllerBase  {
                 $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
             }
         }
-        
+
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,

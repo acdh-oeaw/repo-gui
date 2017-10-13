@@ -613,6 +613,8 @@ class OeawFunctions {
      * @return array $widget Returns the cite-this widget as HTML
      */
     public function createCiteThisWidget(array $resourceData): array {
+        
+        $content = [];
 	    
 	    /*
 		function input argument: \EasyRdf\Resource $data
@@ -760,7 +762,7 @@ class OeawFunctions {
 
         } else {
             //Only cite top level collections for now
-            return false;
+            return $content;
         }
 
         return $widget;
