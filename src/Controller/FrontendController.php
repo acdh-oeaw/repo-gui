@@ -22,7 +22,6 @@ use Drupal\Core\Ajax\InvokeCommand;
 use acdhOeaw\util\RepoConfig as RC;
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
-
 use EasyRdf\Graph;
 use EasyRdf\Resource;
 

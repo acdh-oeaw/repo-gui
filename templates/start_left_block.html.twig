@@ -36,7 +36,7 @@
             {% if item.availableDate %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>	
-                    <span class="res-creationdate">{{ item.availableDate }}</span>
+                    <span class="res-creationdate">{{ item.availableDate|date("d M Y") }}</span>
                 </div>
             {% endif%}
             
@@ -44,7 +44,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>	
                     Creation start:
-                    <span class="res-creationdate">{{ item.hasCreationStartDate }}</span>
+                    <span class="res-creationdate">{{ item.hasCreationStartDate|date("d M Y") }}</span>
                 </div>
             {% endif%}
             
@@ -52,7 +52,7 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
                     Creation end:
-                    <span class="res-creationdate">{{ item.hasCreationEndDate }}</span>
+                    <span class="res-creationdate">{{ item.hasCreationEndDate|date("d M Y") }}</span>
                 </div>
             {% endif%}
             

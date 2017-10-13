@@ -47,7 +47,7 @@ class OeawFunctions {
     public function initFedora(): Fedora{
         // setup fedora
         $fedora = array();
-        $fedora = new Fedora();
+        $fedora = new Fedora();        
         return $fedora;
     }
     
