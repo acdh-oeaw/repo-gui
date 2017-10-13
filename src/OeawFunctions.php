@@ -757,7 +757,7 @@ class OeawFunctions {
             if ($widget["MLA"]["handleURI"]) { $widget["MLA"]["string"] .= $widget["MLA"]["handleURI"].'. '; }
 
             //DATE
-            if ($widget["MLA"]["accesedDate"]) { $widget["MLA"]["string"] .= 'Accesed '.$widget["MLA"]["accesedDate"].'. '; }
+            if ($widget["MLA"]["accesedDate"]) { $widget["MLA"]["string"] .= 'Accessed '.$widget["MLA"]["accesedDate"].'. '; }
 
 
         } else {
