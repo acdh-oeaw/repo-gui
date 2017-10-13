@@ -36,6 +36,7 @@ oeaw_complexsearch:
   path: '/discover/{metavalue}/{order}/{limit}/{page}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_complexsearch'
+    metavalue: ""
     order: "titleasc"
     limit: "10"
     page: "1"

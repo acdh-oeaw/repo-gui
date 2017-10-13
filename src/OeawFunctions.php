@@ -176,9 +176,12 @@ class OeawFunctions {
         
         $currentPath = \Drupal::service('path.current')->getPath();
         $currentPage = substr($currentPath, 1);
-        $currentPage = explode("/", $currentPage);        
-        $currentPage = $currentPage[0].'/'.$currentPage[1];
-        
+        $currentPage = explode("/", $currentPage);
+        if(isset($currentPage[0]) && isset($currentPage[1])){
+            $currentPage = $currentPage[0].'/'.$currentPage[1];
+        }else{
+            $currentPage = $currentPage[0].'/';
+        }
         return $currentPage;
     }
     

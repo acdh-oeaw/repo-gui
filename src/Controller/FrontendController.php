@@ -626,8 +626,12 @@ class FrontendController extends ControllerBase  {
      * @param string $page
      * @return array
      */
-    public function oeaw_complexsearch(string $metavalue, string $limit = "10", string $page = "1", string $order = "titleasc" ):array {
+    public function oeaw_complexsearch(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "titleasc" ):array {
         drupal_get_messages('error', TRUE);
+       
+        if(empty($metavalue)){
+            $metavalue = "root";
+        }
         
         //If the discover page calls the root resources forward to the root_list method
         if ($metavalue == 'root') {
