@@ -88,23 +88,23 @@ class OeawStorage {
      */
     public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "titleasc" ): array {
 
-		//Let's process the order argument
-		switch ($order) {
-		    case "titleasc":
-		        $order = "ASC(?title)";
-		        break;
-		    case "titledesc":
-		        $order = "DESC(?title)";
-		        break;
-		    case "dateasc":
-		        $order = "ASC(?availableDate)";
-		        break;
-		    case "datedesc":
-		        $order = "DESC(?availableDate)";
-		        break;
-		    default:
-		        $order = "ASC(?title)";
-		}
+        //Let's process the order argument
+        switch ($order) {
+            case "titleasc":
+                $order = "ASC(?title)";
+                break;
+            case "titledesc":
+                $order = "DESC(?title)";
+                break;
+            case "dateasc":
+                $order = "ASC(?availableDate)";
+                break;
+            case "datedesc":
+                $order = "DESC(?availableDate)";
+                break;
+            default:
+                $order = "ASC(?title)";
+        }
 
         if($offset < 0) { $offset = 0; }
         
@@ -123,7 +123,7 @@ class OeawStorage {
             $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasTitleImage'), '?hasTitleImage'), true);
             if($count == false){
-		        $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfType'), '?rdfType'));    
+                $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfType'), '?rdfType'));    
             }
 
             $q2 = new Query();

@@ -673,21 +673,21 @@ class OeawFunctions {
 
         //Get title
         if (isset($resourceData["table"]["acdh:hasTitle"])) {
-                $title = $resourceData["table"]["acdh:hasTitle"][0];
-                $widget["MLA"]["title"] = $title;
+            $title = $resourceData["table"]["acdh:hasTitle"][0];
+            $widget["MLA"]["title"] = $title;
         }
 
         //Get isPartOf		
         if (isset($resourceData["table"]["acdh:isPartOf"])) {
-                $isPartOf = $resourceData["table"]["acdh:isPartOf"][0]["title"];
-                $widget["MLA"]["isPartOf"] = ' <em>'.$isPartOf.'.</em>';		
+            $isPartOf = $resourceData["table"]["acdh:isPartOf"][0]["title"];
+            $widget["MLA"]["isPartOf"] = ' <em>'.$isPartOf.'.</em>';		
         }
 
         //Get created date
         if (isset($resourceData["table"]["acdh:availableDate"])) {
-                $availableDate = $resourceData["table"]["acdh:availableDate"][0];
-                $availableDate = strtotime($availableDate);
-                $widget["MLA"]["availableDate"] = date('Y',$availableDate);			
+            $availableDate = $resourceData["table"]["acdh:availableDate"][0];
+            $availableDate = strtotime($availableDate);
+            $widget["MLA"]["availableDate"] = date('Y',$availableDate);			
         }
         
         $widget["MLA"]["string"] = $widget["MLA"]["creators"].'. "'.$widget["MLA"]["title"].'."'.$widget["MLA"]["isPartOf"].', '.$widget["MLA"]["availableDate"];

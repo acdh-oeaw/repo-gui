@@ -159,16 +159,16 @@ class FrontendController extends ControllerBase  {
             $datatable['#pagination'] = $pagination;
             //$datatable['#searchedValues'] = $i . ' top-level elements have been found.';
             $datatable['#totalResultAmount'] = $i;
-			if (empty($pageData['page']) OR $pageData['page'] == 0) {
-			    $datatable['#currentPage'] = 1;
-			} else {
-			    $datatable['#currentPage'] = $pageData['page'] + 1;
-			}
-			if (empty($pageData) OR $pageData['totalPages'] == 0) {
-			    $datatable['#totalPages'] = 1;
-			} else {
-			    $datatable['#totalPages'] = $pageData['totalPages'];
-			}
+            if (empty($pageData['page']) OR $pageData['page'] == 0) {
+                $datatable['#currentPage'] = 1;
+            } else {
+                $datatable['#currentPage'] = $pageData['page'] + 1;
+            }
+            if (empty($pageData) OR $pageData['totalPages'] == 0) {
+                $datatable['#totalPages'] = 1;
+            } else {
+                $datatable['#totalPages'] = $pageData['totalPages'];
+            }
 
         }        
 
