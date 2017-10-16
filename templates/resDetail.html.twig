@@ -386,14 +386,22 @@
                     <i class="material-icons">&#xE90D;</i>
                     <span class="res-prop-label">PID: </span>
                     <span class="res-prop-value">
-                        {% for value in result['table']['acdh:hasPid'] %}
-                            {% if value['insideUri'] %}
-                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                            {% else %}
-                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                            {% endif%}
-                            <span class="res-prop-delimiter">,</span>
-                        {% endfor %}
+                        {% if result['table']['acdh:hasPid'] is iterable %}
+                            {% for value in result['table']['acdh:hasPid'] %}
+                               {% if (value['insideUri']) and (value['title'])  %}
+                                    <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                                {% elseif value['title'] %}    
+                                    <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                                {% elseif value['uri'] %}
+                                    <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                                {% else %}
+                                    {{ value }}
+                                {% endif%}
+                                <span class="res-prop-delimiter">,</span>
+                            {% endfor %}
+                        {% else %}
+                            {{ result['table']['acdh:hasPid'][0] }}
+                        {% endif %}   
                     </span>
                 </div>
             {% endif%}
