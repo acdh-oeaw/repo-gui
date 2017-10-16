@@ -321,7 +321,7 @@
                         </span>
                 </div>
             {% endif%}
-            
+                        
             {% if result['isMetadata'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE85D;</i>
@@ -353,6 +353,31 @@
                             <span class="res-prop-delimiter">,</span>
                         {% endfor %}
                     </span>
+                </div>
+            {% endif%}
+            
+            {% if result['table']['acdh:hasUrl'] %}
+                <div class="res-property">
+                    <i class="material-icons"><i class="material-icons">&#xE051;</i></i>
+                    <span class="res-prop-label">Url: </span>
+                    <span class="res-prop-value">
+                        {% if result['table']['acdh:hasUrl'] is iterable %}
+                            {% for value in result['table']['acdh:hasUrl'] %}
+                               {% if (value['insideUri']) and (value['title'])  %}
+                                    <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                                {% elseif value['title'] %}    
+                                    <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                                {% elseif value['uri'] %}
+                                    <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                                {% else %}
+                                    {{ value }}
+                                {% endif%}
+                                <span class="res-prop-delimiter">,</span>
+                            {% endfor %}
+                        {% else %}
+                            {{ result['table']['acdh:hasUrl'][0] }}
+                        {% endif %}    
+                        </span>
                 </div>
             {% endif%}
 
