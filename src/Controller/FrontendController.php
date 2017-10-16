@@ -671,11 +671,14 @@ class FrontendController extends ControllerBase  {
             $limitCookie = $_COOKIE["resultsPerPage"];
             $orderCookie = $_COOKIE["resultsOrder"];
             //If a cookie setting exists and the query is coming without a specific parameter
-            if (!empty($pageCookie) && empty($limit)) {
+            if (!empty($limitCookie) && empty($limit)) {
                     $limit = $limitCookie;
             }
             if (!empty($orderCookie) && empty($order)) {
                     $order = $orderCookie;
+            }
+            if (empty($page)) {
+                    $page = "1";
             }
             return $this->roots_list($limit,$page,$order);
 
