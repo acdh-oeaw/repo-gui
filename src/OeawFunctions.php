@@ -635,7 +635,7 @@ class OeawFunctions {
 	     * Example:
          * Mörth, Karlheinz. Dictionary Gate. ACDH, 2013, hdl.handle.net/11022/0000-0000-001B-2. Accessed 12 Oct. 2017.
          */
-        $widget["MLA"] = ["authors" => "", "creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => "", "hasHosting" => "", "hasEditor" => "", "hasPid" => "", "accesedDate" => "", "acdhURI" => ""];
+        $widget["MLA"] = ["authors" => "", "creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => "", "hasHosting" => "", "hasEditor" => "", "accesedDate" => "", "acdhURI" => ""];
 
         //Get authors(s)
         if (isset($resourceData["table"]["acdh:hasAuthor"])) {
@@ -715,10 +715,45 @@ class OeawFunctions {
             $widget["MLA"]["hasHosting"] = $hasHosting;		
         }
 
-        //Get hasPid		
+        /* Get hasPid & create copy link
+         * Order of desired URIs:
+         * PID > id.acdh > id.acdh/uuid > long gui url
+         */
         if (isset($resourceData["table"]["acdh:hasPid"])) {
-            $hasPid = $resourceData["table"]["acdh:hasPid"][0]['uri'];
-            $widget["MLA"]["hasPid"] = $hasPid;		
+            if (isset($resourceData["table"]["acdh:hasPid"][0]['uri'])) {
+                $widget["MLA"]["acdhURI"] = $resourceData["table"]["acdh:hasPid"][0]['uri'];
+            }
+        }
+        if (!isset($widget["MLA"]["acdhURI"])) {
+            if (isset($resourceData["table"]["acdh:hasIdentifier"]) && !empty($resourceData["table"]["acdh:hasIdentifier"]) ){
+                $acdhURIs = $resourceData["table"]["acdh:hasIdentifier"];
+                //Only one value under acdh:hasIdentifier
+                if (isset($acdhURIs["uri"])) {
+                    //id.acdh/uuid
+                    if (strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
+                        $widget["MLA"]["acdhURI"] = $acdhURIs["uri"];
+                    }
+                    //id.acdh
+                    if (!isset($widget["MLA"]["acdhURI"]) && strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at') !== false) {
+                        $widget["MLA"]["acdhURI"] = $acdhURIs["uri"];
+                    }
+                }
+                //Multiple values under acdh:hasIdentifier
+                else {
+                    foreach ($acdhURIs as $key => $acdhURI) {
+                        if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
+                            $acdhURIuuid = $acdhURI["uri"];
+                        } else if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at') !== false) {
+                            $acdhURIidacdh = $acdhURI["uri"];
+                        }
+                    }
+                    if (isset($acdhURIidacdh)) {
+                        $widget["MLA"]["acdhURI"] = $acdhURIidacdh;
+                    } else if (isset($acdhURIuuid)) {
+                        $widget["MLA"]["acdhURI"] = $acdhURIuuid;
+                    }
+                }
+            }
         }
 
         //Get available date
@@ -731,15 +766,6 @@ class OeawFunctions {
          //Get accesed date
         $widget["MLA"]["accesedDate"] = date('d M Y');			
 
-		//ACDH uri
-        if(isset($resourceData["table"]["acdh:hasIdentifier"]) && !empty($resourceData["table"]["acdh:hasIdentifier"]) ){
-            if (array_key_exists('uri', $resourceData["table"]["acdh:hasIdentifier"])) {
-                $widget["MLA"]["acdhURI"] = $resourceData["table"]["acdh:hasIdentifier"]["uri"];
-            } else if (array_key_exists(0, $resourceData["table"]["acdh:hasIdentifier"])) {
-                $widget["MLA"]["acdhURI"] = $resourceData["table"]["acdh:hasIdentifier"][0]["uri"];
-            }
-        }
-        
         
         //Process MLA
         //Top level resource
@@ -761,8 +787,7 @@ class OeawFunctions {
             if ($widget["MLA"]["availableDate"]) { $widget["MLA"]["string"] .= $widget["MLA"]["availableDate"].', '; }
 
             //HANDLE
-            if ($widget["MLA"]["hasPid"]) { $widget["MLA"]["string"] .= $widget["MLA"]["hasPid"].'. '; }
-            else if ($widget["MLA"]["acdhURI"]) { $widget["MLA"]["string"] .= $widget["MLA"]["acdhURI"].'. '; }
+            if ($widget["MLA"]["acdhURI"]) { $widget["MLA"]["string"] .= $widget["MLA"]["acdhURI"].'. '; }
 
             //DATE
             if ($widget["MLA"]["accesedDate"]) { $widget["MLA"]["string"] .= 'Accessed '.$widget["MLA"]["accesedDate"].'. '; }

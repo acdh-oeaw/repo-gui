@@ -579,12 +579,44 @@ class FrontendController extends ControllerBase  {
             $results["table"]["acdh:hasAvailableDate"][0] = $newTime;
         }
 
-		//Copy link uri
-        if(isset($results["table"]["acdh:hasIdentifier"]) && !empty($results["table"]["acdh:hasIdentifier"]) ){
-            if (array_key_exists('uri', $results["table"]["acdh:hasIdentifier"])) {
-                $extras["niceURI"] = $results["table"]["acdh:hasIdentifier"]["uri"];
-            } else if (array_key_exists(0, $results["table"]["acdh:hasIdentifier"])) {
-                    $extras["niceURI"] = $results["table"]["acdh:hasIdentifier"][0]["uri"];
+        /* Get hasPid & create copy link
+         * Order of desired URIs:
+         * PID > id.acdh > id.acdh/uuid > long gui url
+         */
+        if (isset($results["table"]["acdh:hasPid"])) {
+            if (isset($results["table"]["acdh:hasPid"][0]['uri'])) {
+                $extras["niceURI"] = $results["table"]["acdh:hasPid"][0]['uri'];
+            }
+        }
+        if (!isset($extras["niceURI"])) {
+            if (isset($results["table"]["acdh:hasIdentifier"]) && !empty($results["table"]["acdh:hasIdentifier"]) ){
+                $acdhURIs = $results["table"]["acdh:hasIdentifier"];
+                //Only one value under acdh:hasIdentifier
+                if (isset($acdhURIs["uri"])) {
+                    //id.acdh/uuid
+                    if (strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
+                        $extras["niceURI"] = $acdhURIs["uri"];
+                    }
+                    //id.acdh
+                    if (!isset($extras["niceURI"]) && strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at') !== false) {
+                        $extras["niceURI"] = $acdhURIs["uri"];
+                    }
+                }
+                //Multiple values under acdh:hasIdentifier
+                else {
+                    foreach ($acdhURIs as $key => $acdhURI) {
+                        if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
+                            $acdhURIuuid = $acdhURI["uri"];
+                        } else if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at') !== false) {
+                            $acdhURIidacdh = $acdhURI["uri"];
+                        }
+                    }
+                    if (isset($acdhURIidacdh)) {
+                        $extras["niceURI"] = $acdhURIidacdh;
+                    } else if (isset($acdhURIuuid)) {
+                        $extras["niceURI"] = $acdhURIuuid;
+                    }
+                }
             }
         }
 
