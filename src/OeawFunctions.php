@@ -724,7 +724,7 @@ class OeawFunctions {
                 $widget["MLA"]["acdhURI"] = $resourceData["table"]["acdh:hasPid"][0]['uri'];
             }
         }
-        if (!isset($widget["MLA"]["acdhURI"])) {
+        if (!$widget["MLA"]["acdhURI"]) {
             if (isset($resourceData["table"]["acdh:hasIdentifier"]) && !empty($resourceData["table"]["acdh:hasIdentifier"]) ){
                 $acdhURIs = $resourceData["table"]["acdh:hasIdentifier"];
                 //Only one value under acdh:hasIdentifier
