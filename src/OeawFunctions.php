@@ -325,9 +325,10 @@ class OeawFunctions {
         if($count == true){
             $select = "SELECT (COUNT(?uri) as ?count) ";
         }else {
-            $select = 'SELECT DISTINCT ?uri ?description ?title ?availableDate ?hasTitleImage (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
-                       (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
-                       (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) ';
+            $select = 'SELECT DISTINCT ?uri ?title ?availableDate ?hasTitleImage (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
+                        (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)                       
+                        (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
+                        (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) ';
         }
         
         $conditions = "";
@@ -415,14 +416,14 @@ class OeawFunctions {
             // $query .= "FILTER (?date < '".$maxdate->format(DATE_ATOM)."' ^^xsd:dateTime && ?date > '".$mindate->format(DATE_ATOM)."'^^xsd:dateTime)  \n";
             $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
         }
-        $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?description .}                
+        $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?descriptions .}                
     	OPTIONAL{ ?uri <".RC::get('drupalAuthor')."> ?author .}	    	
         OPTIONAL{ ?uri <".RC::get('drupalHasContributor')."> ?contrib .}	
     	OPTIONAL{ ?uri <".RC::get('drupalRdfType')."> ?rdfType . }
         OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
         OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
         
-        $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?description ?uri ?hasTitleImage ?availableDate ORDER BY " . $order;
+        $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?uri ?hasTitleImage ?availableDate ORDER BY " . $order;
         if($limit){
             $query .= " LIMIT ".$limit." ";
             
