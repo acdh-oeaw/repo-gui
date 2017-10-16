@@ -394,6 +394,8 @@
                                     <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
                                 {% elseif value['uri'] %}
                                     <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                                {% elseif 'http' in value  %}
+                                    <a href="{{ value }}">{{ value }}</a>
                                 {% else %}
                                     {{ value }}
                                 {% endif%}
