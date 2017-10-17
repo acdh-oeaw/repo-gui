@@ -264,10 +264,7 @@ class OeawStorage {
         try {
             
             $q = new Query();            
-            $q->addParameter(new HasTriple($uri, RC::titleProp(), '?title'), true);            
-            $q->addParameter(new HasTriple($uri, RC::get('drupalHasContributor'), '?contributor'), true);
-            $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
-            $q->addParameter(new HasTriple($uri, \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
+            $q->addParameter(new HasTriple($uri, RC::titleProp(), '?title'), true);
             
             $query = $q->getQuery();
             $result = $this->fedora->runSparql($query);
@@ -465,8 +462,8 @@ class OeawStorage {
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreatedDate'), '?creationdate'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfType'), '?rdfType'), true);
-                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasFirstName, '?firstName'), true);
-                $q->addParameter(new HasTriple('?uri', \Drupal\oeaw\ConnData::$hasLastName, '?lastName'), true);
+                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasFirstName'), '?firstName'), true);
+                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasLastName'), '?lastName'), true);
                 //Select and aggregate multiple sets of values into a comma seperated string
                 $q->setSelect(array('?uri', '?title', '?description', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
                 $q->setGroupBy(array('?uri', '?title', '?description', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName'));

@@ -1100,28 +1100,6 @@ class OeawFunctions {
         return $result;        
     }
     
-    /**
-     * 
-     * Check the special RDF types and generate the special labels for them.
-     * 
-     * @param string $rdfType
-     * @param Resource $rootMeta
-     * @return string
-     */
-    public function checkSpecialRdfType(string $rdfType, \EasyRdf\Resource $rootMeta): string{
-        $result = "";
-        
-        if($rdfType == RC::get('drupalPerson') ){
-            $fn = $rootMeta->get(\Drupal\oeaw\ConnData::$hasFirstName);
-            $ln = $rootMeta->get(\Drupal\oeaw\ConnData::$hasLastName);
-            
-            if($fn && $ln){
-                return $result = $fn.' '.$ln;
-            }             
-        }
-        
-        return $result;
-    }
     
     /**
      * 
@@ -1211,7 +1189,7 @@ class OeawFunctions {
                             $result['image'] = $resourceUri;
                         }
                         //check that the resource has Binary or not
-                        if($val == \Drupal\oeaw\ConnData::$fedoraBinary){
+                        if($val == RC::get('drupalFedoraBinary')){
                             $result['hasBinary'] = $resourceUri;
                         }
                         
@@ -1244,7 +1222,7 @@ class OeawFunctions {
                     }
                     
                     //we dont have the image yet but we have a MIME
-                    if( ($p == \Drupal\oeaw\ConnData::$ebucoreMime) && (!isset($result['image'])) && (strpos($val, 'image') !== false) ) {
+                    if( ($p == RC::get('drupalEbucoreHasMime')) && (!isset($result['image'])) && (strpos($val, 'image') !== false) ) {
                         $result['image'] = $resourceUri;
                     }
                     if( $p == RC::get('fedoraExtentProp') ) {
@@ -1331,11 +1309,7 @@ class OeawFunctions {
 
         if(count($itemRes) > 0){
             if($itemRes[0]["title"]){
-                $return = $itemRes[0]["title"];                
-            }else if($itemRes[0]["firstName"] && $itemRes[0]["lastName"]){
-                $return = $itemRes[0]["firstName"] . " " . $itemRes[0]["lastName"];
-            }else if($itemRes[0]["contributor"]){
-                $return = $itemRes[0]["contributor"];
+                $return = $itemRes[0]["title"];
             }
         }
         return $return;

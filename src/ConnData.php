@@ -42,43 +42,8 @@ class ConnData
         //"http://xmlns.com/foaf/spec/" => "foaf"
     );
     
-    
-    //special RDF types
-    public static $acdhNamespace = "https://vocabs.acdh.oeaw.ac.at/schema#";
-    
     //propertys
-    public static $hasLastName = "https://vocabs.acdh.oeaw.ac.at/schema#hasLastName";
-    public static $hasFirstName = "https://vocabs.acdh.oeaw.ac.at/schema#hasFirstName";
-    
-    
-    public static $hasMember = "https://vocabs.acdh.oeaw.ac.at/schema#hasMember";
-    public static $ebucoreMime = "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#hasMimeType";
-    public static $skosNarrower = "http://www.w3.org/2004/02/skos/core#narrower";
-    public static $acdhHasCreatedDate = "https://vocabs.acdh.oeaw.ac.at/schema#hasCreatedDate";
-    public static $acdhHasCreationStartDate = "https://vocabs.acdh.oeaw.ac.at/schema#hasCreationStartDate";
-    public static $acdhHasCreationEndDate = "https://vocabs.acdh.oeaw.ac.at/schema#hasCreationEndDate";
-    public static $title = "https://vocabs.acdh.oeaw.ac.at/schema#hasTitle";
-    
-    
-    
-    public static $author = "https://vocabs.acdh.oeaw.ac.at/schema#hasAuthor";
-    public static $creationdate = "http://fedora.info/definitions/v4/repository#created";
-    
-    public static $rdfsLabel = "http://www.w3.org/2000/01/rdf-schema#label";
-    public static $fedoraBinary = "http://fedora.info/definitions/v4/repository#Binary";
-    public static $foafName = "http://xmlns.com/foaf/0.1/name";
-    
-    public static $acdhQuery = "https://vocabs.acdh.oeaw.ac.at/schema#query";
     public static $acdhQueryType = "https://vocabs.acdh.oeaw.ac.at/schema#querytype";
-    public static $rdfsComment = "http://www.w3.org/2000/01/rdf-schema#comment";
-    
-    
-    
-    
-    //schema types
-    public static $imageProperty = "http://xmlns.com/foaf/0.1/Image";
-    public static $imageThumbnail = "http://xmlns.com/foaf/0.1/thumbnail";
-    
     
       
     
