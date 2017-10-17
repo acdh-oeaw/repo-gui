@@ -27,7 +27,7 @@ class StartPageLeftBlock extends BlockBase {
         $result = array();
 	$this->FrontendController = new FrontendController();
 	    
-        $data = $this->FrontendController->roots_list(3,0,'DESC(?creationdate)');
+        $data = $this->FrontendController->roots_list(3,1,'dateasc');
 
         if(count($data) > 0){
             if(isset($data['#result'])){
