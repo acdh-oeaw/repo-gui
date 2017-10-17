@@ -113,7 +113,7 @@ class OeawStorage {
         try {
             $q = new Query();
             $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
-            $q->addParameter((new HasValue(RC::get("drupalRdfType"), 'https://vocabs.acdh.oeaw.ac.at/schema#Collection' ))->setSubVar('?uri'));
+            $q->addParameter((new HasValue(RC::get("drupalRdfType"), RC::get('drupalCollection') ))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributors'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreatedDate'), '?creationdate'), true);
@@ -577,13 +577,13 @@ class OeawStorage {
                             ?class dct:identifier ?id .
                             OPTIONAL {
                               {
-                                {?class rdfs:subClassOf* <https://vocabs.acdh.oeaw.ac.at/schema#Collection>}
+                                {?class rdfs:subClassOf* <'.RC::get('drupalCollection').'>}
                                 UNION
-                                {?class rdfs:subClassOf* <https://vocabs.acdh.oeaw.ac.at/schema#DigitalCollection>}
+                                {?class rdfs:subClassOf* <'.RC::get('drupalDigitalCollection').'>}
                                 UNION
-                                {?class dct:identifier <https://vocabs.acdh.oeaw.ac.at/schema#Collection>}
+                                {?class dct:identifier <'.RC::get('drupalCollection').'>}
                                 UNION
-                                {?class dct:identifier <https://vocabs.acdh.oeaw.ac.at/schema#DigitalCollection>}
+                                {?class dct:identifier <'.RC::get('drupalDigitalCollection').'>}
                               }
                               VALUES ?collection {true}
                             }
