@@ -91,10 +91,10 @@ class OeawStorage {
         //Let's process the order argument
         switch ($order) {
             case "titleasc":
-                $order = "ASC(?title)";
+                $order = "ASC( fn:lower-case(?title))";
                 break;
             case "titledesc":
-                $order = "DESC(?title)";
+                $order = "DESC( fn:lower-case(?title))";
                 break;
             case "dateasc":
                 $order = "ASC(?availableDate)";
@@ -103,7 +103,7 @@ class OeawStorage {
                 $order = "DESC(?availableDate)";
                 break;
             default:
-                $order = "ASC(?title)";
+                $order = "ASC( fn:lower-case(?title))";
         }
 
         if($offset < 0) { $offset = 0; }
@@ -136,15 +136,15 @@ class OeawStorage {
                 $q->setOrderBy(array($order));
                 $q->setGroupBy(array('?uri', '?title', '?description', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate'));
                 $q->setLimit($limit);
-                $q->setOffset($offset); 
+                $q->setOffset($offset);
             }else {
-                $q->setSelect(array('(COUNT(?uri) as ?count)'));
+                $q->setSelect(array('(COUNT(DISTINCT ?uri) as ?count)'));
                 
                 $q->setOrderBy(array('?uri'));
             }
             
             $query = $q->getQuery();
-          
+
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
                 $fields = $result->getFields();             

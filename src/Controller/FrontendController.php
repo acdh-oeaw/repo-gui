@@ -55,7 +55,7 @@ class FrontendController extends ControllerBase  {
      *
      * @return array
      */
-    public function roots_list(string $limit = "10", string $page = "0", string $order = "titleasc" ): array {
+    public function roots_list(string $limit = "10", string $page = "1", string $order = "titleasc" ): array {
         
         drupal_get_messages('error', TRUE);
         // get the root resources
@@ -68,7 +68,7 @@ class FrontendController extends ControllerBase  {
         
         $limit = (int)$limit;
         $page = (int)$page;
-        $page = $page - 1;
+        $page = $page-1;
         
         //count all root resource for the pagination
         $countRes = $this->OeawStorage->getRootFromDB(0,0,true);
@@ -79,22 +79,30 @@ class FrontendController extends ControllerBase  {
         $search = array();
         //make the pagination data
         //$search = $this->OeawFunctions->makePaginatonData($offset, $limit, (int)$countRes);
+        /*
         if($page >= $countRes){
             $page = $countRes - 1;
             if($page < 0){ $page = 0; }
-        }
+        }*/
         
         //get the current page for the pagination        
-        $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
+        //$currentPage = $this->OeawFunctions->getCurrentPageForPagination();
 
         //create data for the pagination
         $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $countRes);
 		$pagination = "";
         if ($pageData['totalPages'] > 1) {
-            $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
+            $pagination =  $this->OeawFunctions->createPaginationHTML($page, $pageData['page'], $pageData['totalPages'], $limit);
         }
 
-        $result = $this->OeawStorage->getRootFromDB($limit, $page, false, $order);
+        //Define offset for pagination
+        if ($page > 0) {
+            $offsetRoot = $page * $limit;
+        } else {
+            $offsetRoot = 0;
+        }
+
+        $result = $this->OeawStorage->getRootFromDB($limit, $offsetRoot, false, $order);
        
         $uid = \Drupal::currentUser()->id();
 
@@ -157,7 +165,7 @@ class FrontendController extends ControllerBase  {
             $datatable['#header'] = $header;
             $datatable['#pagination'] = $pagination;
             //$datatable['#searchedValues'] = $i . ' top-level elements have been found.';
-            $datatable['#totalResultAmount'] = $i;
+            $datatable['#totalResultAmount'] = $countRes;
             if (empty($pageData['page']) OR $pageData['page'] == 0) {
                 $datatable['#currentPage'] = 1;
             } else {
