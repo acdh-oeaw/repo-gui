@@ -523,8 +523,7 @@ class FrontendController extends ControllerBase  {
                 
                 //create data for the pagination                
                 $pageData = $this->OeawFunctions->createPaginationData($pagelimit, (int)$page, $total);
-
-                $pagination = "";                
+                              
                 if ($pageData['totalPages'] > 1) {
                     $results['pagination'] =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $pagelimit);
                 }
@@ -532,6 +531,7 @@ class FrontendController extends ControllerBase  {
                 switch ($specialType) {
                     case "person":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalHasContributor'));
+                        $results['personData'] = $this->OeawFunctions->createPersonTemplateData($results);
                         break;
                     case "concept":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalSkosNarrower'));

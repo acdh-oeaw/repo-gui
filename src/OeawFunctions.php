@@ -608,6 +608,66 @@ class OeawFunctions {
 
     /**
      * 
+     * This functions create the person template data for the basic view
+     * 
+     * @param array $data
+     * @return array
+     */
+    public function createPersonTemplateData(array $data): array{
+        $result = array();
+        
+        if(count($data['table']) > 0){
+            //basic
+            $basicPropertys = array(
+                "acdh:hasTitle",
+                "acdh:hasIdentifier",
+                "acdh:isMember"
+            );
+            
+            foreach($basicPropertys as $bP) {
+                if( (isset($data['table'][$bP])) && (count($data['table'][$bP]) > 0) ){
+                    foreach($data['table'][$bP] as $val){
+                        if($bP == "acdh:hasIdentifier"){
+                            if (strpos($val['uri'], 'id.acdh.oeaw.ac.at') == false) {
+                                $result['basic'][$bP][] = $val;
+                            }
+                        }else {
+                            $result['basic'][$bP][] = $val;
+                        }
+                    }
+                }
+            }
+            if(isset($data['acdh_rdf:type'])){
+                $result['basic']['acdh_rdf:type'] = $data['acdh_rdf:type'];
+            }
+            
+            //contact details
+            $contactPropertys = array(
+                "acdh:hasAddressLine1",
+                "acdh:hasAddressLine2",
+                "acdh:hasCountry",
+                "acdh:hasRegion",
+                "acdh:hasCity",
+                "acdh:hasEmail",
+                "acdh:hasUrl",
+                "acdh:hasPostcode"
+            );
+            
+            //generate the contact data
+            foreach ($contactPropertys as $prop){
+                if( (isset($data['table'][$prop])) && (count($data['table'][$prop]) > 0) ){
+                    if($data['table'][$prop][0]){
+                        $result['contact'][$prop] = $data['table'][$prop][0];
+                    }
+                }
+            }
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * 
      * Create the HTML content of the cite-this widget on single resource view
      * 
      * @param array $resourceData Delivers the properties of the resource
