@@ -534,10 +534,11 @@ class FrontendController extends ControllerBase  {
                         $results['personData'] = $this->OeawFunctions->createPersonTemplateData($results);
                         break;
                     case "concept":
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalSkosNarrower'));
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalSkosNarrower'));                                                
                         break;
                     case "project":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalRelatedProject'));
+                        $results['projectData'] = $this->OeawFunctions->createProjectTemplateData($results);
                         break;
                     case "institute":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalHasMember'));

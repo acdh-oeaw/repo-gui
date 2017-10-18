@@ -605,6 +605,77 @@ class OeawFunctions {
         
         return $result;
     }
+    
+    
+    /**
+     * This functions create the Project template data for the basic view
+     * 
+     * @param array $data
+     */
+    public function createProjectTemplateData(array $data): array {
+        $result = array();
+        
+        if(count($data['table']) > 0){
+             //basic
+            $basicPropertys = array(
+                "acdh:hasTitle",
+                "acdh:hasIdentifier",
+                "acdh:hasAlternativeTitle",
+                "acdh:hasUrl",
+                "acdh:hasContact",
+                "acdh:hasFunder",
+                "acdh:hasPrincipalInvestigator",
+                "acdh:hasStartDate",
+                "acdh:hasEndDate",
+                "acdh:hasLifeCycleStatus",
+                "acdh:language"
+            );
+            
+            foreach($basicPropertys as $bP) {
+                if( (isset($data['table'][$bP])) && (count($data['table'][$bP]) > 0) ){
+                    foreach($data['table'][$bP] as $val){
+                        if($bP == "acdh:hasIdentifier"){
+                            if (strpos($val['uri'], 'id.acdh.oeaw.ac.at') == false) {
+                                $result['basic'][$bP][] = $val;
+                            }
+                        }else {
+                            $result['basic'][$bP][] = $val;
+                        }
+                    }
+                }
+            }
+            if(isset($data['acdh_rdf:type'])){
+                $result['basic']['acdh_rdf:type'] = $data['acdh_rdf:type'];
+            }
+            
+            //contact details
+            $extendedPropertys = array(
+                "acdh:hasRelatedDiscipline",
+                "acdh:hasSubject",
+                "acdh:hasActor",
+                "acdh:hasSpatialCoverage",
+                "acdh:hasTemporalCoverage",
+                "acdh:hasCoverageStartDate",
+                "acdh:hasCoverageEndDate",
+                "acdh:hasAppliedMethod",
+                "acdh:hasAppliedMethodDescription",
+                "acdh:hasTechnicalInfo",
+                "acdh:hasEditorialPractice",
+                "acdh:hasNote"
+            );
+            
+            //generate the contact data
+            foreach ($extendedPropertys as $prop){
+                if( (isset($data['table'][$prop])) && (count($data['table'][$prop]) > 0) ){
+                    $result['extended'][$prop] = $data['table'][$prop];
+                }
+            }
+        }
+        
+        return $result;
+        
+    }
+    
 
     /**
      * 

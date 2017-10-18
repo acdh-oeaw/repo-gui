@@ -1,0 +1,560 @@
+<!-- START : ACDH PERSON template: detailView_Project  -->
+{% if result['image'] %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
+    
+    {%  if result['basic']['acdh:hasTitle'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE873;</i>
+            <span class="res-title">{{ result['basic']['acdh:hasTitle'][0] }}</span>
+        </div>
+    {% endif%} 
+    
+    {%  if result['basic']['acdh:hasAlternativeTitle'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE264;</i>
+            <span class="res-prop-label">Alternative Title:</span> 
+            <span class="res-title">{{ result['basic']['acdh:hasAlternativeTitle'][0] }}</span>
+        </div>
+    {% endif%}
+    
+    {% if result['basic']['acdh_rdf:type'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE54E;</i>
+            <span class="res-prop-label">Type:</span> 
+            <span class="res-prop-value">
+                <a href="{{ url('<front>') }}discover/&type={{ result['basic']['acdh_rdf:type']['title'] }}/10">{{ result['basic']['acdh_rdf:type']['title'] }}</a>
+            </span>
+        </div>
+    {% endif%}	
+    
+    {%  if result['basic']['acdh:hasIdentifier'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE90C;</i>
+            <span class="res-prop-label">Identifier(s): </span>
+             <span class="res-prop-value">
+                {% if result['basic']['acdh:hasIdentifier'] is iterable %}
+                    {% for value in result['basic']['acdh:hasIdentifier'] %}
+                        {% if (value['insideUri']) and (value['title'])  %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['title'] %}    
+                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['uri'] %}
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif%}
+                        <span class="res-prop-delimiter">,</span>
+                    {% endfor %}
+                {% else %}
+                    {{ result['basic']['acdh:hasIdentifier'][0] }}
+                {% endif %}
+            </span>
+        </div>
+    {% endif%}
+  
+    {%  if result['basic']['acdh:hasUrl'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE051;</i>
+            <span class="res-prop-label">Url: </span>
+             <span class="res-prop-value">
+                {% if result['basic']['acdh:hasUrl'] is iterable %}
+                    {% for value in result['basic']['acdh:hasUrl'] %}
+                        {% if (value['insideUri']) and (value['title'])  %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['title'] %}    
+                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['uri'] %}
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif%}
+                        <span class="res-prop-delimiter">,</span>
+                    {% endfor %}
+                {% else %}
+                    {{ result['basic']['acdh:hasUrl'] }}
+                {% endif %}
+            </span>
+        </div>
+    {% endif%}
+    
+    {%  if result['basic']['acdh:hasContact'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE7FE;</i>
+            <span class="res-prop-label">Contact: </span>
+             <span class="res-prop-value">
+                {% if result['basic']['acdh:hasContact'] is iterable %}
+                    {% for value in result['basic']['acdh:hasContact'] %}
+                        {% if (value['insideUri']) and (value['title'])  %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['title'] %}    
+                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['uri'] %}
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif%}
+                        <span class="res-prop-delimiter">,</span>
+                    {% endfor %}
+                {% else %}
+                    {{ result['basic']['acdh:hasContact'] }}
+                {% endif %}
+            </span>
+        </div>
+    {% endif%}
+    
+    {%  if result['basic']['acdh:hasFunder'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE227;</i>
+            <span class="res-prop-label">Funder: </span>
+             <span class="res-prop-value">
+                {% if result['basic']['acdh:hasFunder'] is iterable %}
+                    {% for value in result['basic']['acdh:hasFunder'] %}
+                        {% if (value['insideUri']) and (value['title'])  %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['title'] %}    
+                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['uri'] %}
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif%}
+                        <span class="res-prop-delimiter">,</span>
+                    {% endfor %}
+                {% else %}
+                    {{ result['basic']['acdh:hasFunder'] }}
+                {% endif %}
+            </span>
+        </div>
+    {% endif%}
+    
+    {%  if result['basic']['acdh:hasPrincipalInvestigator'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE8A6;</i>
+            <span class="res-prop-label">Principal Investigator: </span>
+             <span class="res-prop-value">
+                {% if result['basic']['acdh:hasPrincipalInvestigator'] is iterable %}
+                    {% for value in result['basic']['acdh:hasPrincipalInvestigator'] %}
+                        {% if (value['insideUri']) and (value['title'])  %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['title'] %}    
+                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['uri'] %}
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif%}
+                        <span class="res-prop-delimiter">,</span>
+                    {% endfor %}
+                {% else %}
+                    {{ result['basic']['acdh:hasPrincipalInvestigator'] }}
+                {% endif %}
+            </span>
+        </div>
+    {% endif%}
+    
+    {%  if result['basic']['acdh:language'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE153;</i>
+            <span class="res-prop-label">Language: </span>
+             <span class="res-prop-value">
+                {% if result['basic']['acdh:language'] is iterable %}
+                    {% for value in result['basic']['acdh:language'] %}
+                        {% if (value['insideUri']) and (value['title'])  %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['title'] %}    
+                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['uri'] %}
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif%}
+                        <span class="res-prop-delimiter">,</span>
+                    {% endfor %}
+                {% else %}
+                    {{ result['basic']['acdh:language'] }}
+                {% endif %}
+            </span>
+        </div>
+    {% endif%}
+    
+    {%  if result['basic']['acdh:hasStartDate'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE916;</i>
+            <span class="res-prop-label">Start Date: </span>
+             <span class="res-prop-value">
+                {% if result['basic']['acdh:hasStartDate'] is iterable %}
+                    {% for value in result['basic']['acdh:hasStartDate'] %}
+                        {% if (value['insideUri']) and (value['title'])  %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['title'] %}    
+                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['uri'] %}
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif%}
+                        <span class="res-prop-delimiter">,</span>
+                    {% endfor %}
+                {% else %}
+                    {{ result['basic']['acdh:hasStartDate'] }}
+                {% endif %}
+            </span>
+        </div>
+    {% endif%}
+    
+    {%  if result['basic']['acdh:hasEndDate'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE916;</i>
+            <span class="res-prop-label">End Date: </span>
+             <span class="res-prop-value">
+                {% if result['basic']['acdh:hasEndDate'] is iterable %}
+                    {% for value in result['basic']['acdh:hasEndDate'] %}
+                        {% if (value['insideUri']) and (value['title'])  %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['title'] %}    
+                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['uri'] %}
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif%}
+                        <span class="res-prop-delimiter">,</span>
+                    {% endfor %}
+                {% else %}
+                    {{ result['basic']['acdh:hasEndDate'] }}
+                {% endif %}
+            </span>
+        </div>
+    {% endif%}
+    
+    {%  if result['basic']['acdh:hasLifeCycleStatus'] %}
+        <div class="res-property">
+            <i class="material-icons">&#xE889;</i>
+            <span class="res-prop-label">Life Cycle: </span>
+             <span class="res-prop-value">
+                {% if result['basic']['acdh:hasLifeCycleStatus'] is iterable %}
+                    {% for value in result['basic']['acdh:hasLifeCycleStatus'] %}
+                        {% if (value['insideUri']) and (value['title'])  %}
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['title'] %}    
+                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                        {% elseif value['uri'] %}
+                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                        {% else %}
+                            {{ value }}
+                        {% endif%}
+                        <span class="res-prop-delimiter">,</span>
+                    {% endfor %}
+                {% else %}
+                    {{ result['basic']['acdh:hasLifeCycleStatus'] }}
+                {% endif %}
+            </span>
+        </div>
+    {% endif%}
+
+    {% if result['extended'] %}
+        <h3 class="single-res-heading">Further Informations</h3>
+        
+        {%  if result['extended']['acdh:hasRelatedDiscipline'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Related Discipline: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasRelatedDiscipline'] is iterable %}
+                        {% for value in result['extended']['acdh:hasRelatedDiscipline'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasRelatedDiscipline'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        {%  if result['extended']['acdh:hasSubject'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Subject: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasSubject'] is iterable %}
+                        {% for value in result['extended']['acdh:hasSubject'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasSubject'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        {%  if result['extended']['acdh:hasActor'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Actor: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasActor'] is iterable %}
+                        {% for value in result['extended']['acdh:hasActor'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasActor'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        
+        {%  if result['extended']['acdh:hasSpatialCoverage '] %}
+            <div class="res-property">
+                <span class="res-prop-label">Spatial Coverage: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasSpatialCoverage '] is iterable %}
+                        {% for value in result['extended']['acdh:hasSpatialCoverage '] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasSpatialCoverage '] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        {%  if result['extended']['acdh:hasTemporalCoverage'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Temporal Coverage: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasTemporalCoverage'] is iterable %}
+                        {% for value in result['extended']['acdh:hasTemporalCoverage'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasTemporalCoverage'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        {%  if result['extended']['acdh:hasCoverageStartDate'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Coverage Start Date: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasCoverageStartDate'] is iterable %}
+                        {% for value in result['extended']['acdh:hasCoverageStartDate'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasCoverageStartDate'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        {%  if result['extended']['acdh:hasCoverageEndDate'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Coverage End Date: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasCoverageEndDate'] is iterable %}
+                        {% for value in result['extended']['acdh:hasCoverageEndDate'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasCoverageEndDate'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        {%  if result['extended']['acdh:hasAppliedMethod'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Applied Method: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasAppliedMethod'] is iterable %}
+                        {% for value in result['extended']['acdh:hasAppliedMethod'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasAppliedMethod'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        {%  if result['extended']['acdh:hasAppliedMethodDescription'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Applied Method Description: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasAppliedMethodDescription'] is iterable %}
+                        {% for value in result['extended']['acdh:hasAppliedMethodDescription'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasAppliedMethodDescription'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        {%  if result['extended']['acdh:hasTechnicalInfo'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Technical Info: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasTechnicalInfo'] is iterable %}
+                        {% for value in result['extended']['acdh:hasTechnicalInfo'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasTechnicalInfo'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        {%  if result['extended']['acdh:hasEditorialPractice'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Editorial Practice: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasEditorialPractice'] is iterable %}
+                        {% for value in result['extended']['acdh:hasEditorialPractice'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasEditorialPractice'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+        
+        
+        {%  if result['extended']['acdh:hasNote'] %}
+            <div class="res-property">
+                <span class="res-prop-label">Note: </span>
+                 <span class="res-prop-value">
+                    {% if result['extended']['acdh:hasNote'] is iterable %}
+                        {% for value in result['extended']['acdh:hasNote'] %}
+                            {% if (value['insideUri']) and (value['title'])  %}
+                                <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['title'] %}    
+                                <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            {% elseif value['uri'] %}
+                                <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
+                            {% else %}
+                                {{ value }}
+                            {% endif%}
+                            <span class="res-prop-delimiter">,</span>
+                        {% endfor %}
+                    {% else %}
+                        {{ result['extended']['acdh:hasNote'] }}
+                    {% endif %}
+                </span>
+            </div>
+        {% endif%}
+    
+        
+    {% endif%}
+
+    
+{% if result['image'] %}</div>{% endif%}    
+{% if result['image'] %}	
+    <div class="res-inside-wrap col-lg-4 ">	
+        <div class="single-res-thumb">
+            <a data-lightbox="{{ result['resourceTitle'] }}" href="{{ result['image'] }}"><img src="{{ result['image'] }}"></a>
+        </div>
+    </div>
+{% endif%}
+
+<!-- END : ACDH PERSON template: detailView_Project  -->
