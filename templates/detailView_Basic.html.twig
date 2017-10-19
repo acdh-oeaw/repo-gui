@@ -107,7 +107,6 @@
                     {% elseif value['title'] %}    
                         <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
                     {% elseif value['uri'] %}
-                        <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                         <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                     {% else %}
                         {{ value }}
@@ -129,7 +128,6 @@
                     {% elseif value['title'] %}    
                         <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
                     {% elseif value['uri'] %}
-                        <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
                         <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                     {% else %}
                         {{ value }}

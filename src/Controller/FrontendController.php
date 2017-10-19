@@ -430,6 +430,7 @@ class FrontendController extends ControllerBase  {
         $childResult = array();
         $rules = array();
         $ACL = array();
+        $childrenData = array();
 
         $fedora = $this->OeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
@@ -511,6 +512,10 @@ class FrontendController extends ControllerBase  {
                         else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalInstitute')) !== false)) {
                             $specialType = "institute";
                             $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalHasMember'));
+                        }else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('fedoraOrganisationClass')) !== false) ){
+                            $specialType = "organisation";
+                        }else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPlace')) !== false) ){
+                            $specialType = "place";
                         }else {
                             $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
                         }
@@ -531,17 +536,23 @@ class FrontendController extends ControllerBase  {
                 switch ($specialType) {
                     case "person":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalHasContributor'));
-                        $results['personData'] = $this->OeawFunctions->createPersonTemplateData($results);
+                        $results['personData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "person");
                         break;
                     case "concept":
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalSkosNarrower'));                                                
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalSkosNarrower'));                        
                         break;
                     case "project":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalRelatedProject'));
-                        $results['projectData'] = $this->OeawFunctions->createProjectTemplateData($results);
+                        $results['projectData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "project");
                         break;
                     case "institute":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalHasMember'));
+                        break;
+                    case "organisation":
+                        $results['organisationData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "organisation");
+                        break;
+                    case "place":
+                        $results['placeData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "place");
                         break;
                     default:
                         $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);

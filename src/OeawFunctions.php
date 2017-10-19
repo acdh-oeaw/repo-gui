@@ -608,11 +608,11 @@ class OeawFunctions {
     
     
     /**
-     * This functions create the Project template data for the basic view
+     * This functions create the Concept template data for the basic view
      * 
      * @param array $data
      */
-    public function createProjectTemplateData(array $data): array {
+    public function createPlacesTemplateData(array $data): array {
         $result = array();
         
         if(count($data['table']) > 0){
@@ -620,15 +620,16 @@ class OeawFunctions {
             $basicPropertys = array(
                 "acdh:hasTitle",
                 "acdh:hasIdentifier",
-                "acdh:hasAlternativeTitle",
-                "acdh:hasUrl",
-                "acdh:hasContact",
-                "acdh:hasFunder",
-                "acdh:hasPrincipalInvestigator",
-                "acdh:hasStartDate",
-                "acdh:hasEndDate",
-                "acdh:hasLifeCycleStatus",
-                "acdh:language"
+                "acdh:hasAlternativeTitle",                
+                "acdh:hasAddressLine1",
+                "acdh:hasAddressLine2",
+                "acdh:hasPostcode",
+                "acdh:hasCity",
+                "acdh:hasRegion",
+                "acdh:hasCountry",
+                "acdh:hasPart",
+                "acdh:isPartOf",
+                "acdh:isIdenticalTo"
             );
             
             foreach($basicPropertys as $bP) {
@@ -649,93 +650,160 @@ class OeawFunctions {
             }
             
             //contact details
-            $extendedPropertys = array(
-                "acdh:hasRelatedDiscipline",
-                "acdh:hasSubject",
-                "acdh:hasActor",
-                "acdh:hasSpatialCoverage",
-                "acdh:hasTemporalCoverage",
-                "acdh:hasCoverageStartDate",
-                "acdh:hasCoverageEndDate",
-                "acdh:hasAppliedMethod",
-                "acdh:hasAppliedMethodDescription",
-                "acdh:hasTechnicalInfo",
-                "acdh:hasEditorialPractice",
-                "acdh:hasNote"
+            $spatialProperties = array(
+                "acdh:hasLatitude",
+                "acdh:hasLongitude",
+                "acdh:hasWKT"
             );
             
             //generate the contact data
-            foreach ($extendedPropertys as $prop){
+            foreach ($spatialProperties as $prop){
                 if( (isset($data['table'][$prop])) && (count($data['table'][$prop]) > 0) ){
-                    $result['extended'][$prop] = $data['table'][$prop];
+                    $result['spatial'][$prop] = $data['table'][$prop];
                 }
             }
         }
-        
         return $result;
+    }
+    
+    /**
+     * This functions create the Project template data for the basic view
+     * 
+     * @param array $data
+     */
+    public function createCustomDetailViewTemplateData(array $data, string $type): array {
+        $result = array();
+        $basicProp = array();
+        $extendedProp = array();
         
+        if(count($data['table']) > 0){
+            
+            switch ($type) {
+                case "person":
+                    $basicProp = array(
+                        "acdh:hasTitle",
+                        "acdh:hasIdentifier",
+                        "acdh:isMember"
+                    );
+                    
+                    //contact details
+                    $extendedProp = array(
+                        "acdh:hasAddressLine1",
+                        "acdh:hasAddressLine2",
+                        "acdh:hasCountry",
+                        "acdh:hasRegion",
+                        "acdh:hasCity",
+                        "acdh:hasEmail",
+                        "acdh:hasUrl",
+                        "acdh:hasPostcode"
+                    );
+                    
+                    break;
+                case "project":
+                    $basicProp = array(
+                        "acdh:hasTitle",
+                        "acdh:hasIdentifier",
+                        "acdh:hasAlternativeTitle",
+                        "acdh:hasUrl",
+                        "acdh:hasContact",
+                        "acdh:hasFunder",
+                        "acdh:hasPrincipalInvestigator",
+                        "acdh:hasStartDate",
+                        "acdh:hasEndDate",
+                        "acdh:hasLifeCycleStatus",
+                        "acdh:language"
+                    );
+                    
+                    $extendedProp = array(
+                        "acdh:hasRelatedDiscipline",
+                        "acdh:hasSubject",
+                        "acdh:hasActor",
+                        "acdh:hasSpatialCoverage",
+                        "acdh:hasTemporalCoverage",
+                        "acdh:hasCoverageStartDate",
+                        "acdh:hasCoverageEndDate",
+                        "acdh:hasAppliedMethod",
+                        "acdh:hasAppliedMethodDescription",
+                        "acdh:hasTechnicalInfo",
+                        "acdh:hasEditorialPractice",
+                        "acdh:hasNote"
+                    );                    
+                    break;
+                case "organisation":
+                    $basicProp = array(
+                        "acdh:hasTitle",
+                        "acdh:hasAlternativeTitle",
+                        "acdh:hasIdentifier",
+                        "acdh:hasAddressLine1",
+                        "acdh:hasAddressLine2",
+                        "acdh:hasPostcode",
+                        "acdh:hasCity",
+                        "acdh:hasRegion",
+                        "acdh:hasCountry",
+                        "acdh:hasUrl",
+                        "acdh:hasEmail"
+                    );
+                    break;
+                case "place":
+                    $basicProp = array(
+                        "acdh:hasTitle",
+                        "acdh:hasAlternativeTitle",
+                        "acdh:hasIdentifier",
+                        "acdh:hasAddressLine1",
+                        "acdh:hasAddressLine2",
+                        "acdh:hasPostcode",
+                        "acdh:hasCity",
+                        "acdh:hasRegion",
+                        "acdh:hasCountry",
+                        "acdh:hasPart",
+                        "acdh:isPartOf",
+                        "acdh:isIdenticalTo"
+                    );
+                    
+                    $extendedProp = array(
+                        "acdh:hasLatitude",
+                        "acdh:hasLongitude",
+                        "acdh:hasWKT"
+                        );
+                default:
+                break;
+        
+            }
+            if(count($basicProp) > 0){
+                foreach($basicProp as $bP) {
+                    if( (isset($data['table'][$bP])) && (count($data['table'][$bP]) > 0) ){
+                        foreach($data['table'][$bP] as $val){
+                            if($bP == "acdh:hasIdentifier"){
+                                if (strpos($val['uri'], 'id.acdh.oeaw.ac.at') == false) {
+                                    $result['basic'][$bP][] = $val;
+                                }
+                            }else {
+                                $result['basic'][$bP][] = $val;
+                            }
+                        }
+                    }
+                }
+                if(isset($data['acdh_rdf:type'])){
+                    $result['basic']['acdh_rdf:type'] = $data['acdh_rdf:type'];
+                }
+            }
+            
+            if(count($extendedProp) > 0){
+                //generate the contact data
+                foreach ($extendedProp as $prop){
+                    if( (isset($data['table'][$prop])) && (count($data['table'][$prop]) > 0) ){
+                        $result['extended'][$prop] = $data['table'][$prop];
+                    }
+                }
+            }
+            
+            
+            
+        }
+        return $result;
     }
     
 
-    /**
-     * 
-     * This functions create the person template data for the basic view
-     * 
-     * @param array $data
-     * @return array
-     */
-    public function createPersonTemplateData(array $data): array{
-        $result = array();
-        
-        if(count($data['table']) > 0){
-            //basic
-            $basicPropertys = array(
-                "acdh:hasTitle",
-                "acdh:hasIdentifier",
-                "acdh:isMember"
-            );
-            
-            foreach($basicPropertys as $bP) {
-                if( (isset($data['table'][$bP])) && (count($data['table'][$bP]) > 0) ){
-                    foreach($data['table'][$bP] as $val){
-                        if($bP == "acdh:hasIdentifier"){
-                            if (strpos($val['uri'], 'id.acdh.oeaw.ac.at') == false) {
-                                $result['basic'][$bP][] = $val;
-                            }
-                        }else {
-                            $result['basic'][$bP][] = $val;
-                        }
-                    }
-                }
-            }
-            if(isset($data['acdh_rdf:type'])){
-                $result['basic']['acdh_rdf:type'] = $data['acdh_rdf:type'];
-            }
-            
-            //contact details
-            $contactPropertys = array(
-                "acdh:hasAddressLine1",
-                "acdh:hasAddressLine2",
-                "acdh:hasCountry",
-                "acdh:hasRegion",
-                "acdh:hasCity",
-                "acdh:hasEmail",
-                "acdh:hasUrl",
-                "acdh:hasPostcode"
-            );
-            
-            //generate the contact data
-            foreach ($contactPropertys as $prop){
-                if( (isset($data['table'][$prop])) && (count($data['table'][$prop]) > 0) ){
-                    if($data['table'][$prop][0]){
-                        $result['contact'][$prop] = $data['table'][$prop][0];
-                    }
-                }
-            }
-        }
-        
-        return $result;
-    }
     
     /**
      * 
