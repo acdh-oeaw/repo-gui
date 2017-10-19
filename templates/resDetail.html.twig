@@ -249,13 +249,19 @@
 
 	{% endif%}
 
-    {% if extras['personChild'] == "concept" %}
+    {% if extras['childType'] == "concept" %}
         {% set childTitle = "Narrower(s)"%}
-    {% elseif  extras['personChild'] == "person" %}
+    {% elseif  extras['childType'] == "person" %}
         {% set childTitle = "Contributed to"%}
+    {% elseif  extras['childType'] == "project" %}
+        {% set childTitle = "Related collection(s)"%}
+    {% elseif  extras['childType'] == "organisation" %}
+        {% set childTitle = "Involved in"%}        
     {% else %}
         {% set childTitle = "Child Resource(s)"%}
     {% endif %}
+    
+    
     
     {% if childResult %}
 	    <div class="res-el res-info res-child-info col-block col-lg-12">

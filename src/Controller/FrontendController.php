@@ -514,6 +514,7 @@ class FrontendController extends ControllerBase  {
                             $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalHasMember'));
                         }else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('fedoraOrganisationClass')) !== false) ){
                             $specialType = "organisation";
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalHasContributor'));
                         }else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPlace')) !== false) ){
                             $specialType = "place";
                         }else {
@@ -550,6 +551,7 @@ class FrontendController extends ControllerBase  {
                         break;
                     case "organisation":
                         $results['organisationData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "organisation");
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalHasContributor'));
                         break;
                     case "place":
                         $results['placeData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "place");
@@ -588,7 +590,7 @@ class FrontendController extends ControllerBase  {
         
         // Pass fedora uri so it can be linked in the template
         $extras["fedoraURI"] = $uri;
-        $extras["personChild"] = $specialType;
+        $extras["childType"] = $specialType;
         if(count($inverseData) > 0){
             $extras['inverseData'] = $inverseData;
         }

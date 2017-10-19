@@ -253,7 +253,11 @@
         </div>
     {% endif%}
     
-   
+    {% if result['extended'] %}
+        <h3 class="single-res-heading">Has Members:</h3>
+        
+    {% endif%}        
+        
     
 {% if result['image'] %}</div>{% endif%}    
 {% if result['image'] %}	
