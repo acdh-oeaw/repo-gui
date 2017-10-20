@@ -245,7 +245,7 @@ class ComplexSearchForm extends FormBase
             $extras["start_date"] = $startDate;
             $extras["end_date"] = $endDate;
         }
-    
+
         $metaVal = $this->OeawFunctions->convertSearchString($metavalue, $extras);
      
         $metaVal = urlencode($metaVal);

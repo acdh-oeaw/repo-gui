@@ -705,7 +705,7 @@ class FrontendController extends ControllerBase  {
             return $this->roots_list($limit,$page,$order);
 
         } else {
-
+            
             $res = array();        
             $errorMSG = array();  
             //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
@@ -720,7 +720,7 @@ class FrontendController extends ControllerBase  {
             $metavalue = str_replace(' ', '+', $metavalue);
 
             $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);        
-
+            
             $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
             $count = $this->OeawStorage->runUserSparql($countSparql);
             $total = (int)count($count);

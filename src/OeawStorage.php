@@ -1368,7 +1368,8 @@ class OeawStorage {
                 . '?uri <'.RC::get('fedoraAvailableDateProp').'> ?date . '
                 . 'BIND( (CONCAT(STR(substr(?date, 0, 4)))) as ?year) .'
                 . ' } '
-                . 'GROUP BY ?year ';
+                . 'GROUP BY ?year '
+                . 'ORDER BY DESC(?year) ';
         
         try {
             $q = new SimpleQuery($queryStr);

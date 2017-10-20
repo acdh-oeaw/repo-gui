@@ -140,7 +140,7 @@ class OeawFunctions {
      */
     public function explodeSearchString(string $string): array{
         
-        $filters = array("type", "dates", "words", "mindate", "maxdate");
+        $filters = array("type", "dates", "words", "mindate", "maxdate", "years");
         //$operands = array("and" => "+", "not" => "-");
         $positions = array();
         
@@ -194,7 +194,7 @@ class OeawFunctions {
      * @return string
      */        
     public function convertSearchString(string $string, array $extras = null): string{
-        
+      
         $filters = array("type", "date", "words",);
         $operands = array("or", "not");
         $positions = array();
@@ -390,32 +390,48 @@ class OeawFunctions {
             }            
         }
         
-        if(isset($data["mindate"]) && isset($data["maxdate"])){
+        if(isset($data["years"])){
             
-            if( (bool)strtotime($data["mindate"])  ){
-                $mindate = new \DateTime($data["mindate"]);
-            }else  {
-                $msg = base64_encode("The Minimum date is wrong!");
-                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-                $response->send();
-                return;
-            }
-            if( (bool)strtotime($data["maxdate"]) ){
-                $maxdate = new \DateTime($data["maxdate"]);
-            }else  {
-                $msg = base64_encode("The Maximum date is wrong!");
-                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-                $response->send();
-                return;
-            }
+            $yd = explode('+', $data["years"]);
             
-            
-            
+            $maxYear = max($yd);
+            $minYear = min($yd);
+            if( (bool)strtotime($maxYear."-12-31")){ $maxdate = new \DateTime($maxYear."-12-31"); }
+            if( (bool)strtotime($minYear."-01-01")){ $mindate = new \DateTime($minYear."-01-01"); }
+ 
             $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
-            //(?date < "2017-10-20T00:00:00+00:00"^^xsd:dateTime && ?date > "2017-05-11T00:00:00+00:00"^^xsd:dateTime) .
-            // $query .= "FILTER (?date < '".$maxdate->format(DATE_ATOM)."' ^^xsd:dateTime && ?date > '".$mindate->format(DATE_ATOM)."'^^xsd:dateTime)  \n";
             $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
+            
+        }else{
+            if(isset($data["mindate"]) && isset($data["maxdate"])){
+            
+                if( (bool)strtotime($data["mindate"])  ){
+                    $mindate = new \DateTime($data["mindate"]);
+                }else  {
+                    $msg = base64_encode("The Minimum date is wrong!");
+                    $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+                    $response->send();
+                    return;
+                }
+                if( (bool)strtotime($data["maxdate"]) ){
+                    $maxdate = new \DateTime($data["maxdate"]);
+                }else  {
+                    $msg = base64_encode("The Maximum date is wrong!");
+                    $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+                    $response->send();
+                    return;
+                }
+
+
+
+                $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
+                //(?date < "2017-10-20T00:00:00+00:00"^^xsd:dateTime && ?date > "2017-05-11T00:00:00+00:00"^^xsd:dateTime) .
+                // $query .= "FILTER (?date < '".$maxdate->format(DATE_ATOM)."' ^^xsd:dateTime && ?date > '".$mindate->format(DATE_ATOM)."'^^xsd:dateTime)  \n";
+                $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
+            }
         }
+        
+        
         $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?descriptions .}                
     	OPTIONAL{ ?uri <".RC::get('drupalAuthor')."> ?author .}	    	
         OPTIONAL{ ?uri <".RC::get('drupalHasContributor')."> ?contrib .}	
@@ -431,7 +447,7 @@ class OeawFunctions {
                 $query .= " OFFSET ".$page." ";
             }
         }
-        
+       
         return $query;
     }
     
