@@ -1354,7 +1354,41 @@ class OeawStorage {
         }  
     }
     
-    
+    /**
+     * 
+     * Generate the data for the left side complexSearch Year searching function
+     * 
+     * @return array
+     * 
+     */
+    public function getDateForSearch(): array{
+        $result = array();
+            
+        $queryStr = 'SELECT ?year (COUNT(?year) as ?yearCount) WHERE { '
+                . '?uri <'.RC::get('fedoraAvailableDateProp').'> ?date . '
+                . 'BIND( (CONCAT(STR(substr(?date, 0, 4)))) as ?year) .'
+                . ' } '
+                . 'GROUP BY ?year ';
+        
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+
+            $fields = $res->getFields(); 
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+        
+        
+        return $result;
+    }
     
     
     /*

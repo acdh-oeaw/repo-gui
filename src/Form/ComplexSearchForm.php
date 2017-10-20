@@ -55,6 +55,20 @@ class ComplexSearchForm extends FormBase
             $this->createBox($form, $resData);
         }
         
+        
+        $dateData["title"] = "Publications by Year";
+        $dateData["type"] = "datebox_years";
+        $dateFields = $this->OeawStorage->getDateForSearch();
+        $ds = array();
+        
+        foreach ($dateFields as $df){
+            $ds[$df['year']] = $df['year']." (".$df['yearCount']." )";
+        }        
+        $dateData["fields"] = $ds;
+        if(count($dateData["fields"]) > 0){
+            $this->createBox($form, $dateData);
+        }
+        
         $formatData["title"] = "Format";
         $formatData["type"] = "searchbox_format";
         $formatFields = $this->OeawStorage->getMimeTypes();
