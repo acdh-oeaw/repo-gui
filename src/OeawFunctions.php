@@ -393,14 +393,21 @@ class OeawFunctions {
         if(isset($data["years"])){
             
             $yd = explode('+', $data["years"]);
-            
-            $maxYear = max($yd);
-            $minYear = min($yd);
-            if( (bool)strtotime($maxYear."-12-31")){ $maxdate = new \DateTime($maxYear."-12-31"); }
-            if( (bool)strtotime($minYear."-01-01")){ $mindate = new \DateTime($minYear."-01-01"); }
- 
+            $years = array();
+            foreach ($yd as $y){
+                if($y == "or"){continue;}else{ $years[]=$y;
+                }
+            }
+            $maxYear = max($years);
+            $minYear = min($years);
             $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
-            $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
+            if (\DateTime::createFromFormat('Y', $maxYear) !== FALSE && \DateTime::createFromFormat('Y', $minYear) !== FALSE) {                
+                $query .= "FILTER ( (CONCAT(str(substr(?date, 0, 4)))) <= '".$maxYear."' && (CONCAT(str(substr(?date, 0, 4)))) >= '".$minYear."')  \n";
+            }else {
+                //if we have a wrong date then we will select the actual date
+                $min = date("Y");
+                $query .= "FILTER ( (CONCAT(str(substr(?date, 0, 4)))) <= '".$min."' && (CONCAT(str(substr(?date, 0, 4)))) >= '".$min."')  \n";
+            }
             
         }else{
             if(isset($data["mindate"]) && isset($data["maxdate"])){
@@ -421,13 +428,12 @@ class OeawFunctions {
                     $response->send();
                     return;
                 }
-
-
-
+                
                 $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
                 //(?date < "2017-10-20T00:00:00+00:00"^^xsd:dateTime && ?date > "2017-05-11T00:00:00+00:00"^^xsd:dateTime) .
                 // $query .= "FILTER (?date < '".$maxdate->format(DATE_ATOM)."' ^^xsd:dateTime && ?date > '".$mindate->format(DATE_ATOM)."'^^xsd:dateTime)  \n";
                 $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
+                
             }
         }
         
@@ -447,7 +453,7 @@ class OeawFunctions {
                 $query .= " OFFSET ".$page." ";
             }
         }
-       
+        
         return $query;
     }
     
