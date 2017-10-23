@@ -907,12 +907,7 @@ class OeawStorage {
         $groupBy = ' GROUP BY ?uri ?title ?description ORDER BY ASC( fn:lower-case(?title))';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
-        echo "<pre>";
-        var_dump($queryStr);
-        echo "</pre>";
-
-
-
+        
         try {
             $q = new SimpleQuery($queryStr);
             $query = $q->getQuery();
