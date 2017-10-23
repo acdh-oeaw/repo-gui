@@ -56,13 +56,13 @@ class ComplexSearchForm extends FormBase
         }
         
         
-        $dateData["title"] = "Publications by Year";
+        $dateData["title"] = "Entities by Year";
         $dateData["type"] = "datebox_years";
         $dateFields = $this->OeawStorage->getDateForSearch();
         $ds = array();
         
         foreach ($dateFields as $df){
-            $ds[$df['year']] = $df['year']." (".$df['yearCount']." )";
+            $ds[$df['year']] = $df['year']." (".$df['yearCount'].")";
         }        
         $dateData["fields"] = $ds;
         if(count($dateData["fields"]) > 0){
@@ -86,7 +86,7 @@ class ComplexSearchForm extends FormBase
         
         /*
         $form['datebox']['title'] = [
-            '#markup' => '<h3 class="extra-filter-heading">Date of Publication</h3>'
+            '#markup' => '<h3 class="extra-filter-heading">Entities by Date</h3>'
         ];
         
         $form['datebox']['date_start_date'] = [
@@ -125,7 +125,7 @@ class ComplexSearchForm extends FormBase
             '#type' => 'checkboxes',
             '#title' => $this->t($data["title"]),
             '#attributes' => array(
-                'class' => array('checkbox-custom'),
+                'class' => array('checkbox-custom', $data["type"]),
             ),
             '#options' =>
                 $data["fields"]
