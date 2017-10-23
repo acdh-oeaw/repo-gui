@@ -31,7 +31,7 @@ class OeawStorage {
     private static $prefixes = 'PREFIX dct: <http://purl.org/dc/terms/> '
             . 'PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> '
             . 'PREFIX premis: <http://www.loc.gov/premis/rdf/v1#> '
-            . 'PREFIX acdh: <http://vocabs.acdh.oeaw.ac.at/#> '
+            . 'PREFIX acdh: <https://vocabs.acdh.oeaw.ac.at/schema#> '
             . 'PREFIX fedora: <http://fedora.info/definitions/v4/repository#> '
             . 'PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> '
             . 'PREFIX owl: <http://www.w3.org/2002/07/owl#>'
@@ -907,7 +907,12 @@ class OeawStorage {
         $groupBy = ' GROUP BY ?uri ?title ?description ORDER BY ASC( fn:lower-case(?title))';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
-        
+        echo "<pre>";
+        var_dump($queryStr);
+        echo "</pre>";
+
+
+
         try {
             $q = new SimpleQuery($queryStr);
             $query = $q->getQuery();
@@ -1482,6 +1487,68 @@ class OeawStorage {
         }
         
         return $result;
+    }
+    
+    
+    /**
+     * 
+     * Create the children data for the detail views
+     *  
+     * @param string $uri -> resource URI
+     * @param string $limit -> limit for pagination
+     * @param string $offset -> offset for pagination
+     * @param bool $count -> true = count the values
+     * @param string $property -> the Prop which we need for get the data f.e. https://vocabs.acdh.oeaw.ac.at/schema#hasRelatedCollection
+     * @return array
+     */
+    public function getSpecialChildrenViewData(string $uri, string $limit, string $offset, bool $count = false, string $property): array {
+                
+        if($offset < 0) { $offset = 0; }
+        $result = array();
+        $select = "";
+        $where = "";
+        $limitStr = "";
+        $queryStr = "";
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        
+        if($count == false){
+            $select = 'SELECT ?uri ?title ?description (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';            
+            $limitStr = ' LIMIT '.$limit.'
+            OFFSET '.$offset.' ';
+        }else {
+            $select = 'SELECT (COUNT(?uri) as ?count) ';            
+        }
+        
+        $where = '
+            WHERE {
+                <'.$uri.'> <'.$property.'> ?obj .
+                ?uri <'.RC::get('fedoraIdProp').'> ?obj .    
+                OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .}
+                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?description .}
+                ?uri  <'.RC::get("drupalRdfType").'> ?type .
+                FILTER regex(str(?type),"vocabs.acdh","i") .
+            ';
+        $groupBy = ' }  GROUP BY ?uri ?title ?description ORDER BY ASC( fn:lower-case(?title))';
+        
+        $queryStr = $select.$where.$groupBy.$limitStr;
+        
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields(); 
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+        
+        
     }
  
     

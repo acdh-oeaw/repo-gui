@@ -507,7 +507,7 @@ class FrontendController extends ControllerBase  {
                         }
                         else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalProject') ) !== false)) {
                             $specialType = "project";
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalRelatedProject'));
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalRelatedCollection'));
                         }
                         else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalInstitute')) !== false)) {
                             $specialType = "institute";
@@ -543,8 +543,8 @@ class FrontendController extends ControllerBase  {
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalSkosNarrower'));                        
                         break;
                     case "project":
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalRelatedProject'));
-                        $results['projectData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "project");
+                        $childrenData = $this->OeawStorage->getSpecialChildrenViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalRelatedCollection'));
+                        $results['projectData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "project"); 
                         break;
                     case "institute":
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalHasMember'));

@@ -30,7 +30,6 @@ use acdhOeaw\util\RepoConfig as RC;
 use EasyRdf\Graph;
 use EasyRdf\Resource;
 
-
  
 class OeawFunctions {
             

@@ -95,7 +95,6 @@
         </div>                
     {% endif%}
 
-
     {% if result['table']['acdh:hasCreator'] %}
         <div class="res-property">
             <i class="material-icons">&#xE7FB;</i>
@@ -120,7 +119,7 @@
     {% if result['table']['acdh:hasEditor'] %}
         <div class="res-property">
             <i class="material-icons">&#xE7FB;</i>
-            <span class="res-prop-label">Creator(s): </span>
+            <span class="res-prop-label">Editor(s): </span>
             <span class="res-prop-value">
                 {% for value in result['table']['acdh:hasEditor'] %}
                     {% if (value['insideUri']) and (value['title'])  %}
