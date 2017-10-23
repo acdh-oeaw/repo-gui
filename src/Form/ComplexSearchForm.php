@@ -84,7 +84,7 @@ class ComplexSearchForm extends FormBase
             $this->createBox($form, $formatData);
         }
         
-        
+        /*
         $form['datebox']['title'] = [
             '#markup' => '<h3 class="extra-filter-heading">Date of Publication</h3>'
         ];
@@ -106,7 +106,7 @@ class ComplexSearchForm extends FormBase
                 'placeholder' => t('dd/mm/yyyy'),
             )
         ];
-        
+        */
         return $form;
         
     }
