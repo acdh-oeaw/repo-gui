@@ -594,13 +594,21 @@ class FrontendController extends ControllerBase  {
         if(count($inverseData) > 0){
             $extras['inverseData'] = $inverseData;
         }
-
+        
         if(isset($results["table"]["acdh:hasAvailableDate"]) && !empty($results["table"]["acdh:hasAvailableDate"])){
-            $time = strtotime($results["table"]["acdh:hasAvailableDate"][0]);
-            $newTime = date('Y-m-d', $time);
-            $results["table"]["acdh:hasAvailableDate"][0] = $newTime;
+            if($results["table"]["acdh:hasAvailableDate"][0]){
+                if (\DateTime::createFromFormat('Y-m-d', $results["table"]["acdh:hasAvailableDate"][0]) !== FALSE) {
+                    $time = strtotime($results["table"]["acdh:hasAvailableDate"][0]);
+                    $newTime = date('Y-m-d', $time);
+                    $results["table"]["acdh:hasAvailableDate"][0] = $newTime;
+                }
+                //if we dont have a real date just a year
+                if (\DateTime::createFromFormat('Y', $results["table"]["acdh:hasAvailableDate"][0]) !== FALSE) {
+                    $year = \DateTime::createFromFormat('Y', $results["table"]["acdh:hasAvailableDate"][0]);
+                    $results["table"]["acdh:hasAvailableDate"][0] = $year->format('Y');
+                }
+            }
         }
-
         /* Get hasPid & create copy link
          * Order of desired URIs:
          * PID > id.acdh > id.acdh/uuid > long gui url
@@ -734,7 +742,7 @@ class FrontendController extends ControllerBase  {
             $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
 
             $res = $this->OeawStorage->runUserSparql($sparql);
-
+                        
             if(count($res) > 0){
                 $i = 0;
                 foreach($res as $r){
@@ -761,11 +769,18 @@ class FrontendController extends ControllerBase  {
                                 $result[$i]['image'] = $imageUrl;
                             }
                         }
-				        if(isset($r["availableDate"]) && !empty($r["availableDate"])){
-				            $time = strtotime($r["availableDate"]);
-				            $newTime = date('Y-m-d', $time);
-				            $result[$i]["availableDate"] = $newTime;
-				        }
+                        
+                        if(isset($r["availableDate"]) && !empty($r["availableDate"])){
+                            if (\DateTime::createFromFormat('Y-m-d', $r["availableDate"]) !== FALSE) {
+                                $time = strtotime($r["availableDate"]);
+                                $newTime = date('Y-m-d', $time);
+                                $result[$i]["availableDate"] = $newTime;
+                            }
+                            //if the dateformat is not inserted correctly then we need to fix it...
+                            if (\DateTime::createFromFormat('Y', $r["availableDate"]) !== FALSE) {
+                                $result[$i]["availableDate"] = \DateTime::createFromFormat('Y', $r["availableDate"]);
+                            }
+                        }
                         $i++;
                     }
                 }

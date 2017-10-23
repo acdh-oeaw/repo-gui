@@ -142,7 +142,7 @@
         <div class="res-property">
             <i class="material-icons">&#xE8DF;</i>
             <span class="res-prop-label">Available Date: </span>
-            <span class="res-prop-value">{{ result['table']['acdh:hasAvailableDate'][0]|date("d M Y") }}</span>
+            <span class="res-prop-value">{{ result['table']['acdh:hasAvailableDate'][0] }}</span>
         </div>
     {% endif%}
 
@@ -153,7 +153,6 @@
             <span class="res-prop-value">{{ result['table']['acdh:hasCreatedDate'][0]|date("d M Y") }}</span>
         </div>
     {% endif%}
-
 
     {% if result['table']['acdh:hasCreationStartDate'][0] %}
         <div class="res-property">
@@ -170,7 +169,6 @@
             <span class="res-prop-value">{{ result['table']['acdh:hasCreationEndDate'][0]|date("d M Y") }}</span>
         </div>
     {% endif%}
-
 
     {% if result['table']['acdh:isPartOf'] %}
         <div class="res-property">
