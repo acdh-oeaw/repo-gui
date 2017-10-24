@@ -517,6 +517,7 @@ class FrontendController extends ControllerBase  {
                             $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalHasContributor'));
                         }else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPlace')) !== false) ){
                             $specialType = "place";
+                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalHasSpatialCoverage'));
                         }else {
                             $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
                         }
@@ -555,6 +556,7 @@ class FrontendController extends ControllerBase  {
                         break;
                     case "place":
                         $results['placeData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "place");
+                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, RC::get('drupalHasSpatialCoverage'));
                         break;
                     default:
                         $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);

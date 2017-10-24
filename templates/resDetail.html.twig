@@ -256,6 +256,8 @@
         {% set childTitle = "Related collection(s)"%}
     {% elseif  extras['childType'] == "organisation" %}
         {% set childTitle = "Involved in"%}        
+    {% elseif  extras['childType'] == "place" %}
+        {% set childTitle = "Spatial coverage in"%}        
     {% else %}
         {% set childTitle = "Child Resource(s)"%}
     {% endif %}
