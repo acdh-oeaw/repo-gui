@@ -866,6 +866,58 @@ class OeawStorage {
         }        
     }
     
+    
+    /**
+     * 
+     * Get the acdh:isMember values by resource URI for the Organisation view.
+     * 
+     * @param string $uri
+     * @param string $limit
+     * @param string $offset
+     * @param bool $count
+     * @return array
+     * 
+     */
+    public function getIsMembers(string $uri): array {
+        
+        $result = array();
+        $select = "";
+        $where = "";
+        $limitStr = "";
+        $queryStr = "";
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        
+            $select = 'SELECT ?uri ?title ';
+        
+        $where = '
+            WHERE {
+                <'.$uri.'> <'.RC::get("fedoraIdProp").'> ?id .
+                ?uri <'.RC::get('drupalIsMember').'> ?id .
+                ?uri <'.RC::get("fedoraTitleProp").'> ?title .
+            }
+            ';
+        
+        $groupBy = ' GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';
+        
+        $queryStr = $select.$where.$groupBy.$limitStr;
+        
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields(); 
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+    }
+    
     /**
      * 
      * Create the Sparql Query for the Person contributed view

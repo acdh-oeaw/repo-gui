@@ -978,7 +978,39 @@ class FrontendController extends ControllerBase  {
         return $response;
     }
     
-   
+    /**
+      * 
+      * This function is for the oeaw_detail view. It is used for the Organisations view, to get the isMembers
+      * 
+      * @param string $data - the resource url     
+      * @return Response
+    */
+    public function oeaw_ismember_result(string $data){
+         
+        $memberData = array();
+
+        if(!empty($data)){
+            $uri = base64_decode($data);
+            $res = $this->OeawStorage->getIsMembers($uri);
+             
+            if(count($res) <= 0){                
+                $memberData["data"] = array();
+            }else {
+                for ($index = 0; $index <= count($res) - 1; $index++) {
+                    if( !empty($res[$index]['title']) && !empty($res[$index]['uri'])){
+                        $title = $res[$index]['title'];
+                        $insideUri = base64_encode($res[$index]['uri']);
+                        $memberData["data"][$index] = array("<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
+                    }
+                }
+            }
+        }
+
+        $response = new Response();
+        $response->setContent(json_encode($memberData));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+     }
     
     
 }

@@ -10,7 +10,7 @@ jq2(function( $ ) {
         });
         
         
-        //the inverse table setup
+        //the JS for the inverse table
         jq2( "#showInverse" ).click(function() {
             //show the table
             jq2('#inverseTableDiv').show("slow");
@@ -22,6 +22,25 @@ jq2(function( $ ) {
             jq2('table.inverseTable').DataTable({
                 "ajax": {
                     "url": "/browser/oeaw_inverse_result/"+uri,
+                    "data": function ( d ) {
+                        d.limit = d.draw;
+                    }
+                }
+            });
+        });
+        
+        //the JS for the isMember table
+        jq2( "#showIsMember" ).click(function() {
+            //show the table
+            jq2('#isMemberTableDiv').show("slow");
+            //hide the button
+            jq2('#showIsMember').parent().hide("slow");
+            //get the uri            
+            var url = jq2('#showIsMember').data('tableurl');            
+            //genereate the data
+            jq2('table.isMemberTable').DataTable({
+                "ajax": {
+                    "url": "/browser/oeaw_ismember_result/"+url,
                     "data": function ( d ) {
                         d.limit = d.draw;
                     }

@@ -36,7 +36,7 @@
         {% elseif result['projectData'] %}        
             {{ include('/modules/oeaw/templates/detailView_Project.html.twig', {'result': result['projectData'] } ) }}
         {% elseif result['organisationData'] %}
-            {{ include('/modules/oeaw/templates/detailView_Organisation.html.twig', {'result': result['organisationData'] } ) }}
+            {{ include('/modules/oeaw/templates/detailView_Organisation.html.twig', {'result': result['organisationData'], 'insideUrl': result['insideUri'] } ) }}
         {% elseif result['placeData'] %}
             {{ include('/modules/oeaw/templates/detailView_Place.html.twig', {'result': result['placeData'] } ) }}
         {% else  %}
