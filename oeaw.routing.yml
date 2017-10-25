@@ -175,3 +175,10 @@ oeaw_inverse_result:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_inverse_result'
     requirements:        
         _access: 'TRUE'
+        
+oeaw_ismember_result:    
+    path: '/oeaw_ismember_result/{data}'
+    defaults:
+        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_ismember_result'
+    requirements:        
+        _access: 'TRUE'        
