@@ -298,8 +298,132 @@ class OeawFunctions {
         return $res;    
     }
     
+    
+    
+    /**
+     * 
+     * This function creates a sparql query for the Persons API call
+     * 
+     * @param string $str : search text
+     */
+    public function createPersonsApiSparql(string $str): string {
+        
+        $query = "";
+        
+        if(empty($str)){
+            return $query;
+        }
+        
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        $select = 'SELECT DISTINCT ?uri ?title (GROUP_CONCAT(DISTINCT ?identifier;separator=",") AS ?identifiers)   ';
+        $where = "WHERE {"
+                . "?uri ?prop ?obj . "
+                . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
+                . "FILTER( ?prop IN (<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasLastName').">, <".RC::get('drupalHasFirstName').">, <".RC::get('fedoraIdProp')."> )) . "
+                . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
+                . "?uri <".RC::get('fedoraIdProp')."> ?identifier ."
+                . "?uri <".RC::get('drupalRdfType')."> <".RC::get('drupalPerson')."> . "
+                . "}";
+        $groupby = ' GROUP BY ?title ?uri ';
+        $orderby = ' ORDER BY ASC( fn:lower-case(?title)) LIMIT 10 ';
+        
+        $query = $prefix.$select.$where.$groupby.$orderby;
+        
+        return $query;
+        
+    }
+    
+    /**
+     * 
+     * This function creates a sparql query for the Publication API call
+     * 
+     * @param string $str : search text
+     */
+    public function createPublicationsApiSparql(string $str): string {
+        
+        $query = "";
+        
+        if(empty($str)){
+            return $query;
+        }
+        
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        $select = 'SELECT DISTINCT ?uri ?title (GROUP_CONCAT(DISTINCT ?identifier;separator=",") AS ?identifiers)'
+                . ' (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) (GROUP_CONCAT(DISTINCT ?editor;separator=",") AS ?editors)  ';
+        $where = "WHERE {"
+                . "?uri ?prop ?obj . "
+                . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
+                . "FILTER( ?prop IN (<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasAlternativeTitle').">, <".RC::get('drupalHasAuthor').">, <".RC::get('drupalHasEditor').">, <".RC::get('fedoraIdProp')."> )) . "
+                . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
+                . "?uri <".RC::get('fedoraIdProp')."> ?identifier ."
+                . "?uri <".RC::get('drupalRdfType')."> <".RC::get('drupalPublication')."> . "
+                . "OPTIONAL { ?uri <".RC::get('drupalHasAlternativeTitle')."> ?altTitle . } . "
+                . "OPTIONAL { ?uri <".RC::get('drupalHasAuthor')."> ?author . } . "
+                . "OPTIONAL { ?uri <".RC::get('drupalHasEditor')."> ?editor . } . "
+                . "}";
+        $groupby = ' GROUP BY ?title ?uri ';
+        $orderby = ' ORDER BY ASC( fn:lower-case(?title)) LIMIT 10 ';
+        
+        $query = $prefix.$select.$where.$groupby.$orderby;
+        
+        return $query;
+        
+    }
+    
+    /**
+     * 
+     * This function creates a sparql query for the Basic API calls by type
+     * 
+     * @param string $str : search text
+     */
+    public function createBasicApiSparql(string $str, string $type): string {
+        
+        $query = "";
+        
+        if(empty($str) || empty($type)){
+            return $query;
+        }
+        
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        $select = 'SELECT DISTINCT ?uri ?title ?altTitle (GROUP_CONCAT(DISTINCT ?identifier;separator=",") AS ?identifiers)   ';
+        $where = "WHERE {"
+                . "?uri ?prop ?obj . "
+                . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
+                . "FILTER( ?prop IN (<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasAlternativeTitle').">, <".RC::get('fedoraIdProp')."> )) . "
+                . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
+                . "?uri <".RC::get('fedoraIdProp')."> ?identifier ."
+                . "OPTIONAL { ?uri <".RC::get('drupalHasAlternativeTitle')."> ?altTitle . } . "
+                . "?uri <".RC::get('drupalRdfType')."> <".$type."> . "
+                . "}";
+        $groupby = ' GROUP BY ?title ?uri ?altTitle ';
+        $orderby = ' ORDER BY ASC( fn:lower-case(?title)) LIMIT 10 ';
+        
+        $query = $prefix.$select.$where.$groupby.$orderby;
+        
+        return $query;
+        
+    }
+    
+    /**
+     * 
+     * Creates the sparql for the complex search
+     * 
+     * @param array $data
+     * @param string $limit
+     * @param string $page
+     * @param bool $count
+     * @param string $order
+     * @return string
+     */
     public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "titleasc"): string{
 
+        $wordsQuery = "";
+        $query = "";
+                
+        if(count($data) <= 0){
+            return $query;
+        }
+        
         //Let's process the order argument
         switch ($order) {
             case "titleasc":
@@ -318,8 +442,7 @@ class OeawFunctions {
                 $order = "ASC( fn:lower-case(?title))";
         }
 
-        $wordsQuery = "";
-        $query = "";
+        
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         if($count == true){
             $select = "SELECT (COUNT(?uri) as ?count) ";

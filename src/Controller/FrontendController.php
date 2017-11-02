@@ -1010,7 +1010,6 @@ class FrontendController extends ControllerBase  {
         $response->setContent(json_encode($memberData));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
-     }
-    
+    }
     
 }

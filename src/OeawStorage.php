@@ -455,7 +455,7 @@ class OeawStorage {
             if($count == false){
                 //Query parameters for the properties we want to get, true stands for optional
                 $q->addParameter((new HasTriple('?uri', RC::titleProp(), '?title')), true);
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalAuthor'), '?author'), true);           
+                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasAuthor'), '?author'), true);           
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
                 $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?label'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributor'), true);            
