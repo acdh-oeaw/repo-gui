@@ -561,7 +561,7 @@ class OeawFunctions {
         
         
         $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?descriptions .}                
-    	OPTIONAL{ ?uri <".RC::get('drupalAuthor')."> ?author .}	    	
+    	OPTIONAL{ ?uri <".RC::get('drupalHasAuthor')."> ?author .}	    	
         OPTIONAL{ ?uri <".RC::get('drupalHasContributor')."> ?contrib .}	
     	OPTIONAL{ ?uri <".RC::get('drupalRdfType')."> ?rdfType . }
         OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
