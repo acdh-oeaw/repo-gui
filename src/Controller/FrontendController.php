@@ -518,7 +518,9 @@ class FrontendController extends ControllerBase  {
                         }else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPlace')) !== false) ){
                             $specialType = "place";
                             $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, RC::get('drupalHasSpatialCoverage'));
-                        }else {
+                        }
+                        
+                        if(count($countData) <= 0) {
                             $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
                         }
                     }
