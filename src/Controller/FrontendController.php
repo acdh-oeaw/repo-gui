@@ -431,7 +431,8 @@ class FrontendController extends ControllerBase  {
         $rules = array();
         $ACL = array();
         $childrenData = array();
-
+        $countData = array();
+        
         $fedora = $this->OeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
         
