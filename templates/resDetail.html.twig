@@ -39,6 +39,8 @@
             {{ include('/modules/oeaw/templates/detailView_Organisation.html.twig', {'result': result['organisationData'], 'insideUrl': result['insideUri'] } ) }}
         {% elseif result['placeData'] %}
             {{ include('/modules/oeaw/templates/detailView_Place.html.twig', {'result': result['placeData'] } ) }}
+        {% elseif result['publicationData'] %}
+            {{ include('/modules/oeaw/templates/detailView_Publication.html.twig', {'result': result['publicationData'] } ) }}            
         {% else  %}
             {{ include('/modules/oeaw/templates/detailView_Basic.html.twig', {'result': result } ) }}
         {% endif %}
