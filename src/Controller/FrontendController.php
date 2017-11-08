@@ -519,15 +519,25 @@ class FrontendController extends ControllerBase  {
                             $specialType = "institute";
                             $typeProperties = array(RC::get('drupalHasMember'));
                             $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, $typeProperties);
-                        }else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('fedoraOrganisationClass')) !== false) ){
+                        }
+                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('fedoraOrganisationClass')) !== false) ){
                             $specialType = "organisation";
-                            $typeProperties = array(RC::get('drupalHasContributor'));
+                            $typeProperties = array(
+                                RC::get('drupalHasContributor'), 
+                                RC::get('drupalHasFunder'), 
+                                RC::get('fedoraHostingProp'), 
+                                RC::get('drupalHasOwner'), 
+                                RC::get('drupalHasLicensor'), 
+                                RC::get('drupalHasRightsholder')
+                                );
                             $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, $typeProperties);
-                        }else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPlace')) !== false) ){
+                        }
+                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPlace')) !== false) ){
                             $specialType = "place";
                             $typeProperties = array(RC::get('drupalHasSpatialCoverage'));
                             $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, $typeProperties);
-                        }else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPublication')) !== false) ){
+                        }
+                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPublication')) !== false) ){
                             $specialType = "publication";
                             $typeProperties = array(
                                 RC::get('drupalHasDerivedPublication'), 
