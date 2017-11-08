@@ -909,6 +909,27 @@ class OeawFunctions {
                         "acdh:hasLongitude",
                         "acdh:hasWKT"
                         );
+                    break;
+                case "publication":
+                    $basicProp = array(
+                        "acdh:hasTitle",
+                        "acdh:hasAlternativeTitle",
+                        "acdh:hasIdentifier",
+                        "acdh:hasAuthor",
+                        "acdh:hasEditor",
+                        "acdh:hasSeriesInformation",
+                        "acdh:hasPages",
+                        "acdh:hasRegion",
+                        "acdh:hasCity",
+                        "acdh:hasPublisher",
+                        "acdh:isPartOf",
+                        "acdh:hasNonLinkedIdentifier",
+                        "acdh:hasUrl",
+                        "acdh:hasEditorialPractice",
+                        "acdh:hasNote",
+                        "acdh:hasLanguage"
+                    );
+                    break;
                 default:
                 break;
         
@@ -940,9 +961,6 @@ class OeawFunctions {
                     }
                 }
             }
-            
-            
-            
         }
         return $result;
     }
@@ -959,20 +977,6 @@ class OeawFunctions {
     public function createCiteThisWidget(array $resourceData): array {
         
         $content = [];
-	    
-	    /*
-		function input argument: \EasyRdf\Resource $data
-
-	    $OeawStorage = new OeawStorage();
- 
-		$creatorsData = $data->all(RC::get('drupalHasCreator'));
-		$creators = [];
-		foreach ($creatorsData as $key => $creator) {
-			$uri = $creator->getUri();
-			$creators[$key]['hasFirstName'] = $OeawStorage->getPropertyValueByUri($uri, RC::get('drupalHasFirstName'));
-			$creators[$key]['hasLastName'] = $OeawStorage->getPropertyValueByUri($uri, RC::get('drupalHasLastName'));
-		}
-		*/
 
         /** MLA Format
 	     * Example:

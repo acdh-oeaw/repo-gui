@@ -207,48 +207,48 @@
         </div>
     {% endif%}
 
-	{% if extras.CiteThisWidget %}
-    	<h3 class="single-res-heading">Cite Resource</h3>
-	    <div class="cite-selector">
-	            <div class="cite-style selected">
-	            	MLA
-	            	<a href="javascript://" id="cite-tooltip-mla" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
-	            	title="&quot;MLA (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
-	            		<i class="material-icons">&#xE88F;</i>
-	            	</a>
-	            </div>
-	            <!--
-	            <div class="cite-style">
-	            	APA
-	            	<a href="javascript://" id="cite-tooltip-apa" data-toggle="cite-tooltip-apa"  data-placement="right" data-html="true" data-trigger="focus"
-	            	title="&quot;APA (American Psychological Association) style is most commonly used to cite sources within the social sciences.&quot; <a href='https://owl.english.purdue.edu/owl/resource/560/01/'>Read more...</a>">
-	            		<i class="material-icons">&#xE88F;</i>
-	            	</a>
-	            </div>
-	            <div class="cite-style">
-	            	CMS
-	            	<a href="javascript://" id="cite-tooltip-cms" data-toggle="cite-tooltip-cms"  data-placement="right" data-html="true" data-trigger="focus"
-	            	title="&quot;The Chicago Manual of Style (CMS) covers a variety of topics from manuscript preparation and publication to grammar, usage, and documentation.&quot; <a href='https://owl.english.purdue.edu/owl/resource/717/01/'>Read more...</a>">
-	            		<i class="material-icons">&#xE88F;</i>
-	            	</a>
-	            </div>
-	            -->
-	    </div>
-	
-	    <div class="bd-clipboard">
-	        <span id="copy-cite-btn" class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span>
-            <span id="copy-cite-btn-confirmation">Quotation information copied!</span>
-	    </div>
-		
-		<figure class="highlight">
-		
-			<span class="cite-content active">{{ extras.CiteThisWidget.MLA.string | raw }}</span>
-			<span class="cite-content">{{ extras.CiteThisWidget.APA.string | raw }}</span>
-			<span class="cite-content">{{ extras.CiteThisWidget.CMS.string | raw }}</span>
-		
-		</figure>
+    {% if extras.CiteThisWidget %}
+    <h3 class="single-res-heading">Cite Resource</h3>
+        <div class="cite-selector">
+                <div class="cite-style selected">
+                    MLA
+                    <a href="javascript://" id="cite-tooltip-mla" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
+                    title="&quot;MLA (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
+                            <i class="material-icons">&#xE88F;</i>
+                    </a>
+                </div>
+                <!--
+                <div class="cite-style">
+                    APA
+                    <a href="javascript://" id="cite-tooltip-apa" data-toggle="cite-tooltip-apa"  data-placement="right" data-html="true" data-trigger="focus"
+                    title="&quot;APA (American Psychological Association) style is most commonly used to cite sources within the social sciences.&quot; <a href='https://owl.english.purdue.edu/owl/resource/560/01/'>Read more...</a>">
+                            <i class="material-icons">&#xE88F;</i>
+                    </a>
+                </div>
+                <div class="cite-style">
+                    CMS
+                    <a href="javascript://" id="cite-tooltip-cms" data-toggle="cite-tooltip-cms"  data-placement="right" data-html="true" data-trigger="focus"
+                    title="&quot;The Chicago Manual of Style (CMS) covers a variety of topics from manuscript preparation and publication to grammar, usage, and documentation.&quot; <a href='https://owl.english.purdue.edu/owl/resource/717/01/'>Read more...</a>">
+                            <i class="material-icons">&#xE88F;</i>
+                    </a>
+                </div>
+                -->
+        </div>
 
-	{% endif%}
+        <div class="bd-clipboard">
+            <span id="copy-cite-btn" class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span>
+        <span id="copy-cite-btn-confirmation">Quotation information copied!</span>
+        </div>
+
+            <figure class="highlight">
+
+                    <span class="cite-content active">{{ extras.CiteThisWidget.MLA.string | raw }}</span>
+                    <span class="cite-content">{{ extras.CiteThisWidget.APA.string | raw }}</span>
+                    <span class="cite-content">{{ extras.CiteThisWidget.CMS.string | raw }}</span>
+
+            </figure>
+
+    {% endif%}
 
     {% if extras['childType'] == "concept" %}
         {% set childTitle = "Narrower(s)"%}
@@ -257,9 +257,11 @@
     {% elseif  extras['childType'] == "project" %}
         {% set childTitle = "Related collection(s)"%}
     {% elseif  extras['childType'] == "organisation" %}
-        {% set childTitle = "Involved in"%}        
+        {% set childTitle = "Involved in"%}
     {% elseif  extras['childType'] == "place" %}
-        {% set childTitle = "Spatial coverage in"%}        
+        {% set childTitle = "Spatial coverage in"%}
+    {% elseif  extras['childType'] == "publication" %}
+        {% set childTitle = "Related resource(s)"%}
     {% else %}
         {% set childTitle = "Child Resource(s)"%}
     {% endif %}

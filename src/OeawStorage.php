@@ -920,15 +920,16 @@ class OeawStorage {
     
     /**
      * 
-     * Create the Sparql Query for the Person contributed view
+     * Create the Sparql Query for the special ACDH rdf:type "children views"
      * 
-     * @param string $uri - the main resource fedora uri
-     * @param string $limit - limit for paging
-     * @param string $offset - offset for paging
-     * @param bool $count - count query or normal
+     * @param string $uri - the resource fedora uri
+     * @param string $limit 
+     * @param string $offset
+     * @param bool $count - we need a count sparql or not
+     * @param array $property - the properties array
      * @return array
      */
-    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, string $property): array {
+    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property): array {
         
         if($offset < 0) { $offset = 0; }
         $result = array();
@@ -947,18 +948,29 @@ class OeawStorage {
         
         $where = '
             WHERE {
-                <'.$uri.'> <'.RC::get("fedoraIdProp").'> ?obj .
-                ?uri <'.$property.'> ?obj
-                OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .}
-                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?description .}
-                ?uri  <'.RC::get("drupalRdfType").'> ?type .
+                <'.$uri.'> <'.RC::get("fedoraIdProp").'> ?obj . '
+                . '?uri ?prop ?obj . '
+                . 'FILTER( ?prop IN ( ';
+        
+        
+        for ($x = 0; $x < count($property); $x++) {
+            $where .='<'.$property[$x].'>';
+            if($x +1 < count($property)){
+                $where .= ', ';
+            }
+        } 
+        
+        $where .= ' )) . '
+                . ' OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .} 
+                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?description .} 
+                ?uri  <'.RC::get("drupalRdfType").'> ?type . 
                 FILTER regex(str(?type),"vocabs.acdh","i") .
             }
             ';
         
         $groupBy = ' GROUP BY ?uri ?title ?description ORDER BY ASC( fn:lower-case(?title))';
         
-        $queryStr = $select.$where.$groupBy.$limitStr;
+        $queryStr = $prefix.$select.$where.$groupBy.$limitStr;
         
         try {
             $q = new SimpleQuery($queryStr);
