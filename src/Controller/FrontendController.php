@@ -12,6 +12,7 @@ use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\oeaw\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
+use Drupal\oeaw\OeawCustomSparql;
 //ajax
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ChangedCommand;
@@ -38,10 +39,12 @@ class FrontendController extends ControllerBase  {
     
     private $OeawStorage;
     private $OeawFunctions;
+    private $OeawCustomSparql;
     
     public function __construct() {
         $this->OeawStorage = new OeawStorage();
         $this->OeawFunctions = new OeawFunctions();
+        $this->OeawCustomSparql = new OeawCustomSparql();
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
     }    
     
@@ -765,7 +768,7 @@ class FrontendController extends ControllerBase  {
 
             $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);        
             
-            $countSparql = $this->OeawFunctions->createFullTextSparql($searchStr, 0, 0, true);
+            $countSparql = $this->OeawCustomSparql->createFullTextSparql($searchStr, 0, 0, true);
             $count = $this->OeawStorage->runUserSparql($countSparql);
             $total = (int)count($count);
             //create data for the pagination
@@ -775,7 +778,7 @@ class FrontendController extends ControllerBase  {
                 $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
             }
             
-            $sparql = $this->OeawFunctions->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
+            $sparql = $this->OeawCustomSparql->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
 
             $res = $this->OeawStorage->runUserSparql($sparql);
                         

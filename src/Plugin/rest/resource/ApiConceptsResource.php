@@ -6,7 +6,7 @@ use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 // our drupal custom libraries
 use Drupal\oeaw\OeawStorage;
-use Drupal\oeaw\OeawFunctions;
+use Drupal\oeaw\OeawCustomSparql;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
@@ -49,10 +49,10 @@ class ApiConceptsResource extends ResourceBase {
         $spRes = array();
         $result = array();
         
-        $OeawFunctions = new OeawFunctions();
+        $OeawCustomSparql = new OeawCustomSparql();
         $OeawStorage = new OeawStorage();
         
-        $sparql = $OeawFunctions->createBasicApiSparql($data, RC::get('drupalPlace'));
+        $sparql = $OeawCustomSparql->createBasicApiSparql($data, RC::get('drupalPlace'));
 
         if($sparql){
             $spRes = $OeawStorage->runUserSparql($sparql);
