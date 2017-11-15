@@ -58,9 +58,9 @@
             <tbody>
                 {% for key,value in result['table'] %}
                     <tr>
-                        <td>
+                        <td width='40%'>
                             {% if extras["tooltip"][key] %}
-                                {{ extras["tooltip"][key]['title'] }}
+                                {{ extras["tooltip"][key]['title'] }} - 
                                 <a  class="" data-toggle="tooltip" data-placement="right" data-html="true" title="{{ extras["tooltip"][key]['desc'] }}">
                                     <i class="material-icons">&#xE88F;</i>
                                 </a>
@@ -68,7 +68,7 @@
                                 {{ key }}
                             {% endif %}
                         </td>
-                        <td>
+                        <td width='60%'>
                             {% for val in value %}
                                 {% if (val['title']) and (val['insideUri']) %}
                                     <a href="/browser/oeaw_detail/{{ val['insideUri'] }}">{{ val['title'] }} </a> <br>
