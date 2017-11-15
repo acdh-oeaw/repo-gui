@@ -60,10 +60,14 @@
                     <tr>
                         <td width='40%'>
                             {% if extras["tooltip"][key] %}
-                                {{ extras["tooltip"][key]['title'] }} - 
-                                <a  class="" data-toggle="tooltip" data-placement="right" data-html="true" title="{{ extras["tooltip"][key]['desc'] }}">
-                                    <i class="material-icons">&#xE88F;</i>
-                                </a>
+                                <div style='float:left;'>
+                                    {{ extras["tooltip"][key]['title'] }}
+                                </div>
+                                <div style='float:right;'>
+                                    <a  class="" data-toggle="tooltip" data-placement="right" data-html="true" title="{{ extras["tooltip"][key]['desc'] }}">
+                                        <i class="material-icons" style='font-size:17px; color: #88DBDF;'>&#xE88F;</i>
+                                    </a>
+                                </div>
                             {% else %}
                                 {{ key }}
                             {% endif %}
