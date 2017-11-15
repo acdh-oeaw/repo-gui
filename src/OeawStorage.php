@@ -1619,8 +1619,48 @@ class OeawStorage {
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             return $result;
         }
+    }
+    
+    
+    /**
+     * 
+     * This sparql will create an array with the ontology for the caching
+     * 
+     * @return array
+     */
+    public function getOntologyForCache(): array{
+        
+        $result = array();
+        
+        $select = 'SELECT ?title ?id (GROUP_CONCAT(DISTINCT ?comments;separator=",") AS ?comment) WHERE { ';
+        $where = "?uri <".RC::get('drupalRdfType')."> ?type ."
+                . "FILTER( ?type IN ( <http://www.w3.org/2002/07/owl#DatatypeProperty>, <http://www.w3.org/2002/07/owl#ObjectProperty>)) . "
+                . "?uri <".RC::get('fedoraIdProp')."> ?id . "
+                . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
+                . "?uri <".RC::get('drupalRdfsComment')."> ?comments ."
+                . "}"
+                . "Group by ?title ?id";
+         
+        $queryStr = $select.$where;
+
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+
+            $fields = $res->getFields(); 
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+
+            return $result;
+
+         } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
         
         
+        return $result;
     }
  
     

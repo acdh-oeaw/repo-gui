@@ -13,6 +13,7 @@ use Drupal\Core\Link;
 use Drupal\oeaw\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\OeawCustomSparql;
+use Drupal\oeaw\PropertyTableCache;
 //ajax
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ChangedCommand;
@@ -40,11 +41,13 @@ class FrontendController extends ControllerBase  {
     private $OeawStorage;
     private $OeawFunctions;
     private $OeawCustomSparql;
+    private $PropertyTableCache;
     
     public function __construct() {
         $this->OeawStorage = new OeawStorage();
         $this->OeawFunctions = new OeawFunctions();
         $this->OeawCustomSparql = new OeawCustomSparql();
+        $this->PropertyTableCache = new PropertyTableCache();
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
     }    
     
@@ -489,7 +492,6 @@ class FrontendController extends ControllerBase  {
                 }
             }
 
-            
             if(count($identifiers) > 0){
                 $typeProperties = array();
                 
@@ -697,14 +699,21 @@ class FrontendController extends ControllerBase  {
                 $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
             }
         }
-
+                
+        //get the tooltip from cache
+        $cachedTooltip = $this->PropertyTableCache->getCachedData($results["table"]);
+        
+        if(count($cachedTooltip) > 0){
+            $extras["tooltip"] = $cachedTooltip;
+        }
+        
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,
             '#extras' => $extras,
-            '#userid' => $uid,            
+            '#userid' => $uid,
             #'#query' => $query,            
-            '#childResult' => $childResult,            
+            '#childResult' => $childResult,
             '#attached' => [
                 'library' => [
                 'oeaw/oeaw-styles', //include our custom library for this response
@@ -713,7 +722,6 @@ class FrontendController extends ControllerBase  {
         );
         
         return $datatable;
-             
     }
     
    
@@ -979,6 +987,23 @@ class FrontendController extends ControllerBase  {
         
         return $response;
         
+    }
+    
+    /**
+     * cache the acdh ontology 
+     */
+    public function oeaw_cache_onotology(){
+        $result = array();
+        if($this->PropertyTableCache->setCacheData() == true){
+            $result = "cache updated succesfully!";
+        }else {
+            $result = "there is no ontology data to cache!";
+        }
+        
+        $response = new Response();
+        $response->setContent(json_encode($result));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
     }
     
     /**

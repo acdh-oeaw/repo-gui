@@ -12,15 +12,13 @@ use EasyRdf\Resource;
 
 
 /**
- * Description of OeawCustomSparql
+ * This class cointains the custom sparql queries for the ARCHE modul
+ * 
+ * You can run this queries with the OEAWStorage->runUserSparql() function.
  *
  * @author nczirjak
  */
 class OeawCustomSparql {
-    
-    
-    
-    
     
     
     /**

@@ -1,7 +1,6 @@
 {% if errorMSG %}
     {{ errorMSG }}
 {% else %}
-
     <h3 class="single-res-heading">
             Overview
         <div class="res-act-button res-act-button-expertview basic">
@@ -60,11 +59,14 @@
                 {% for key,value in result['table'] %}
                     <tr>
                         <td>
-                            {{ key }}
-                           <!-- <a href="javascript://" id="cite-tooltip-{{ key }}" data-toggle="cite-tooltip-{{ key }}"  data-placement="right" data-html="true" data-trigger="focus"
-                                title="&quot;{{ key }} (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
-                                <i class="material-icons">&#xE88F;</i>-->
-                            </a>
+                            {% if extras["tooltip"][key] %}
+                                {{ extras["tooltip"][key]['title'] }}
+                                <a  class="" data-toggle="tooltip" data-placement="right" data-html="true" title="{{ extras["tooltip"][key]['desc'] }}">
+                                    <i class="material-icons">&#xE88F;</i>
+                                </a>
+                            {% else %}
+                                {{ key }}
+                            {% endif %}
                         </td>
                         <td>
                             {% for val in value %}

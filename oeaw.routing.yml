@@ -173,12 +173,21 @@ oeaw_inverse_result:
     path: '/oeaw_inverse_result/{data}'
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_inverse_result'
-    requirements:        
+    requirements:
         _access: 'TRUE'
         
-oeaw_ismember_result:    
+oeaw_ismember_result:
     path: '/oeaw_ismember_result/{data}'
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_ismember_result'
-    requirements:        
-        _access: 'TRUE'        
+    requirements:
+        _access: 'TRUE'
+
+oeaw_cache_onotology:    
+    path: '/oeaw_cache_onotology'
+    defaults:
+        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_cache_onotology'
+    requirements:
+        _permission: 'access administration pages'
+    
+
