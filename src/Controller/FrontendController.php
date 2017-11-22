@@ -35,6 +35,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 
+use GuzzleHttp\Client;
+
 
 class FrontendController extends ControllerBase  {
     
@@ -42,6 +44,7 @@ class FrontendController extends ControllerBase  {
     private $OeawFunctions;
     private $OeawCustomSparql;
     private $PropertyTableCache;
+    private $uriFor3DObj;
     
     public function __construct() {
         $this->OeawStorage = new OeawStorage();
@@ -989,10 +992,13 @@ class FrontendController extends ControllerBase  {
         
     }
     
+    
+    
     /**
      * cache the acdh ontology 
      */
     public function oeaw_cache_onotology(){
+    
         $result = array();
         if($this->PropertyTableCache->setCacheData() == true){
             $result = "cache updated succesfully!";
@@ -1072,6 +1078,78 @@ class FrontendController extends ControllerBase  {
         $response->setContent(json_encode($memberData));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
+    }
+    
+    public function oeaw_3d_viewer(string $data){
+        
+        
+        $fedoraUrl = 'https://fedora.localhost/rest/71/06/e5/94/7106e594-4864-4dfc-b291-a8ec4e53eda8';
+        echo $fedoraUrl2 = 'https://fedora.localhost/rest/70/65/4a/24/70654a24-8d05-4658-9286-0b291d27bf48';
+        $client = new \GuzzleHttp\Client(['auth' => [RC::get('fedoraUser'), RC::get('fedoraPswd')], 'verify' => false]);
+        //send async request 
+        $request = new \GuzzleHttp\Psr7\Request('GET', $fedoraUrl);
+        $promise = $client->sendAsync($request)->then(function ($response) {
+            
+            if($response->getStatusCode() == 200){
+                //get the filename
+                if(count($response->getHeader('Content-Disposition')) > 0){
+                    $txt = explode(";", $response->getHeader('Content-Disposition')[0]);
+                    $filename = "";
+                    $extension = "";
+                    foreach($txt as $t){
+                        if (strpos($t, 'filename') !== false) {
+                            $filename = str_replace("filename=", "", $t);
+                            $filename = str_replace('"', "", $filename);
+                            $filename = ltrim($filename);
+                            $extension = explode(".", $filename);
+                            $extension = end($extension);
+                            continue;
+                        }
+                    }
+
+                    if($extension == "nxs" || $extension == "ply"){
+                        
+                        if(!empty($filename)){
+                            $dir = str_replace(".", "_", $filename);
+                            $tmpDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/'.$dir.'/';
+                            
+                            if(!file_exists($tmpDir)){
+                                mkdir($tmpDir, 0777);
+                                $file = fopen($tmpDir.'/'.$filename, "w");
+                                fwrite($file, $response->getBody());
+                                fclose($file);
+                            }else{
+                                if(!file_exists($tmpDir.'/'.$filename)){
+                                    $file = fopen($tmpDir.'/'.$filename, "w");
+                                    fwrite($file, $response->getBody());
+                                    fclose($file);
+                                }
+                            }
+                            $url = '/sites/default/files/'.$dir.'/'.$filename;
+                            $this->uriFor3DObj['result'] = $url;
+                            $this->uriFor3DObj['error'] = "";
+                        }
+                    }else {
+                        $this->uriFor3DObj['error'] = "Wrong file format, it is not NSX or PLY!";
+                        $this->uriFor3DObj['result'] = "";
+                    }
+                }
+            }else{
+                $this->uriFor3DObj['error'] = "There is no file";
+                $this->uriFor3DObj['result'] = "";
+            }
+            
+        });
+        $promise->wait();
+
+        $result = 
+                array(
+                    '#theme' => 'oeaw_3d_viewer',
+                    '#ObjectUrl' => $this->uriFor3DObj['result'],
+                    '#errorMSG' =>  $this->uriFor3DObj['error']
+                );
+        
+        return $result;
     }
     
 }

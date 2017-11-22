@@ -6,6 +6,11 @@ function oeaw_theme() {
     'template' => 'resDetail',
   ];  
   
+  $theme['oeaw_3d_viewer'] = [
+    'variables' => ['ObjectUrl' => NULL, 'errorMSG' => null],
+    'template' => 'viewer_3d',
+  ];
+  
   $theme['oeaw_root_dt'] = [
     'variables' => ['result' => NULL, 'header' => NULL, 'userid' => NULL, 'errorMSG' => null],
     'template' => 'dtRoot',

@@ -1,0 +1,50 @@
+{% if  errorMSG %}
+    {{ errorMSG }}
+{% else %}    
+    
+
+    <!--STYLESHEET-->
+    <link type="text/css" rel="stylesheet" href="/browser/modules/oeaw/css/3d/3dhop.css"/>
+    <!--SPIDERGL-->
+    <script type="text/javascript" src="/browser/modules/oeaw/js/3d/spidergl.js"></script>
+    <!--JQUERY-->
+    <script type="text/javascript" src="/browser/modules/oeaw/js/3d/jquery.js"></script>
+    <!--PRESENTER-->
+    <script type="text/javascript" src="/browser/modules/oeaw/js/3d/presenter.js"></script>
+    <!--3D MODELS LOADING AND RENDERING-->
+    <script type="text/javascript" src="/browser/modules/oeaw/js/3d/nexus.js"></script>
+    <script type="text/javascript" src="/browser/modules/oeaw/js/3d/ply.js"></script>
+    <!--TRACKBALLS-->
+    <script type="text/javascript" src="/browser/modules/oeaw/js/3d/trackball_sphere.js"></script>
+    <script type="text/javascript" src="/browser/modules/oeaw/js/3d/trackball_turntable.js"></script>
+    <script type="text/javascript" src="/browser/modules/oeaw/js/3d/trackball_turntable_pan.js"></script>
+    <script type="text/javascript" src="/browser/modules/oeaw/js/3d/trackball_pantilt.js"></script>
+    <!--UTILITY-->
+    <script type="text/javascript" src="/browser/modules/oeaw/js/3d/init.js"></script>
+
+    <div id="3dhop" class="tdhop" onmousedown="if (event.preventDefault) event.preventDefault()"><div id="tdhlg"></div>
+     <canvas id="draw-canvas" height="500px" />
+    </div>
+
+    <script type="text/javascript">
+
+        var presenter = null;
+
+        function setup3dhop() { 
+            presenter = new Presenter("draw-canvas");
+            presenter.setScene({
+                meshes: {
+                    "MS_Name" : { url: '{{ url('<front>') }}{{  ObjectUrl|raw  }}' }
+                },
+                modelInstances : {
+                    "Model1" : { mesh : "MS_Name" }
+                }
+            });
+        }
+
+        $(document).ready(function(){
+            init3dhop();
+            setup3dhop();
+        });
+    </script>
+{% endif %}

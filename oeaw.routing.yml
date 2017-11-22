@@ -78,8 +78,7 @@ oeaw_admin_form:
         _title: 'OEAW ADMIN'
     requirements:
         _permission: 'access administration pages'
-    options:
-        _admin_route: TRUE
+    
 
 oeaw.autocomplete:
     path: '/oeaw/autocomplete/{prop1}/{fieldName}'
@@ -188,6 +187,13 @@ oeaw_cache_onotology:
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_cache_onotology'
     requirements:
-        _permission: 'access administration pages'
-    
+        _permission: 'access content'
+        
+oeaw_3d_viewer:
+    path: '/oeaw_3d_viewer/{data}'
+    defaults:
+        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_3d_viewer'
+    requirements:
+        _access: 'TRUE'
+        
 
