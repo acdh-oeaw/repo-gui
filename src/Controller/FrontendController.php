@@ -1082,12 +1082,11 @@ class FrontendController extends ControllerBase  {
     
     public function oeaw_3d_viewer(string $data){
         
+        $fdUrl = base64_decode($data);
         
-        $fedoraUrl = 'https://fedora.localhost/rest/71/06/e5/94/7106e594-4864-4dfc-b291-a8ec4e53eda8';
-        echo $fedoraUrl2 = 'https://fedora.localhost/rest/70/65/4a/24/70654a24-8d05-4658-9286-0b291d27bf48';
         $client = new \GuzzleHttp\Client(['auth' => [RC::get('fedoraUser'), RC::get('fedoraPswd')], 'verify' => false]);
         //send async request 
-        $request = new \GuzzleHttp\Psr7\Request('GET', $fedoraUrl);
+        $request = new \GuzzleHttp\Psr7\Request('GET', $fdUrl);
         $promise = $client->sendAsync($request)->then(function ($response) {
             
             if($response->getStatusCode() == 200){
