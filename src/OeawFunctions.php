@@ -1574,4 +1574,25 @@ class OeawFunctions {
         
     }
     
+    
+    public function createUser(){
+        $user = \Drupal\user\Entity\User::create();
+ 
+        $user->setUsername("test");  // You could also just set this to "Bob" or something...
+        $user->setPassword('test');
+        $user->setEmail('test@test_11.com');
+        $user->enforceIsNew();  // Set this to FALSE if you want to edit (resave) an existing user object
+    
+        
+        /*$user->set("init", 'Yourmail@123.corp');
+        $user->set("langcode", $lang);
+        $user->set("preferred_langcode", $lang);
+        $user->set("preferred_admin_langcode", $lang);*/
+        //$user->set("setting_name", 'setting_value');
+        $user->activate();
+ 
+        // Save user
+        $result = $user->save();
+    }
+    
 }

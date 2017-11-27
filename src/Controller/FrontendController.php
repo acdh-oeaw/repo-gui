@@ -1080,71 +1080,138 @@ class FrontendController extends ControllerBase  {
         return $response;
     }
     
-    public function oeaw_3d_viewer(string $data){
+    /**
+     * 
+     * This function will download the 3d model with a guzzle async request.
+     * After the download it will save the file 
+     * to the drupal/sites/files/file_name_dir/file_name.extension directory and
+     * pass the url to the 3d viewer template
+     * 
+     * @param string $data -> the fedora url for the 3d content
+     * @return array
+     */
+    public function oeaw_3d_viewer(string $data): array{
         
+        if(empty($data)){
+             return drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
+        }
+        
+        $title = "";
         $fdUrl = base64_decode($data);
+        //get the filename
+        $fdFileName = $this->OeawStorage->getValueByUriProperty($fdUrl, "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename");
         
-        $client = new \GuzzleHttp\Client(['auth' => [RC::get('fedoraUser'), RC::get('fedoraPswd')], 'verify' => false]);
-        //send async request 
-        $request = new \GuzzleHttp\Psr7\Request('GET', $fdUrl);
-        $promise = $client->sendAsync($request)->then(function ($response) {
+        
+        $fdFileSize = $this->OeawStorage->getValueByUriProperty($fdUrl, RC::get('fedoraExtentProp'));
+        //if we have a filename in the fedora
+        if( (count($fdFileName) > 0) && isset($fdFileName[0]["value"]) ){
+            //get the title
+            $title = $this->OeawStorage->getResourceTitle($fdUrl);
+            if(count($title) > 0){
+                $title = $title[0]['title'];
+            }
+            $dir = str_replace(".", "_", $fdFileName[0]["value"]);
+            $fileDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/'.$dir.'/'.$fdFileName[0]["value"];
             
-            if($response->getStatusCode() == 200){
-                //get the filename
-                if(count($response->getHeader('Content-Disposition')) > 0){
-                    $txt = explode(";", $response->getHeader('Content-Disposition')[0]);
-                    $filename = "";
-                    $extension = "";
-                    foreach($txt as $t){
-                        if (strpos($t, 'filename') !== false) {
-                            $filename = str_replace("filename=", "", $t);
-                            $filename = str_replace('"', "", $filename);
-                            $filename = ltrim($filename);
-                            $extension = explode(".", $filename);
-                            $extension = end($extension);
-                            continue;
-                        }
-                    }
-
-                    if($extension == "nxs" || $extension == "ply"){
+            //if the filename is exists then we will not download it again from the server
+            if( (file_exists($fileDir)) && (isset($fdFileSize[0]['value']) &&  $fdFileSize[0]['value'] == filesize($fileDir)) ){
+                $url = '/sites/default/files/'.$dir.'/'.$fdFileName[0]["value"];
+                $result =  array(
+                        '#theme' => 'oeaw_3d_viewer',
+                        '#ObjectUrl' => $url,
+                        '#title' => $title,
+                    );
+                return $result;
+            }
+        }
+        
+        //this is a new 3d model, so we need to download it to the server.
+        $client = new \GuzzleHttp\Client(['auth' => [RC::get('fedoraUser'), RC::get('fedoraPswd')], 'verify' => false]);
+        
+        try{
+            $request = new \GuzzleHttp\Psr7\Request('GET', $fdUrl);
+            //send async request         
+            $promise = $client->sendAsync($request)->then(function ($response) {
+            
+                if($response->getStatusCode() == 200){
+                    //get the filename
+                    if(count($response->getHeader('Content-Disposition')) > 0){
+                        $txt = explode(";", $response->getHeader('Content-Disposition')[0]);
+                        $filename = "";
+                        $extension = "";
                         
-                        if(!empty($filename)){
-                            $dir = str_replace(".", "_", $filename);
-                            $tmpDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/'.$dir.'/';
-                            
-                            if(!file_exists($tmpDir)){
-                                mkdir($tmpDir, 0777);
-                                $file = fopen($tmpDir.'/'.$filename, "w");
-                                fwrite($file, $response->getBody());
-                                fclose($file);
-                            }else{
-                                if(!file_exists($tmpDir.'/'.$filename)){
+                        foreach($txt as $t){
+                            if (strpos($t, 'filename') !== false) {
+                                $filename = str_replace("filename=", "", $t);
+                                $filename = str_replace('"', "", $filename);
+                                $filename = ltrim($filename);
+                                $extension = explode(".", $filename);
+                                $extension = end($extension);
+                                continue;
+                            }
+                        }
+
+                        if($extension == "nxs" || $extension == "ply"){
+
+                            if(!empty($filename)){
+                                $dir = str_replace(".", "_", $filename);
+                                $tmpDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/'.$dir.'/';
+                                //if the file dir is not exists then we will create it
+                                // and we will download the file
+                                if(!file_exists($tmpDir) || !file_exists($tmpDir.'/'.$filename)){
+                                    mkdir($tmpDir, 0777);
                                     $file = fopen($tmpDir.'/'.$filename, "w");
                                     fwrite($file, $response->getBody());
                                     fclose($file);
+                                }else{
+                                    //if the file is not exists
+                                    if(!file_exists($tmpDir.'/'.$filename)){
+                                        $file = fopen($tmpDir.'/'.$filename, "w");
+                                        fwrite($file, $response->getBody());
+                                        fclose($file);
+                                    }
                                 }
+                                $url = '/sites/default/files/'.$dir.'/'.$filename;
+                                $this->uriFor3DObj['result'] = $url;
+                                $this->uriFor3DObj['error'] = "";
                             }
-                            $url = '/sites/default/files/'.$dir.'/'.$filename;
-                            $this->uriFor3DObj['result'] = $url;
-                            $this->uriFor3DObj['error'] = "";
+                        }else {
+                            $this->uriFor3DObj['error'] = "Wrong file format, it is not NXS or PLY!";
+                            $this->uriFor3DObj['result'] = "";
                         }
-                    }else {
-                        $this->uriFor3DObj['error'] = "Wrong file format, it is not NSX or PLY!";
-                        $this->uriFor3DObj['result'] = "";
                     }
+                }else{
+                    $this->uriFor3DObj['error'] = "There is no file";
+                    $this->uriFor3DObj['result'] = "";
                 }
-            }else{
-                $this->uriFor3DObj['error'] = "There is no file";
-                $this->uriFor3DObj['result'] = "";
+
+            });
+            $promise->wait();
+            
+            $title = $this->OeawStorage->getResourceTitle($fdUrl);
+            if(count($title) > 0){
+                $title = $title[0]['title'];
             }
             
-        });
-        $promise->wait();
+            
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            $this->uriFor3DObj['error'] = $ex->getMessage();
+            
+            $result = 
+                array(
+                    '#theme' => 'oeaw_3d_viewer',                    
+                    '#errorMSG' =>  $this->uriFor3DObj['error']
+                );
+        
+            return $result;
+            
+        }
 
         $result = 
                 array(
                     '#theme' => 'oeaw_3d_viewer',
                     '#ObjectUrl' => $this->uriFor3DObj['result'],
+                    '#title' => $title,
                     '#errorMSG' =>  $this->uriFor3DObj['error']
                 );
         

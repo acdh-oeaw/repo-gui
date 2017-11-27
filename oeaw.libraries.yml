@@ -12,3 +12,23 @@ oeaw-styles:
         js/dataTables.bootstrap4.min.js: {}
         js/datatable_init.js: {}
         js/lightbox.js: {}
+
+oeaw-3D_styles:  
+    version: 1.0.0
+    css:
+        base:
+            css/3d/3dhop.css: {}
+    js:
+        js/3d/init.js: {}
+        js/3d/jquery.js: {}
+        js/3d/meshcoder_worker.js: {}
+        js/3d/nexus.js: {}
+        js/3d/ply.js: {}
+        js/3d/presenter.js: {}
+        js/3d/spidergl.js: {}
+        js/3d/trackball_pantilt.js: {}
+        js/3d/trackball_rail.js: {}
+        js/3d/trackball_sphere.js: {}
+        js/3d/trackball_turntable.js: {}
+        js/3d/trackball_turntable_pan.js: {}
+        

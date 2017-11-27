@@ -1,5 +1,5 @@
 {% if  errorMSG %}
-    {{ errorMSG }}
+    <span style="color:red; font-size: 20px; font-weight: bold;">{{ errorMSG }}</span>
 {% else %}    
     
 
@@ -22,6 +22,9 @@
     <!--UTILITY-->
     <script type="text/javascript" src="/browser/modules/oeaw/js/3d/init.js"></script>
 
+    <div>
+        <h2>{{ title }} </h2>
+    </div>
     <div id="3dhop" class="tdhop" onmousedown="if (event.preventDefault) event.preventDefault()"><div id="tdhlg"></div>
      <canvas id="draw-canvas" height="500px" />
     </div>
