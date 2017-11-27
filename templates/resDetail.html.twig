@@ -188,12 +188,12 @@
         
     {% if extras['dissServ'] %}
         <div class="res-property">
-            <i class="material-icons">&#xE89F;</i>	
-            <!--
+            <i class="material-icons">&#xE89F;</i>
+            {% if result['table']['acdh:isCategory'][0] == "3dData" %}
                 <div class="res-act-button">
                     <a href="/browser/oeaw_3d_viewer/{{ result['insideUri'] }}"><span>3D viewer</span></a>
                 </div>
-            -->
+            {% endif %}
             
             {% for key, ds in extras['dissServ'] %}
                 {% if key == "raw"  %}
