@@ -114,7 +114,7 @@ class OeawStorage {
             $q = new Query();
             $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
             $q->addParameter((new HasValue(RC::get("drupalRdfType"), RC::get('drupalCollection') ))->setSubVar('?uri'));
-            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
+            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?descriptions'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributors'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreatedDate'), '?creationdate'), true);
             $q->addParameter(new HasTriple('?uri', RC::get('drupalHasAvailableDate'), '?availableDate'), true);
@@ -132,9 +132,10 @@ class OeawStorage {
             $q->addSubquery($q2);    
       
             if($count == false){
-                $q->setSelect(array('?uri', '?title', '?description', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)', '(GROUP_CONCAT(DISTINCT ?contributors;separator=",") AS ?contributor)'));
+                $q->setSelect(array('?uri', '?title',  '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate', 
+                    '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)', '(GROUP_CONCAT(DISTINCT ?contributors;separator=",") AS ?contributor)', '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)'));
                 $q->setOrderBy(array($order));
-                $q->setGroupBy(array('?uri', '?title', '?description', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate'));
+                $q->setGroupBy(array('?uri', '?title', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate'));
                 $q->setLimit($limit);
                 $q->setOffset($offset);
             }else {
