@@ -1574,25 +1574,28 @@ class OeawFunctions {
         
     }
     
-    
-    public function createUser(){
-        $user = \Drupal\user\Entity\User::create();
- 
-        $user->setUsername("test");  // You could also just set this to "Bob" or something...
-        $user->setPassword('test');
-        $user->setEmail('test@test_11.com');
-        $user->enforceIsNew();  // Set this to FALSE if you want to edit (resave) an existing user object
-    
-        
-        /*$user->set("init", 'Yourmail@123.corp');
-        $user->set("langcode", $lang);
-        $user->set("preferred_langcode", $lang);
-        $user->set("preferred_admin_langcode", $lang);*/
-        //$user->set("setting_name", 'setting_value');
-        $user->activate();
- 
-        // Save user
-        $result = $user->save();
+    /**
+     * 
+     * This function checks that the Resouce is a 3dData or not
+     * 
+     * @param array $data
+     * @return bool
+     */
+    public function check3dData(array $data): bool{
+        $return = false;
+       
+        if( (isset($data['ebucore:filename'][0])) 
+            && 
+            ( (strpos($data['ebucore:filename'][0], '.nxs') !== false) 
+            || 
+            (strpos($data['ebucore:filename'][0], '.ply') !== false) ) 
+            &&
+            ( isset($data['acdh:hasCategory'][0]) && $data['acdh:hasCategory'][0] =="3dData")    
+        )
+        {
+            $return = true;
+        }
+        return $return;
     }
     
 }

@@ -628,6 +628,7 @@ class FrontendController extends ControllerBase  {
         $dissServices =array();
         //check the Dissemination services
         $dissServices = $this->OeawFunctions->getResourceDissServ($fedoraRes);
+        
         if(count($dissServices) > 0){
             $extras['dissServ'] = $dissServices;
         }
@@ -705,9 +706,15 @@ class FrontendController extends ControllerBase  {
                 
         //get the tooltip from cache
         $cachedTooltip = $this->PropertyTableCache->getCachedData($results["table"]);
-        
         if(count($cachedTooltip) > 0){
             $extras["tooltip"] = $cachedTooltip;
+        }
+        
+        //if it is a resource then we need to check the 3dContent
+        if(isset($results['acdh_rdf:type']) && $results['acdh_rdf:type']['title'] == "Resource"  ){
+            if($this->OeawFunctions->check3dData($results['table']) === true){
+                $extras['3dData'] = true;
+            }
         }
         
         $datatable = array(
