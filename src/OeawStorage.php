@@ -1575,7 +1575,7 @@ class OeawStorage {
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         
         if($count == false){
-            $select = 'SELECT ?uri ?title ?description (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';            
+            $select = 'SELECT ?uri ?title (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) ';            
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
         }else {
@@ -1597,14 +1597,14 @@ class OeawStorage {
         $where .='  )) . '
                 . '?uri <'.RC::get('fedoraIdProp').'> ?obj .    
                 OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .}
-                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?description .}
+                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?descriptions .}
                 ?uri  <'.RC::get("drupalRdfType").'> ?type .
                 FILTER regex(str(?type),"vocabs.acdh","i") .
             ';
-        $groupBy = ' }  GROUP BY ?uri ?title ?description ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' }  GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
-        
+        echo $queryStr;
         try {
             $q = new SimpleQuery($queryStr);
             $query = $q->getQuery();
