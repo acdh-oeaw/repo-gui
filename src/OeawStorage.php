@@ -1604,7 +1604,7 @@ class OeawStorage {
         $groupBy = ' }  GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
-        echo $queryStr;
+        
         try {
             $q = new SimpleQuery($queryStr);
             $query = $q->getQuery();
