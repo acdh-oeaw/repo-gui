@@ -3,6 +3,7 @@ jQuery.noConflict(true);
 jq2(function( $ ) {
     
        var table = jq2('table.display').DataTable({
+           "lengthMenu": [[20, 35, 50, -1], [20, 35, 50, "All"]]
         });
         
         

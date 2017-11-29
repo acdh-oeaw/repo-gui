@@ -1586,9 +1586,9 @@ class OeawFunctions {
        
         if( (isset($data['ebucore:filename'][0])) 
             && 
-            ( (strpos($data['ebucore:filename'][0], '.nxs') !== false) 
+            ( (strpos(strtolower($data['ebucore:filename'][0]), '.nxs') !== false) 
             || 
-            (strpos($data['ebucore:filename'][0], '.ply') !== false) ) 
+            (strpos(strtolower($data['ebucore:filename'][0]), '.ply') !== false) ) 
             &&
             ( isset($data['acdh:hasCategory'][0]) && $data['acdh:hasCategory'][0] =="3dData")    
         )

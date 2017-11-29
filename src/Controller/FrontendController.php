@@ -1100,10 +1100,12 @@ class FrontendController extends ControllerBase  {
     public function oeaw_3d_viewer(string $data): array{
         
         if(empty($data)){
-             return drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
+             return drupal_set_message(t('Please add a resources!'), 'error', FALSE);
         }
         
+        $templateData = array();
         $title = "";
+        $templateData["insideUri"] = $data;
         $fdUrl = base64_decode($data);
         //get the filename
         $fdFileName = $this->OeawStorage->getValueByUriProperty($fdUrl, "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename");
@@ -1115,7 +1117,7 @@ class FrontendController extends ControllerBase  {
             //get the title
             $title = $this->OeawStorage->getResourceTitle($fdUrl);
             if(count($title) > 0){
-                $title = $title[0]['title'];
+                $templateData["title"] = $title[0]['title'];
             }
             $dir = str_replace(".", "_", $fdFileName[0]["value"]);
             $fileDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/'.$dir.'/'.$fdFileName[0]["value"];
@@ -1126,7 +1128,7 @@ class FrontendController extends ControllerBase  {
                 $result =  array(
                         '#theme' => 'oeaw_3d_viewer',
                         '#ObjectUrl' => $url,
-                        '#title' => $title,
+                        '#templateData' => $templateData,
                     );
                 return $result;
             }
@@ -1197,7 +1199,7 @@ class FrontendController extends ControllerBase  {
             
             $title = $this->OeawStorage->getResourceTitle($fdUrl);
             if(count($title) > 0){
-                $title = $title[0]['title'];
+                $templateData["title"] = $title[0]['title'];
             }
             
             
@@ -1214,11 +1216,14 @@ class FrontendController extends ControllerBase  {
             
         }
 
+        
+        
+        
         $result = 
                 array(
                     '#theme' => 'oeaw_3d_viewer',
                     '#ObjectUrl' => $this->uriFor3DObj['result'],
-                    '#title' => $title,
+                    '#templateData' => $templateData,
                     '#errorMSG' =>  $this->uriFor3DObj['error']
                 );
         

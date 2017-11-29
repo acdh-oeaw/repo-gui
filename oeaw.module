@@ -7,7 +7,7 @@ function oeaw_theme() {
   ];  
   
   $theme['oeaw_3d_viewer'] = [
-    'variables' => ['ObjectUrl' => NULL, 'errorMSG' => null, 'title' => null],
+    'variables' => ['ObjectUrl' => NULL, 'errorMSG' => null, 'templateData' => null],
     'template' => 'viewer_3d',
   ];
   

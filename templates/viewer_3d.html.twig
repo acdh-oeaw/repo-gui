@@ -23,9 +23,28 @@
     <script type="text/javascript" src="/browser/modules/oeaw/js/3d/init.js"></script>
 
     <div>
-        <h2>{{ title }} </h2>
+        {%  if templateData['insideUri'] %}
+            <div>
+                <a href="/browser/oeaw_detail/{{ templateData['insideUri'] }}"><span><< Back to the Resource Page</span></a>
+                <br/><br/>
+            </div>
+        {% endif %}    
+        {%  if templateData['title'] %}
+            <h2>{{ templateData['title'] }} </h2>
+        {% endif %}
+        
     </div>
+    
     <div id="3dhop" class="tdhop" onmousedown="if (event.preventDefault) event.preventDefault()"><div id="tdhlg"></div>
+        <div id="toolbar">
+            <img id="home"     title="Home"                  src="/browser/modules/oeaw/images/viewer/home.png"   /><br/>
+            <img id="zoomin"   title="Zoom In"               src="/browser/modules/oeaw/images/viewer/zoomin.png" /><br/>
+            <img id="zoomout"  title="Zoom Out"              src="/browser/modules/oeaw/images/viewer/zoomout.png"/><br/>
+            <img id="light_on" title="Disable Light Control" src="/browser/modules/oeaw/images/viewer/light_on.png" style="position:absolute; visibility:hidden;"/>
+            <img id="light"    title="Enable Light Control"  src="/browser/modules/oeaw/images/viewer/light.png"/><br/>
+            <img id="full_on"  title="Exit Full Screen"      src="/browser/modules/oeaw/images/viewer/full_on.png" style="position:absolute; visibility:hidden;"/>
+            <img id="full"     title="Full Screen"           src="/browser/modules/oeaw/images/viewer/full.png"   />
+        </div>
      <canvas id="draw-canvas" height="500px" />
     </div>
 
@@ -44,10 +63,20 @@
                 }
             });
         }
+        
+            
+        function actionsToolbar(action) {
+            if(action=='home') presenter.resetTrackball(); 
+            else if(action=='zoomin') presenter.zoomIn();
+            else if(action=='zoomout') presenter.zoomOut(); 
+            else if(action=='light' || action=='light_on') { presenter.enableLightTrackball(!presenter.isLightTrackballEnabled()); lightSwitch(); } 
+            else if(action=='full'  || action=='full_on') fullscreenSwitch(); 
+        }
 
         $(document).ready(function(){
             init3dhop();
             setup3dhop();
+            moveToolbar(20,20);
         });
     </script>
 {% endif %}
