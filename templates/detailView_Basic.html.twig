@@ -1,23 +1,13 @@
 {% if result['image'] %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
             
+    <!---- TITLE --->
     {%  if result['table']['acdh:hasTitle'] %}
         <div class="res-property">
             <span class="res-title">{{ result['table']['acdh:hasTitle'][0] }}</span>
         </div>
     {% endif%} 
 
-    {%  if result['table']['acdh:hasBinarySize'][0] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE2BC;</i>
-            <span class="res-prop-label">Binary Size: </span>
-            <span class="res-prop-value">
-                {% for value in result['table']['acdh:hasBinarySize'] %}
-                    {{ value }}
-                {% endfor %}
-            </span>
-        </div>
-    {% endif%} 
-
+    <!---- TYPE --->
     {% if result['acdh_rdf:type'] %}
         <div class="res-property">
             <i class="material-icons">&#xE54E;</i>
@@ -27,388 +17,122 @@
             </span>
         </div>
     {% endif%}		
-
-    {% if result['table']['acdh:hasAuthor'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE7FB;</i>
-            <span class="res-prop-label">Author(s): </span>
-            <span class="res-prop-value">
-                {% for value in result['table']['acdh:hasAuthor'] %}
-                    {% if (value['insideUri']) and (value['title'])  %}
-                         <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                     {% elseif value['title'] %}    
-                         <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                     {% elseif value['uri'] %}
-                         <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                         <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                     {% else %}
-                         {{ value }},
-                     {% endif%}
-                     <span class="res-prop-delimiter">,</span>
-                {% endfor %}
-            </span>
-        </div>                
-    {% endif%}	
-
-    {% if result['table']['acdh:hasContributor'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE7FE;</i>
-            <span class="res-prop-label">Contributor(s): </span>
-            <span class="res-prop-value">
-                {% for value in result['table']['acdh:hasContributor'] %}
-                    {% if (value['insideUri']) and (value['title'])  %}
-                         <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                     {% elseif value['title'] %}    
-                         <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                     {% elseif value['uri'] %}
-                         <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                         <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                     {% else %}
-                         {{ value }}
-                     {% endif%}
-                     <span class="res-prop-delimiter">,</span>
-                {% endfor %}
-            </span>
-        </div>                
-    {% endif%}
-
+    
+    
+    <!---- CONTACT --->
     {% if result['table']['acdh:hasContact'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE7FE;</i>
-            <span class="res-prop-label">Contact(s): </span>
-            <span class="res-prop-value">
-                {% for value in result['table']['acdh:hasContact'] %}
-                    {% if (value['insideUri']) and (value['title'])  %}
-                         <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                     {% elseif value['title'] %}    
-                         <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                     {% elseif value['uri'] %}
-                         <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                         <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                     {% else %}
-                         {{ value }}
-                     {% endif%}
-                     <span class="res-prop-delimiter">,</span>
-                {% endfor %}
-            </span>
-        </div>                
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasContact'], 'icon': "person_add", 'label': "Contact(s)" } ) }}
     {% endif%}
-
-    {% if result['table']['acdh:hasCreator'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE7FB;</i>
-            <span class="res-prop-label">Creator(s): </span>
-            <span class="res-prop-value">
-                {% for value in result['table']['acdh:hasCreator'] %}
-                    {% if (value['insideUri']) and (value['title'])  %}
-                        <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                    {% elseif value['title'] %}    
-                        <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                    {% elseif value['uri'] %}
-                        <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                    {% else %}
-                        {{ value }}
-                    {% endif%}
-                    <span class="res-prop-delimiter">,</span>
-                {% endfor %}
-            </span>
-        </div>                
-    {% endif%}	
-
+    
+    <!---- EDITOR --->    
     {% if result['table']['acdh:hasEditor'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE7FB;</i>
-            <span class="res-prop-label">Editor(s): </span>
-            <span class="res-prop-value">
-                {% for value in result['table']['acdh:hasEditor'] %}
-                    {% if (value['insideUri']) and (value['title'])  %}
-                        <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                    {% elseif value['title'] %}    
-                        <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                    {% elseif value['uri'] %}
-                        <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                    {% else %}
-                        {{ value }}
-                    {% endif%}
-                    <span class="res-prop-delimiter">,</span>
-                {% endfor %}
-            </span>
-        </div>                
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasEditor'], 'icon': "people", 'label': "Editor(s)" } ) }}
     {% endif%}	
-
-    {% if result['table']['acdh:hasAvailableDate'][0] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE8DF;</i>
-            <span class="res-prop-label">Available Date: </span>
-            <span class="res-prop-value">{{ result['table']['acdh:hasAvailableDate'][0]|date("d M Y") }}</span>
-        </div>
+    
+    <!---- AUTHOR --->
+    {% if result['table']['acdh:hasAuthor'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasAuthor'], 'icon': "people", 'label': "Author(s)" } ) }}
+    {% endif%}	
+    
+    <!---- CREATOR --->
+    {% if result['table']['acdh:hasCreator'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasCreator'], 'icon': "people", 'label': "Creator(s)" } ) }}
+    {% endif%}	
+    
+    <!---- CONTRIBUTOR --->
+    {% if result['table']['acdh:hasContributor'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasContributor'], 'icon': "person", 'label': "Contributor(s)" } ) }}
     {% endif%}
 
+    <!---- CREATED DATE --->
     {% if result['table']['acdh:hasCreatedDate'][0] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE8DF;</i>
-            <span class="res-prop-label">Created Date: </span>
-            <span class="res-prop-value">{{ result['table']['acdh:hasCreatedDate'][0]|date("d M Y") }}</span>
-        </div>
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasCreatedDate'], 'icon': "today", 'label': "Created Date" } ) }}
     {% endif%}
 
+    <!---- CREATION START --->
     {% if result['table']['acdh:hasCreationStartDate'][0] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE8DF;</i>
-            <span class="res-prop-label">Creation Start Date: </span>
-            <span class="res-prop-value">{{ result['table']['acdh:hasCreationStartDate'][0]|date("d M Y") }}</span>
-        </div>
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasCreationStartDate'], 'icon': "today", 'label': "Creation Start Date" } ) }}
     {% endif%}
 
+    <!---- CREATION END --->
     {% if result['table']['acdh:hasCreationEndDate'][0] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE8DF;</i>
-            <span class="res-prop-label">Creation End Date: </span>
-            <span class="res-prop-value">{{ result['table']['acdh:hasCreationEndDate'][0]|date("d M Y") }}</span>
-        </div>
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasCreationEndDate'], 'icon': "today", 'label': "Creation End Date" } ) }}        
     {% endif%}
-
-    {% if result['table']['acdh:isPartOf'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE335;</i>
-            <span class="res-prop-label">Part of: </span>
-            <span class="res-prop-value">
-                {% for value in result['table']['acdh:isPartOf'] %}
-                    {% if value['insideUri'] %}
-                        <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                    {% else %}
-                        <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->                                
-                        <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                    {% endif%}
-                    <span class="res-prop-delimiter">,</span>
-                {% endfor %}
-            </span>
-        </div>
+    
+    <!---- AVAILABLE DATE --->
+    {% if result['table']['acdh:hasAvailableDate'][0] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasAvailableDate'], 'icon': "today", 'label': "Available Date" } ) }}
     {% endif%}
-
+    
+    <!---- EXTENT --->
     {% if result['table']['acdh:hasExtent'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE2C7;</i>
-            <span class="res-prop-label">Extent: </span>
-            <span class="res-prop-value">
-                {% for value in result['table']['acdh:hasExtent'] %}
-                    {{ value }}
-                    <span class="res-prop-delimiter">,</span>
-                {% endfor %}
-            </span>
-        </div>
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasExtent'], 'icon': "dehaze", 'label': "Extent" } ) }}
+    {% endif%}    
+    
+    <!---- NUMBER OF ITEMS --->
+    {%  if result['table']['acdh:hasNumberOfItems'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasNumberOfItems'], 'icon': "attachment", 'label': "Number of Item(s)" } ) }}
     {% endif%}
-
+    
+    <!---- BINARY SIZE --->
+    {%  if result['table']['acdh:hasBinarySize'][0] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasBinarySize'], 'icon': "attachment", 'label': "Binary Size" } ) }}
+    {% endif%} 
+    
+    <!---- CATEGORY --->
+    {%  if result['table']['acdh:hasCategory'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasCategory'], 'icon': "sort", 'label': "Category" } ) }}
+    {% endif%}
+    
+    <!---- LICENSE --->
     {%  if result['table']['acdh:hasLicense'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE90C;</i>
-            <span class="res-prop-label">License: </span>
-             <span class="res-prop-value">
-                {% if result['table']['acdh:hasLicense'] is iterable %}
-                    {% for value in result['table']['acdh:hasLicense'] %}
-                        {% if (value['insideUri']) and (value['title'])  %}
-                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                        {% elseif value['title'] %}    
-                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                        {% elseif value['uri'] %}
-                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                        {% else %}
-                            {{ value }}
-                        {% endif%}
-                        <span class="res-prop-delimiter">,</span>
-                    {% endfor %}
-                {% else %}
-                    {{ result['table']['acdh:hasLicense'][0] }}
-                {% endif %}
-            </span>
-        </div>
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasLicense'], 'icon': "copyright", 'label': "License" } ) }}
     {% endif%}
 
-    {%  if result['table']['acdh:hasAccessRestriction'][0] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE8F4;</i>
-            <span class="res-prop-label">Access: </span>
-            <span class="res-binarySize">{{ result['table']['acdh:hasAccessRestriction'][0] }}</span>
-        </div>
+     <!---- ACCESS RESTRICTION --->
+    {%  if result['table']['acdh:hasAccessRestriction'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasAccessRestriction'], 'icon': "verified_user", 'label': "Access Restriction" } ) }}
     {% endif%}
-
+   
+    <!---- schema --->
     {%  if result['table']['acdh:hasSchema'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE241;</i>
-            <span class="res-prop-label">Schema: </span>
-            <span class="res-prop-value">
-                {% if result['table']['acdh:hasSchema'] is iterable %}
-                    {% for value in result['table']['acdh:hasSchema'] %}
-                        {% if (value['insideUri']) and (value['title'])  %}
-                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                        {% elseif value['title'] %}    
-                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                        {% elseif value['uri'] %}
-                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                        {% else %}
-                            {{ value }}
-                        {% endif%}
-                        <span class="res-prop-delimiter">,</span>
-                    {% endfor %}
-                {% else %}
-                    {{ result['table']['acdh:hasSchema'][0] }}
-                {% endif %}
-            </span>
-        </div>
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasSchema'], 'icon': "format_list_bulleted", 'label': "Schema" } ) }}
     {% endif%}
 
-
+    <!---- HAS METADATA --->
     {% if result['table']['acdh:hasMetadata'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE85D;</i>
-            <span class="res-prop-label">Metadata: </span>
-            <span class="res-prop-value">
-                {% if result['table']['acdh:hasMetadata'] is iterable %}
-                    {% for value in result['table']['acdh:hasMetadata'] %}
-                       {% if (value['insideUri']) and (value['title'])  %}
-                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                        {% elseif value['title'] %}    
-                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                        {% elseif value['uri'] %}
-                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                        {% else %}
-                            {{ value }}
-                        {% endif%}
-                        <span class="res-prop-delimiter">,</span>
-                    {% endfor %}
-                {% else %}
-                    {{ result['table']['acdh:hasMetadata'][0] }}
-                {% endif %}    
-                </span>
-        </div>
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasMetadata'], 'icon': "assignment", 'label': "Metadata" } ) }}
     {% endif%}
-
-    {% if result['isMetadata'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE85D;</i>
-            <span class="res-prop-label">isMetadataFor: </span>
-            <span class="res-prop-value">
-                {% for value in result['isMetadata'] %}
-                    {% if value['insideUri'] %}
-                        <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                    {% else %}
-                        <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                    {% endif%}
-                    <span class="res-prop-delimiter">,</span>
-                {% endfor %}
-            </span>
-        </div>
-    {% endif%}
-
-    {% if result['table']['acdh:hasLocationURL'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE55C;</i>
-            <span class="res-prop-label">Location URL: </span>
-            <span class="res-prop-value">
-                {% for value in result['table']['acdh:hasLocationURL'] %}
-                    {% if value['insideUri'] %}
-                        <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                    {% else %}
-                        <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                    {% endif%}
-                    <span class="res-prop-delimiter">,</span>
-                {% endfor %}
-            </span>
-        </div>
-    {% endif%}
-
+    
+    <!---- HAS URL --->
     {% if result['table']['acdh:hasUrl'] %}
-        <div class="res-property">
-            <i class="material-icons"><i class="material-icons">&#xE051;</i></i>
-            <span class="res-prop-label">Url: </span>
-            <span class="res-prop-value">
-                {% if result['table']['acdh:hasUrl'] is iterable %}
-                    {% for value in result['table']['acdh:hasUrl'] %}
-                       {% if (value['insideUri']) and (value['title'])  %}
-                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                        {% elseif value['title'] %}    
-                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                        {% elseif value['uri'] %}
-                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                        {% else %}
-                            {{ value }}
-                        {% endif%}
-                        <span class="res-prop-delimiter">,</span>
-                    {% endfor %}
-                {% else %}
-                    {{ result['table']['acdh:hasUrl'][0] }}
-                {% endif %}    
-                </span>
-        </div>
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasUrl'], 'icon': "web", 'label': "Url" } ) }}
     {% endif%}
-
+    
+    <!---- HAS PID --->
     {% if result['table']['acdh:hasPid'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE90D;</i>
-            <span class="res-prop-label">PID: </span>
-            <span class="res-prop-value">
-                {% if result['table']['acdh:hasPid'] is iterable %}
-                    {% for value in result['table']['acdh:hasPid'] %}
-                       {% if (value['insideUri']) and (value['title'])  %}
-                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                        {% elseif value['title'] %}    
-                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                        {% elseif value['uri'] %}
-                            <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                        {% elseif 'http' in value  %}
-                            <a href="{{ value }}">{{ value }}</a>
-                        {% else %}
-                            {{ value }}
-                        {% endif%}
-                        <span class="res-prop-delimiter">,</span>
-                    {% endfor %}
-                {% else %}
-                    {{ result['table']['acdh:hasPid'][0] }}
-                {% endif %}   
-            </span>
-        </div>
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasPid'], 'icon': "fingerprint", 'label': "PID" } ) }}
     {% endif%}
 
-
+    <!---- RELATED PROJECT --->
     {% if result['table']['acdh:hasRelatedProject'] %}
-        <div class="res-property">
-            <i class="material-icons">&#xE8E1;</i>
-            <span class="res-prop-label">Related Project(s): </span>
-            <span class="res-prop-value">
-                {% if result['table']['acdh:hasRelatedProject'] is iterable %}
-                    {% for value in result['table']['acdh:hasRelatedProject'] %}
-                        {% if (value['insideUri']) and (value['title']) %}
-                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                        {% elseif (value['title']) %}
-                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
-                        {% else %}
-                            {{ value }}
-                        {% endif%}
-                        <span class="res-prop-delimiter">,</span>
-                    {% endfor %}
-                {% else %}
-                    {{ result['table']['acdh:hasRelatedProject'] }}
-                {% endif %}
-            </span>
-        </div>                
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasRelatedProject'], 'icon': "track_changes", 'label': "Related Project(s)" } ) }}
+    {% endif%}
+    
+    <!---- is part of--->
+    {% if result['table']['acdh:isPartOf'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:isPartOf'], 'icon': "device_hub", 'label': "Part of" } ) }}
     {% endif%}
 
-    {% if result['table']['rdfs:seeAlso'] %}                
-        <div class="res-property">
-            <i class="material-icons">&#xE02F;</i>
-            <span class="res-prop-label">See Also: </span>
-            <span class="res-prop-value">
-                {% for value in result['table']['rdfs:seeAlso'] %}
-                    {% if value['insideUri'] %}
-                        <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
-                    {% else %}
-                        <!-- if the contributor has no acdh id but other 3rd party id, then we will not use the oeaw_detail page -->
-                        <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
-                    {% endif%}
-                    <span class="res-prop-delimiter">,</span>
-                {% endfor %}
-            </span>
-        </div>
+    
+    <!---- IS DERIVED FROM --->
+    {% if result['table']['acdh:isderivedFrom'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:isderivedFrom'], 'icon': "device_hub", 'label': "Derived from" } ) }}
+    {% endif%}
+    
+    <!---- SEE ALSO --->
+    {% if result['table']['rdfs:seeAlso'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:seeAlso'], 'icon': "library_books", 'label': "See Also" } ) }}
     {% endif%}
 
 {% if result['image'] %}</div>{% endif%}

@@ -199,7 +199,7 @@
                 {% if key == "raw"  %}
                     {% if result['table']['acdh:hasBinarySize'][0] %}
                         <div class="res-act-button">
-                        <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download Binary</span></a>
+                        <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download</span></a>
                         </div>                        
                     {% endif %}    
                 {% else %}
@@ -211,12 +211,33 @@
         </div>
     {% endif %}    	
     
-    {% if result['table']['acdh:hasDescription'][0] %}
+    {% if (result['table']['acdh:hasDescription'] or result['table']['acdh:hasSpatialCoverage'] or result['table']['acdh:hasNote']) %}
         <h3 class="single-res-heading">Summary</h3>    
-        <div class="res-property">
-            <i class="material-icons">&#xE88F;</i>
-            <span class="res-description">{{ result['table']['acdh:hasDescription'][0] }}</span>
-        </div>
+      
+        
+        {% if result['table']['acdh:hasSpatialCoverage'] %}
+            <div class="res-property">
+                <i class="material-icons">info_outline</i>
+                <span class="res-prop-label">Spatial Coverage:&nbsp;&nbsp;</span>
+                <span class="res-prop-value"><a href="/browser/oeaw_detail/{{ result['table']['acdh:hasSpatialCoverage'][0]['insideUri'] }}">{{ result['table']['acdh:hasSpatialCoverage'][0]['title'] }}</a></span>
+            </div>
+        {% endif %}
+        
+        {% if result['table']['acdh:hasDescription'][0] %}
+            <div class="res-property">
+                <i class="material-icons">info_outline</i>
+                <span class="res-prop-label">Description:&nbsp;&nbsp;</span>
+                <span class="res-prop-value">{{ result['table']['acdh:hasDescription'][0] }}</span>
+            </div>
+        {% endif %}
+        
+        {% if result['table']['acdh:hasNote'][0] %}
+            <div class="res-property">
+                <i class="material-icons">info_outline</i>
+                <span class="res-prop-label">Note:&nbsp;&nbsp;</span>
+                <span class="res-prop-value">{{ result['table']['acdh:hasNote'][0] }}</span>
+            </div>
+        {% endif %}
     {% endif%}
 
     {% if extras.CiteThisWidget %}
