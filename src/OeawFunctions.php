@@ -1291,7 +1291,10 @@ class OeawFunctions {
                     }
                 }
                 
-                if( (get_class($val) == "EasyRdf\Literal") || (get_class($val) == "EasyRdf\Literal\DateTime") ){
+                if( (get_class($val) == "EasyRdf\Literal") || 
+                        (get_class($val) == "EasyRdf\Literal\DateTime") || 
+                        (get_class($val) == "EasyRdf\Literal\Integer")){
+                    
                     if(get_class($val) == "EasyRdf\Literal\DateTime"){
                         $dt = $val->__toString();                        
                         $time = strtotime($dt);
