@@ -520,8 +520,8 @@ class FrontendController extends ControllerBase  {
                         }
                         else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalProject') ) !== false)) {
                             $specialType = "project";
-                            $typeProperties = array(RC::get('drupalRelatedCollection'));
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, $typeProperties);
+                            $typeProperties = array(RC::get('drupalRelatedProject'));
+                            $countData = $this->OeawStorage->getChildResourcesByProperty($uri, $limit, $page, true, $typeProperties);
                         }
                         else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalInstitute')) !== false)) {
                             $specialType = "institute";
@@ -580,7 +580,8 @@ class FrontendController extends ControllerBase  {
                         $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, $typeProperties);
                         break;
                     case "project":
-                        $childrenData = $this->OeawStorage->getSpecialChildrenViewData($uri, $pagelimit, $pageData['end'], false, $typeProperties);
+                        //getChildResourcesByProperty
+                        $childrenData = $this->OeawStorage->getChildResourcesByProperty($uri, $pagelimit, $pageData['end'], false, $typeProperties);
                         $results['projectData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "project"); 
                         break;
                     case "institute":
@@ -1128,7 +1129,7 @@ class FrontendController extends ControllerBase  {
                 $result =  array(
                         '#theme' => 'oeaw_3d_viewer',
                         '#ObjectUrl' => $url,
-                        '#templateData' => $templateData,
+                        '#$templateData' => $templateData,
                     );
                 return $result;
             }
@@ -1223,7 +1224,7 @@ class FrontendController extends ControllerBase  {
                 array(
                     '#theme' => 'oeaw_3d_viewer',
                     '#ObjectUrl' => $this->uriFor3DObj['result'],
-                    '#templateData' => $templateData,
+                    '#data' => $templateData,
                     '#errorMSG' =>  $this->uriFor3DObj['error']
                 );
         

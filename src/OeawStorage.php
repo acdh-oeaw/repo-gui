@@ -881,6 +881,10 @@ class OeawStorage {
      */
     public function getIsMembers(string $uri): array {
         
+        if (empty($uri)) {
+            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+        }
+        
         $result = array();
         $select = "";
         $where = "";
@@ -920,6 +924,74 @@ class OeawStorage {
     }
     
   
+    /**
+     * 
+     * We are using this sparql if we want to get Special children data by the property
+     * We have also a similar sparql which is the getSpecialDetailViewData, but there we
+     * have some extra filtering, this sparql is the clone of the get ChildrenViewData
+     * just with a property
+     * 
+     * @param string $uri -> defora uri of the actual resource
+     * @param string $limit -> pagination limit
+     * @param string $offset -> pagination offset
+     * @param bool $count -> pagination count
+     * @param array $property -> the property from the config.ini what is the "Parent"
+     * @return array
+     */
+    public function getChildResourcesByProperty(string $uri, string $limit, string $offset, bool $count, array $property): array{
+        
+        if (empty($uri)) {
+            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+        }
+        
+        if($offset < 0) { $offset = 0; }
+        $result = array();
+        $select = "";
+        $where = "";
+        $limitStr = "";
+        $queryStr = "";
+        
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        if($count == false){
+            $select = 'SELECT ?uri ?title (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)  ';            
+            $limitStr = ' LIMIT '.$limit.'
+            OFFSET '.$offset.' ';
+        }else {
+            $select = 'SELECT (COUNT(?uri) as ?count) ';            
+        }
+        
+        $where = '
+            WHERE {
+                <'.$uri.'>  <'.RC::get("fedoraIdProp").'> ?id  . ';
+        foreach($property as $p){
+            $where .= ' ?uri <'.$p.'> ?id . ';
+        }
+                
+         $where .= 'OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .} '
+                . 'OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?descriptions .} '
+                . '?uri  <'.RC::get("drupalRdfType").'> ?type . '
+                . 'FILTER regex(str(?type),"vocabs.acdh","i") . '
+                . '} '
+                . 'GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title)) ';
+        
+        $queryStr = $select.$where.$limitStr;
+        
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields(); 
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            
+            return $result;
+
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+    }
     
     /**
      * 
@@ -1603,7 +1675,7 @@ class OeawStorage {
             ';
         $groupBy = ' }  GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';
         
-        $queryStr = $select.$where.$groupBy.$limitStr;
+        echo $queryStr = $select.$where.$groupBy.$limitStr;
         
         try {
             $q = new SimpleQuery($queryStr);
