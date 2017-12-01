@@ -62,7 +62,7 @@ class ApiPlacesResource extends ResourceBase {
                     $result[$x]['uri'] = $spRes[$x]['uri'];
                     $result[$x]['title'] = $spRes[$x]['title'];
                     $result[$x]['altTitle'] = $spRes[$x]['altTitle'];
-                    $result[$x]['identifiers'] = $spRes[$x]['identifiers'];
+                    $result[$x]['identifiers'] = explode(",", $spRes[$x]['identifiers']);
                 }
                 $response = $result;
                 return new ResourceResponse($response);
