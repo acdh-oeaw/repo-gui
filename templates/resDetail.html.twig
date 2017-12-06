@@ -189,11 +189,6 @@
     {% if extras['dissServ'] %}
         <div class="res-property">
             <i class="material-icons">&#xE89F;</i>
-            {% if extras['3dData'] %}
-                <div class="res-act-button">
-                    <a href="/browser/oeaw_3d_viewer/{{ result['insideUri'] }}"><span>3D viewer</span></a>
-                </div>
-            {% endif %}
             
             {% for key, ds in extras['dissServ'] %}
                 {% if key == "raw"  %}
@@ -201,7 +196,13 @@
                         <div class="res-act-button">
                         <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download</span></a>
                         </div>                        
-                    {% endif %}    
+                    {% endif %}  
+                {% elseif key == "application/octet-stream"  %}    
+                    {% if extras['3dData'] %}
+                    <div class="res-act-button">
+                        <a href="{{ ds }}?format={{ key|url_encode }}"><span>3D viewer</span></a>
+                    </div>
+            {% endif %}
                 {% else %}
                     <div class="res-act-button res-diss-btn {{ key }}-btn">
                     <a href="{{ ds }}?format={{ key|url_encode }}"><span>{{ key|upper }} Access</span></a>
