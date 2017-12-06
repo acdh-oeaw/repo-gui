@@ -717,6 +717,27 @@ class FrontendController extends ControllerBase  {
                 $extras['3dData'] = true;
             }
         }
+        /*
+        if(isset($results['acdh_rdf:type']) && $results['acdh_rdf:type']['title'] == "Collection"  ){
+            $collBinSql = $this->OeawCustomSparql->getCollectionBinaries($uri);
+            $binaryRes = $this->OeawStorage->runUserSparql($collBinSql);
+            $myBinaries = array();
+            foreach($binaryRes as $key ){
+                foreach($key as $k => $v){
+                    if(!empty($v)){
+                        $myBinaries[]["id"] = $v;
+                    }
+                }
+            }
+            
+            $newBinariesVal = $this->OeawFunctions->arrUniqueToMultiArr($myBinaries, "id");
+            
+            echo "<pre>";
+            var_dump($newBinariesVal);
+            echo "</pre>";
+
+        }*/
+        
         
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
@@ -1126,10 +1147,11 @@ class FrontendController extends ControllerBase  {
             //if the filename is exists then we will not download it again from the server
             if( (file_exists($fileDir)) && (isset($fdFileSize[0]['value']) &&  $fdFileSize[0]['value'] == filesize($fileDir)) ){
                 $url = '/sites/default/files/'.$dir.'/'.$fdFileName[0]["value"];
+                
                 $result =  array(
                         '#theme' => 'oeaw_3d_viewer',
                         '#ObjectUrl' => $url,
-                        '#$templateData' => $templateData,
+                        '#templateData' => $templateData,
                     );
                 return $result;
             }
@@ -1216,15 +1238,12 @@ class FrontendController extends ControllerBase  {
             return $result;
             
         }
-
-        
-        
         
         $result = 
                 array(
                     '#theme' => 'oeaw_3d_viewer',
                     '#ObjectUrl' => $this->uriFor3DObj['result'],
-                    '#data' => $templateData,
+                    '#templateData' => $templateData,
                     '#errorMSG' =>  $this->uriFor3DObj['error']
                 );
         
