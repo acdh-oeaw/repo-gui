@@ -457,7 +457,7 @@ class OeawStorage {
                 //Query parameters for the properties we want to get, true stands for optional
                 $q->addParameter((new HasTriple('?uri', RC::titleProp(), '?title')), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasAuthor'), '?author'), true);           
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?description'), true);
+                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?descriptions'), true);
                 $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?label'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributor'), true);            
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreatedDate'), '?creationdate'), true);
@@ -466,8 +466,8 @@ class OeawStorage {
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasFirstName'), '?firstName'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasLastName'), '?lastName'), true);
                 //Select and aggregate multiple sets of values into a comma seperated string
-                $q->setSelect(array('?uri', '?title', '?description', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
-                $q->setGroupBy(array('?uri', '?title', '?description', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName'));
+                $q->setSelect(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', 'GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)',  '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
+                $q->setGroupBy(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName'));
                 //If it's a person order by their name, if not by resource title
                 if ($value == RC::get('drupalPerson') ) {
                         $q->setOrderBy(array('?firstName'));
@@ -1016,7 +1016,7 @@ class OeawStorage {
         $queryStr = "";
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         if($count == false){
-            $select = 'SELECT ?uri ?title ?description (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';            
+            $select = 'SELECT ?uri ?title GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';            
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
         }else {
@@ -1026,7 +1026,7 @@ class OeawStorage {
         $where = '
             WHERE {
                 ?uri <'.RC::get("fedoraTitleProp").'> ?title .
-                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?description .}
+                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?descriptions .}
                 ?uri  <'.RC::get("drupalRdfType").'> ?type .
                 FILTER regex(str(?type),"vocabs.acdh","i") .
                 ?uri <'.RC::get("fedoraRelProp").'>  ?isPartOf .
@@ -1043,7 +1043,7 @@ class OeawStorage {
             }
         }
         $where .= ')';
-        $groupBy = ' }  GROUP BY ?uri ?title ?description ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' }  GROUP BY ?uri ?title  ORDER BY ASC( fn:lower-case(?title))';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
         
@@ -1575,7 +1575,7 @@ class OeawStorage {
         $queryStr = "";
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         if($count == false){
-            $select = 'SELECT ?uri ?title ?description (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';
+            $select = 'SELECT ?uri ?title GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
         }else {
@@ -1598,13 +1598,13 @@ class OeawStorage {
         
         $where .= ' )) . '
                 . ' OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .} 
-                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?description .} 
+                OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?descriptions .} 
                 ?uri  <'.RC::get("drupalRdfType").'> ?type . 
                 FILTER regex(str(?type),"vocabs.acdh","i") .
             }
             ';
         
-        $groupBy = ' GROUP BY ?uri ?title ?description ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';
         
         $queryStr = $prefix.$select.$where.$groupBy.$limitStr;
         
