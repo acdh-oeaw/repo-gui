@@ -466,7 +466,7 @@ class OeawStorage {
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasFirstName'), '?firstName'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasLastName'), '?lastName'), true);
                 //Select and aggregate multiple sets of values into a comma seperated string
-                $q->setSelect(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', 'GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)',  '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
+                $q->setSelect(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
                 $q->setGroupBy(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName'));
                 //If it's a person order by their name, if not by resource title
                 if ($value == RC::get('drupalPerson') ) {
@@ -1016,7 +1016,7 @@ class OeawStorage {
         $queryStr = "";
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         if($count == false){
-            $select = 'SELECT ?uri ?title GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';            
+            $select = 'SELECT ?uri ?title (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';            
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
         }else {
@@ -1043,7 +1043,7 @@ class OeawStorage {
             }
         }
         $where .= ')';
-        $groupBy = ' }  GROUP BY ?uri ?title  ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' }  GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
         
@@ -1575,7 +1575,7 @@ class OeawStorage {
         $queryStr = "";
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         if($count == false){
-            $select = 'SELECT ?uri ?title GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';
+            $select = 'SELECT ?uri ?title (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
         }else {
