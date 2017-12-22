@@ -1298,7 +1298,7 @@ class FrontendController extends ControllerBase  {
         
         $result = array();
         
-        $resData['binaries'][] = array("uri" => $uri, "title" => "Die eierlegende Wollmilchsau", "text" => "Die eierlegende Wollmilchsau", "rootTitle" => "");
+        $resData['binaries'][] = array("uri" => base64_decode($uri), "title" => $resData['title'], "rootTitle" => "");
         
         $res = $this->OeawFunctions->convertToTree($resData['binaries'], "title", "rootTitle");
         
