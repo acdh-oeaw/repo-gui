@@ -1252,11 +1252,12 @@ class FrontendController extends ControllerBase  {
         if(empty($uri)){
             $errorMSG = "There is no valid URL";
         }else {
+            
             $resData = $this->OeawFunctions->genCollectionData($uri);
             $resData['insideUri'] = $uri;
         }
-        
-        $resData['binaries'][] = array("uri" => $uri, "title" => "Die eierlegende Wollmilchsau", "rootTitle" => "");
+
+        $resData['binaries'][] = array("uri" => base64_decode($uri), "title" => $resData['title'], "rootTitle" => "");
         
         $res = $this->OeawFunctions->convertToTree($resData['binaries'], "title", "rootTitle");
         $resData['binaries'][] = $res;
