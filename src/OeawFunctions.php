@@ -1669,9 +1669,9 @@ class OeawFunctions {
             if($title->getValue()){
                 $resData['title'] = $title->getValue();
             }
-            /*if($filesNum->getValue()){
+            if($filesNum->getValue()){
                 $resData['filesNum'] = $filesNum->getValue();
-            }*/
+            }
             //if we have binary size
             if($binarySize->getValue()){
                 $bs = 0;
@@ -1704,7 +1704,7 @@ class OeawFunctions {
 
             $oeawCustSparql = new OeawCustomSparql();
             $collBinSql = $oeawCustSparql->getCollectionBinaries($uri);
-           
+          
             if(!empty($collBinSql)){
                 $OeawStorage = new OeawStorage();
                 $bin = $OeawStorage->runUserSparql($collBinSql);
