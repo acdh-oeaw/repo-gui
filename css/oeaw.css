@@ -17,3 +17,43 @@
 .depagree-form input{
     width: 100%!important;
 }
+
+/** Download collection css  **/
+.collection_info {
+  background: #fff;
+  border-color: #88DBDF;
+  border-radius: 5px;
+  height: auto;
+  padding: 10px;
+  width: 50%;
+  margin: 0 auto;
+  text-align:center;
+}
+.size_text{
+    font-size: 18px;
+    font-weight: bold;
+}
+.size_text_red{
+    font-size: 18px;
+    color: red;
+    font-weight: bold;
+}
+.coll_info_green {
+  box-shadow: 0 1px 3px rgba(99,206,108,0.12), 0 1px 2px rgba(99,206,108,0.24);
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+.coll_info_green:hover {
+  box-shadow: 0 14px 28px rgba(99,206,108,0.25), 0 10px 10px rgba(99,206,108,0.22);
+}
+
+.coll_info_red {
+  box-shadow: 0 1px 3px rgba(225,55,55,0.12), 0 1px 2px rgba(225,55,55,0.24);
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+.coll_info_red:hover {
+  box-shadow: 0 14px 28px rgba(225,55,55,0.25), 0 10px 10px rgba(225,55,55,0.22);
+}
+
+/** Download collection css end **/

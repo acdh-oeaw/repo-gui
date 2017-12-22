@@ -188,6 +188,14 @@ oeaw_cache_onotology:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_cache_onotology'
     requirements:
         _permission: 'access content'
+
+oeaw_get_collection_data:    
+    path: '/get_collection_data/{uri}'
+    defaults:
+        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_get_collection_data'
+    requirements:
+        _permission: 'access content'
+        
         
 oeaw_3d_viewer:
     path: '/oeaw_3d_viewer/{data}'
@@ -196,4 +204,16 @@ oeaw_3d_viewer:
     requirements:
         _access: 'TRUE'
         
+oeaw_dl_collection:
+    path: '/oeaw_dl_collection/{uri}'
+    defaults:
+        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_dl_collection_view'
+    requirements:
+        _access: 'TRUE'
 
+oeaw_dlc:
+    path: '/oeaw_dlc/{uri}'
+    defaults:
+        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_dl_collection'
+    requirements:
+        _access: 'TRUE'

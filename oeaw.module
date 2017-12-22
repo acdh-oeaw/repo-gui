@@ -9,6 +9,16 @@ function oeaw_theme() {
   $theme['oeaw_3d_viewer'] = [
     'variables' => ['ObjectUrl' => NULL, 'errorMSG' => null, 'templateData' => null],
     'template' => 'viewer_3d',
+  ];  
+  
+  $theme['oeaw_dl_collection'] = [
+    'variables' => ['url' => NULL, 'errorMSG' => null, 'resourceData' => null],
+    'template' => 'dl_collection',
+  ];
+  
+  $theme['oeaw_dl_collection_tree'] = [
+    'variables' => ['url' => NULL, 'errorMSG' => null, 'resourceData' => null],
+    'template' => 'dl_collection_tree',
   ];
   
   $theme['oeaw_root_dt'] = [

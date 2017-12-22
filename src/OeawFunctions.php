@@ -21,6 +21,7 @@ use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 use Drupal\oeaw\OeawStorage;
 use Drupal\oeaw\ConnData;
+use Drupal\oeaw\OeawCustomSparql;
 
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
@@ -1579,7 +1580,7 @@ class OeawFunctions {
     
     /**
      * 
-     * This function checks that the Resouce is a 3dData or not
+     * This function checks that the Resource is a 3dData or not
      * 
      * @param array $data
      * @return bool
@@ -1600,5 +1601,192 @@ class OeawFunctions {
         }
         return $return;
     }
+    
+    /**
+     * 
+     * Calculate the estimated Download time for the collection
+     * 
+     * @param int $binarySize
+     * @return string
+     */
+    public function estDLTime(int $binarySize): string{
+        
+        $result = "";
+        if($binarySize < 1){ return $result; }
+        
+        $kb=1024;
+        flush();
+        $time = explode(" ",microtime());
+        $start = $time[0] + $time[1];
+        for( $x=0; $x < $kb; $x++ ){
+            str_pad('', 1024, '.');
+            flush();
+        }
+        $time = explode(" ",microtime());
+        $finish = $time[0] + $time[1];
+        $deltat = $finish - $start;
+        
+        $input = (($binarySize / 512) * $deltat);
+        $input = floor($input / 1000);
+        $seconds = $input;
+        
+        if($seconds > 0){
+            //because of the zip time we add
+            $result = round($seconds * 1.35) * 4;
+            return $result;
+        }
+        
+        return $result;
+    }
+    
+    /**
+     * 
+     * Generate the collection data for the download view
+     * 
+     * @param string $uri
+     * @return array
+     */
+    public function genCollectionData(string $uri): array{
+        
+        $uri = base64_decode($uri);
+        $fedora = $this->initFedora();
+        $fedoraRes = array();
+        $rootMeta = array();
+        $resData = array();
+
+        try{
+            //get the resource data 
+            $fedoraRes = $fedora->getResourceByUri($uri);
+            $rootMeta = $fedoraRes->getMetadata();
+            //get title
+            $title = $rootMeta->get("https://vocabs.acdh.oeaw.ac.at/schema#hasTitle");
+            //get number of files
+            $filesNum = $rootMeta->get("https://vocabs.acdh.oeaw.ac.at/schema#hasNumberOfItems");
+            //get the sum binary size of the collection
+            $binarySize = $rootMeta->get("https://vocabs.acdh.oeaw.ac.at/schema#hasBinarySize");
+
+
+            if($title->getValue()){
+                $resData['title'] = $title->getValue();
+            }
+            /*if($filesNum->getValue()){
+                $resData['filesNum'] = $filesNum->getValue();
+            }*/
+            //if we have binary size
+            if($binarySize->getValue()){
+                $bs = 0;
+                $bs = $binarySize->getValue();
+                $resData['binarySize'] = $bs;
+                //formatted binary size for the gui
+                $resData['formattedSize'] = $this->formatSizeUnits($bs);
+
+                //the estimated download time
+                $estDLTime = $this->estDLTime($bs);
+                if($estDLTime > 0){ $resData['estDLTime'] = $estDLTime; }
+
+                $freeSpace = 0;
+                if(!file_exists($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/')){
+                    mkdir($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/', 0777);
+                }
+                //get the free space to we can calculate the zipping will be okay or not?!
+                $freeSpace = disk_free_space($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/');
+
+                if($freeSpace){
+                    $resData['freeSpace'] = $freeSpace;
+                    $resData['formattedFreeSpace'] = $this->formatSizeUnits((string)$freeSpace);
+
+                    if($freeSpace > 1499999999 * 2.2){
+                        //if there is no enough free space then we will not allow to DL the collection
+                        $resData['dl'] = true;
+                    }
+                }
+            }
+
+            $oeawCustSparql = new OeawCustomSparql();
+            $collBinSql = $oeawCustSparql->getCollectionBinaries($uri);
+           
+            if(!empty($collBinSql)){
+                $OeawStorage = new OeawStorage();
+                $bin = $OeawStorage->runUserSparql($collBinSql);
+
+                if(count($bin) > 0){
+                    foreach($bin as $k => $v){
+                        if($v['binarySize']){
+                            $bin[$k]['formSize'] = $this->formatSizeUnits((string)$v['binarySize']);
+                        }
+                        if($v['uri']){
+                            $bin[$k]['encodedUri'] = base64_encode($v['uri']);
+                        }
+                        
+                        //change the rdf type
+                        if (strpos($v['type'], 'https://vocabs.acdh.oeaw.ac.at/schema#') !== false) {
+                            $t = explode(",", $v['type']);
+                            foreach ($t as $ty){
+                                if (strpos($ty, 'https://vocabs.acdh.oeaw.ac.at/schema#') !== false) {
+                                    $ty = str_replace("https://vocabs.acdh.oeaw.ac.at/schema#", "", $ty);
+                                    $bin[$k]['type'] = $ty;
+                                    if($ty == "Resource"){
+                                        if($v['title']){
+                                           $bin[$k]['text'] = $v['filename']." | ".$bin[$k]['formSize'];
+                                        }
+                                        $bin[$k]['dir'] = false;
+                                        $bin[$k]['icon'] = "jstree-file";
+                                    }else{
+                                        if($v['title']){
+                                           $bin[$k]['text'] = $v['title'];
+                                        }
+                                        $bin[$k]['dir'] = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    $resData['binaries'] = $bin;
+                }
+            }
+
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+            $errorMSG = "Error during the url parsing";
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $errorMSG = "Error during the url parsing";
+        }
+        
+        return $resData;
+    }
+    
+    /**
+     * 
+     * THis func is generating a child based array from a single array
+     * 
+     * @param array $flat
+     * @param type $idField
+     * @param type $parentIdField
+     * @param type $childNodesField
+     * @return type
+     */
+    public function convertToTree(
+        array $flat, $idField = 'id', $parentIdField = 'parentId',
+        $childNodesField = 'children') {
+        
+        $indexed = array();
+        // first pass - get the array indexed by the primary id  
+        foreach ($flat as $row) {
+            $indexed[$row[$idField]] = $row;
+            $indexed[$row[$idField]][$childNodesField] = array();
+        }
+   
+        //second pass  
+        $root = null;
+        foreach ($indexed as $id => $row) {
+            $indexed[$row[$parentIdField]][$childNodesField][] =& $indexed[$id];
+            if (!$row[$parentIdField] || empty($row[$parentIdField])) {
+                
+                $root = $id;
+            }
+        }
+        return array($indexed[$root]);
+    }
+    
+    
     
 }

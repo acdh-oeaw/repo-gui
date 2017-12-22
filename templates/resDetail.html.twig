@@ -28,7 +28,7 @@
         </div>
         {% endif %}
     </h3> 
-        
+    
     <div class="single-res-overview single-res-overview-basic">
         {% if result['personData'] %}
             {{ include('/modules/oeaw/templates/detailView_Person.html.twig', {'result': result['personData'] } ) }}
@@ -59,7 +59,7 @@
                 {% for key,value in result['table'] %}
                     <tr>
                         <td width='40%'>
-                            {% if extras["tooltip"][key] %}
+                            {% if extras["tooltip"][key]['title'] %}
                                 <div style='float:left;'>
                                     {{ extras["tooltip"][key]['title'] }}
                                 </div>
@@ -190,19 +190,26 @@
         <div class="res-property">
             <i class="material-icons">&#xE89F;</i>
             
+            {% if result['acdh_rdf:type']['title'] == "Collection" %}
+                <div class="res-act-button">
+                    <!-- <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download Collection</span></a> -->
+                    <a href="/browser/oeaw_dl_collection/{{ result['insideUri']  }}"><span>Download Collection</span></a>
+                </div>
+            {% endif %}
+                
             {% for key, ds in extras['dissServ'] %}
                 {% if key == "raw"  %}
                     {% if result['table']['acdh:hasBinarySize'][0] %}
                         <div class="res-act-button">
-                        <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download</span></a>
+                            <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download</span></a>
                         </div>                        
                     {% endif %}  
                 {% elseif key == "application/octet-stream"  %}    
                     {% if extras['3dData'] %}
-                    <div class="res-act-button">
-                        <a href="{{ ds }}?format={{ key|url_encode }}"><span>3D viewer</span></a>
-                    </div>
-            {% endif %}
+                        <div class="res-act-button">
+                            <a href="{{ ds }}?format={{ key|url_encode }}"><span>3D viewer</span></a>
+                        </div>
+                    {% endif %}
                 {% else %}
                     <div class="res-act-button res-diss-btn {{ key }}-btn">
                     <a href="{{ ds }}?format={{ key|url_encode }}"><span>{{ key|upper }} Access</span></a>
@@ -213,9 +220,7 @@
     {% endif %}    	
     
     {% if (result['table']['acdh:hasDescription'] or result['table']['acdh:hasSpatialCoverage'] or result['table']['acdh:hasNote']) %}
-        <h3 class="single-res-heading">Summary</h3>    
-      
-        
+        <h3 class="single-res-heading">Summary</h3>
         {% if result['table']['acdh:hasSpatialCoverage'] %}
             <div class="res-property">
                 <i class="material-icons">info_outline</i>

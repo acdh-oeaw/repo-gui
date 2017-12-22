@@ -10,6 +10,7 @@ namespace Drupal\oeaw\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
+use Drupal\Core\Archiver\Zip;
 use Drupal\oeaw\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\OeawCustomSparql;
@@ -45,6 +46,8 @@ class FrontendController extends ControllerBase  {
     private $OeawCustomSparql;
     private $PropertyTableCache;
     private $uriFor3DObj;
+    
+    
     
     public function __construct() {
         $this->OeawStorage = new OeawStorage();
@@ -719,23 +722,7 @@ class FrontendController extends ControllerBase  {
         }
         /*
         if(isset($results['acdh_rdf:type']) && $results['acdh_rdf:type']['title'] == "Collection"  ){
-            $collBinSql = $this->OeawCustomSparql->getCollectionBinaries($uri);
-            $binaryRes = $this->OeawStorage->runUserSparql($collBinSql);
-            $myBinaries = array();
-            foreach($binaryRes as $key ){
-                foreach($key as $k => $v){
-                    if(!empty($v)){
-                        $myBinaries[]["id"] = $v;
-                    }
-                }
-            }
-            
-            $newBinariesVal = $this->OeawFunctions->arrUniqueToMultiArr($myBinaries, "id");
-            
-            echo "<pre>";
-            var_dump($newBinariesVal);
-            echo "</pre>";
-
+            $this->oeaw_dl_collection(base64_encode($uri));
         }*/
         
         
@@ -1132,7 +1119,6 @@ class FrontendController extends ControllerBase  {
         //get the filename
         $fdFileName = $this->OeawStorage->getValueByUriProperty($fdUrl, "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename");
         
-        
         $fdFileSize = $this->OeawStorage->getValueByUriProperty($fdUrl, RC::get('fedoraExtentProp'));
         //if we have a filename in the fedora
         if( (count($fdFileName) > 0) && isset($fdFileName[0]["value"]) ){
@@ -1248,6 +1234,225 @@ class FrontendController extends ControllerBase  {
                 );
         
         return $result;
+    }
+    
+    /**
+     * 
+     * The view for the collection download with some basic information
+     * 
+     * @param string $uri
+     * @return string
+     */
+    public function oeaw_dl_collection_view(string $uri): array{
+        
+        $errorMSG = "";
+        $resData = array();
+        $result = array();
+        $resData['dl'] = false;
+        if(empty($uri)){
+            $errorMSG = "There is no valid URL";
+        }else {
+            $resData = $this->OeawFunctions->genCollectionData($uri);
+            $resData['insideUri'] = $uri;
+        }
+        
+        $resData['binaries'][] = array("uri" => $uri, "title" => "Die eierlegende Wollmilchsau", "rootTitle" => "");
+        
+        $res = $this->OeawFunctions->convertToTree($resData['binaries'], "title", "rootTitle");
+        $resData['binaries'][] = $res;
+
+        $result = $resData;
+    
+        $result = 
+            array(
+                '#theme' => 'oeaw_dl_collection_tree',
+                '#url' => $uri,
+                '#resourceData' => $result,
+                '#errorMSG' =>  $errorMSG,
+                '#attached' => [
+                    'library' => [
+                        'oeaw/oeaw-DL_collection', 
+                    ]
+                ]
+            );
+         
+        return $result;
+        
+    }
+    
+    /**
+     * 
+     * This controller view is for the ajax collection view generating
+     * 
+     * @param string $uri
+     * @return Response
+     */
+    public function oeaw_get_collection_data(string $uri){
+        if(empty($uri)){
+            $errorMSG = "There is no valid URL";
+        }else {
+            $resData = $this->OeawFunctions->genCollectionData($uri);
+            $resData['insideUri'] = $uri;
+        }
+        
+        $result = array();
+        
+        $resData['binaries'][] = array("uri" => $uri, "title" => "Die eierlegende Wollmilchsau", "text" => "Die eierlegende Wollmilchsau", "rootTitle" => "");
+        
+        $res = $this->OeawFunctions->convertToTree($resData['binaries'], "title", "rootTitle");
+        
+
+        $result = $res;
+        
+        $response = new Response();
+        $response->setContent(json_encode($result));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+    
+    
+
+   
+    /**
+     * 
+     * The selected files zip download func
+     * 
+     * @param string $uri
+     * @return array
+     * @throws \Exception
+     */
+    public function oeaw_dl_collection(string $uri): array{
+
+        $result = array();
+        $errorMSG = "";
+        $hasZip = "";
+        //check the uri
+        if(empty($uri)){
+           
+        }
+        error_log($uri);
+        die();
+        
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/json');
+        
+        //ini_set('safe_mode', false);  ini_set('max_execution_time', 600); set_time_limit(600);
+        
+        $uri = base64_decode($uri);
+        $tmpDir = "";
+        $dir = $this->OeawStorage->getValueByUriProperty($uri, RC::titleProp());
+        $GLOBALS['resTmpDir'] = "";
+        
+        
+        if(count($dir) > 0){
+            if(isset($dir[0]["value"])){
+                $dir = $dir[0]["value"];
+                $dir = str_replace('.', "_", $dir);
+                $dir = str_replace(' ', "_", $dir);
+                $tmpDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/';
+                if(!file_exists($tmpDir)){
+                    mkdir($tmpDir, 0777);
+                    $tmpDirDir = $tmpDir.$dir.'/';
+                    if(!file_exists($tmpDirDir)){
+                        mkdir($tmpDirDir, 0777);
+                        $GLOBALS['resTmpDir'] = $tmpDirDir;
+                    }
+                }else{
+                    $tmpDirDir = $tmpDir.$dir.'/';
+                    if(!file_exists($tmpDirDir)){
+                        mkdir($tmpDirDir, 0777);
+                        $GLOBALS['resTmpDir'] = $tmpDirDir;
+                    }else {
+                        $GLOBALS['resTmpDir'] = $tmpDirDir;
+                    }
+                }
+            }
+        }else {
+            //error there is no collection title...
+            return array();
+        }
+        
+        $binaries = array();
+        
+        $collBinSql = $this->OeawCustomSparql->getCollectionBinaries($uri);
+        if(!empty($collBinSql)){
+            $binaries = $this->OeawStorage->runUserSparql($collBinSql);
+        }
+
+        if(count($binaries) > 0){
+            $client = new \GuzzleHttp\Client(['auth' => [RC::get('fedoraUser'), RC::get('fedoraPswd')], 'verify' => false]);
+            
+            foreach($binaries as $v){
+                try {
+                    //if we have filename then save it
+                    if(isset($v['filename'])){
+                        $filename = ltrim($v['filename']);
+                        //remove spaces from the filenames
+                        $filename = str_replace(' ', "_", $filename);
+                        
+                        if(!file_exists($GLOBALS['resTmpDir']) || !file_exists($GLOBALS['resTmpDir'].'/'.$filename)){
+                            if (!file_exists($GLOBALS['resTmpDir'])){ mkdir($GLOBALS['resTmpDir'], 0777);}
+                            $resource = fopen($GLOBALS['resTmpDir'].'/'.$filename, 'w');
+                            $stream = \GuzzleHttp\Psr7\stream_for($resource);
+                            $client->request('GET', $v['uri'], ['save_to' => $stream]);
+                        }else{
+                            //if the file is not exists
+                            if(!file_exists($GLOBALS['resTmpDir'].'/'.$filename)){
+                                $resource = fopen($GLOBALS['resTmpDir'].'/'.$filename, 'w');
+                                $stream = \GuzzleHttp\Psr7\stream_for($resource);
+                                $client->request('GET', $v['uri'], ['save_to' => $stream]);
+                            }
+                        }
+                    }
+
+                } catch (\GuzzleHttp\Exception\ClientException $ex) {
+                    
+                    $errorMSG = "there was a problem during the file downloads";
+                }
+            }
+        }
+        
+        $dirFiles = scandir($GLOBALS['resTmpDir']);
+        $hasZip = "";
+        if(count($dirFiles) > 0){
+            
+            try{
+                //create the zip file
+                
+                $zipFile = fopen($GLOBALS['resTmpDir'].'/collection.zip', 'w');
+                if(!$zipFile){
+                    error_log("nem tudja megnyitni a zip filet");
+                    throw new \Exception("Cant open the zip file");
+                }
+                fclose($zipFile);
+                
+                $zip = new \ZipArchive();
+                if ($zip->open($GLOBALS['resTmpDir'].'collection.zip', \ZipArchive::OVERWRITE)===TRUE) {
+                    error_log("zip megnyitva");
+                    foreach ($dirFiles as $d){
+                        //skip the elements which are not files
+                        if($d == "." || $d == ".."){
+                            continue;
+                        }else {
+                            //we will add the files into the zip, 
+                            //with a localname to skip the server directory structure
+                            $zip->addFile($GLOBALS['resTmpDir'].$d, $d);
+                        }
+                    }
+                    $zip->close();
+                    
+                    $hasZip = $GLOBALS['resTmpDir'].'collection.zip';
+                }else {
+                    throw new \Exception("Cant open the zip file");
+                }
+                
+            } catch (Exception $ex) {
+                $errorMSG = $ex->getMessage();
+            }
+        }
+        $response->setContent(json_encode("sikerult  _".$hasZip ));
+        return $response;
+         
     }
     
 }

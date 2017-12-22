@@ -1,0 +1,74 @@
+{% if  errorMSG %}
+    <span style="color:red; font-size: 20px; font-weight: bold;">{{ errorMSG }}</span>
+{% else %}
+    
+    <style type="text/css">
+        .collectionBrowser_css {
+                width: auto;
+                max-width: 750px;
+                height: auto;
+                border: solid 1px #BBB;
+                background: #FFF;
+                overflow: hidden;
+                padding: 5px;
+        }		
+    </style>
+
+    <input type="hidden" id="insideUri" name="insideUri" value="{{ resourceData['insideUri'] }}">
+    <input type="hidden" id="estDLTime" name="estDLTime" value="{{ resourceData['estDLTime'] }}">
+    
+    <div id="content">
+        <div class="single-res-overview single-res-overview-basic">
+            <h2>The selected Collection Information</h2>
+            <div class="res-property">
+                <i class="material-icons">&#xE54E;</i>
+                <span class="res-prop-label">Name:</span> 
+                <span class="res-prop-value">
+                    {% if resourceData['title'] %}
+                        {{ resourceData['title'] }}
+                    {% else %}    
+                        There is no title
+                    {% endif %}
+                </span>
+            </div>
+            <div class="res-property">
+                <i class="material-icons">&#xE54E;</i>
+                <span class="res-prop-label">Number of files:</span> 
+                <span class="res-prop-value">
+                     {% if resourceData['filesNum'] %}
+                        {{ resourceData['filesNum'] }}
+                    {% else %}    
+                       Unknown
+                    {% endif %}
+                </span>
+            </div>
+            <div class="res-property">
+                <i class="material-icons">&#xE54E;</i>
+                <span class="res-prop-label">Sum. Size:</span> 
+                <span class="res-prop-value">
+                    {% if resourceData['formattedSize'] %}
+                        {{ resourceData['formattedSize'] }}
+                    {% else %}    
+                        Unknown
+                    {% endif %}
+                </span>
+            </div>
+            {% if resourceData['estDLTime'] %}                
+            <div class="res-property">
+                <i class="material-icons">&#xE54E;</i>
+                <span class="res-prop-label">Est. Download Time:</span> 
+                <span class="res-prop-value">
+                    {{ resourceData['estDLTime'] }} Sec
+                </span>
+            </div>    
+            {% endif %}
+            
+            <br>
+            
+          <div id="collectionBrowser" class="collectionBrowser_css"></div>
+            
+        </div>
+            
+    </div>            
+{% endif %}
+    

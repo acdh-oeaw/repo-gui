@@ -32,3 +32,13 @@ oeaw-3D_styles:
         js/3d/trackball_turntable.js: {}
         js/3d/trackball_turntable_pan.js: {}
         
+oeaw-DL_collection:  
+    version: 1.0.2
+    css:
+        base:
+            css/oeaw.css: {}
+            css/jqtree/themes/default/style.min.css: {}
+    js:
+        js/jquery-1.12.3.min.js: {}        
+        js/jstree.min.js: {}
+        js/dl_collection.js: {}

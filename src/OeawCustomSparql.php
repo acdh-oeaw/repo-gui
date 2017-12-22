@@ -300,4 +300,34 @@ class OeawCustomSparql {
         return $query;
     }
     
+    /**
+     * 
+     * The sparql gets a fedora Collection all child elements till the depth 5
+     * 
+     * @param string $url
+     * @return string
+     */
+    public function getCollectionBinaries(string $url): string{
+        
+        $query = "";
+        
+        $query = "
+        select ?uri ?title ?rootTitle ?binarySize ?filename (GROUP_CONCAT(DISTINCT ?types;separator=',') AS ?type)
+        where {  
+            ?uri ( <".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* <".$url."> .
+            ?uri <".RC::get('drupalRdfType')."> ?types .
+            ?uri <".RC::get('fedoraTitleProp')."> ?title .
+            ?uri <".RC::get('fedoraRelProp')."> ?isPartOf .
+            ?rUrl <".RC::get('fedoraIdProp')."> ?isPartOf .
+            ?rUrl <".RC::get('fedoraTitleProp')."> ?rootTitle .
+            OPTIONAL { ?uri <".RC::get('fedoraExtentProp')."> ?binarySize .
+            ?uri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename . }
+        }
+        GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename
+        ";
+        
+        return $query;
+        
+    }
+    
 }

@@ -6,7 +6,6 @@ jq2(function( $ ) {
            "lengthMenu": [[20, 35, 50, -1], [20, 35, 50, "All"]]
         });
         
-        
         //the JS for the inverse table
         jq2( "#showInverse" ).click(function() {
             //show the table
