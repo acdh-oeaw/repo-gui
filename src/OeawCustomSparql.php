@@ -315,13 +315,20 @@ class OeawCustomSparql {
         select ?uri ?title ?rootTitle ?binarySize ?filename (GROUP_CONCAT(DISTINCT ?types;separator=',') AS ?type)
         where {  
             ?uri ( <".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* <".$url."> .
-            ?uri <".RC::get('drupalRdfType')."> ?types .
-            ?uri <".RC::get('fedoraTitleProp')."> ?title .
-            ?uri <".RC::get('fedoraRelProp')."> ?isPartOf .
-            ?rUrl <".RC::get('fedoraIdProp')."> ?isPartOf .
-            ?rUrl <".RC::get('fedoraTitleProp')."> ?rootTitle .
-            OPTIONAL { ?uri <".RC::get('fedoraExtentProp')."> ?binarySize .
-            ?uri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename . }
+            FILTER(?uri = ?nUri){
+                select ?nUri ?title ?rootTitle  ?binarySize ?filename ?types 
+                where {
+                    ?nUri <".RC::get('drupalRdfType')."> ?types .
+                    ?nUri <".RC::get('fedoraTitleProp')."> ?title .
+                    ?nUri <".RC::get('fedoraRelProp')."> ?isPartOf .
+                    ?rUrl <".RC::get('fedoraIdProp')."> ?isPartOf .
+                    ?rUrl <".RC::get('fedoraTitleProp')."> ?rootTitle .
+                    OPTIONAL { 
+                        ?nUri <".RC::get('fedoraExtentProp')."> ?binarySize .
+                        ?nUri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename . 
+                    }
+                }
+            }
         }
         GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename
         ";
