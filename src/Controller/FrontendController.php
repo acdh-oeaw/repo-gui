@@ -1256,12 +1256,7 @@ class FrontendController extends ControllerBase  {
             $resData = $this->OeawFunctions->genCollectionData($uri);
             $resData['insideUri'] = $uri;
         }
-
-        $resData['binaries'][] = array("uri" => base64_decode($uri), "title" => $resData['title'], "text" => $resData['title'], "rootTitle" => "");
         
-        $res = $this->OeawFunctions->convertToTree($resData['binaries'], "title", "rootTitle");
-        $resData['binaries'][] = $res;
-
         $result = $resData;
     
         $result = 
@@ -1283,7 +1278,7 @@ class FrontendController extends ControllerBase  {
     
     /**
      * 
-     * This controller view is for the ajax collection view generating
+     * This controller view is for the ajax collection tree view generating
      * 
      * @param string $uri
      * @return Response
@@ -1298,7 +1293,7 @@ class FrontendController extends ControllerBase  {
         
         $result = array();
         
-        $resData['binaries'][] = array("uri" => base64_decode($uri), "title" => $resData['title'], "text" => $resData['title'], "rootTitle" => "");
+        $resData['binaries'][] = array("uri" => base64_decode($uri), "uri_dl" => $uri, "title" => $resData['title'], "text" => $resData['title'], "filename" => str_replace(" ", "_", $resData['filename']), "rootTitle" => "");
         
         $res = $this->OeawFunctions->convertToTree($resData['binaries'], "title", "rootTitle");
         
@@ -1322,137 +1317,131 @@ class FrontendController extends ControllerBase  {
      * @return array
      * @throws \Exception
      */
-    public function oeaw_dl_collection(string $uri): array{
+    public function oeaw_dl_collection(string $uri){
 
         $result = array();
         $errorMSG = "";
-        $hasZip = "";
-        //check the uri
-        if(empty($uri)){
-           
-        }
-        error_log($uri);
-        die();
-        
-        $response = new Response();
-        $response->headers->set('Content-Type', 'application/json');
-        
-        //ini_set('safe_mode', false);  ini_set('max_execution_time', 600); set_time_limit(600);
-        
-        $uri = base64_decode($uri);
-        $tmpDir = "";
-        $dir = $this->OeawStorage->getValueByUriProperty($uri, RC::titleProp());
         $GLOBALS['resTmpDir'] = "";
+        $binaries = array();
+        $binaries = json_decode($_POST['jsonData'], true);
         
+        //the main dir
+        $tmpDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/';
+        //the collection own dir
+        $dateID = date("Ymd_his");
+        $tmpDirDate = $tmpDir.$dateID;
         
-        if(count($dir) > 0){
-            if(isset($dir[0]["value"])){
-                $dir = $dir[0]["value"];
-                $dir = str_replace('.', "_", $dir);
-                $dir = str_replace(' ', "_", $dir);
-                $tmpDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/';
-                if(!file_exists($tmpDir)){
-                    mkdir($tmpDir, 0777);
-                    $tmpDirDir = $tmpDir.$dir.'/';
-                    if(!file_exists($tmpDirDir)){
-                        mkdir($tmpDirDir, 0777);
-                        $GLOBALS['resTmpDir'] = $tmpDirDir;
-                    }
-                }else{
-                    $tmpDirDir = $tmpDir.$dir.'/';
-                    if(!file_exists($tmpDirDir)){
-                        mkdir($tmpDirDir, 0777);
-                        $GLOBALS['resTmpDir'] = $tmpDirDir;
-                    }else {
-                        $GLOBALS['resTmpDir'] = $tmpDirDir;
-                    }
+        //if we have binaries then we continue the process
+        if(count($binaries) > 0){
+            //if the main directory is not exists
+            if(!file_exists($tmpDir)){
+                mkdir($tmpDir, 0777);
+            }
+            //if we have the main directory then create the sub
+            if(file_exists($tmpDir)){
+                //create the actual dir
+                
+                if(!file_exists($tmpDirDate)){
+                    mkdir($tmpDirDate, 0777);
+                    $GLOBALS['resTmpDir'] = $tmpDirDate;
                 }
             }
-        }else {
-            //error there is no collection title...
-            return array();
-        }
-        
-        $binaries = array();
-        
-        $collBinSql = $this->OeawCustomSparql->getCollectionBinaries($uri);
-        if(!empty($collBinSql)){
-            $binaries = $this->OeawStorage->runUserSparql($collBinSql);
-        }
-
-        if(count($binaries) > 0){
+            
             $client = new \GuzzleHttp\Client(['auth' => [RC::get('fedoraUser'), RC::get('fedoraPswd')], 'verify' => false]);
             
-            foreach($binaries as $v){
+            foreach($binaries as $b){
                 try {
                     //if we have filename then save it
-                    if(isset($v['filename'])){
-                        $filename = ltrim($v['filename']);
+                    if(isset($b['filename'])){
+                        $filename = ltrim($b['filename']);
                         //remove spaces from the filenames
                         $filename = str_replace(' ', "_", $filename);
-                        
+
                         if(!file_exists($GLOBALS['resTmpDir']) || !file_exists($GLOBALS['resTmpDir'].'/'.$filename)){
                             if (!file_exists($GLOBALS['resTmpDir'])){ mkdir($GLOBALS['resTmpDir'], 0777);}
                             $resource = fopen($GLOBALS['resTmpDir'].'/'.$filename, 'w');
                             $stream = \GuzzleHttp\Psr7\stream_for($resource);
-                            $client->request('GET', $v['uri'], ['save_to' => $stream]);
+                            $client->request('GET', base64_decode($b['uri']), ['save_to' => $stream]);
+                            chmod($GLOBALS['resTmpDir'].'/'.$filename, 0777);
                         }else{
                             //if the file is not exists
                             if(!file_exists($GLOBALS['resTmpDir'].'/'.$filename)){
                                 $resource = fopen($GLOBALS['resTmpDir'].'/'.$filename, 'w');
                                 $stream = \GuzzleHttp\Psr7\stream_for($resource);
-                                $client->request('GET', $v['uri'], ['save_to' => $stream]);
+                                $client->request('GET', base64_decode($b['uri']), ['save_to' => $stream]);
+                                chmod($GLOBALS['resTmpDir'].'/'.$filename, 0777);
                             }
                         }
                     }
 
                 } catch (\GuzzleHttp\Exception\ClientException $ex) {
-                    
+
                     $errorMSG = "there was a problem during the file downloads";
                 }
             }
         }
         
-        $dirFiles = scandir($GLOBALS['resTmpDir']);
+        //if we have files in the directory
+        $dirFiles = scandir($tmpDirDate);        
         $hasZip = "";
+        
         if(count($dirFiles) > 0){
+            chmod($GLOBALS['resTmpDir'], 0777);
             
-            try{
-                //create the zip file
-                
-                $zipFile = fopen($GLOBALS['resTmpDir'].'/collection.zip', 'w');
-                if(!$zipFile){
-                    error_log("nem tudja megnyitni a zip filet");
-                    throw new \Exception("Cant open the zip file");
-                }
-                fclose($zipFile);
-                
-                $zip = new \ZipArchive();
-                if ($zip->open($GLOBALS['resTmpDir'].'collection.zip', \ZipArchive::OVERWRITE)===TRUE) {
-                    error_log("zip megnyitva");
-                    foreach ($dirFiles as $d){
-                        //skip the elements which are not files
-                        if($d == "." || $d == ".."){
-                            continue;
-                        }else {
-                            //we will add the files into the zip, 
-                            //with a localname to skip the server directory structure
-                            $zip->addFile($GLOBALS['resTmpDir'].$d, $d);
+            fopen($GLOBALS['resTmpDir'].'/collection.zip', "w");
+            fclose($GLOBALS['resTmpDir'].'/collection.zip');
+            
+            $archiveFile = $tmpDirDate.'/collection.zip';
+            
+            $ziph = new \ZipArchive();
+            
+            
+            if(file_exists($archiveFile))
+            {
+                try{
+                    if($ziph->open($archiveFile, \ZIPARCHIVE::CHECKCONS) !== TRUE)
+                    {
+                        $errMsg = "Unable to Open $archiveFile";
+                        error_log($errMsg);
+                    }else{
+                        foreach($dirFiles as $d){
+                            if($d == "." || $d == ".."){
+                                continue;
+                            }else {
+                                //we will add the files into the zip, 
+                                //with a localname to skip the server directory structure
+                                if(!$ziph->addFile($tmpDirDate.'/'.$d, $d))
+                                {
+                                    $errMsg = "error archiving $file in $d";
+                                    error_log($errMsg);
+                                }
+                            }
                         }
                     }
-                    $zip->close();
-                    
-                    $hasZip = $GLOBALS['resTmpDir'].'collection.zip';
-                }else {
-                    throw new \Exception("Cant open the zip file");
-                }
-                
-            } catch (Exception $ex) {
-                $errorMSG = $ex->getMessage();
+                } catch (Exception $ex) {
+                    $errorMSG = $ex->getMessage();
+                }    
             }
+            $ziph->close();
+            
+            //check the new dir that it is still generating the zip file or not
+            $newDir = scandir($tmpDirDate);
+                    
+            $checkDir = true;
+            do {
+                $checkDir = $this->OeawFunctions->checkArrayForValue($newDir, "collection.zip."); 
+                sleep(3);
+            } while (false);
+            
+            $hasZip = RC::get('guiBaseUrl').'/sites/default/files/collections/'.$dateID.'/collection.zip';
         }
-        $response->setContent(json_encode("sikerult  _".$hasZip ));
+        
+        $response = new Response();
+        $response->headers->set('Content-Type', 'application/json');
+        $response->setContent(json_encode($hasZip ));
         return $response;
+       
+        
          
     }
     

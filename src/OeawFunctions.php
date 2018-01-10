@@ -1664,7 +1664,7 @@ class OeawFunctions {
             $filesNum = $rootMeta->get("https://vocabs.acdh.oeaw.ac.at/schema#hasNumberOfItems");
             //get the sum binary size of the collection
             $binarySize = $rootMeta->get("https://vocabs.acdh.oeaw.ac.at/schema#hasBinarySize");
-
+            
 
             if($title->getValue()){
                 $resData['title'] = $title->getValue();
@@ -1702,11 +1702,13 @@ class OeawFunctions {
                 }
             }
 
+            //create the binaries list for the view
             $oeawCustSparql = new OeawCustomSparql();
             $collBinSql = $oeawCustSparql->getCollectionBinaries($uri);
           
             if(!empty($collBinSql)){
                 $OeawStorage = new OeawStorage();
+                
                 $bin = $OeawStorage->runUserSparql($collBinSql);
 
                 if(count($bin) > 0){
@@ -1788,5 +1790,17 @@ class OeawFunctions {
     }
     
     
+    public function checkArrayForValue(array $data, string $str):bool {
+        
+        if(count($data) > 0){
+            foreach($data as $item){
+                if(strpos($item, $str)!== false){
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
     
 }

@@ -215,5 +215,6 @@ oeaw_dlc:
     path: '/oeaw_dlc/{uri}'
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_dl_collection'
+        uri: 'new'
     requirements:
         _access: 'TRUE'
