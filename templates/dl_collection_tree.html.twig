@@ -17,10 +17,8 @@
             position:fixed;
             padding:0;
             margin:0;
-
             top:0;
             left:0;
-
             width: 100%;
             height: 100%;
             background:rgba(255,255,255,0.7);
@@ -52,13 +50,24 @@
         </div>
     </div>
    
+    <div>
+        {%  if resourceData['insideUri'] %}
+            <div>
+                <a href="/browser/oeaw_detail/{{ resourceData['insideUri'] }}"><span>Back to the resource</span></a>
+                <br/><br/>
+            </div>
+        {% endif %}    
+        {%  if resourceData['title'] %}
+            <h2>{{ resourceData['title'] }} </h2>
+        {% endif %}
+        
+    </div>
     
     <input type="hidden" id="insideUri" name="insideUri" value="{{ resourceData['insideUri'] }}">
     <input type="hidden" id="estDLTime" name="estDLTime" value="{{ resourceData['estDLTime'] }}">
     
     <div id="content_collection">
         <div class="single-res-overview single-res-overview-basic">
-            <h2>The selected Collection Information</h2>
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
                 <span class="res-prop-label">Name:</span> 
