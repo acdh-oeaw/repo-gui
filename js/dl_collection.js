@@ -146,6 +146,7 @@ jq2(function( $ ) {
             success: function(data, status) {
                 jq2('#dl_link_a').html('<a href="'+data+'" target="_blank">Download the Collection ZIP</a>');
                 jq2('#dl_link').show();
+                jq2('#dl_link_txt').show();
                 jq2("#loader-div").delay(2000).fadeOut("fast");
                 jq2( "#getCollectionDiv" ).hide();
                 return data;
