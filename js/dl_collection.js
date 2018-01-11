@@ -144,9 +144,9 @@ jq2(function( $ ) {
             data: {jsonData : JSON.stringify(myObj)},
             tiemout: 1800,
             success: function(data, status) {
-                jq2('#dl_link').html('<a href="'+data+'" target="_blank">Download the Collection ZIP</a>');
+                jq2('#dl_link_a').html('<a href="'+data+'" target="_blank">Download the Collection ZIP</a>');
                 jq2('#dl_link').show();
-                jq2("#loader-div").delay(3000).fadeOut("fast");
+                jq2("#loader-div").delay(2000).fadeOut("fast");
                 jq2( "#getCollectionDiv" ).hide();
                 return data;
 

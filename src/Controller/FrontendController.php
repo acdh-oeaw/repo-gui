@@ -1257,13 +1257,11 @@ class FrontendController extends ControllerBase  {
             $resData['insideUri'] = $uri;
         }
         
-        $result = $resData;
-    
         $result = 
             array(
                 '#theme' => 'oeaw_dl_collection_tree',
                 '#url' => $uri,
-                '#resourceData' => $result,
+                '#resourceData' => $resData,
                 '#errorMSG' =>  $errorMSG,
                 '#attached' => [
                     'library' => [
@@ -1291,23 +1289,17 @@ class FrontendController extends ControllerBase  {
             $resData['insideUri'] = $uri;
         }
         
+        //setup the the treeview data
         $result = array();
-        
         $resData['binaries'][] = array("uri" => base64_decode($uri), "uri_dl" => $uri, "title" => $resData['title'], "text" => $resData['title'], "filename" => str_replace(" ", "_", $resData['filename']), "rootTitle" => "");
-        
-        $res = $this->OeawFunctions->convertToTree($resData['binaries'], "title", "rootTitle");
-        
+        $result = $this->OeawFunctions->convertToTree($resData['binaries'], "title", "rootTitle");
 
-        $result = $res;
-        
         $response = new Response();
         $response->setContent(json_encode($result));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
     
-    
-
    
     /**
      * 

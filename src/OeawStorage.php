@@ -1501,6 +1501,45 @@ class OeawStorage {
     }
     
     
+    /**
+     * 
+     * This func gets the parent title from the DB
+     * 
+     * @param string $id - the uri id of the parent
+     * @return array
+     */
+    public function getParentTitle(string $id): array{
+        $result = array();
+        
+        if($id){
+            
+            $where = "";
+            $where .= " WHERE { ";
+            $where .= "?uri <".RC::get('fedoraIdProp')."> <".$id."> . ";
+            $where .= "?uri <".RC::titleProp()."> ?title . ";
+            $where .= " } ";
+            $select = 'SELECT ?title   ';
+            $queryStr = $select.$where;
+            
+            try {
+                $q = new SimpleQuery($queryStr);
+                $query = $q->getQuery();
+                $res = $this->fedora->runSparql($query);
+            
+                $fields = $res->getFields(); 
+                $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+             
+                return $result;
+ 
+             } catch (Exception $ex) {
+                return $result;
+            } catch (\GuzzleHttp\Exception\ClientException $ex){
+                return $result;
+            }
+        }
+        
+        return $result;
+    }
     
     /**
      * 

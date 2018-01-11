@@ -79,6 +79,28 @@
                     {% endif %}
                 </span>
             </div>
+            
+                
+            {% if resourceData['isPartOf'] %}     
+            <div class="res-property">
+                <i class="material-icons">device_hub</i>
+                <span class="res-prop-label">Part Of:</span> 
+                <span class="res-prop-value">
+                    {{ resourceData['isPartOf'] }}
+                </span>
+            </div>
+            {% endif %}
+            
+            {% if resourceData['license'] %} 
+                <div class="res-property">
+                    <i class="material-icons">copyright</i>
+                    <span class="res-prop-label">License:</span> 
+                    <span class="res-prop-value">
+                        {{ resourceData['license'] }}
+                    </span>
+                </div>
+            {% endif %}
+                    
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
                 <span class="res-prop-label">Number of files:</span> 
@@ -90,6 +112,8 @@
                     {% endif %}
                 </span>
             </div>
+            
+            
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
                 <span class="res-prop-label">Sum. Size:</span> 
@@ -125,14 +149,19 @@
                 </span>
             </div>    
             
-            <div style="display:none" id="getCollectionDiv">
-                <div class="res-act-button">
-                    <span class="res-prop-value">
-                        <a href="#" id="getCollectionData" data-tableuri="{{url}}">Prepare Collection To Download</a>
-                    </span>    
+            <div style="display:none; width: 50%;margin: 0 auto;" id="getCollectionDiv" >
+                <div class="res-act-button" style="">
+                    <a href="#" id="getCollectionData" data-tableuri="{{url}}">Prepare Collection To Download</a>
                 </div>
             </div>
-            <div style="display:none" id="dl_link">
+                
+            <div style="display:none; width: 50%;margin: 0 auto;" id="dl_link">
+                 <div class="res-act-button" >
+                    <span class="res-prop-value">
+                        <div id="dl_link_a">
+                        </div>            
+                    </span>    
+                </div>
             </div>
                     
             

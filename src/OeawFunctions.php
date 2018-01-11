@@ -1657,23 +1657,37 @@ class OeawFunctions {
         try{
             //get the resource data 
             $fedoraRes = $fedora->getResourceByUri($uri);
-            $rootMeta = $fedoraRes->getMetadata();
+            $rootMeta = $fedoraRes->getMetadata();            
             //get title
-            $title = $rootMeta->get("https://vocabs.acdh.oeaw.ac.at/schema#hasTitle");
+            $title = $rootMeta->get(RC::get('fedoraTitleProp'));
             //get number of files
-            $filesNum = $rootMeta->get("https://vocabs.acdh.oeaw.ac.at/schema#hasNumberOfItems");
+            $filesNum = $rootMeta->get(RC::get('fedoraCountProp'));
             //get the sum binary size of the collection
-            $binarySize = $rootMeta->get("https://vocabs.acdh.oeaw.ac.at/schema#hasBinarySize");
-            
+            $binarySize = $rootMeta->get(RC::get('fedoraExtentProp'));
+            $license = $rootMeta->get(RC::get('fedoraVocabsNamespace').'hasLicense');
+            $isPartOf = $rootMeta->get(RC::get('fedoraRelProp'));
 
-            if($title->getValue()){
+            if(isset($title) && $title->getValue()){
                 $resData['title'] = $title->getValue();
             }
-            if($filesNum->getValue()){
+            if(isset($filesNum) && $filesNum->getValue()){
                 $resData['filesNum'] = $filesNum->getValue();
             }
+            if(isset($license) && $license->getValue()){
+                $resData['license'] = $license->getValue();
+            }
+            if(isset($isPartOf) && $isPartOf->getUri()){
+                $OeawStorage = new OeawStorage();
+                $isPartTitle = $OeawStorage->getParentTitle($isPartOf->getUri());
+                if(count($isPartTitle) > 0){
+                    if($isPartTitle[0]["title"]){
+                        $resData['isPartOf'] = $isPartTitle[0]["title"];
+                    }
+                }
+            }
+            
             //if we have binary size
-            if($binarySize->getValue()){
+            if(isset($binarySize) && $binarySize->getValue()){
                 $bs = 0;
                 $bs = $binarySize->getValue();
                 $resData['binarySize'] = $bs;
