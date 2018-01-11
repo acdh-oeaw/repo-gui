@@ -201,7 +201,7 @@
                 {% if key == "raw"  %}
                     {% if result['table']['acdh:hasBinarySize'][0] %}
                         <div class="res-act-button">
-                            <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download</span></a>
+                            <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download File</span></a>
                         </div>                        
                     {% endif %}  
                 {% elseif key == "application/octet-stream"  %}    

@@ -31,7 +31,7 @@ jq2(function( $ ) {
                     }
 		},
                 checkbox : {
-                    //'keep_selected_style' : false,
+                    //keep_selected_style : true,
                     tie_selection : false,
                     whole_node : false
                 },
@@ -40,7 +40,7 @@ jq2(function( $ ) {
 	})
         //handle the node clicking to download the file
         .on("changed.jstree", function (node, data) {
-            if(data.selected.length) {
+            if(data.selected.length == 1) {
                 //if we have a directory then do not open the fedora url
                 if(data.node.original.dir === false){
                     window.location.href = data.instance.get_node(data.selected[0]).original.uri;
@@ -49,15 +49,20 @@ jq2(function( $ ) {
         })
         //handle the checkboxes to download the selected files as a zip
         .on("check_node.jstree", function (node, data) {
+            
             jq2('#getCollectionData').prop('disabled', false);
-            if(data.selected.length) {
-                var id = data.event.currentTarget.id;
-                if(id){
-                    id = id.replace("_anchor", "");
-                    var size = data.node.original.binarySize;
-                    var uri = data.node.original.uri;
-                    var uri_dl = data.node.original.encodedUri;
-                    var filename = data.node.original.filename;
+            
+            if(data.instance.get_checked(true)) {
+                var formData = data.instance.get_checked(true);
+                sumSize = 0;
+                selectedItems = [];
+                
+                $.each( formData, function( index, value ){
+                    var id = value.id;
+                    var size = value.original.binarySize;
+                    var uri = value.original.uri;
+                    var uri_dl = value.original.encodedUri;
+                    var filename = value.original.filename;
                     if(size && uri){
                         selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
                         sumSize += Number(size);
@@ -68,38 +73,44 @@ jq2(function( $ ) {
                             jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" (Max zip download limit is 1.5GB) </p> ");   
                             jq2("#getCollectionDiv").show();
                         }
-
                     }
-                }
+                });
             }
         })
         .on("uncheck_node.jstree", function (node, data) {
             jq2('#getCollectionData').prop('disabled', false);
-            if(data.selected.length) {
-                var id = data.event.currentTarget.id;
-                if(id){
-                    id = id.replace("_anchor", "");
-                    var size = data.node.original.binarySize;
-                    var uri = data.instance.get_node(data.selected[0]).original.uri;
-                    if(size && uri){
-                        jq2.each( selectedItems, function( index, value ){
-                            if(value.id == id){
-                                selectedItems.splice(index, 1);
+            
+            if(data.instance.get_checked(true)) {
+                selectedItems = [];
+                sumSize = 0;
+                var formData = data.instance.get_checked(true);
+                
+                if(formData.length == 0){
+                    jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize) + " (Max zip download limit is 1.5GB)</p> ");
+                    jq2("#getCollectionDiv").hide();
+                }else {
+                    $.each( formData, function( index, value ){
+                        var id = value.id;
+                        var size = value.original.binarySize;
+                        var uri = value.original.uri;
+                        var uri_dl = value.original.encodedUri;
+                        var filename = value.original.filename;
+                        if(size && uri){
+                            selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
+                            sumSize += Number(size);
+                            if(sumSize > 1599999999){
+                                jq2("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " (Max zip download limit is 1.5GB)</p> ");
+                                jq2("#getCollectionDiv").hide();
+                            }else {
+                                jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" (Max zip download limit is 1.5GB) </p> ");   
+                                jq2("#getCollectionDiv").show();
                             }
-                        });
-
-                        sumSize -= Number(size);
-                        if(sumSize > 1599999999){
-                            jq2("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + "</p> (Max zip download limit is 1.5GB)");
-                            jq2("#getCollectionDiv").hide();
-                        }else {
-                            jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" </p> (Max zip download limit is 1.5GB)");   
-                            jq2("#getCollectionDiv").show();
                         }
-                    }
+                    });
                 }
             }
         });
+        
     });
 
     jq2(window).load(function() {
@@ -133,13 +144,10 @@ jq2(function( $ ) {
             data: {jsonData : JSON.stringify(myObj)},
             tiemout: 1800,
             success: function(data, status) {
-                console.log(data);
-                console.log(status);
-                
                 jq2('#dl_link').html('<a href="'+data+'" target="_blank">Download the Collection ZIP</a>');
                 jq2('#dl_link').show();
                 jq2("#loader-div").delay(3000).fadeOut("fast");
-                jq2( "#getCollectionData" ).hide();
+                jq2( "#getCollectionDiv" ).hide();
                 return data;
 
             },
