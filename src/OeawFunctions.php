@@ -1743,7 +1743,9 @@ class OeawFunctions {
                                     $bin[$k]['type'] = $ty;
                                     if($ty == "Resource"){
                                         if($v['title']){
-                                           $bin[$k]['text'] = $v['filename']." | ".$bin[$k]['formSize'];
+                                            if($v['filename'] && $bin[$k]['formSize']){
+                                                $bin[$k]['text'] = $v['filename']." | ".$bin[$k]['formSize'];
+                                            }
                                         }
                                         $bin[$k]['dir'] = false;
                                         $bin[$k]['icon'] = "jstree-file";
