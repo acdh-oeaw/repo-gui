@@ -1720,7 +1720,7 @@ class OeawFunctions {
             $oeawCustSparql = new OeawCustomSparql();
             $collBinSql = $oeawCustSparql->getCollectionBinaries($uri);
           
-            if(!empty($collBinSql)){
+              if(!empty($collBinSql)){
                 $OeawStorage = new OeawStorage();
                 
                 $bin = $OeawStorage->runUserSparql($collBinSql);
@@ -1741,9 +1741,10 @@ class OeawFunctions {
                                 if (strpos($ty, 'https://vocabs.acdh.oeaw.ac.at/schema#') !== false) {
                                     $ty = str_replace("https://vocabs.acdh.oeaw.ac.at/schema#", "", $ty);
                                     $bin[$k]['type'] = $ty;
+                                    
                                     if($ty == "Resource"){
-                                        if($v['title']){
-                                            if($v['filename'] && $bin[$k]['formSize']){
+                                         if($v['title']){
+                                            if(!empty($v['filename']) && $v['binarySize'] > 0){
                                                 $bin[$k]['text'] = $v['filename']." | ".$bin[$k]['formSize'];
                                             }
                                         }
@@ -1757,6 +1758,11 @@ class OeawFunctions {
                                     }
                                 }
                             }
+                        }
+                        //if there is no text then it could be a wrong binary
+                        //so we will remove it from the list
+                        if(empty($bin[$k]['text'])){
+                            unset($bin[$k]);
                         }
                     }
                     $resData['binaries'] = $bin;
