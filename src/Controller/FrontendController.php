@@ -467,9 +467,10 @@ class FrontendController extends ControllerBase  {
         
         if(count($rootMeta) > 0){
             
+            /*
             $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
             
-             if(count($rules) <= 0){
+            if(count($rules) <= 0){
                 $msg = base64_encode("The Resource Rules are not reachable!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
@@ -478,7 +479,7 @@ class FrontendController extends ControllerBase  {
         
             $ACL = $this->OeawFunctions->checkRules($rules);
             $results['ACL'] = $ACL;
-            
+        */    
             $results = array();
             //get the root table data
             $results = $this->OeawFunctions->createDetailViewTable($rootMeta);
@@ -1414,6 +1415,7 @@ class FrontendController extends ControllerBase  {
                     $errorMSG = $ex->getMessage();
                 }    
             }
+            error_log($ziph->close());
             $ziph->close();
             
             //check the new dir that it is still generating the zip file or not
