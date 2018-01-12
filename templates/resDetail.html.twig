@@ -217,6 +217,22 @@
                 {% endif %}
             {% endfor %} 
         </div>
+    {% else %}
+          <div class="res-property">
+            <i class="material-icons">&#xE89F;</i>
+            
+            {% if result['acdh_rdf:type']['title'] == "Collection" %}
+                <div class="res-act-button">
+                    <a href="/browser/oeaw_dl_collection/{{ result['insideUri']  }}"><span>Download Collection</span></a>
+                </div>
+            {% endif %}
+
+            {% if result['acdh_rdf:type']['title'] == "Resource" %}
+                <div class="res-act-button">
+                    <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download File</span></a>
+                </div>
+            {% endif %}
+        </div>
     {% endif %}    	
     
     {% if (result['table']['acdh:hasDescription'] or result['table']['acdh:hasSpatialCoverage'] or result['table']['acdh:hasNote']) %}
