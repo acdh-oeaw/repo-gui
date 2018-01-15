@@ -39,6 +39,11 @@
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasCreator'], 'icon': "people", 'label': "Creator(s)" } ) }}
     {% endif%}	
     
+    <!---- CURATOR --->
+    {% if result['table']['acdh:hasCurator'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasCurator'], 'icon': "people", 'label': "Curator(s)" } ) }}
+    {% endif%}
+    
     <!---- CONTRIBUTOR --->
     {% if result['table']['acdh:hasContributor'] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['table']['acdh:hasContributor'], 'icon': "person", 'label': "Contributor(s)" } ) }}

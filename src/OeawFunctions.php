@@ -578,7 +578,7 @@ class OeawFunctions {
                         "acdh:hasStartDate",
                         "acdh:hasEndDate",
                         "acdh:hasLifeCycleStatus",
-                        "acdh:language"
+                        "acdh:hasLanguage"
                     );
                     
                     $extendedProp = array(
