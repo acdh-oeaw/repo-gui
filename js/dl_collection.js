@@ -40,6 +40,8 @@ jq2(function( $ ) {
 	})
         //handle the node clicking to download the file
         .on("changed.jstree", function (node, data) {
+            jq2('#dl_link').hide();
+            jq2('#dl_link_txt').hide();
             if(data.selected.length == 1) {
                 //if we have a directory then do not open the fedora url
                 if(data.node.original.dir === false){
@@ -49,7 +51,8 @@ jq2(function( $ ) {
         })
         //handle the checkboxes to download the selected files as a zip
         .on("check_node.jstree", function (node, data) {
-            
+            jq2('#dl_link').hide();
+            jq2('#dl_link_txt').hide();
             jq2('#getCollectionData').prop('disabled', false);
             
             if(data.instance.get_checked(true)) {
@@ -78,6 +81,8 @@ jq2(function( $ ) {
             }
         })
         .on("uncheck_node.jstree", function (node, data) {
+            jq2('#dl_link').hide();
+            jq2('#dl_link_txt').hide();
             jq2('#getCollectionData').prop('disabled', false);
             
             if(data.instance.get_checked(true)) {
@@ -148,7 +153,7 @@ jq2(function( $ ) {
                 jq2('#dl_link').show();
                 jq2('#dl_link_txt').show();
                 jq2("#loader-div").delay(2000).fadeOut("fast");
-                jq2( "#getCollectionDiv" ).hide();
+                jq2("#getCollectionDiv").hide();
                 return data;
 
             },

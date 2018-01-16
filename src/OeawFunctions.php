@@ -1673,8 +1673,13 @@ class OeawFunctions {
             if(isset($filesNum) && $filesNum->getValue()){
                 $resData['filesNum'] = $filesNum->getValue();
             }
-            if(isset($license) && $license->getValue()){
-                $resData['license'] = $license->getValue();
+            if(isset($license)){
+                $objClass = get_class($license);
+                if($objClass == "EasyRdf\Resource"){
+                    $resData['license'] = $license->getUri();
+                }else if($objClass == "EasyRdf\Literal"){
+                    $resData['license'] = $license->__toString();
+                } 
             }
             if(isset($isPartOf) && $isPartOf->getUri()){
                 $OeawStorage = new OeawStorage();
