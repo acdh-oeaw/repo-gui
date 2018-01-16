@@ -1424,6 +1424,12 @@ class FrontendController extends ControllerBase  {
             $checkDir = true;
             do {
                 $checkDir = $this->OeawFunctions->checkArrayForValue($newDir, "collection.zip."); 
+                //delete the files and keep the zip only
+                foreach($dirFiles as $file){ 
+                    if(is_file($tmpDir.$dateID.'/'.$file)){ 
+                        unlink( $tmpDir.$dateID.'/'.$file); 
+                    }
+                }
                 sleep(3);
             } while (false);
             
