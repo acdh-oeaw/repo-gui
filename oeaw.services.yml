@@ -1,0 +1,5 @@
+services:
+    oeaw:
+        class: '\Drupal\oeaw\EventSubscriber\MyEventSubscriber'
+        tags:
+            - { name: 'event_subscriber' }
