@@ -27,11 +27,12 @@ class MyEventSubscriber implements EventSubscriberInterface {
             global $user;
             //the actual user id, if the user is logged in
             $userid = \Drupal::currentUser()->id();
-            
+            error_log("shibboleth http: ");
+            error_log($_SERVER['HTTP_EPPN']);
             //shibboleth username
             //$_SERVER['HTTP_EPPN'] = "test";
             //if it is a shibboleth login and there is no user logged in
-            if(isset($_SERVER['HTTP_EPPN']) && $userid == 0 && \Drupal::currentUser()->isAnonymous()){
+            /*if(isset($_SERVER['HTTP_EPPN']) && $userid == 0 && \Drupal::currentUser()->isAnonymous()){
                 
                 //the global drupal shibboleth username
                 $shib = user_load_by_name('shibboleth');
@@ -55,7 +56,7 @@ class MyEventSubscriber implements EventSubscriberInterface {
                         $event->setResponse(new RedirectResponse(\Drupal::url('<current>')));
                     }
                 }
-            }
+            }*/
         }
     }
 
