@@ -55,8 +55,8 @@ class FrontendController extends ControllerBase  {
         $this->OeawCustomSparql = new OeawCustomSparql();
         $this->PropertyTableCache = new PropertyTableCache();
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-    }    
-    
+    }
+
     /**
      * 
      * The root Resources list     
@@ -1341,7 +1341,7 @@ class FrontendController extends ControllerBase  {
             }
             
             $client = new \GuzzleHttp\Client(['auth' => [RC::get('fedoraUser'), RC::get('fedoraPswd')], 'verify' => false]);
-            
+            ini_set('max_execution_time', 1800);
             foreach($binaries as $b){
                 try {
                     //if we have filename then save it
@@ -1415,7 +1415,7 @@ class FrontendController extends ControllerBase  {
                     $errorMSG = $ex->getMessage();
                 }    
             }
-            error_log($ziph->close());
+            
             $ziph->close();
             
             //check the new dir that it is still generating the zip file or not
