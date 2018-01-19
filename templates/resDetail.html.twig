@@ -327,12 +327,24 @@
 	    <div class="res-el res-info res-child-info col-block col-lg-12">
 	        <div class="result-basic-info">
 	            <span class="results-info-bar"><h3>{{ childTitle }}</h3></span>
+              <div class="res-act-button res-act-button-reverse res-act-button-treeview basic">
+                  <i class="material-icons">&#xE335;</i>
+                  <span>Switch to Tree-View</span>
+              </div>
 	            {% if result['pagination'] %}
 	            	<span class="results-info-bar pagination-span">{{ result['pagination']|raw }}</span>
 	            {% endif%}
 	        </div>
 	    </div>
 
+      <div class="children-overview children-overview-tree">
+
+        <!-- Here comes the tree-view -->
+
+      </div>
+
+
+      <div class="children-overview children-overview-basic">
         {% for cItem in childResult %}
             <div class="child-res">
                 
@@ -379,7 +391,7 @@
 
             </div>
         {% endfor %}
-
+      </div><!-- .children-overview-basic -->
     {% endif%}
 
 	                                        
