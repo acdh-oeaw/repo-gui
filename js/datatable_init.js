@@ -6,6 +6,33 @@ jq2(function( $ ) {
            "lengthMenu": [[20, 35, 50, -1], [20, 35, 50, "All"]]
         });
         
+        console.log()
+        
+        jq2(".res-act-button-treeview.basic").click(function() {
+            if($(this).attr('class') == "res-act-button res-act-button-reverse res-act-button-treeview tree"){
+                
+                var url = jq2('#insideUri').val();
+                if(url){
+                    jq2('#collectionBrowser')
+                    .jstree({
+                        core : {
+                            data : {
+                                "url" : '/browser/get_collection_data/'+url,
+                                "dataType" : "json" 
+                            }
+                        }
+                    })
+                    //handle the node clicking to download the file
+                    .on("changed.jstree", function (node, data) {
+                        if(data.instance.get_node(data.selected[0]).original.encodedUri) {
+                            window.location.href = "/browser/oeaw_detail/"+data.instance.get_node(data.selected[0]).original.encodedUri;
+                        }
+                    });
+                }
+            }
+        });
+        
+        
         //the JS for the inverse table
         jq2( "#showInverse" ).click(function() {
             //show the table

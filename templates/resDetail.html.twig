@@ -1,6 +1,8 @@
 {% if errorMSG %}
     {{ errorMSG }}
 {% else %}
+    <input type="hidden" id="insideUri" name="insideUri" value="{{ result['insideUri'] }}">
+    
     <h3 class="single-res-heading">
             Overview
         <div class="res-act-button res-act-button-expertview basic">
@@ -324,74 +326,74 @@
     
     
     {% if childResult %}
-	    <div class="res-el res-info res-child-info col-block col-lg-12">
-	        <div class="result-basic-info">
-	            <span class="results-info-bar"><h3>{{ childTitle }}</h3></span>
-              <div class="res-act-button res-act-button-reverse res-act-button-treeview basic">
-                  <i class="material-icons">&#xE335;</i>
-                  <span>Switch to Tree-View</span>
-              </div>
-	            {% if result['pagination'] %}
-	            	<span class="results-info-bar pagination-span">{{ result['pagination']|raw }}</span>
-	            {% endif%}
-	        </div>
-	    </div>
-
-      <div class="children-overview children-overview-tree">
-
-        <!-- Here comes the tree-view -->
-
-      </div>
-
-
-      <div class="children-overview children-overview-basic">
-        {% for cItem in childResult %}
-            <div class="child-res">
-                
-            <div class="res-property">
-                <span class="res-title">
-	                <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">                                         
-	                	{{ cItem.title }}
-	                </a>
-                </span>		
+        <div class="res-el res-info res-child-info col-block col-lg-12">
+            <div class="result-basic-info">
+                <span class="results-info-bar"><h3>{{ childTitle }}</h3></span>
+          <div class="res-act-button res-act-button-reverse res-act-button-treeview basic">
+              <i class="material-icons">&#xE335;</i>
+              <span>Switch to Tree-View</span>
+          </div>
+                {% if result['pagination'] %}
+                    <span class="results-info-bar pagination-span">{{ result['pagination']|raw }}</span>
+                {% endif%}
             </div>
-
-            <div class="res-property">
-                <i class="material-icons">&#xE54E;</i>
-                <span class="res-rdftype">
-	                <a href="{{url('<front>') }}discover/&type={{ cItem.typeName }}/10">
-	                        {{ cItem.typeName }}
-	                </a>
-                </span>
+        </div>
+            
+        {% if result['acdh_rdf:type']['title'] == "Collection" %}
+            <div class="children-overview children-overview-tree">
+                <!-- Here comes the tree-view -->
+                {{ include('/modules/oeaw/templates/resDetail_treeView.html.twig' ) }}
             </div>
+        {% endif %}    
 
-            {% if cItem.description %}
-                <div class="res-property res-property-desc">
-                    <i class="material-icons">&#xE88F;</i>	
-                    <span class="res-description">{{ cItem.description }}</span>
+        <div class="children-overview children-overview-basic">
+            {% for cItem in childResult %}
+                <div class="child-res">
+
+                <div class="res-property">
+                    <span class="res-title">
+                        <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">                                         
+                                {{ cItem.title }}
+                        </a>
+                    </span>		
                 </div>
-            {% endif%}
 
-            <div class="res-actions">
+                <div class="res-property">
+                    <i class="material-icons">&#xE54E;</i>
+                    <span class="res-rdftype">
+                        <a href="{{url('<front>') }}discover/&type={{ cItem.typeName }}/10">
+                                {{ cItem.typeName }}
+                        </a>
+                    </span>
+                </div>
 
                 {% if cItem.description %}
-                    <div class="res-act-button res-act-button-summary closed">
-                            <i class="material-icons">&#xE145;</i>
-                            <span>Show Summary</span>
+                    <div class="res-property res-property-desc">
+                        <i class="material-icons">&#xE88F;</i>	
+                        <span class="res-description">{{ cItem.description }}</span>
                     </div>
                 {% endif%}
 
-                <div class="res-act-button">
-                    <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">
-                        <i class="material-icons">&#xE873;</i>
-                        <span>Detailed View</span>
-                    </a>	
-                </div>          	
-            </div>	
+                <div class="res-actions">
 
-            </div>
-        {% endfor %}
-      </div><!-- .children-overview-basic -->
+                    {% if cItem.description %}
+                        <div class="res-act-button res-act-button-summary closed">
+                            <i class="material-icons">&#xE145;</i>
+                            <span>Show Summary</span>
+                        </div>
+                    {% endif%}
+
+                    <div class="res-act-button">
+                        <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">
+                            <i class="material-icons">&#xE873;</i>
+                            <span>Detailed View</span>
+                        </a>	
+                    </div>          	
+                </div>	
+
+                </div>
+                {% endfor %}
+            </div><!-- .children-overview-basic -->
     {% endif%}
 
 	                                        

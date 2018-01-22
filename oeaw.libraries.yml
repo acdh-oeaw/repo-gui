@@ -6,9 +6,11 @@ oeaw-styles:
             css/dataTables.bootstrap4.min.css: {}
             css/font-awesome/css/font-awesome.min.css: {}
             css/lightbox.css: {}
+            css/jqtree/themes/default/style.min.css: {}
     js:
         js/jquery-1.12.3.min.js: {}
         js/jquery.dataTables.min.js: {}
+        js/jstree.min.js: {}
         js/dataTables.bootstrap4.min.js: {}
         js/datatable_init.js: {}
         js/lightbox.js: {}

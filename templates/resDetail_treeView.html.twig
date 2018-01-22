@@ -1,0 +1,25 @@
+{% if  errorMSG %}
+    <span style="color:red; font-size: 20px; font-weight: bold;">{{ errorMSG }}</span>
+{% else %}
+    
+    <style type="text/css">
+        .collectionBrowser_css {
+            width: auto;
+            max-width: 750px;
+            height: auto;
+            border: solid 1px #BBB;
+            background: #FFF;
+            overflow: hidden;
+            padding: 5px;
+        }
+
+        
+    </style>
+ 
+    <input type="hidden" id="insideUri" name="insideUri" value="{{ resourceData['insideUri'] }}">
+    
+    <div id="content_collection">
+        <div id="collectionBrowser" class="collectionBrowser_css"></div>
+    </div>            
+{% endif %}
+    
