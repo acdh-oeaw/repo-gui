@@ -1292,8 +1292,9 @@ class FrontendController extends ControllerBase  {
         
         //setup the the treeview data
         $result = array();
+        //add the main Root element
         $resData['binaries'][] = array("uri" => base64_decode($uri), "uri_dl" => $uri, "title" => $resData['title'], "text" => $resData['title'], "filename" => str_replace(" ", "_", $resData['filename']), "rootTitle" => "");
-        $result = $this->OeawFunctions->convertToTree($resData['binaries'], "title", "rootTitle");
+        $result = $this->OeawFunctions->convertToTree($resData['binaries'], "text", "rootTitle");
 
         $response = new Response();
         $response->setContent(json_encode($result));

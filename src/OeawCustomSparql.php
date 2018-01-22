@@ -310,15 +310,15 @@ class OeawCustomSparql {
     public function getCollectionBinaries(string $url): string{
         
         $query = "";
+        //?nUri <".RC::get('drupalRdfType')."> ?types .
         
         $query = "
-        select ?uri ?title ?rootTitle ?binarySize ?filename (GROUP_CONCAT(DISTINCT ?types;separator=',') AS ?type)
+        select ?uri ?title ?rootTitle ?binarySize ?filename 
         where {  
             ?uri ( <".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* <".$url."> .
             FILTER(?uri = ?nUri){
-                select ?nUri ?title ?rootTitle  ?binarySize ?filename ?types 
+                select ?nUri ?title ?rootTitle  ?binarySize ?filename 
                 where {
-                    ?nUri <".RC::get('drupalRdfType')."> ?types .
                     ?nUri <".RC::get('fedoraTitleProp')."> ?title .
                     ?nUri <".RC::get('fedoraRelProp')."> ?isPartOf .
                     ?rUrl <".RC::get('fedoraIdProp')."> ?isPartOf .

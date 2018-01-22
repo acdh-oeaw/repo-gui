@@ -1735,34 +1735,18 @@ class OeawFunctions {
                         if($v['binarySize']){
                             $bin[$k]['formSize'] = $this->formatSizeUnits((string)$v['binarySize']);
                         }
+                        
                         if($v['uri']){
                             $bin[$k]['encodedUri'] = base64_encode($v['uri']);
                         }
                         
-                        //change the rdf type
-                        if (strpos($v['type'], 'https://vocabs.acdh.oeaw.ac.at/schema#') !== false) {
-                            $t = explode(",", $v['type']);
-                            foreach ($t as $ty){
-                                if (strpos($ty, 'https://vocabs.acdh.oeaw.ac.at/schema#') !== false) {
-                                    $ty = str_replace("https://vocabs.acdh.oeaw.ac.at/schema#", "", $ty);
-                                    $bin[$k]['type'] = $ty;
-                                    
-                                    if($ty == "Resource"){
-                                         if($v['title']){
-                                            if(!empty($v['filename']) && $v['binarySize'] > 0){
-                                                $bin[$k]['text'] = $v['filename']." | ".$bin[$k]['formSize'];
-                                            }
-                                        }
-                                        $bin[$k]['dir'] = false;
-                                        $bin[$k]['icon'] = "jstree-file";
-                                    }else{
-                                        if($v['title']){
-                                           $bin[$k]['text'] = $v['title'];
-                                        }
-                                        $bin[$k]['dir'] = true;
-                                    }
-                                }
-                            }
+                        if(!empty($v['filename']) && $v['binarySize'] > 0){
+                            $bin[$k]['text'] = $v['filename']." | ".$bin[$k]['formSize'];
+                            $bin[$k]['dir'] = false;
+                            $bin[$k]['icon'] = "jstree-file";
+                        }else{
+                            $bin[$k]['text'] = $v['title'];
+                             $bin[$k]['dir'] = true;
                         }
                         //if there is no text then it could be a wrong binary
                         //so we will remove it from the list
@@ -1829,5 +1813,9 @@ class OeawFunctions {
         
         return false;
     }
+    
+    
+    
+    
     
 }
