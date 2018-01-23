@@ -6,8 +6,6 @@ jq2(function( $ ) {
            "lengthMenu": [[20, 35, 50, -1], [20, 35, 50, "All"]]
         });
         
-        console.log()
-        
         jq2(".res-act-button-treeview.basic").click(function() {
             if($(this).attr('class') == "res-act-button res-act-button-reverse res-act-button-treeview tree"){
                 
