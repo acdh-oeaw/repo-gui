@@ -136,7 +136,7 @@ class OeawCustomSparql {
      * @param string $order
      * @return string
      */
-    public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "titleasc"): string{
+    public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "datedesc"): string{
 
         $wordsQuery = "";
         $query = "";

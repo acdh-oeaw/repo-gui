@@ -86,7 +86,7 @@ class OeawStorage {
      *
      * @return Array     
      */
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "titleasc" ): array {
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc" ): array {
 
         //Let's process the order argument
         switch ($order) {
@@ -103,7 +103,7 @@ class OeawStorage {
                 $order = "DESC(?availableDate)";
                 break;
             default:
-                $order = "ASC( fn:lower-case(str(?title)))";
+                $order = "DESC(?availableDate)";
         }
 
         if($offset < 0) { $offset = 0; }

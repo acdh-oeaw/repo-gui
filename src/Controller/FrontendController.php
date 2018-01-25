@@ -67,7 +67,7 @@ class FrontendController extends ControllerBase  {
      *
      * @return array
      */
-    public function roots_list(string $limit = "10", string $page = "1", string $order = "titleasc" ): array {
+    public function roots_list(string $limit = "10", string $page = "1", string $order = "datedesc" ): array {
         
         drupal_get_messages('error', TRUE);
         // get the root resources
@@ -89,17 +89,7 @@ class FrontendController extends ControllerBase  {
             $errorMSG = drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
         }
         $search = array();
-        //make the pagination data
-        //$search = $this->OeawFunctions->makePaginatonData($offset, $limit, (int)$countRes);
-        /*
-        if($page >= $countRes){
-            $page = $countRes - 1;
-            if($page < 0){ $page = 0; }
-        }*/
         
-        //get the current page for the pagination        
-        //$currentPage = $this->OeawFunctions->getCurrentPageForPagination();
-
         //create data for the pagination
         $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $countRes);
 		$pagination = "";
@@ -754,7 +744,7 @@ class FrontendController extends ControllerBase  {
      * @param string $page
      * @return array
      */
-    public function oeaw_complexsearch(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "titleasc" ):array {
+    public function oeaw_complexsearch(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "datedesc" ):array {
         drupal_get_messages('error', TRUE);
        
         if(empty($metavalue)){
