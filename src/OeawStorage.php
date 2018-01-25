@@ -109,43 +109,59 @@ class OeawStorage {
         if($offset < 0) { $offset = 0; }
         
         $getResult = array();
-        
+       
         try {
-            $q = new Query();
-            $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
-            $q->addParameter((new HasValue(RC::get("drupalRdfType"), RC::get('drupalCollection') ))->setSubVar('?uri'));
-            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?descriptions'), true);
-            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributors'), true);
-            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreatedDate'), '?creationdate'), true);
-            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasAvailableDate'), '?availableDate'), true);
-            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreationStartDate'), '?hasCreationStartDate'), true);
-            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreationEndDate'), '?hasCreationEndDate'), true);
-            $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
-            $q->addParameter(new HasTriple('?uri', RC::get('drupalHasTitleImage'), '?hasTitleImage'), true);
-            if($count == false){
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfType'), '?rdfType'));    
-            }
-
-            $q2 = new Query();
-            $q2->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?y'));
-            $q2->setJoinClause('filter not exists');
-            $q->addSubquery($q2);    
-      
-            if($count == false){
-                $q->setSelect(array('?uri', '?title',  '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate', 
-                    '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)', '(GROUP_CONCAT(DISTINCT ?contributors;separator=",") AS ?contributor)', '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)'));
-                $q->setOrderBy(array($order));
-                $q->setGroupBy(array('?uri', '?title', '?availableDate', '?isPartOf', '?image', '?hasTitleImage', '?hasCreationStartDate', '?hasCreationEndDate'));
-                $q->setLimit($limit);
-                $q->setOffset($offset);
-            }else {
-                $q->setSelect(array('(COUNT(DISTINCT ?uri) as ?count)'));
-                
-                $q->setOrderBy(array('?uri'));
-            }
             
-            $query = $q->getQuery();
+            $select = "";
+            $orderby = "";
+            $groupby = "";
+            $query2 ="";
+            $limitOffset = "";
 
+            $where = " WHERE { ";
+
+            $where .= "?uri <". RC::titleProp()."> ?title . ";
+            $where .= "?uri <".RC::get('drupalRdfType')."> <".RC::get('drupalCollection')."> . ";
+            $where .= "OPTIONAL { ?uri <".RC::get('drupalHasDescription')."> ?description .  } ";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasContributor')."> ?contributors . } ";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?avDate ."
+                            . " BIND( (CONCAT(STR(substr(?avDate, 0, 10)))) as ?availableDate) . } ";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationStartDate')."> ?hasCreationStartDate . } ";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationEndDate')."> ?hasCreationEndDate . } ";
+            $where .= "OPTIONAL {?uri <".RC::get('fedoraRelProp')."> ?isPartOf . } ";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage . } ";
+
+            if($count == false){
+                    $where .= "?uri <".RC::get('drupalRdfType')."> ?rdfType .  ";
+            }
+
+            $where .=" 
+                    filter not exists{ 
+                        SELECT  * WHERE {
+                            ?uri <https://vocabs.acdh.oeaw.ac.at/schema#isPartOf> ?y .
+                        }
+                    }
+                    ";
+
+            $where .= " } ";
+
+            if($count == false){
+                    $select = 'SELECT ?uri ?title ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate '
+                                    . '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) (GROUP_CONCAT(DISTINCT ?contributors;separator=",") AS ?contributor) '
+                                    . '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)';
+
+                    $groupby = " GROUP BY ?uri ?title ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ";
+                    $orderby = " ORDER BY ".$order." ";
+                    $limitOffset = "LIMIT ".$limit." OFFSET ".$offset." ";
+                    
+
+            }else {
+                    $select = " SELECT (COUNT(DISTINCT ?uri) as ?count) ";
+                    $orderby = ' order by ?uri ';
+            }
+
+            $query = $select.$where.$groupby.$orderby.$limitOffset;
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
                 $fields = $result->getFields();             
