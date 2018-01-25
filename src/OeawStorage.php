@@ -91,10 +91,10 @@ class OeawStorage {
         //Let's process the order argument
         switch ($order) {
             case "titleasc":
-                $order = "ASC( fn:lower-case(?title))";
+                $order = "ASC( fn:lower-case(str(?title)))";
                 break;
             case "titledesc":
-                $order = "DESC( fn:lower-case(?title))";
+                $order = "DESC( fn:lower-case(str(?title)))";
                 break;
             case "dateasc":
                 $order = "ASC(?availableDate)";
@@ -103,7 +103,7 @@ class OeawStorage {
                 $order = "DESC(?availableDate)";
                 break;
             default:
-                $order = "ASC( fn:lower-case(?title))";
+                $order = "ASC( fn:lower-case(str(?title)))";
         }
 
         if($offset < 0) { $offset = 0; }
@@ -111,7 +111,7 @@ class OeawStorage {
         $getResult = array();
        
         try {
-            
+            $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
             $select = "";
             $orderby = "";
             $groupby = "";
@@ -161,7 +161,7 @@ class OeawStorage {
                     $orderby = ' order by ?uri ';
             }
 
-            $query = $select.$where.$groupby.$orderby.$limitOffset;
+            $query = $prefix.$select.$where.$groupby.$orderby.$limitOffset;
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
                 $fields = $result->getFields();             
