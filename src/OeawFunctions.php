@@ -376,8 +376,10 @@ class OeawFunctions {
             return;
         }else {            
             $i = 0;
-            //check the rules            
+            //check the rules
             foreach($rules as $r){
+
+                /*
                 foreach($r->users as $u){
                     if($u == \acdhOeaw\fedora\acl\WebAclRule::PUBLIC_USER){
                         $ACL[$i]['username'] = "Public User";
@@ -399,6 +401,8 @@ class OeawFunctions {
                     }
                     $i++;
                 }
+                 * 
+                 */
             }
         }
         
@@ -420,6 +424,8 @@ class OeawFunctions {
         try{
             $aclObj = $fedoraRes->getAcl();
             $result = $aclObj->getRules();
+            
+            
         }catch (Exception $ex) {
             $msg = base64_encode('Error in function: '.__FUNCTION__);
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -1721,41 +1727,43 @@ class OeawFunctions {
                 }
             }
 
-            //create the binaries list for the view
-            $oeawCustSparql = new OeawCustomSparql();
-            $collBinSql = $oeawCustSparql->getCollectionBinaries($uri);
-          
-              if(!empty($collBinSql)){
-                $OeawStorage = new OeawStorage();
-                
-                $bin = $OeawStorage->runUserSparql($collBinSql);
-
-                if(count($bin) > 0){
-                    foreach($bin as $k => $v){
-                        if($v['binarySize']){
-                            $bin[$k]['formSize'] = $this->formatSizeUnits((string)$v['binarySize']);
-                        }
-                        
-                        if($v['uri']){
-                            $bin[$k]['encodedUri'] = base64_encode($v['uri']);
-                        }
-                        
-                        if(!empty($v['filename']) && $v['binarySize'] > 0){
-                            $bin[$k]['text'] = $v['filename']." | ".$bin[$k]['formSize'];
-                            $bin[$k]['dir'] = false;
-                            $bin[$k]['icon'] = "jstree-file";
-                        }else{
-                            $bin[$k]['text'] = $v['title'];
-                             $bin[$k]['dir'] = true;
-                        }
-                        //if there is no text then it could be a wrong binary
-                        //so we will remove it from the list
-                        if(empty($bin[$k]['text'])){
-                            unset($bin[$k]);
-                        }
+            $resData["uri"] = $uri;
+            
+            //check the cache
+            $cacheData = array();
+            $cache = new CollectionCache();
+            
+            if($cache->getCachedData($uri)){
+                $cacheData = $cache->getCachedData($uri);
+            }else{
+                $cacheData = $cache->setCacheData($uri);
+            }
+     
+            if(count($cacheData) > 0){
+                foreach($cacheData as $k => $v){
+                    if($v['binarySize']){
+                        $cacheData[$k]['formSize'] = $this->formatSizeUnits((string)$v['binarySize']);
                     }
-                    $resData['binaries'] = $bin;
+
+                    if($v['uri']){
+                        $cacheData[$k]['encodedUri'] = base64_encode($v['uri']);
+                    }
+
+                    if(!empty($v['filename']) && $v['binarySize'] > 0){
+                        $cacheData[$k]['text'] = $v['filename']." | ".$cacheData[$k]['formSize'];
+                        $cacheData[$k]['dir'] = false;
+                        $cacheData[$k]['icon'] = "jstree-file";
+                    }else{
+                        $cacheData[$k]['text'] = $v['title'];
+                         $cacheData[$k]['dir'] = true;
+                    }
+                    //if there is no text then it could be a wrong binary
+                    //so we will remove it from the list
+                    if(empty($cacheData[$k]['text'])){
+                        unset($cacheData[$k]);
+                    }
                 }
+                $resData['binaries'] = $cacheData;
             }
 
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
