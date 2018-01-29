@@ -5,10 +5,9 @@ jq2(function( $ ) {
        var table = jq2('table.display').DataTable({
            "lengthMenu": [[20, 35, 50, -1], [20, 35, 50, "All"]]
         });
-        
-        jq2(".res-act-button-treeview.basic").click(function() {
-            if($(this).attr('class') == "res-act-button res-act-button-reverse res-act-button-treeview tree"){
-                
+    
+        jq2(".res-act-button-treeview").click(function() {
+            if ($(this).hasClass('tree')) {
                 var url = jq2('#insideUri').val();
                 if(url){
                     jq2('#collectionBrowser')
@@ -29,7 +28,6 @@ jq2(function( $ ) {
                 }
             }
         });
-        
         
         //the JS for the inverse table
         jq2( "#showInverse" ).click(function() {
