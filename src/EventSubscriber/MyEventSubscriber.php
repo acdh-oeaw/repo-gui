@@ -27,6 +27,7 @@ class MyEventSubscriber implements EventSubscriberInterface {
             unset($_SERVER['HTTP_EPPN']);
         }
         
+        /*
         if ($event->getRequest()->getPathInfo() == '/user/login' ) {
             global $user;
             //the actual user id, if the user is logged in
@@ -56,7 +57,7 @@ class MyEventSubscriber implements EventSubscriberInterface {
                     }
                 }
             }
-        }
+        }*/
     }
 
     /**
