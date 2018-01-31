@@ -1235,7 +1235,6 @@ class FrontendController extends ControllerBase  {
      * @return string
      */
     public function oeaw_dl_collection_view(string $uri): array{
-        
         $errorMSG = "";
         $resData = array();
         $result = array();
@@ -1263,6 +1262,57 @@ class FrontendController extends ControllerBase  {
          
         return $result;
         
+    }
+    
+    
+    /**
+     * 
+     * Displaying the federated login with shibboleth
+     * 
+     * @return array
+     */
+    public function oeaw_shibboleth_login(): array{
+        $result = 
+            array(
+                '#theme' => 'oeaw_shibboleth_login'
+            );
+         
+        return $result;
+    }
+    
+    /**
+     * 
+     * Displaying the iiif viewer
+     * 
+     * @param string $uri
+     * @return array
+     */
+    public function oeaw_iiif_viewer(string $uri): array{
+        $errorMSG = "";
+        $resData = array();
+        if(empty($uri)){
+            $errorMSG = "There is no valid URL";
+        }
+        
+        $url = "";
+        $lorisUrl = "https://loris.minerva.arz.oeaw.ac.at/";
+        
+        //we need to read it from the config
+        $domain = "hephaistos:/rest/";
+        $resource = explode("/rest/", base64_decode($uri));
+        if($resource[1]){
+            $resData['imageUrl'] = $lorisUrl.$domain.$resource[1]."/info.json";
+        }
+        
+        $result = 
+            array(
+                '#theme' => 'oeaw_iiif_viewer',
+                '#url' => $uri,
+                '#templateData' => $resData,
+                '#errorMSG' =>  $errorMSG
+            );
+         
+        return $result;
     }
     
     /**

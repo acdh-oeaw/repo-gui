@@ -27,8 +27,8 @@ class MyEventSubscriber implements EventSubscriberInterface {
             unset($_SERVER['HTTP_EPPN']);
         }
         
-        /*
-        if ($event->getRequest()->getPathInfo() == '/user/login' ) {
+        
+        if ($event->getRequest()->getPathInfo() == '/federated_login' ) {
             global $user;
             //the actual user id, if the user is logged in
             $userid = \Drupal::currentUser()->id();
@@ -57,7 +57,7 @@ class MyEventSubscriber implements EventSubscriberInterface {
                     }
                 }
             }
-        }*/
+        }
     }
 
     /**

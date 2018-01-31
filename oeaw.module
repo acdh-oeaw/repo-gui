@@ -21,6 +21,16 @@ function oeaw_theme() {
     'template' => 'dl_collection_tree',
   ];
   
+  $theme['oeaw_shibboleth_login'] = [
+    'variables' => [],
+    'template' => 'shibboleth_login',
+  ];
+  
+  $theme['oeaw_iiif_viewer'] = [
+    'variables' => ['url' => NULL, 'errorMSG' => null, 'templateData' => null],
+    'template' => 'viewer_iiif',
+  ];
+  
   $theme['oeaw_root_dt'] = [
     'variables' => ['result' => NULL, 'header' => NULL, 'userid' => NULL, 'errorMSG' => null],
     'template' => 'dtRoot',
