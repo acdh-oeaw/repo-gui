@@ -1301,7 +1301,18 @@ class FrontendController extends ControllerBase  {
         $domain = "hephaistos:/rest/";
         $resource = explode("/rest/", base64_decode($uri));
         if($resource[1]){
+            
             $resData['imageUrl'] = $lorisUrl.$domain.$resource[1]."/info.json";
+            
+            $tRes = $this->OeawStorage->getResourceTitle(base64_decode($uri));
+            if($tRes[0]["title"]){
+                $resData['title'] = $tRes[0]["title"];
+            }
+            $resData['insideUri'] = $uri;
+        }
+
+        if(empty($resData)){
+            $errorMSG = "There is no valid Image!";
         }
         
         $result = 

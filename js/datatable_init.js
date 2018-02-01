@@ -5,9 +5,9 @@ jq2(function( $ ) {
        var table = jq2('table.display').DataTable({
            "lengthMenu": [[20, 35, 50, -1], [20, 35, 50, "All"]]
         });
-    
+        //handle the child tree view buttons and the data fetching
         jq2(".res-act-button-treeview").click(function() {
-            if ($(this).hasClass('tree')) {
+            if (jq2(this).hasClass('basic')) {
                 var url = jq2('#insideUri').val();
                 if(url){
                     jq2('#collectionBrowser')

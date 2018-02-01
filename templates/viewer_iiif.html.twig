@@ -1,0 +1,34 @@
+{% if  errorMSG %}
+    <span style="color:red; font-size: 20px; font-weight: bold;">{{ errorMSG }}</span>
+{% else %}    
+    
+    <div>
+        {%  if templateData['insideUri'] %}
+            <div>
+                <a href="/browser/oeaw_detail/{{ templateData['insideUri'] }}"><span>Back to the resource</span></a>
+                <br/><br/>
+            </div>
+        {% endif %}    
+        {%  if templateData['title'] %}
+            <h2>{{ templateData['title'] }} </h2>
+        {% endif %}
+    </div>
+        
+    <div id="iiif_viewer" style="width:700px; height:700px;"></div>
+    
+    <script src="/browser/modules/oeaw/js/iiif/openseadragon.js"></script>
+    
+    <script type="text/javascript">
+        var viewer = OpenSeadragon({
+            id: "iiif_viewer",
+            prefixUrl: "/browser/modules/oeaw/js/iiif/images/",
+            showNavigator: true,
+            sequenceMode: true,
+            navigatorPosition:   "BOTTOM_LEFT",
+            showRotationControl: true,
+            tileSources:   ["{{templateData['imageUrl']}}"],
+        });
+    </script>
+    
+{% endif %}
+
