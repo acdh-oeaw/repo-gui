@@ -1297,13 +1297,19 @@ class FrontendController extends ControllerBase  {
         $url = "";
         $lorisUrl = "https://loris.minerva.arz.oeaw.ac.at/";
         
-        //we need to read it from the config
-        $domain = "hephaistos:/rest/";
+        $domain = "";
+            
+        if (strpos(RC::get('fedoraApiUrl'), 'hephaistos') !== false) {
+            $domain = "hephaistos:/rest/";
+        }else if(strpos(RC::get('fedoraApiUrl'), 'minerva') !== false ) {
+            $domain = "minerva:/rest/";
+        }else{
+         $domain = "apollo:/rest/";   
+        }
+        
         $resource = explode("/rest/", base64_decode($uri));
         if($resource[1]){
-            
             $resData['imageUrl'] = $lorisUrl.$domain.$resource[1]."/info.json";
-            
             $tRes = $this->OeawStorage->getResourceTitle(base64_decode($uri));
             if($tRes[0]["title"]){
                 $resData['title'] = $tRes[0]["title"];
