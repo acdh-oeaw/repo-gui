@@ -1863,7 +1863,7 @@ class OeawFunctions {
             if($image == false){
                 $result['imageUrl'] = $lorisUrl.$domain.$resource[1]."/info.json";
             } else {
-                $result['imageUrl'] = $lorisUrl.$domain.$resource[1]."/full/full/0/default.jpg";
+                $result['imageUrl'] = $lorisUrl.$domain.$resource[1]."/full/500,/0/default.jpg";
             }
             $oeawStorage = new OeawStorage();
             $tRes = $oeawStorage->getResourceTitle(base64_decode($uri));
