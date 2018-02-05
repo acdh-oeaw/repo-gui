@@ -25,8 +25,7 @@ use Drupal\oeaw\OeawCustomSparql;
 
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
-//use acdhOeaw\util\EasyRdfUtil;
-//use zozlak\util\Config;
+use acdhOeaw\fedora\acl\WebAclRule as WAR;
 use acdhOeaw\util\RepoConfig as RC;
 use EasyRdf\Graph;
 use EasyRdf\Resource;
@@ -366,8 +365,7 @@ class OeawFunctions {
      * 
      */
     public function checkRules(array $rules): array{
-        $ACL = array();
-        
+        $rights = array();
         //check the rules
         if(count($rules) == 0){
             $msg = base64_encode("The Resource is private");
@@ -378,35 +376,27 @@ class OeawFunctions {
             $i = 0;
             //check the rules
             foreach($rules as $r){
-
-                /*
-                foreach($r->users as $u){
-                    if($u == \acdhOeaw\fedora\acl\WebAclRule::PUBLIC_USER){
-                        $ACL[$i]['username'] = "Public User";
-                        $ACL[$i]['user'] = base64_encode($u);
-                    }else {
-                        $ACL[$i]['username'] = $u;
-                        $ACL[$i]['user'] = base64_encode($u);
-                    }
-                    
-                    switch ($r->mode) {
-                        case 1:
-                            $ACL[$i]['mode'] = "READ";
-                            break;
-                        case 2:
-                            $ACL[$i]['mode'] = "WRITE";
-                            break;
-                        default:
-                            $ACL[$i]['mode'] = "NONE";
-                    }
-                    $i++;
+                if( $r->getRoles(\acdhOeaw\fedora\acl\WebAclRule::USER) ){
+                    $rights['username'] = "user";
                 }
-                 * 
-                 */
+                else if( $r->getRoles(\acdhOeaw\fedora\acl\WebAclRule::GROUP) ){
+                    $rights['username'] = "group";
+                }
+                
+                switch ($r->getMode(\acdhOeaw\fedora\acl\WebAclRule::WRITE)) {
+                    case 1:
+                        $rights['mode'][] = "READ"; 
+                        break;
+                    case 2:
+                        $rights['mode'][] = "WRITE";
+                        break;
+                    default:
+                        $rights['mode'][] = "NONE";
+                }
             }
         }
         
-        return $ACL;
+        return $rights;
     }
     
     /**
@@ -424,8 +414,9 @@ class OeawFunctions {
         try{
             $aclObj = $fedoraRes->getAcl();
             $result = $aclObj->getRules();
-            
-            
+
+            //var_dump($aclObj->getMode(WAR::USER));
+            //PUBLIC_USER
         }catch (Exception $ex) {
             $msg = base64_encode('Error in function: '.__FUNCTION__);
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -1289,7 +1280,6 @@ class OeawFunctions {
                     
                     //simply check the acdh:hasTitleImage for the root resources too.
                     if($p == RC::get('drupalHasTitleImage')){
-                        
                         $imgUrl = "";
                         $imgUrl = $OeawStorage->getImageByIdentifier($val->getUri());
                         if($imgUrl){
@@ -1312,7 +1302,16 @@ class OeawFunctions {
                     
                     //we dont have the image yet but we have a MIME
                     if( ($p == RC::get('drupalEbucoreHasMime')) && (!isset($result['image'])) && (strpos($val, 'image') !== false) ) {
-                        $result['image'] = $resourceUri;
+                        //if we have image/tiff then we need to use the loris
+                        if($val == "image/tiff"){
+                            $lorisImg = array();
+                            $lorisImg = $this->generateLorisUrl(base64_encode($resourceUri), true);
+                            if(count($lorisImg) > 0){
+                                $result['image'] = $lorisImg['imageUrl'];
+                            }
+                        }else {
+                            $result['image'] = $resourceUri;
+                        }
                     }
                     if( $p == RC::get('fedoraExtentProp') ) {
                         if($val->getValue()){
@@ -1545,6 +1544,16 @@ class OeawFunctions {
         return $bytes;
     }
 
+    
+    
+    function checkMultiDimArrayForValue($needle, $haystack, $strict = false) {
+        foreach ($haystack as $item) {
+            if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && $this->checkMultiDimArrayForValue($needle, $item, $strict))) {
+                return true;
+            }
+        }
+        return false;
+    }
     
     function in_array_r(string $needle, array $haystack, bool $strict = false, array &$keys): bool {
         foreach ($haystack as $key => $item) {
@@ -1822,6 +1831,51 @@ class OeawFunctions {
         return false;
     }
     
+    /**
+     * Generate Loris Url and data for the IIIF Viwer and for the detail view
+     * 
+     * @param string $uri - base64 encoded fedora rest uri
+     * @param bool $image
+     * @return array
+     */
+    public function generateLorisUrl(string $uri, bool $image = false): array{
+        
+        $result = array();
+        if(!$uri){
+            return $result; 
+        }
+        
+        $url = "";
+        $lorisUrl = "https://loris.minerva.arz.oeaw.ac.at/";
+        $domain = "";
+        //check which instance we are using
+        if (strpos(RC::get('fedoraApiUrl'), 'hephaistos') !== false) {
+            $domain = "hephaistos:/rest/";
+        }else if(strpos(RC::get('fedoraApiUrl'), 'minerva') !== false ) {
+            $domain = "minerva:/rest/";
+        }else{
+         $domain = "apollo:/rest/";   
+        }
+        
+        $resource = explode("/rest/", base64_decode($uri));
+        
+        if(isset($resource[1]) && !empty($resource[1])){
+            if($image == false){
+                $result['imageUrl'] = $lorisUrl.$domain.$resource[1]."/info.json";
+            } else {
+                $result['imageUrl'] = $lorisUrl.$domain.$resource[1]."/full/full/0/default.jpg";
+            }
+            $oeawStorage = new OeawStorage();
+            $tRes = $oeawStorage->getResourceTitle(base64_decode($uri));
+            if($tRes[0]["title"]){
+                $result['title'] = $tRes[0]["title"];
+            }
+            $result['insideUri'] = $uri;
+        }
+        
+        return $result;
+
+    }
     
     
     

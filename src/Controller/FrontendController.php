@@ -455,22 +455,27 @@ class FrontendController extends ControllerBase  {
             return;
         }
         
-        if(count($rootMeta) > 0){
+        $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
             
-            /*
-            $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
-            
-            if(count($rules) <= 0){
-                $msg = base64_encode("The Resource Rules are not reachable!");
-                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-                $response->send();
-                return;
-            }
+        if(count($rules) <= 0){
+            $msg = base64_encode("The Resource Rules are not reachable!");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }
         
-            $ACL = $this->OeawFunctions->checkRules($rules);
-            $results['ACL'] = $ACL;
-        */    
+        $ACL = $this->OeawFunctions->checkRules($rules);
+        
+        if(count($ACL) == 0 || $this->OeawFunctions->checkMultiDimArrayForValue('NONE', $ACL) == true){
+            $msg = base64_encode("You have no rights to check the Resource!");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }
+    
+        if(count($rootMeta) > 0){
             $results = array();
+            
             //get the root table data
             $results = $this->OeawFunctions->createDetailViewTable($rootMeta);
             
@@ -480,7 +485,8 @@ class FrontendController extends ControllerBase  {
                 $response->send();
                 return;            
             }  
-
+            
+            $results['ACL'] = $ACL;
             //check the acdh:hasIdentifier data to the child view
             $identifiers = array();
             if(count($results['table']['acdh:hasIdentifier']) > 0){
@@ -715,8 +721,7 @@ class FrontendController extends ControllerBase  {
         if(isset($results['acdh_rdf:type']) && $results['acdh_rdf:type']['title'] == "Collection"  ){
             $this->oeaw_dl_collection(base64_encode($uri));
         }*/
-        
-        
+     
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $results,
@@ -1294,30 +1299,10 @@ class FrontendController extends ControllerBase  {
             $errorMSG = "There is no valid URL";
         }
         
-        $url = "";
-        $lorisUrl = "https://loris.minerva.arz.oeaw.ac.at/";
+        //loris url generating fucntion
+        $resData = $this->OeawFunctions->generateLorisUrl($uri);
         
-        $domain = "";
-            
-        if (strpos(RC::get('fedoraApiUrl'), 'hephaistos') !== false) {
-            $domain = "hephaistos:/rest/";
-        }else if(strpos(RC::get('fedoraApiUrl'), 'minerva') !== false ) {
-            $domain = "minerva:/rest/";
-        }else{
-         $domain = "apollo:/rest/";   
-        }
-        
-        $resource = explode("/rest/", base64_decode($uri));
-        if($resource[1]){
-            $resData['imageUrl'] = $lorisUrl.$domain.$resource[1]."/info.json";
-            $tRes = $this->OeawStorage->getResourceTitle(base64_decode($uri));
-            if($tRes[0]["title"]){
-                $resData['title'] = $tRes[0]["title"];
-            }
-            $resData['insideUri'] = $uri;
-        }
-
-        if(empty($resData)){
+        if( count($resData) == 0){
             $errorMSG = "There is no valid Image!";
         }
         
