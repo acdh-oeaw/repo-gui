@@ -454,39 +454,31 @@ class FrontendController extends ControllerBase  {
             $response->send();
             return;
         }
-        
+        //get the actual resource rules
         $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
-            
+        /*
         if(count($rules) <= 0){
             $msg = base64_encode("The Resource Rules are not reachable!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
         }
-        
-        $ACL = $this->OeawFunctions->checkRules($rules);
-        
-        if(count($ACL) == 0 || $this->OeawFunctions->checkMultiDimArrayForValue('NONE', $ACL) == true){
-            $msg = base64_encode("You have no rights to check the Resource!");
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-            return;
-        }
-    
+        */
         if(count($rootMeta) > 0){
             $results = array();
             
             //get the root table data
             $results = $this->OeawFunctions->createDetailViewTable($rootMeta);
             
-            if(count($results) == 0){                
+            if(count($results) == 0){
                 $msg = base64_encode("The resource has no metadata!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
-                return;            
-            }  
+                return;
+            }
             
-            $results['ACL'] = $ACL;
+            //$results['ACL'] = $this->OeawFunctions->checkRules($rules);
+            
             //check the acdh:hasIdentifier data to the child view
             $identifiers = array();
             if(count($results['table']['acdh:hasIdentifier']) > 0){
@@ -494,7 +486,7 @@ class FrontendController extends ControllerBase  {
                     $identifiers[] = $i['uri'];
                 }
             }
-
+            
             if(count($identifiers) > 0){
                 $typeProperties = array();
                 
