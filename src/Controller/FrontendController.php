@@ -618,7 +618,7 @@ class FrontendController extends ControllerBase  {
         }
         */
      
-        $dissServices =array();
+        $dissServices = array();
         //check the Dissemination services
         $dissServices = $this->OeawFunctions->getResourceDissServ($fedoraRes);
         
@@ -633,6 +633,7 @@ class FrontendController extends ControllerBase  {
             $extras['inverseData'] = $inverseData;
         }
         
+        //format the hasavailable date
         if(isset($results["table"]["acdh:hasAvailableDate"]) && !empty($results["table"]["acdh:hasAvailableDate"])){
             if($results["table"]["acdh:hasAvailableDate"][0]){
                 if (\DateTime::createFromFormat('Y-m-d', $results["table"]["acdh:hasAvailableDate"][0]) !== FALSE) {
@@ -647,45 +648,12 @@ class FrontendController extends ControllerBase  {
                 }
             }
         }
-        /* Get hasPid & create copy link
-         * Order of desired URIs:
-         * PID > id.acdh > id.acdh/uuid > long gui url
-         */
-        if (isset($results["table"]["acdh:hasPid"])) {
-            if (isset($results["table"]["acdh:hasPid"][0]['uri'])) {
-                $extras["niceURI"] = $results["table"]["acdh:hasPid"][0]['uri'];
-            }
-        }
-        if (!isset($extras["niceURI"])) {
-            if (isset($results["table"]["acdh:hasIdentifier"]) && !empty($results["table"]["acdh:hasIdentifier"]) ){
-                $acdhURIs = $results["table"]["acdh:hasIdentifier"];
-                //Only one value under acdh:hasIdentifier
-                if (isset($acdhURIs["uri"])) {
-                    //id.acdh/uuid
-                    if (strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
-                        $extras["niceURI"] = $acdhURIs["uri"];
-                    }
-                    //id.acdh
-                    if (!isset($extras["niceURI"]) && strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at') !== false) {
-                        $extras["niceURI"] = $acdhURIs["uri"];
-                    }
-                }
-                //Multiple values under acdh:hasIdentifier
-                else {
-                    foreach ($acdhURIs as $key => $acdhURI) {
-                        if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
-                            $acdhURIuuid = $acdhURI["uri"];
-                        } else if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at') !== false) {
-                            $acdhURIidacdh = $acdhURI["uri"];
-                        }
-                    }
-                    if (isset($acdhURIidacdh)) {
-                        $extras["niceURI"] = $acdhURIidacdh;
-                    } else if (isset($acdhURIuuid)) {
-                        $extras["niceURI"] = $acdhURIuuid;
-                    }
-                }
-            }
+        
+        //generate the NiceUri to the detail View
+        $niceUri = "";
+        $niceUri = $this->OeawFunctions->generateNiceUri($results);
+        if(!empty($niceUri)){
+            $extras["niceURI"] = $niceUri;
         }
 
         //Create data for cite-this widget

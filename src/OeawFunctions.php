@@ -365,6 +365,7 @@ class OeawFunctions {
      * 
      */
     public function checkRules(array $rules): array{
+        
         $rights = array();
         //check the rules
         if(count($rules) == 0){
@@ -372,7 +373,7 @@ class OeawFunctions {
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
-        }else {            
+        }else {
             $i = 0;
             //check the rules
             foreach($rules as $r){
@@ -396,6 +397,12 @@ class OeawFunctions {
             }
         }
         
+        if(count($rights) == 0 || $this->checkMultiDimArrayForValue('NONE', $rights) == true){
+            $msg = base64_encode("You have no rights to check the Resource!");
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+            return;
+        }
         return $rights;
     }
     
@@ -1817,7 +1824,14 @@ class OeawFunctions {
         return array($indexed[$root]);
     }
     
-    
+    /**
+     * 
+     * Check the array if there is a string inside it
+     * 
+     * @param array $data
+     * @param string $str
+     * @return bool
+     */
     public function checkArrayForValue(array $data, string $str):bool {
         
         if(count($data) > 0){
@@ -1875,6 +1889,61 @@ class OeawFunctions {
         
         return $result;
 
+    }
+    
+    /**
+     * 
+     * Get hasPid & create copy link
+     * Order of desired URIs:
+     * PID > id.acdh > id.acdh/uuid > long gui url
+     * 
+     * 
+     * @param array $results
+     * @return string
+     */
+    public function generateNiceUri(array $results): string {
+        
+        $niceURI = "";
+        
+        if (isset($results["table"]["acdh:hasPid"])) {
+            if (isset($results["table"]["acdh:hasPid"][0]['uri'])) {
+                $niceURI = $results["table"]["acdh:hasPid"][0]['uri'];
+            }
+        }
+        
+        if (empty($niceURI)) {
+            if (isset($results["table"]["acdh:hasIdentifier"]) && !empty($results["table"]["acdh:hasIdentifier"]) ){
+                $acdhURIs = $results["table"]["acdh:hasIdentifier"];
+                //Only one value under acdh:hasIdentifier
+                if (isset($acdhURIs["uri"])) {
+                    //id.acdh/uuid
+                    if (strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
+                        $niceURI = $acdhURIs["uri"];
+                    }
+                    //id.acdh
+                    if (!isset($extras["niceURI"]) && strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at') !== false) {
+                       $niceURI = $acdhURIs["uri"];
+                    }
+                }
+                //Multiple values under acdh:hasIdentifier
+                else {
+                    foreach ($acdhURIs as $key => $acdhURI) {
+                        if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
+                            $acdhURIuuid = $acdhURI["uri"];
+                        } else if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at') !== false) {
+                            $acdhURIidacdh = $acdhURI["uri"];
+                        }
+                    }
+                    if (isset($acdhURIidacdh)) {
+                        $niceURI = $acdhURIidacdh;
+                    } else if (isset($acdhURIuuid)) {
+                        $niceURI = $acdhURIuuid;
+                    }
+                }
+            }
+        }
+        
+        return $niceURI;
     }
     
     
