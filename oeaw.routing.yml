@@ -231,3 +231,5 @@ oeaw_shibboleth_login:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_shibboleth_login'
     requirements:
         _access: 'TRUE'
+        _permission: 'access content'
+        
