@@ -13,7 +13,6 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 // We'll use this to perform a redirect if necessary.
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Drupal\Core\Routing\TrustedRedirectResponse;
 
 
 class MyEventSubscriber implements EventSubscriberInterface {
@@ -23,13 +22,9 @@ class MyEventSubscriber implements EventSubscriberInterface {
 
     public function checkForShibboleth(GetResponseEvent $event) {    
         
-        if ( ($event->getRequest()->getPathInfo() == '/user/logout') &&  (\Drupal::currentUser()->getUsername() == "shibboleth") ) {
+        if ($event->getRequest()->getPathInfo() == '/user/logout' ) {
             unset($_SERVER['HTTP_AUTHORIZATION']);
             unset($_SERVER['HTTP_EPPN']);
-            $host = \Drupal::request()->getSchemeAndHttpHost();
-            $userid = \Drupal::currentUser()->id();
-            \Drupal::service('session_manager')->delete($userid);
-            $event->setResponse(new TrustedRedirectResponse($host."/Shibboleth.sso/Logout"));
         }
         
         
