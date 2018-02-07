@@ -410,6 +410,7 @@ class FrontendController extends ControllerBase  {
      * @return array
      */
     public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "1"): array {
+        
         drupal_get_messages('error', TRUE);
 
         //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
@@ -428,12 +429,12 @@ class FrontendController extends ControllerBase  {
         $uri = base64_decode($uri);        
         $hasBinary = "";  
         $inverseData = array();
-        $specialType = "child";
+        
         $childResult = array();
         $rules = array();
         $ACL = array();
         $childrenData = array();
-        $countData = array();
+        
         
         $fedora = $this->OeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
@@ -455,7 +456,9 @@ class FrontendController extends ControllerBase  {
             return;
         }
         //get the actual resource rules
-        $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
+        //$rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
+        
+        
         /*
         if(count($rules) <= 0){
             $msg = base64_encode("The Resource Rules are not reachable!");
@@ -488,118 +491,28 @@ class FrontendController extends ControllerBase  {
             }
             
             if(count($identifiers) > 0){
-                $typeProperties = array();
+                //set up the necessary properties for the child data generation
+                $properties = array();
+                $properties = array("limit" => $limit, "page" => $page, "uri" => $uri);
                 
-                $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
-                //we checks if the acdh:Person is available then we will get the Person Detail view data
-                if(isset($results['table']['rdf:type'])){
-                    foreach($results['table']['rdf:type'] as $rt){
-                        if((isset($rt['uri'])) && 
-                                (strpos($rt['uri'], RC::get('drupalPerson')) !== false)){
-                            $specialType = "person";
-                            $typeProperties = array(RC::get('drupalHasContributor'));
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, $typeProperties);
-                        }
-                        //is it a concept or not
-                        else if((isset($rt['uri'])) && 
-                                ( (strpos($rt['uri'], RC::get('drupalConcept')) !== false) 
-                                || 
-                                (strpos($rt['uri'], RC::get('drupalSkosConcept')) !== false) ) 
-                            ){
-                            $specialType = "concept";
-                            $typeProperties = array(RC::get('drupalSkosNarrower'));
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, $typeProperties);
-                        }
-                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalProject') ) !== false)) {
-                            $specialType = "project";
-                            $typeProperties = array(RC::get('drupalRelatedProject'));
-                            $countData = $this->OeawStorage->getChildResourcesByProperty($uri, $limit, $page, true, $typeProperties);
-                        }
-                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalInstitute')) !== false)) {
-                            $specialType = "institute";
-                            $typeProperties = array(RC::get('drupalHasMember'));
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, $typeProperties);
-                        }
-                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('fedoraOrganisationClass')) !== false) ){
-                            $specialType = "organisation";
-                            $typeProperties = array(
-                                RC::get('drupalHasContributor'), 
-                                RC::get('drupalHasFunder'), 
-                                RC::get('fedoraHostingProp'), 
-                                RC::get('drupalHasOwner'), 
-                                RC::get('drupalHasLicensor'), 
-                                RC::get('drupalHasRightsholder')
-                                );
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, $typeProperties);
-                        }
-                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPlace')) !== false) ){
-                            $specialType = "place";
-                            $typeProperties = array(RC::get('drupalHasSpatialCoverage'));
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, $typeProperties);
-                        }
-                        else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPublication')) !== false) ){
-                            $specialType = "publication";
-                            $typeProperties = array(
-                                RC::get('drupalHasDerivedPublication'), 
-                                RC::get('drupalHasSource'), 
-                                RC::get('drupalHasReferencedBy'));
-                            $countData = $this->OeawStorage->getSpecialDetailViewData($uri, $limit, $page, true, $typeProperties);
-                        }
-                        
-                        if(count($countData) <= 0) {
-                            $countData = $this->OeawStorage->getChildrenViewData($identifiers, $limit, $page, true);   
-                        }
+                $childArray = array();
+                $childArray = $this->OeawFunctions->generateChildViewData($identifiers, $results, $properties);
+               
+                if(count($childArray) > 0){
+                    if(isset($childArray['specialType'])){
+                        $extras["childType"] = $childArray['specialType'];
                     }
+                    
+                    if(count($childArray['childResult']) > 0){
+                        $childResult = $childArray['childResult'];
+                    }
+                    
+                    if(isset($childArray['pagination'])){
+                        $results["pagination"] = $childArray['pagination'];
+                    }
+                    
                 }
                 
-                $total = (int)count($countData);
-                
-                if($limit == "0") { $pagelimit = "10"; } else { $pagelimit = $limit; }
-                
-                //create data for the pagination                
-                $pageData = $this->OeawFunctions->createPaginationData($pagelimit, (int)$page, $total);
-                
-                if ($pageData['totalPages'] > 1) {
-                    $results['pagination'] =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $pagelimit);
-                }
-                
-                switch ($specialType) {
-                    case "person":
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, $typeProperties);
-                        $results['personData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "person");
-                        break;
-                    case "concept":
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, $typeProperties);
-                        break;
-                    case "project":
-                        //getChildResourcesByProperty
-                        $childrenData = $this->OeawStorage->getChildResourcesByProperty($uri, $pagelimit, $pageData['end'], false, $typeProperties);
-                        $results['projectData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "project"); 
-                        break;
-                    case "institute":
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, $typeProperties);
-                        break;
-                    case "organisation":
-                        $results['organisationData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "organisation");
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, $typeProperties);
-                        break;
-                    case "place":
-                        $results['placeData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "place");
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, $typeProperties);
-                        break;
-                    case "publication":
-                        $results['publicationData'] = $this->OeawFunctions->createCustomDetailViewTemplateData($results, "publication");
-                        $childrenData = $this->OeawStorage->getSpecialDetailViewData($uri, $pagelimit, $pageData['end'], false, $typeProperties);
-                        break;
-                    default:
-                        //there is no special children view, so we are using the the default children table
-                        $childrenData = $this->OeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
-                }       
-                
-                //we have children data so we will generate the view for it
-                if(count($childrenData) > 0){
-                    $childResult = $this->OeawFunctions->createChildrenViewData($childrenData);
-                }
             }
             
         } else {
@@ -628,7 +541,7 @@ class FrontendController extends ControllerBase  {
         
         // Pass fedora uri so it can be linked in the template
         $extras["fedoraURI"] = $uri;
-        $extras["childType"] = $specialType;
+        
         if(count($inverseData) > 0){
             $extras['inverseData'] = $inverseData;
         }
@@ -708,7 +621,7 @@ class FrontendController extends ControllerBase  {
      * @param string $limit
      * @param string $page
      * @return array
-     */
+    */
     public function oeaw_complexsearch(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "datedesc" ):array {
         drupal_get_messages('error', TRUE);
        

@@ -1946,6 +1946,145 @@ class OeawFunctions {
         return $niceURI;
     }
     
+    /**
+     * 
+     * generate the resource child data and some pagination data also
+     * 
+     * @param array $identifiers - Resource acdh:hasIdentifier
+     * @param array $data - Resource metadata
+     * @param array $properties - actual uri and for pagination: limit, page 
+     * @return array with children array, type and currentpage
+     * 
+     */
+    public function generateChildViewData(array $identifiers, array $data, array $properties): array{
+        
+        $result = array();
+        
+        if( (count($identifiers) == 0 ) || (count($data) == 0 ) || (count($properties) == 0) ){
+            return $result;
+        }
+        
+        $countData = array();
+        $typeProperties = array();
+        $oeawStorage = new OeawStorage();
+        $specialType = "child";
+        $currentPage = $this->getCurrentPageForPagination();
+        //we checks if the acdh:Person is available then we will get the Person Detail view data
+        if(isset($data['table']['rdf:type'])){
+            foreach($data['table']['rdf:type'] as $rt){
+                if((isset($rt['uri'])) && 
+                        (strpos($rt['uri'], RC::get('drupalPerson')) !== false)){
+                    $specialType = "person";
+                    $typeProperties = array(RC::get('drupalHasContributor'));
+                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                }
+                //is it a concept or not
+                else if((isset($rt['uri'])) && 
+                        ( (strpos($rt['uri'], RC::get('drupalConcept')) !== false) 
+                        || 
+                        (strpos($rt['uri'], RC::get('drupalSkosConcept')) !== false) ) 
+                    ){
+                    $specialType = "concept";
+                    $typeProperties = array(RC::get('drupalSkosNarrower'));
+                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                }
+                else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalProject') ) !== false)) {
+                    $specialType = "project";
+                    $typeProperties = array(RC::get('drupalRelatedProject'));
+                    $countData = $oeawStorage->getChildResourcesByProperty($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                }
+                else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalInstitute')) !== false)) {
+                    $specialType = "institute";
+                    $typeProperties = array(RC::get('drupalHasMember'));
+                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                }
+                else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('fedoraOrganisationClass')) !== false) ){
+                    $specialType = "organisation";
+                    $typeProperties = array(
+                        RC::get('drupalHasContributor'), 
+                        RC::get('drupalHasFunder'), 
+                        RC::get('fedoraHostingProp'), 
+                        RC::get('drupalHasOwner'), 
+                        RC::get('drupalHasLicensor'), 
+                        RC::get('drupalHasRightsholder')
+                        );
+                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                }
+                else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPlace')) !== false) ){
+                    $specialType = "place";
+                    $typeProperties = array(RC::get('drupalHasSpatialCoverage'));
+                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                }
+                else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPublication')) !== false) ){
+                    $specialType = "publication";
+                    $typeProperties = array(
+                        RC::get('drupalHasDerivedPublication'), 
+                        RC::get('drupalHasSource'), 
+                        RC::get('drupalHasReferencedBy'));
+                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                }
+
+                if(count($countData) <= 0) {
+                    $countData = $oeawStorage->getChildrenViewData($identifiers, $properties['limit'], $properties['page'], true);   
+                }
+            }
+        }
+
+        $total = (int)count($countData);
+
+        if($properties['limit'] == "0") { $pagelimit = "10"; } else { $pagelimit = $properties['limit']; }
+
+        //create data for the pagination                
+        $pageData = $this->createPaginationData($pagelimit, (int)$properties['page'], $total);
+
+        if ($pageData['totalPages'] > 1) {
+            $result["pagination"] = $data['pagination'] =  $this->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $pagelimit);
+        }
+
+        switch ($specialType) {
+            case "person":
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                $result["specialType"][] = $data['personData'] = $this->createCustomDetailViewTemplateData($results, "person");
+                break;
+            case "concept":
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                break;
+            case "project":
+                //getChildResourcesByProperty
+                $childrenData = $oeawStorage->getChildResourcesByProperty($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                $result["specialType"][] = $data['projectData'] = $this->createCustomDetailViewTemplateData($results, "project"); 
+                break;
+            case "institute":
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                break;
+            case "organisation":
+                $result["specialType"][] = $data['organisationData'] = $this->createCustomDetailViewTemplateData($results, "organisation");
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                break;
+            case "place":
+                $result["specialType"][] = $data['placeData'] = $this->createCustomDetailViewTemplateData($results, "place");
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                break;
+            case "publication":
+                $result["specialType"][] = $data['publicationData'] = $this->createCustomDetailViewTemplateData($results, "publication");
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                break;
+            default:
+                //there is no special children view, so we are using the the default children table
+                $childrenData = $oeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
+        }       
+
+        //we have children data so we will generate the view for it
+        if(count($childrenData) > 0){
+            $result["childResult"] = $data['childResult'] = $this->createChildrenViewData($childrenData);
+        }
+        
+        $result["currentPage"] = $currentPage;
+        $result["specialType"] = $specialType;
+        
+        return $result;
+        
+    }
     
     
     
