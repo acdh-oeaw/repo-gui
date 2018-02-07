@@ -438,7 +438,7 @@ class FrontendController extends ControllerBase  {
         
         $fedora = $this->OeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
-        
+       
         $fedoraRes = array();
         
         try{
@@ -456,17 +456,15 @@ class FrontendController extends ControllerBase  {
             return;
         }
         //get the actual resource rules
-        //$rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
+        $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
         
-        
-        /*
-        if(count($rules) <= 0){
+        if(count($rules) == 0){
             $msg = base64_encode("The Resource Rules are not reachable!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return;
         }
-        */
+        
         if(count($rootMeta) > 0){
             $results = array();
             
@@ -480,7 +478,7 @@ class FrontendController extends ControllerBase  {
                 return;
             }
             
-            //$results['ACL'] = $this->OeawFunctions->checkRules($rules);
+            $results['ACL'] = $this->OeawFunctions->checkRules($rules);
             
             //check the acdh:hasIdentifier data to the child view
             $identifiers = array();
@@ -503,7 +501,7 @@ class FrontendController extends ControllerBase  {
                         $extras["childType"] = $childArray['specialType'];
                     }
                     
-                    if(count($childArray['childResult']) > 0){
+                    if(isset($childArray['childResult']) && count($childArray['childResult']) > 0){
                         $childResult = $childArray['childResult'];
                     }
                     

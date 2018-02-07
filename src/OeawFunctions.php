@@ -367,12 +367,11 @@ class OeawFunctions {
     public function checkRules(array $rules): array{
         
         $rights = array();
-        //check the rules
+        //if we dont have rights then we have some error in the fedora db, so we 
+        // will automatically adding the READ rights for the resource
         if(count($rules) == 0){
-            $msg = base64_encode("The Resource is private");
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-            return;
+            $rights['username'] = "user";
+            $rights['mode'][] = "READ";
         }else {
             $i = 0;
             //check the rules
@@ -385,10 +384,10 @@ class OeawFunctions {
                 }
                 
                 switch ($r->getMode(\acdhOeaw\fedora\acl\WebAclRule::WRITE)) {
-                    case 1:
+                    case \acdhOeaw\fedora\acl\WebAclRule::READ :
                         $rights['mode'][] = "READ"; 
                         break;
-                    case 2:
+                    case \acdhOeaw\fedora\acl\WebAclRule::WRITE :
                         $rights['mode'][] = "WRITE";
                         break;
                     default:
