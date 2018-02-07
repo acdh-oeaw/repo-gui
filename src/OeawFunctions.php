@@ -702,6 +702,40 @@ class OeawFunctions {
     }
     
 
+    /**
+     * 
+     * Get the necessary data for the CITE Widget based on the properties
+     * 
+     * @param array $data - resource data array
+     * @param string $property - shortcur property - f.e.: acdh:hasCreator
+     * @return string - a string with the available data
+     */
+    private function getCiteWidgetData(array $data, string $property): string{
+        
+        $result = "";
+        
+        if(count($data) > 0){
+            if (isset($data["table"][$property])) {
+                foreach ($data["table"][$property] as $key => $val) {
+                    if ($key > 0) {
+                        if(isset($val["title"])){
+                            $result .= ", " . $val["title"];
+                        }else{
+                            $result .= ", " . $val;
+                        }
+                    } else {
+                        if(isset($val["title"])){
+                            $result = $val["title"];
+                        }else{
+                            $result = $val;
+                        }
+                    }
+                }
+            }
+        }
+        
+        return $result;
+    }
     
     /**
      * 
@@ -721,63 +755,24 @@ class OeawFunctions {
         $widget["MLA"] = ["authors" => "", "creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => "", "hasHosting" => "", "hasEditor" => "", "accesedDate" => "", "acdhURI" => ""];
 
         //Get authors(s)
-        if (isset($resourceData["table"]["acdh:hasAuthor"])) {
-            foreach ($resourceData["table"]["acdh:hasAuthor"] as $key => $author) {
-                if ($key > 0) {
-                    if(isset($author["title"])){
-                        $widget["MLA"]["authors"] .= ", " . $author["title"];
-                    }else{
-                        $widget["MLA"]["authors"] .= ", " . $author;
-                    }
-
-                } else {
-                    if(isset($author["title"])){
-                        $widget["MLA"]["authors"] = $author["title"];
-                    }else{
-                        $widget["MLA"]["authors"] = $author;
-                    }
-                }			
-            }
+        $authors = "";
+        $authors = $this->getCiteWidgetData($resourceData, "acdh:hasAuthor");
+        if(!empty($authors) ){
+            echo $widget["MLA"]["authors"] = $authors;
         }
-
+        
         //Get creator(s)
-        if (isset($resourceData["table"]["acdh:hasCreator"])) {
-            foreach ($resourceData["table"]["acdh:hasCreator"] as $key => $creator) {
-                if ($key > 0) {
-                    if(isset($creator["title"])){
-                        $widget["MLA"]["creators"] .= ", " . $creator["title"];
-                    }else{
-                        $widget["MLA"]["creators"] .= ", " . $creator;
-                    }
-
-                } else {
-                    if(isset($creator["title"])){
-                        $widget["MLA"]["creators"] = $creator["title"];
-                    }else{
-                        $widget["MLA"]["creators"] = $creator;
-                    }
-                }			
-            }
+        $creators = "";
+        $creators = $this->getCiteWidgetData($resourceData, "acdh:hasCreator");
+        if(!empty($creators) ){
+            echo $widget["MLA"]["creators"] = $creators;
         }
-
+        
         //Get contributor(s) 
-        if (isset($resourceData["table"]["acdh:hasContributor"])) {
-            foreach ($resourceData["table"]["acdh:hasContributor"] as $key => $contributor) {			
-                if ($key > 0) {
-                    if(isset($contributor["title"])){
-                        $widget["MLA"]["contributors"] .= ", " . $contributor["title"];
-                    }else{
-                        $widget["MLA"]["contributors"] .= ", " . $contributor;
-                    }
-                } else {
-                    if(isset($contributor["title"])){
-                        $widget["MLA"]["contributors"] = $contributor["title"];
-                    }else{
-                        $widget["MLA"]["contributors"] = $contributor;
-                    }
-                        
-                }			
-            }
+        $contributors = "";
+        $contributors = $this->getCiteWidgetData($resourceData, "acdh:hasContributor");
+        if(!empty($creators) ){
+            echo $widget["MLA"]["contributors"] = $contributors;
         }
 
         //Get title
@@ -854,26 +849,26 @@ class OeawFunctions {
         //Top level resource
         //if (!$widget["MLA"]["isPartOf"]) {
 
-            $widget["MLA"]["string"] = "";
-            //AUTHORS
-            if ($widget["MLA"]["authors"]) { $widget["MLA"]["string"] .= $widget["MLA"]["authors"].'. '; }
-            else if ($widget["MLA"]["creators"]) { $widget["MLA"]["string"] .= $widget["MLA"]["creators"].'. '; }
-            else if ($widget["MLA"]["contributors"]) { $widget["MLA"]["string"] .= $widget["MLA"]["contributors"].'. '; }
-            
-            //TITLE
-            if ($widget["MLA"]["title"]) { $widget["MLA"]["string"] .= '<em>'.$widget["MLA"]["title"].'.</em> '; }
-            
-            //PUBLISHER
-            if ($widget["MLA"]["hasHosting"]) { $widget["MLA"]["string"] .= $widget["MLA"]["hasHosting"].', '; }
+        $widget["MLA"]["string"] = "";
+        //AUTHORS
+        if ($widget["MLA"]["authors"]) { $widget["MLA"]["string"] .= $widget["MLA"]["authors"].'. '; }
+        else if ($widget["MLA"]["creators"]) { $widget["MLA"]["string"] .= $widget["MLA"]["creators"].'. '; }
+        else if ($widget["MLA"]["contributors"]) { $widget["MLA"]["string"] .= $widget["MLA"]["contributors"].'. '; }
 
-            //DATE
-            if ($widget["MLA"]["availableDate"]) { $widget["MLA"]["string"] .= $widget["MLA"]["availableDate"].', '; }
+        //TITLE
+        if ($widget["MLA"]["title"]) { $widget["MLA"]["string"] .= '<em>'.$widget["MLA"]["title"].'.</em> '; }
 
-            //HANDLE
-            if ($widget["MLA"]["acdhURI"]) { $widget["MLA"]["string"] .= $widget["MLA"]["acdhURI"].'. '; }
+        //PUBLISHER
+        if ($widget["MLA"]["hasHosting"]) { $widget["MLA"]["string"] .= $widget["MLA"]["hasHosting"].', '; }
 
-            //DATE
-            if ($widget["MLA"]["accesedDate"]) { $widget["MLA"]["string"] .= 'Accessed '.$widget["MLA"]["accesedDate"].'. '; }
+        //DATE
+        if ($widget["MLA"]["availableDate"]) { $widget["MLA"]["string"] .= $widget["MLA"]["availableDate"].', '; }
+
+        //HANDLE
+        if ($widget["MLA"]["acdhURI"]) { $widget["MLA"]["string"] .= $widget["MLA"]["acdhURI"].'. '; }
+
+        //DATE
+        if ($widget["MLA"]["accesedDate"]) { $widget["MLA"]["string"] .= 'Accessed '.$widget["MLA"]["accesedDate"].'. '; }
 
         /*
         } else {

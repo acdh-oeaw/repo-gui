@@ -492,27 +492,25 @@ class FrontendController extends ControllerBase  {
                 //set up the necessary properties for the child data generation
                 $properties = array();
                 $properties = array("limit" => $limit, "page" => $page, "uri" => $uri);
-                
+                //get the child view data
                 $childArray = array();
                 $childArray = $this->OeawFunctions->generateChildViewData($identifiers, $results, $properties);
                
                 if(count($childArray) > 0){
+                    //pass the specialtype info to the template
                     if(isset($childArray['specialType'])){
                         $extras["childType"] = $childArray['specialType'];
                     }
-                    
+                    //child table data
                     if(isset($childArray['childResult']) && count($childArray['childResult']) > 0){
                         $childResult = $childArray['childResult'];
                     }
-                    
+                    //setup pagination infos
                     if(isset($childArray['pagination'])){
                         $results["pagination"] = $childArray['pagination'];
                     }
-                    
                 }
-                
             }
-            
         } else {
             $msg = base64_encode("The resource has no metadata!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
