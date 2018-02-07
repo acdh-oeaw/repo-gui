@@ -146,7 +146,7 @@
                                 {% endif %}
                             </td>
                         </tr>            
-                    {% endfor %}        
+                    {% endfor %}
                     </tbody>        
                 </table>
                 <br>
@@ -191,13 +191,6 @@
     {% if extras['dissServ'] %}
         <div class="res-property">
             <i class="material-icons">&#xE89F;</i>
-            
-            {% if result['acdh_rdf:type']['title'] == "Collection" %}
-                <div class="res-act-button">
-                    <!-- <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download Collection</span></a> -->
-                    <a href="/browser/oeaw_dl_collection/{{ result['insideUri']  }}"><span>Download Collection</span></a>
-                </div>
-            {% endif %}
                 
             {% for key, ds in extras['dissServ'] %}
                 {% if key == "raw"  %}
@@ -216,6 +209,10 @@
                 {% elseif key == "image/tiff"  %}
                     <div class="res-act-button">
                         <a href="{{ ds }}?format={{ key|url_encode }}"><span>IIIF viewer</span></a>
+                    </div>
+                {% elseif key == "collection"  %}
+                    <div class="res-act-button">
+                        <a href="{{ ds }}?format={{ key|url_encode }}"><span>Download Collection</span></a>
                     </div>
                 {% else %}
                     <div class="res-act-button res-diss-btn {{ key }}-btn">
