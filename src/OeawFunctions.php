@@ -758,21 +758,21 @@ class OeawFunctions {
         $authors = "";
         $authors = $this->getCiteWidgetData($resourceData, "acdh:hasAuthor");
         if(!empty($authors) ){
-            echo $widget["MLA"]["authors"] = $authors;
+            $widget["MLA"]["authors"] = $authors;
         }
         
         //Get creator(s)
         $creators = "";
         $creators = $this->getCiteWidgetData($resourceData, "acdh:hasCreator");
         if(!empty($creators) ){
-            echo $widget["MLA"]["creators"] = $creators;
+            $widget["MLA"]["creators"] = $creators;
         }
         
         //Get contributor(s) 
         $contributors = "";
         $contributors = $this->getCiteWidgetData($resourceData, "acdh:hasContributor");
         if(!empty($creators) ){
-            echo $widget["MLA"]["contributors"] = $contributors;
+            $widget["MLA"]["contributors"] = $contributors;
         }
 
         //Get title
