@@ -331,6 +331,7 @@ class OeawCustomSparql {
             }
         }
         GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename
+        ORDER BY ?filename ?title ?rootTitle
         ";
         
         return $query;
