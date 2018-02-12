@@ -191,14 +191,14 @@
     {% if extras['dissServ'] %}
         <div class="res-property">
             <i class="material-icons">&#xE89F;</i>
-            {% for value in extras['dissServ'] %}
+            {% for value in extras['dissServ']['services'] %}
                 <div class="res-act-button">
-                    {% if value['identifier'] and value['returnType'] %}
-                        <a href="{{ value['identifier'] }}?format={{ value['returnType']|url_encode }}" >
+                    {% if value['returnType'] %}
+                        <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" >
                             <span>{{ value['title'] }}</span>
                         </a>
                         {% if value['description'] %}
-                            <a href="{{ value['identifier'] }}?format={{ value['returnType']|url_encode }}" 
+                            <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" 
                             title="{{ value['description'] }}" >
                                 <span>{{ value['title'] }}</span>
                             </a>

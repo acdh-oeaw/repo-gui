@@ -530,9 +530,10 @@ class FrontendController extends ControllerBase  {
         $dissServices = array();
         //check the Dissemination services
         $dissServices = $this->OeawFunctions->getResourceDissServ($fedoraRes);
-        
-        if(count($dissServices) > 0){
-            $extras['dissServ'] = $dissServices;
+
+        if(count($dissServices) > 0 && $fedoraRes->getId()){
+            $extras['dissServ']['services'] = $dissServices;
+            $extras['dissServ']['identifier'] = $fedoraRes->getId();
         }
         
         // Pass fedora uri so it can be linked in the template
