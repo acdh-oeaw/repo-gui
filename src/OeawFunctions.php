@@ -50,6 +50,32 @@ class OeawFunctions {
         return $fedora;
     }
     
+    
+    
+    
+    /**
+     * 
+     * Checks the multi array by key, and if the key has a duplicated value then 
+     * it will remove it, the result will be an unique array
+     * 
+     * @param array $array
+     * @param string $key
+     * @return array
+     */
+    public function removeDuplicateValuesFromMultiArrayByKey(array $array, string $key): array
+    {
+        $temp_array = [];
+        foreach ($array as &$v) {
+            if (!isset($temp_array[$v[$key]])){
+                $temp_array[$v[$key]] =& $v;
+            }
+        }
+        $array = array_values($temp_array);
+        return $array;
+    }
+
+    
+    
     /**
      * 
      * Get the actual Resource Dissemination services
@@ -64,11 +90,29 @@ class OeawFunctions {
             try{
                 $id = $fedoraRes->getId();
                 $dissServ = $fedoraRes->getDissServices();
-                if($dissServ){
-                    foreach($dissServ as $k => $v) {
-                        $result[$k] = $id;            
+                
+                if(count($dissServ) > 0){
+                    $processed = array();
+                
+                    foreach ($dissServ as $service) {
+                        //get the acdh identifiers for the dissemination services
+                        if(!in_array($id, $processed)) {
+                            $processed[] = $service->getId();
+                        }
+                    }
+                    
+                    if(count($processed) > 0){
+                        $oeawStorage = new OeawStorage();
+                        //get the titles
+                        $titles = array();
+                        $titles = $oeawStorage->getTitlyByIdentifierArray($processed);
+                        if(count($titles) > 0){
+                            $titles = $this->removeDuplicateValuesFromMultiArrayByKey($titles, "title");
+                            $result = $titles;
+                        }
                     }
                 }
+                
                 return $result;
             } catch (Exception $ex) {
                 $msg = base64_encode('Error in function: '.__FUNCTION__);
@@ -1546,7 +1590,15 @@ class OeawFunctions {
     }
 
     
-    
+    /**
+     * 
+     * Check the value in the array
+     * 
+     * @param type $needle -> strtolower value of the string
+     * @param type $haystack -> the array where the func should serach
+     * @param type $strict
+     * @return boolean
+     */
     function checkMultiDimArrayForValue($needle, $haystack, $strict = false) {
         foreach ($haystack as $item) {
             if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && $this->checkMultiDimArrayForValue($needle, $item, $strict))) {

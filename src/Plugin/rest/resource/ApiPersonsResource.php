@@ -5,6 +5,8 @@ namespace Drupal\oeaw\Plugin\rest\resource;
 
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 // our drupal custom libraries
 use Drupal\oeaw\OeawStorage;
 use Drupal\oeaw\OeawCustomSparql;
@@ -42,11 +44,10 @@ class ApiPersonsResource extends ResourceBase {
     */
     public function get(string $data) {
         
-        $response = array();
+        $response = new Response();
         
         if(empty($data)){
-            $response = json_encode('Please provide a string for the search');
-            return new ResourceResponse($response);
+            return new JsonResponse(array("Please provide a link"), 404, ['Content-Type'=> 'application/json']);
         }
         $data = strtolower($data);
                 
@@ -68,15 +69,15 @@ class ApiPersonsResource extends ResourceBase {
                     $result[$x]['title'] = $spRes[$x]['title'];
                     $result[$x]['identifiers'] = explode(",", $spRes[$x]['identifiers']);
                 }
-                $response = $result;
-                return new ResourceResponse($response);
+                                
+                $response->setContent(json_encode($result));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
             }else {
-                $response = json_encode('There is no value!');
-                return new ResourceResponse($response);
+                return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
             }
         }else {
-            $response = json_encode('There is no value!');
-            return new ResourceResponse($response);
+            return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
         }
     }
 

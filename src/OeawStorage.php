@@ -537,20 +537,24 @@ class OeawStorage {
         
         try {        
             
-            $rdfsLabel = self::$sparqlPref["rdfsLabel"];
-            $owlClass = self::$sparqlPref["owlClass"];
-           
-            $q = new Query();
-            $q->addParameter((new HasValue(RC::get('drupalRdfType'), $owlClass))->setSubVar('?uri'));
-            $q->addParameter(new HasTriple('?uri', $rdfsLabel, '?title'));
-            $q->setSelect(array('?uri', '?title'));
-            $q->setOrderBy(array('UCASE(str(?title))'));
-            $query = $q->getQuery();
-            
-            $result = $this->fedora->runSparql($query);                        
+             $query =
+                ' 
+                    SELECT DISTINCT ?title ?uri ?id ?origTitle
+                    WHERE {
+                        ?uri <'.RC::get("drupalRdfType").'> <http://www.w3.org/2002/07/owl#Class> .
+                        ?uri <'.RC::get("fedoraTitleProp").'> ?origTitle .
+                        ?uri <'.RC::get("fedoraIdProp").'> ?id .
+                        BIND(REPLACE(?origTitle, " ", "_", "i") AS ?t2) .
+                      	BIND (lcase(?t2) AS ?title) .
+                        FILTER regex( str(?id), "vocabs.acdh", "i") .  
+                    } 
+                    ORDER BY UCASE(str(?title))
+            ';
+             
+            $result = $this->fedora->runSparql($query);
             $fields = $result->getFields(); 
             $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
-
+            
             return $getResult; 
             
         } catch (Exception $ex) {            
@@ -640,60 +644,75 @@ class OeawStorage {
         
         $getResult = array();
         
-        try {            
-                        
-            $idProp = RC::idProp();
-            $rdfsSubClass = self::$sparqlPref['rdfsSubClass'];
-            $rdfsDomain = self::$sparqlPref["rdfsDomain"];
-            $owlCardinality = self::$sparqlPref["owlCardinality"];
-            $owlMinCardinality = self::$sparqlPref["owlMinCardinality"];
-            $owlMaxCardinality = self::$sparqlPref["owlMaxCardinality"];
+        $rdfsSubClass = self::$sparqlPref['rdfsSubClass'];
+        $rdfsDomain = self::$sparqlPref["rdfsDomain"];
+        $owlCardinality = self::$sparqlPref["owlCardinality"];
+        $owlMinCardinality = self::$sparqlPref["owlMinCardinality"];
+        $owlMaxCardinality = self::$sparqlPref["owlMaxCardinality"];
+
+        $string = "select * 
+            where {
+                {
+                    SELECT  * 
+                    WHERE {  
+                        <".$classURI.">  <".RC::idProp()."> / ^ <".$rdfsDomain."> ?property .
+                    }
+                } 
+                UNION 
+                {
+                    SELECT  * 
+                    WHERE {
+                        <".$classURI."> <".$rdfsSubClass."> / ( ^<".RC::idProp()."> / <".$rdfsSubClass."> ) * / ^<".$rdfsDomain."> ?property .
+                    } 
+                }
+                { 
+                    SELECT  * 
+                    WHERE {
+                        ?property <".RC::idProp()."> ?id .
+                    }
+                }
+                optional{ 
+                    SELECT  * 
+                        WHERE {
+                            ?property <".$owlCardinality."> ?cardinality .
+                    }
+                }
+                optional{ 
+                    SELECT  * 
+                        WHERE {
+                            ?property <".$owlMinCardinality."> ?minCardinality .
+                    }
+                }
+                optional{ 
+                    SELECT  * 
+                        WHERE {
+                            ?property <".$owlMaxCardinality."> ?maxCardinality .
+                        }
+                    }
+                optional{ 
+                    SELECT  * 
+                        WHERE {
+                            ?property <".RC::get('fedoraTitleProp')."> ?title .
+                        }
+                    }
+                optional{ 
+                    SELECT  * 
+                        WHERE {
+                            ?property <".RC::get('drupalRdfsComment')."> ?comment .
+                        }
+                    }    
+                }
+                ORDER BY ?id";
+        
+        try {
             
-            $q = new Query();            
-            $q->setSelect(array('?id', '?cardinality', '?minCardinality', '?maxCardinality' ));            
-            
-            $q3 = new Query();
-            $q3->addParameter(new HasTriple($classURI, array( $idProp, '/', '^', $rdfsDomain, ), '?property'));
-            
-            $q2 = new Query();
-            
-            $q4 = new Query();
-            $q4->addParameter(new HasTriple($classURI, array( $rdfsSubClass, '/', '(', '^', $idProp, '/', $rdfsSubClass,')', '*', '/', '^', $rdfsDomain, ), '?property'));
-            $q4->setJoinClause('union');
-            
-            $q5 = new Query();
-            $q5->addParameter(new HasTriple('?property', $idProp, '?id'));
-            
-            
-            $q6_1 = new Query();
-            $q6_1->addParameter(new HasTriple('?property', $owlCardinality, '?cardinality'));
-            $q6_1->setJoinClause('optional');
-            
-            $q6_2 = new Query();
-            $q6_2->addParameter(new HasTriple('?property', $owlMinCardinality, '?minCardinality'));
-            $q6_2->setJoinClause('optional');
-            
-            $q6_3 = new Query();
-            $q6_3->addParameter(new HasTriple('?property', $owlMaxCardinality, '?maxCardinality'));
-            $q6_3->setJoinClause('optional');
-            
-            
-            $q2->addSubquery($q3);
-            $q2->addSubquery($q4);
-            $q->addSubquery($q2);
-            $q->addSubquery($q5);            
-            $q->addSubquery($q6_1);
-            $q->addSubquery($q6_2);
-            $q->addSubquery($q6_3);
-            
-            $q->setOrderBy(array('?id'));
+            $q = new SimpleQuery($string);
             $query = $q->getQuery();
-      
-            $result = $this->fedora->runSparql($query);
-            $fields = $result->getFields(); 
-            $getResult = $this->OeawFunctions->createSparqlResult($result, $fields);
+            $res = $this->fedora->runSparql($query);
             
-            return $getResult;    
+            $fields = $res->getFields();
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            return $result;
             
             
         } catch (Exception $ex) {            
@@ -1577,6 +1596,8 @@ class OeawStorage {
                 $where .= "?uri <".RC::get('fedoraIdProp')."> <".$value."> . ";
                 $where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
                 $where .= "?uri <".RC::titleProp()."> ?title . ";
+                $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
+                $where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
                 $where .= " } ";
                 
                 if($i != count($data) - 1){
@@ -1584,8 +1605,8 @@ class OeawStorage {
                 }
                 $i++;
             }   
-            $select = 'SELECT DISTINCT ?title ?identifier ?uri WHERE { ';
-            $queryStr = $select.$where." } ";
+            $select = 'SELECT DISTINCT ?title ?identifier ?uri ?returnType WHERE { ';
+            $queryStr = $select.$where." } ORDER BY ?title";
             
             try {
                 $q = new SimpleQuery($queryStr);

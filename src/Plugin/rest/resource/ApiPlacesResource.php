@@ -7,6 +7,8 @@ use Drupal\rest\ResourceResponse;
 // our drupal custom libraries
 use Drupal\oeaw\OeawStorage;
 use Drupal\oeaw\OeawCustomSparql;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
@@ -36,11 +38,10 @@ class ApiPlacesResource extends ResourceBase {
     */
     public function get(string $data) {
         
-        $response = array();
+        $response = new Response();
         
         if(empty($data)){
-            $response = json_encode('Please provide a string for the search');
-            return new ResourceResponse($response);
+            return new JsonResponse(array("Please provide a link"), 404, ['Content-Type'=> 'application/json']);
         }
         
         $data = strtolower($data);
@@ -64,15 +65,15 @@ class ApiPlacesResource extends ResourceBase {
                     $result[$x]['altTitle'] = $spRes[$x]['altTitle'];
                     $result[$x]['identifiers'] = explode(",", $spRes[$x]['identifiers']);
                 }
-                $response = $result;
-                return new ResourceResponse($response);
+                
+                $response->setContent(json_encode($result));
+                $response->headers->set('Content-Type', 'application/json');
+                return $response;
             }else {
-                $response = json_encode('There is no value!');
-                return new ResourceResponse($response);
+                return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
             }
         }else {
-            $response = json_encode('There is no value!');
-            return new ResourceResponse($response);
+            return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
         }
     }
 
