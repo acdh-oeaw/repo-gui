@@ -193,7 +193,7 @@
             <i class="material-icons">&#xE89F;</i>
             {% for value in extras['dissServ']['services'] %}
                 <div class="res-act-button">
-                    {% if value['returnType'] %}
+                    {% if value['returnType'] and value['title'] %}
                         <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" >
                             <span>{{ value['title'] }}</span>
                         </a>
@@ -206,22 +206,6 @@
                     {% endif %}    
                 </div>
             {% endfor %} 
-        </div>
-    {% else %}
-          <div class="res-property">
-            <i class="material-icons">&#xE89F;</i>
-            
-            {% if result['acdh_rdf:type']['title'] == "Collection" %}
-                <div class="res-act-button">
-                    <a href="/browser/oeaw_dl_collection/{{ result['insideUri']  }}"><span>Download Collection</span></a>
-                </div>
-            {% endif %}
-
-            {% if result['acdh_rdf:type']['title'] == "Resource" %}
-                <div class="res-act-button">
-                    <a href="{{ extras['fedoraURI'] }}"><span>Download File</span></a>
-                </div>
-            {% endif %}
         </div>
     {% endif %}    	
     
