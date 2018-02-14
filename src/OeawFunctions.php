@@ -105,14 +105,13 @@ class OeawFunctions {
                         $oeawStorage = new OeawStorage();
                         //get the titles
                         $titles = array();
-                        $titles = $oeawStorage->getTitlyByIdentifierArray($processed);
+                        $titles = $oeawStorage->getTitlyByIdentifierArray($processed, true);
                         if(count($titles) > 0){
                             $titles = $this->removeDuplicateValuesFromMultiArrayByKey($titles, "title");
                             $result = $titles;
                         }
                     }
                 }
-                
                 return $result;
             } catch (Exception $ex) {
                 $msg = base64_encode('Error in function: '.__FUNCTION__);

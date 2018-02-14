@@ -530,8 +530,18 @@ class FrontendController extends ControllerBase  {
         $dissServices = array();
         //check the Dissemination services
         $dissServices = $this->OeawFunctions->getResourceDissServ($fedoraRes);
-
+        
         if(count($dissServices) > 0 && $fedoraRes->getId()){
+            //we need to remove the raw from the list if it is a collection
+            if(isset($results["acdh_rdf:type"]['title']) && $results["acdh_rdf:type"]['title'] == "Collection"){
+                for($i=0; $i <= count($dissServices); $i++){
+                    if($dissServices[$i]['returnType'] == "raw"){
+                        unset($dissServices[$i]);
+                        break;
+                    }
+                }
+            }
+            
             $extras['dissServ']['services'] = $dissServices;
             $extras['dissServ']['identifier'] = $fedoraRes->getId();
         }

@@ -695,6 +695,12 @@ class OeawStorage {
                             ?property <".RC::get('fedoraTitleProp')."> ?title .
                         }
                     }
+                 optional{ 
+                    SELECT  * 
+                        WHERE {
+                            ?property <http://www.w3.org/2000/01/rdf-schema#range> ?range .
+                            }
+                    }
                 optional{ 
                     SELECT  * 
                         WHERE {
@@ -1580,32 +1586,43 @@ class OeawStorage {
      * 
      * Get the titles for the detail view property values
      * 
-     * @param array $data : Array with the identifiers
-     * @return array : results array with the identifiers and the titles
-     * 
-    */
-    public function getTitlyByIdentifierArray(array $data): array{
+     * @param array $data
+     * @param bool $dissemination true: get some extra prop for the dissServ
+     * @return array
+     */
+    public function getTitlyByIdentifierArray(array $data, bool $dissemination = false): array{
         
         $result = array();
         if(count($data) > 0){
             $where = "";
             $i = 0;
-            
+            $select = "";
             foreach ($data as $key => $value){
                 $where .= " { ";
                 $where .= "?uri <".RC::get('fedoraIdProp')."> <".$value."> . ";
                 $where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
                 $where .= "?uri <".RC::titleProp()."> ?title . ";
-                $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
-                $where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
+                
+                if($dissemination == true){
+                    $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
+                    $where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
+                    $where .= "FILTER regex(str(?identifier),'.at/uuid/','i') .";
+                }
+                
                 $where .= " } ";
                 
                 if($i != count($data) - 1){
                     $where .= " UNION ";
                 }
                 $i++;
-            }   
-            $select = 'SELECT DISTINCT ?title ?identifier ?uri ?returnType WHERE { ';
+            }
+            
+            if($dissemination == true){
+                $select = 'SELECT DISTINCT ?title ?identifier ?uri ?returnType ?description WHERE { ';
+            }else{
+                $select = 'SELECT DISTINCT ?title ?identifier ?uri  WHERE { ';
+            }
+            
             $queryStr = $select.$where." } ORDER BY ?title";
             
             try {
@@ -1628,9 +1645,7 @@ class OeawStorage {
         return $result;
     }
     
-    
-    
-      /**
+    /**
      * 
      * Create the Sparql Query for the special ACDH rdf:type "children views"
      * 
