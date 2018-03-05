@@ -45,6 +45,7 @@ class OeawStorage {
         'foafImage' => 'http://xmlns.com/foaf/0.1/Image',
         'foafThumbnail' => 'http://xmlns.com/foaf/0.1/thumbnail',
         'rdfsSubClass' => 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
+        'rdfsSubPropertyOf' => 'http://www.w3.org/2000/01/rdf-schema#subPropertyOf',
         'owlClass' => 'http://www.w3.org/2002/07/owl#Class',
         'rdfsDomain' => 'http://www.w3.org/2000/01/rdf-schema#domain',
         'dctLabel' => 'http://purl.org/dc/terms/label',
@@ -649,7 +650,66 @@ class OeawStorage {
         $owlCardinality = self::$sparqlPref["owlCardinality"];
         $owlMinCardinality = self::$sparqlPref["owlMinCardinality"];
         $owlMaxCardinality = self::$sparqlPref["owlMaxCardinality"];
-
+        $rdfsSubPropertyOf = self::$sparqlPref["rdfsSubPropertyOf"];
+        
+        
+        
+        $string = "
+            SELECT  
+                ?prop ?propID ?propTitle ?cardinality ?minCardinality ?maxCardinality ?range (GROUP_CONCAT(DISTINCT ?comments;separator=',') AS ?comment)
+            WHERE 
+            {
+                {";
+        //where the person id a subclassof
+        $string .= "        
+            <".$classURI."> <".RC::get('fedoraTitleProp')."> ?classTitle .            
+            <".$classURI."> (rdfs:subClassOf / ^<https://vocabs.acdh.oeaw.ac.at/schema#hasIdentifier>)* / rdfs:subClassOf ?class . 
+        ";
+        //get the properties where the person subclass is the domain
+        $string .= "
+            ?prop <".$rdfsDomain."> ?class .
+            ?prop <".RC::idProp()."> ?propID .
+            ?prop <".RC::get('fedoraTitleProp')."> ?propTitle .             
+        ";
+        
+        $optionals = "";
+        $optionals = "
+            OPTIONAL{ 
+                SELECT  * WHERE { ?prop <".$owlCardinality."> ?cardinality .}
+            }
+            OPTIONAL { 
+                SELECT  * WHERE { ?prop <".$owlMinCardinality."> ?minCardinality .}
+            }
+            OPTIONAL {
+                SELECT  * WHERE { ?prop <http://www.w3.org/2000/01/rdf-schema#range> ?range .}
+            }
+            OPTIONAL {
+                SELECT  * WHERE { ?prop <".$owlMaxCardinality."> ?maxCardinality .}
+            }
+            OPTIONAL {
+                SELECT  * WHERE { ?prop <http://www.w3.org/2000/01/rdf-schema#comment> ?comments .}
+            }
+        ";
+        
+        $string .= $optionals;
+        
+        $string .="
+            } UNION {
+                <".$classURI."> <".RC::idProp()."> ?classID .
+                ?prop <".$rdfsDomain."> ?classID .
+                ?prop <".RC::idProp()."> ?propID .
+                ?prop <".RC::get('fedoraTitleProp')."> ?propTitle .
+        "; 
+        
+        $string .= $optionals;
+        
+        $string .= " } }"
+                . "GROUP BY ?prop ?propID ?propTitle ?cardinality ?minCardinality ?maxCardinality ?range
+                    ORDER BY ?propID";
+                
+        
+        
+        /*
         $string = "select * 
             where {
                 {
@@ -709,7 +769,7 @@ class OeawStorage {
                     }    
                 }
                 ORDER BY ?id";
-        
+        */
         try {
             
             $q = new SimpleQuery($string);

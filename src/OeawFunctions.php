@@ -2020,8 +2020,11 @@ class OeawFunctions {
                 if((isset($rt['uri'])) && 
                         (strpos($rt['uri'], RC::get('drupalPerson')) !== false)){
                     $specialType = "person";
-                    $typeProperties = array(RC::get('drupalHasContributor'));
-                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    
+                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalPerson'));
+                    if(count($typeProperties) > 0){
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    }
                 }
                 //is it a concept or not
                 else if((isset($rt['uri'])) && 
@@ -2030,43 +2033,52 @@ class OeawFunctions {
                         (strpos($rt['uri'], RC::get('drupalSkosConcept')) !== false) ) 
                     ){
                     $specialType = "concept";
-                    $typeProperties = array(RC::get('drupalSkosNarrower'));
-                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    
+                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalConcept'));
+                    if(count($typeProperties) > 0){
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    }
                 }
                 else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalProject') ) !== false)) {
                     $specialType = "project";
-                    $typeProperties = array(RC::get('drupalRelatedProject'));
-                    $countData = $oeawStorage->getChildResourcesByProperty($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    
+                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalProject'));
+                    if(count($typeProperties) > 0){
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    }
                 }
                 else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalInstitute')) !== false)) {
                     $specialType = "institute";
-                    $typeProperties = array(RC::get('drupalHasMember'));
-                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    
+                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalInstitute'));
+                    if(count($typeProperties) > 0){
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    }
+                    
                 }
                 else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('fedoraOrganisationClass')) !== false) ){
                     $specialType = "organisation";
-                    $typeProperties = array(
-                        RC::get('drupalHasContributor'), 
-                        RC::get('drupalHasFunder'), 
-                        RC::get('fedoraHostingProp'), 
-                        RC::get('drupalHasOwner'), 
-                        RC::get('drupalHasLicensor'), 
-                        RC::get('drupalHasRightsholder')
-                        );
-                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    
+                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('fedoraOrganisationClass'));
+                    if(count($typeProperties) > 0){
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    }
                 }
                 else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPlace')) !== false) ){
                     $specialType = "place";
-                    $typeProperties = array(RC::get('drupalHasSpatialCoverage'));
-                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    
+                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalPlace'));
+                    if(count($typeProperties) > 0){
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    }
                 }
                 else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPublication')) !== false) ){
                     $specialType = "publication";
-                    $typeProperties = array(
-                        RC::get('drupalHasDerivedPublication'), 
-                        RC::get('drupalHasSource'), 
-                        RC::get('drupalHasReferencedBy'));
-                    $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    
+                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalPublication'));
+                    if(count($typeProperties) > 0){
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                    }
                 }
 
                 if(count($countData) <= 0) {
