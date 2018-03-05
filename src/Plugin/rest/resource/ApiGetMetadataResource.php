@@ -65,7 +65,7 @@ class ApiGetMetadataResource extends ResourceBase {
         $typeAvailable = false;
         //check that we have a class like the user requires
         $typeAvailable = $oeawFunctions->checkMultiDimArrayForValue(strtolower($type), $classes);
-        
+        $typeID = "";
         if($typeAvailable == true){
             
             foreach($classes as $class){
@@ -74,6 +74,7 @@ class ApiGetMetadataResource extends ResourceBase {
                     (isset($class['uri']) && !empty($class['uri']) ) 
                 ){
                     $classMeta = $oeawStorage->getClassMeta($class['uri']);
+                    $typeID = $class['id'];
                 }
             }
         }else {
@@ -81,14 +82,99 @@ class ApiGetMetadataResource extends ResourceBase {
         }
         
         if(count($classMeta) > 0){
+            
+            $result = array();
+            $result['$schema'] = "http://json-schema.org/draft-07/schema#";
+            $result['id'] = $typeID;
+            $result['type'] = "object";
+            $result['title'] = $type;
+           
+            $res = array();
+            $res = $this->transformProperties($classMeta);
+            if(count($res) > 0){
+                $result['properties'] = $res;
+            }
+           
             $response = new Response();
-            $response->setContent(json_encode($classMeta));
+            $response->setContent(json_encode($result, true));
             $response->headers->set('Content-Type', 'application/json');
             return $response;
             
         }
         
         return new JsonResponse(array("There is no data!"), 404, ['Content-Type'=> 'application/json']);
+    }
+    
+    private function transformProperties(array $properties): array{
+        $result = array();
+        $required = array();
+                
+        if(count($properties) > 0){
+          
+
+            foreach($properties as $prop){
+                
+                if($prop['propID']){
+                    $propID = "";
+                    $propIDArr = explode("https://vocabs.acdh.oeaw.ac.at/schema#", $prop['propID']);
+                    $propID = $propIDArr[1];
+                    $result[$propID]['type'] = "string";
+                    
+                    if(isset($prop['comment']) && $prop['comment']){
+                        $result[$propID]['attrs']['placeholder'] = $prop['comment']; 
+                        $result[$propID]['description'] = $prop['comment']; 
+                    }
+                    
+                    if(isset($prop['propTitle']) && $prop['propTitle']){
+                        $result[$propID]['title'] = $prop['propTitle']; 
+                    }
+                    if(isset($prop['cardinality']) && $prop['cardinality']){
+                        $result[$propID]['minItems'] = (int)$prop['cardinality'];
+                        if( $prop['cardinality'] > 1){
+                            $result[$propID]['type'] = "array";
+                        }
+                    }
+                    if(isset($prop['minCardinality']) && $prop['minCardinality']){
+                        $result[$propID]['minItems'] = (int)$prop['minCardinality']; 
+                        if( $prop['minCardinality'] > 1){
+                            $result[$propID]['type'] = "array";
+                        }
+                        if( $prop['minCardinality'] == 1){
+                            $result[$propID]['uniqueItems'] = true;
+                        }
+                    }
+                    if(isset($prop['maxCardinality']) && $prop['maxCardinality']){
+                        $result[$propID]['maxItems'] = (int)$prop['maxCardinality']; 
+                        if( $prop['maxCardinality'] > 1){
+                            $result[$propID]['type'] = "array";
+                        }
+                    }
+                    if( (isset($prop['cardinality']) && $prop['cardinality']) 
+                            ||   
+                        (isset($prop['minCardinality']) && $prop['minCardinality']) ){
+                        $required[] = $propID;
+                    }
+                    
+                    
+                    if(isset($prop['range']) && $prop['range']){
+                        if( $result[$propID]['type'] == "array"){
+                            $result[$propID]['items']['type'] = "string"; 
+                            $result[$propID]['items']['range'] = $prop['range']; 
+                            continue;
+                        }
+                        if( $result[$propID]['type'] == "string"){
+                            $result[$propID]['range'] = $prop['range']; 
+                        }
+                    }
+                }
+            }
+        }
+        
+        if(count($required) > 0){
+            $result['required'] = $required;
+        }
+        
+        return $result;
     }
 
 }
