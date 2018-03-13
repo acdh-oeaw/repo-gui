@@ -639,15 +639,12 @@ class FrontendController extends ControllerBase  {
         //If the discover page calls the root resources forward to the root_list method
         if ($metavalue == 'root') {
 
-            //Get the cookies if they are already set
-            $limitCookie = $_COOKIE["resultsPerPage"];
-            $orderCookie = $_COOKIE["resultsOrder"];
-            //If a cookie setting exists and the query is coming without a specific parameter
-            if (!empty($limitCookie) && empty($limit)) {
-                    $limit = $limitCookie;
+             //If a cookie setting exists and the query is coming without a specific parameter
+            if ( ( isset($_COOKIE["resultsPerPage"]) && !empty($_COOKIE["resultsPerPage"]) ) && empty($limit)) {
+                $limit = $_COOKIE["resultsPerPage"];
             }
-            if (!empty($orderCookie) && empty($order)) {
-                    $order = $orderCookie;
+            if ( ( isset($_COOKIE["resultsOrder"]) && !empty($_COOKIE["resultsOrder"]) ) && empty($order)) {
+                $order = $_COOKIE["resultsOrder"];
             }
             if (empty($page)) {
                     $page = "1";
