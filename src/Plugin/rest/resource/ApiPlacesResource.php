@@ -60,10 +60,41 @@ class ApiPlacesResource extends ResourceBase {
             
             if(count($spRes) > 0){
                 for ($x = 0; $x < count($spRes); $x++) {
-                    $result[$x]['uri'] = $spRes[$x]['uri'];
-                    $result[$x]['title'] = $spRes[$x]['title'];
-                    $result[$x]['altTitle'] = $spRes[$x]['altTitle'];
-                    $result[$x]['identifiers'] = explode(",", $spRes[$x]['identifiers']);
+                    
+                    $ids = array();
+                    $ids = explode(",", $spRes[$x]['identifiers']);
+                    //set the flag to false
+                    $idContains = false;
+                    foreach ($ids as $id){
+                        $id = str_replace(RC::get('fedoraIdNamespace'), '', $id);
+                        //if one of the identifier is contains the searched value
+                        if (strpos(strtolower($id), strtolower($data)) !== false) {
+                            $idContains = true;
+                        }
+                    }
+                    
+                    $uri = str_replace(strtolower(RC::get('fedoraVocabsNamespace')), '', strtolower($spRes[$x]['uri']) );
+                    $urlContains = false;
+                    if (strpos($uri, $data) !== false) {
+                        $urlContains = true;
+                    }
+                    
+                    $titleContains = false;
+                    if (strpos(strtolower($spRes[$x]['title']), strtolower($data) ) !== false) {
+                        $titleContains = true;
+                    }
+                    
+                    $altTitleContains = false;
+                    if (strpos(strtolower($spRes[$x]['altTitle']), strtolower($data) ) !== false) {
+                        $altTitleContains = true;
+                    }
+                    
+                    if($idContains === true || $urlContains === true || $titleContains === true || $altTitleContains === true){
+                        $result[$x]['uri'] = $spRes[$x]['uri'];
+                        $result[$x]['title'] = $spRes[$x]['title'];
+                        $result[$x]['altTitle'] = $spRes[$x]['altTitle'];
+                        $result[$x]['identifiers'] = explode(",", $spRes[$x]['identifiers']);
+                    }
                 }
                 
                 $response->setContent(json_encode($result));
