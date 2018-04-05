@@ -98,9 +98,13 @@ class ApiPersonsResource extends ResourceBase {
                     
                 }
                 
-                $response->setContent(json_encode($result));
-                $response->headers->set('Content-Type', 'application/json');
-                return $response;
+                if(count($result) > 0){
+                    $response->setContent(json_encode($result));
+                    $response->headers->set('Content-Type', 'application/json');
+                    return $response;
+                }else{
+                    return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
+                }
             }else {
                 return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
             }

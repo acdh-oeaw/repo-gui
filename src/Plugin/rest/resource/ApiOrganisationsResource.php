@@ -97,9 +97,14 @@ class ApiOrganisationsResource extends ResourceBase {
                         $result[$x]['identifiers'] = explode(",", $spRes[$x]['identifiers']);
                     }
                 }
-                $response->setContent(json_encode($result));
-                $response->headers->set('Content-Type', 'application/json');
-                return $response;
+                
+                if(count($result) > 0){
+                    $response->setContent(json_encode($result));
+                    $response->headers->set('Content-Type', 'application/json');
+                    return $response;
+                }else{
+                    return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
+                }
             }else {
                 return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
             }
