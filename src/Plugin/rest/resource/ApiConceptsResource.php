@@ -53,7 +53,7 @@ class ApiConceptsResource extends ResourceBase {
         $OeawCustomSparql = new OeawCustomSparql();
         $OeawStorage = new OeawStorage();
         
-        $sparql = $OeawCustomSparql->createBasicApiSparql($data, RC::get('drupalPlace'));
+        $sparql = $OeawCustomSparql->createBasicApiSparql($data, RC::get('drupalConcept'));
 
         if($sparql){
             $spRes = $OeawStorage->runUserSparql($sparql);
