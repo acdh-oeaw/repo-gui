@@ -2097,56 +2097,34 @@ class OeawFunctions {
         if ($pageData['totalPages'] > 1) {
             $result["pagination"] = $data['pagination'] =  $this->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $pagelimit);
         }
-
+ 
         switch ($specialType) {
             case "person":
                 $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
-                
-                $personD = $this->createCustomDetailViewTemplateData($data, "person");
-                if(count($personD) > 0){
-                    $result["specialType"]["personData"] = $personD;
-                }
                 break;
             case "concept":
                 $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             case "project":
-                //getChildResourcesByProperty
                 $childrenData = $oeawStorage->getChildResourcesByProperty($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
-                
-                $projData = $this->createCustomDetailViewTemplateData($data, "project"); 
-                if(count($projData) > 0){
-                    $result["specialType"]["projectData"] = $projData;
-                }
                 break;
             case "institute":
                 $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             case "organisation":
-                $orgD = $this->createCustomDetailViewTemplateData($data, "organisation");
-                if(count($orgD) > 0){
-                    $result["specialType"]["organisationData"] = $orgD;
-                }
                 $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             case "place":
-                $placeD = $this->createCustomDetailViewTemplateData($data, "place");
-                if(count($placeD) > 0){
-                    $result["specialType"]["placeData"] = $placeD;
-                }
                 $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             case "publication":
-                $publicationD = $this->createCustomDetailViewTemplateData($data, "publication");
-                if(count($publicationD) > 0){
-                    $result["specialType"]["publicationData"] = $publicationD;
-                }
                 $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             default:
                 //there is no special children view, so we are using the the default children table
                 $childrenData = $oeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
         }        
+        
 
         //we have children data so we will generate the view for it
         if(count($childrenData) > 0){
@@ -2158,6 +2136,65 @@ class OeawFunctions {
         
         return $result;
         
+    }
+    
+    /**
+     * 
+     * Generate the oeaw_detail view custom detail views data
+     * 
+     * @param array $data
+     * @param string $type
+     * @return array
+     * 
+     */
+    public function generateCustomDetailViewData(array $data, string $type): array{
+        
+        $result = array();
+        switch (strtolower($type)) {
+            case "person":
+                $personData = array();
+                $personData = $this->createCustomDetailViewTemplateData($data, "person");
+                if(count($personData) > 0){
+                    $result["personData"] = $personData;
+                }
+                break;
+            case "concept":
+                break;
+            case "project":
+                $projData = array();
+                $projData = $this->createCustomDetailViewTemplateData($data, "project"); 
+                if(count($projData) > 0){
+                    $result["projectData"] = $projData;
+                }
+                break;
+            case "institute":
+                break;
+            case "organisation":
+                $orgData = array();
+                $orgData = $this->createCustomDetailViewTemplateData($data, "organisation");
+                if(count($orgData) > 0){
+                    $result["organisationData"] = $orgData;
+                }
+                break;
+            case "place":
+                $placeData = array();
+                $placeData = $this->createCustomDetailViewTemplateData($data, "place");
+                if(count($placeData) > 0){
+                    $result["placeData"] = $placeData;
+                }
+                break;
+            case "publication":
+                $publicationData = array();
+                $publicationData = $this->createCustomDetailViewTemplateData($data, "publication");
+                if(count($publicationData) > 0){
+                    $result["publicationData"] = $publicationData;
+                }
+                break;
+            default:
+                break;
+        }
+        
+        return $result;
     }
     
     

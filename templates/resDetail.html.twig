@@ -32,16 +32,16 @@
     </h3> 
     
     <div class="single-res-overview single-res-overview-basic">
-        {% if result['personData'] %}
-            {{ include('/modules/oeaw/templates/detailView_Person.html.twig', {'result': result['personData'] } ) }}
-        {% elseif result['projectData'] %}        
-            {{ include('/modules/oeaw/templates/detailView_Project.html.twig', {'result': result['projectData'] } ) }}
-        {% elseif result['organisationData'] %}
-            {{ include('/modules/oeaw/templates/detailView_Organisation.html.twig', {'result': result['organisationData'], 'insideUrl': result['insideUri'] } ) }}
-        {% elseif result['placeData'] %}
-            {{ include('/modules/oeaw/templates/detailView_Place.html.twig', {'result': result['placeData'] } ) }}
-        {% elseif result['publicationData'] %}
-            {{ include('/modules/oeaw/templates/detailView_Publication.html.twig', {'result': result['publicationData'] } ) }}            
+        {% if result['specialType']['personData'] %}
+            {{ include('/modules/oeaw/templates/detailView_Person.html.twig', {'result': result['specialType']['personData'] } ) }}
+        {% elseif result['specialType']['projectData'] %}        
+            {{ include('/modules/oeaw/templates/detailView_Project.html.twig', {'result': result['specialType']['projectData'] } ) }}
+        {% elseif result['specialType']['organisationData'] %}
+            {{ include('/modules/oeaw/templates/detailView_Organisation.html.twig', {'result': result['specialType']['organisationData'], 'insideUrl': result['insideUri'] } ) }}
+        {% elseif result['specialType']['placeData'] %}
+            {{ include('/modules/oeaw/templates/detailView_Place.html.twig', {'result': result['specialType']['placeData'] } ) }}
+        {% elseif result['specialType']['publicationData'] %}
+            {{ include('/modules/oeaw/templates/detailView_Publication.html.twig', {'result': result['specialType']['publicationData'] } ) }}            
         {% else  %}
             {{ include('/modules/oeaw/templates/detailView_Basic.html.twig', {'result': result } ) }}
         {% endif %}

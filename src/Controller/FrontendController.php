@@ -468,7 +468,7 @@ class FrontendController extends ControllerBase  {
         if(count($rootMeta) > 0){
             $results = array();
             
-            //get the root table data
+            //get the root table data for the expert view
             $results = $this->OeawFunctions->createDetailViewTable($rootMeta);
             
             if(count($results) == 0){
@@ -510,6 +510,14 @@ class FrontendController extends ControllerBase  {
                         $results["pagination"] = $childArray['pagination'];
                     }
                 }
+                
+                $customDetailView = array();
+                $customDetailView = $this->OeawFunctions->generateCustomDetailViewData($results, $results["acdh_rdf:type"]['title']);
+                
+                if(count($customDetailView) > 0){
+                    $results['specialType'] = $customDetailView;
+                }
+                
             }
         } else {
             $msg = base64_encode("The resource has no metadata!");
