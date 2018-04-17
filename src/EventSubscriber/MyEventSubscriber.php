@@ -23,12 +23,17 @@ class MyEventSubscriber implements EventSubscriberInterface {
 
     public function checkForShibboleth(GetResponseEvent $event) {    
         
-        if ( ($event->getRequest()->getPathInfo() == '/user/logout') &&  (\Drupal::currentUser()->getUsername() == "shibboleth") ) {
+        if ( ($event->getRequest()->getPathInfo() == '/user/logout') /*&&  (\Drupal::currentUser()->getUsername() == "shibboleth") */) {
             unset($_SERVER['HTTP_AUTHORIZATION']);
             unset($_SERVER['HTTP_EPPN']);
+            foreach (headers_list() as $header){
+                header_remove($header);
+            }
             $host = \Drupal::request()->getSchemeAndHttpHost();
             $userid = \Drupal::currentUser()->id();
             \Drupal::service('session_manager')->delete($userid);
+            //$event->setResponse(new TrustedRedirectResponse($host."/Shibboleth.sso/Logout?return=".$host."/browser/"));
+            //return;
             $event->setResponse(new TrustedRedirectResponse($host."/Shibboleth.sso/Logout?return=".$host."/browser/"));
         }
         
@@ -40,26 +45,19 @@ class MyEventSubscriber implements EventSubscriberInterface {
             //if it is a shibboleth login and there is no user logged in
             if(isset($_SERVER['HTTP_EPPN']) && $_SERVER['HTTP_EPPN'] != null && $userid == 0 && \Drupal::currentUser()->isAnonymous()){
                 
-                //the global drupal shibboleth username
+                 //the global drupal shibboleth username
                 $shib = user_load_by_name('shibboleth');
                 //if we dont have it then we will create it
                 if($shib === FALSE){
                     $sh = $this->createShibbolethUser();
                     $shib = user_load_by_name('shibboleth');
-                    
-                    if($shib->id() !== 0) {
-                        $user = \Drupal\User\Entity\User::load($shib->id());
-                        $user->activate();
-                        user_login_finalize($user);
-                        $event->setResponse(new RedirectResponse(\Drupal::url('<current>')));
-                    }
-                }else{
-                    if($shib->id() !== 0) {
-                        $user = \Drupal\User\Entity\User::load($shib->id());
-                        $user->activate();
-                        user_login_finalize($user);
-                        $event->setResponse(new RedirectResponse(\Drupal::url('<current>')));
-                    }
+                }
+                if($shib->id() != 0) {
+                    $user = \Drupal\User\Entity\User::load($shib->id());
+                    $user->activate();
+                    user_login_finalize($user);
+                    $host = \Drupal::request()->getSchemeAndHttpHost();        
+                    return new TrustedRedirectResponse($host."/browser/");
                 }
             }
         }

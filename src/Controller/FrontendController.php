@@ -1153,22 +1153,33 @@ class FrontendController extends ControllerBase  {
         return $result;
         
     }
-    
-    
+      
     /**
      * 
      * Displaying the federated login with shibboleth
      * 
      * @return array
      */
-    public function oeaw_shibboleth_login(): array{
-        $result = 
-            array(
-                '#theme' => 'oeaw_shibboleth_login'
-            );
-         
+   public function oeaw_shibboleth_login(){
+        
+        $result = array();
+        $userid = \Drupal::currentUser()->id();
+        
+        if( (isset($_SERVER['HTTP_EPPN']) && $_SERVER['HTTP_EPPN'] != null) 
+                && (isset($_SERVER['HTTP_AUTHORIZATION']) && $_SERVER['HTTP_AUTHORIZATION'] != null) 
+                )
+            {
+             drupal_set_message(t('You already signed in!'), 'status', FALSE);
+             return $result;
+         }else{
+            $result = 
+                array(
+                    '#theme' => 'oeaw_shibboleth_login'
+                );
+         }
         return $result;
     }
+    
     
     /**
      * 
