@@ -182,10 +182,10 @@ oeaw_ismember_result:
     requirements:
         _access: 'TRUE'
 
-oeaw_cache_onotology:    
-    path: '/oeaw_cache_onotology'
+oeaw_cache_ontology:    
+    path: '/oeaw_cache_ontology'
     defaults:
-        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_cache_onotology'
+        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_cache_ontology'
     requirements:
         _permission: 'access content'
 

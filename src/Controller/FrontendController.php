@@ -894,7 +894,7 @@ class FrontendController extends ControllerBase  {
     /**
      * cache the acdh ontology 
      */
-    public function oeaw_cache_onotology(){
+    public function oeaw_cache_ontology(){
     
         $result = array();
         if($this->PropertyTableCache->setCacheData() == true){

@@ -1852,10 +1852,38 @@ class OeawStorage {
      * 
      * @return array
      */
-    public function getOntologyForCache(): array{
+    public function getOntologyForCache(string $lang = "en"): array{
         
+        $lang = strtolower($lang);
         $result = array();
         
+        $select = 'prefix skos: <http://www.w3.org/2004/02/skos/core#> '
+                . 'SELECT ?title ?id ?comment WHERE { ';
+        $where = "?uri <".RC::get('drupalRdfType')."> ?type ."
+                . "FILTER( ?type IN ( <http://www.w3.org/2002/07/owl#DatatypeProperty>, <http://www.w3.org/2002/07/owl#ObjectProperty>)) . "
+                . "?uri <".RC::get('fedoraIdProp')."> ?id . "
+                . " OPTIONAL {
+                        ?uri skos:altLabel ?titleLang .   	
+                        FILTER regex(lang(?titleLang),'".$lang."','i') .
+                    }
+                    OPTIONAL {
+                        ?uri skos:altLabel ?titleEN .   	
+                        FILTER regex(lang(?titleEN),'en','i') .
+                    } 
+                    BIND( IF( !bound(?titleLang) , ?titleEN, ?titleLang) as ?title ) .  
+                    "
+                 . "OPTIONAL {
+                        ?uri rdfs:comment ?commentsLang .   	
+                        FILTER regex(lang(?commentsLang),'".$lang."','i') .
+                    }
+                    OPTIONAL {
+                        ?uri rdfs:comment ?commentsEN .   	
+                        FILTER regex(lang(?commentsEN), 'en','i') .
+                    }
+                    BIND( IF( !bound(?commentsLang) , ?commentsEN, ?commentsLang) as ?comment ) .  "
+                . "}";
+        
+        /*
         $select = 'SELECT ?title ?id (GROUP_CONCAT(DISTINCT ?comments;separator=",") AS ?comment) WHERE { ';
         $where = "?uri <".RC::get('drupalRdfType')."> ?type ."
                 . "FILTER( ?type IN ( <http://www.w3.org/2002/07/owl#DatatypeProperty>, <http://www.w3.org/2002/07/owl#ObjectProperty>)) . "
@@ -1864,7 +1892,7 @@ class OeawStorage {
                 . "?uri <".RC::get('drupalRdfsComment')."> ?comments ."
                 . "}"
                 . "Group by ?title ?id";
-         
+         */
         $queryStr = $select.$where;
 
         try {
