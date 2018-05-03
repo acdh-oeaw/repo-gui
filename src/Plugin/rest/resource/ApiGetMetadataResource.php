@@ -73,7 +73,7 @@ class ApiGetMetadataResource extends ResourceBase {
                         && 
                     (isset($class['uri']) && !empty($class['uri']) ) 
                 ){
-                    $classMeta = $oeawStorage->getClassMeta($class['uri']);
+                    $classMeta = $oeawStorage->getClassMetaForApi($class['uri']);
                     $typeID = $class['id'];
                 }
             }
@@ -111,7 +111,7 @@ class ApiGetMetadataResource extends ResourceBase {
                 
         if(count($properties) > 0){
           
-
+           
             foreach($properties as $prop){
                 
                 if($prop['propID']){
@@ -128,13 +128,8 @@ class ApiGetMetadataResource extends ResourceBase {
                     if(isset($prop['propTitle']) && $prop['propTitle']){
                         $result[$propID]['title'] = $prop['propTitle']; 
                     }
-                    if(isset($prop['cardinality']) && $prop['cardinality']){
-                        $result[$propID]['minItems'] = (int)$prop['cardinality'];
-                        if( $prop['cardinality'] > 1){
-                            $result[$propID]['type'] = "array";
-                        }
-                    }
-                    if(isset($prop['minCardinality']) && $prop['minCardinality']){
+                    
+                    if(isset($prop['minCardinality'])){
                         $result[$propID]['minItems'] = (int)$prop['minCardinality']; 
                         if( $prop['minCardinality'] > 1){
                             $result[$propID]['type'] = "array";
@@ -142,21 +137,22 @@ class ApiGetMetadataResource extends ResourceBase {
                         if( $prop['minCardinality'] == 1){
                             $result[$propID]['uniqueItems'] = true;
                         }
+                    }else{
+                        $result[$propID]['minItems'] = 0; 
                     }
-                    if(isset($prop['maxCardinality']) && $prop['maxCardinality']){
+                    
+                    if(isset($prop['maxCardinality'])){
                         $result[$propID]['maxItems'] = (int)$prop['maxCardinality']; 
                         if( $prop['maxCardinality'] > 1){
                             $result[$propID]['type'] = "array";
                         }
                     }
-                    if( (isset($prop['cardinality']) && $prop['cardinality']) 
-                            ||   
-                        (isset($prop['minCardinality']) && $prop['minCardinality']) ){
+                    if( isset($prop['minCardinality']) && $prop['minCardinality'] >= 1 ){
                         $required[] = $propID;
                     }
                     
                     
-                    if(isset($prop['range']) && $prop['range']){
+                    if( isset($prop['range']) ){
                         if( $result[$propID]['type'] == "array"){
                             $result[$propID]['items']['type'] = "string"; 
                             $result[$propID]['items']['range'] = $prop['range']; 

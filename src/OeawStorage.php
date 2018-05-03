@@ -628,6 +628,84 @@ class OeawStorage {
         }  
     }
     
+    /* 
+     *
+     *  Get the digital rescources Meta data and the cardinality data by ResourceUri
+     *
+     * @param string $classURI 
+     *
+     * @return Array
+    */
+    public function getClassMetaForApi(string $classURI): array{
+        if (empty($classURI)) {
+            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+        }
+        $rdfsSubClass = self::$sparqlPref['rdfsSubClass'];
+        $rdfsDomain = self::$sparqlPref["rdfsDomain"];
+        $owlCardinality = self::$sparqlPref["owlCardinality"];
+        $owlMinCardinality = self::$sparqlPref["owlMinCardinality"];
+        $owlMaxCardinality = self::$sparqlPref["owlMaxCardinality"];
+        $rdfsSubPropertyOf = self::$sparqlPref["rdfsSubPropertyOf"];
+        
+        
+        $select = "select ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?comment where { ";
+        $where = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
+                . "?uri <".$rdfsDomain."> ?class . "
+                . "?uri <".RC::get('fedoraTitleProp')."> ?propTitle . "
+                . "?uri <".RC::get('fedoraIdProp')."> ?propID . "
+                . "?uri rdf:type <http://www.w3.org/2002/07/owl#DatatypeProperty> . ";
+        
+        $optionals = "	OPTIONAL{
+                            SELECT  * WHERE { 
+                                ?uri rdfs:range ?range .
+                            }
+                        } ";
+        $optionals .= "OPTIONAL {
+    	 SELECT * WHERE {
+       		 <".$classURI."> rdfs:subClassOf ?subclass .
+                ?subUri <".RC::get('fedoraIdProp')."> ?subclass .
+       		?subUri rdf:type <http://www.w3.org/2002/07/owl#Restriction> .
+  		?subUri owl:onProperty ?propID .
+                OPTIONAL {
+                    ?subUri owl:maxCardinality ?maxCardinality .
+                }
+                OPTIONAL {
+                    ?subUri owl:minxCardinality ?minCardinality .
+                }
+                OPTIONAL {
+                    ?uri rdfs:comment ?comment .
+                }
+       		OPTIONAL {
+                    ?subUri <https://vocabs.acdh.oeaw.ac.at/schema#ordering> ?order .
+                }
+            }
+        }"; 
+        
+        $string = $select.$where.$optionals." } ";
+        
+        try {
+            
+            $q = new SimpleQuery($string);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields();
+            $result = $this->OeawFunctions->createSparqlResult($res, $fields);
+            return $result;
+            
+            
+        } catch (Exception $ex) {            
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+           return array();
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            $msg = base64_encode($ex->getMessage());
+            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
+            $response->send();
+           return array();
+        }  
+    }
     
     /* 
      *
