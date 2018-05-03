@@ -117,7 +117,7 @@ class FrontendController extends ControllerBase  {
                 if(isset($value["description"]) && !empty($value["description"]) ){
                     $res[$i]["description"] = $value["description"];
                 }                
-                if(count($value["rdfTypes"]) > 0){
+                if( isset($value["rdfTypes"]) && !empty($value["rdfTypes"]) ){
                     $types = explode(",", $value["rdfTypes"]);
                     foreach($types as $t){
                         if (strpos($t, 'vocabs.acdh.oeaw.ac.at') !== false) {
