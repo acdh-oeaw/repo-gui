@@ -465,7 +465,7 @@ class FrontendController extends ControllerBase  {
            return array();
         }
         
-        if(count($rootMeta) > 0){
+        if(isset($rootMeta) && !empty($rootMeta) ){
             $results = array();
             
             //get the root table data for the expert view
