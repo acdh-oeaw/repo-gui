@@ -422,7 +422,7 @@ class FrontendController extends ControllerBase  {
             $msg = base64_encode("Resource does not exist");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;            
+           return array();            
         }
         
         if($limit == "0"){ $limit = "10"; }
@@ -448,12 +448,12 @@ class FrontendController extends ControllerBase  {
             $msg = base64_encode("Resource does not exist!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }
         //get the actual resource rules
         $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
@@ -462,7 +462,7 @@ class FrontendController extends ControllerBase  {
             $msg = base64_encode("The Resource Rules are not reachable!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }
         
         if(count($rootMeta) > 0){
@@ -475,7 +475,7 @@ class FrontendController extends ControllerBase  {
                 $msg = base64_encode("The resource has no metadata!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
-                return;
+               return array();
             }
             
             $results['ACL'] = $this->OeawFunctions->checkRules($rules);
@@ -523,7 +523,7 @@ class FrontendController extends ControllerBase  {
             $msg = base64_encode("The resource has no metadata!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;            
+           return array();            
         }
         
         /*

@@ -117,12 +117,12 @@ class OeawFunctions {
                 $msg = base64_encode('Error in function: '.__FUNCTION__);
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
-                return;
+                return array();
             } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
                 $msg = base64_encode('Error in function: '.__FUNCTION__);
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
-                return;
+                return array();
             }
         }
         return $result;
@@ -443,7 +443,7 @@ class OeawFunctions {
             $msg = base64_encode("You have no rights to check the Resource!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return array();
         }
         return $rights;
     }
@@ -470,12 +470,12 @@ class OeawFunctions {
             $msg = base64_encode('Error in function: '.__FUNCTION__);
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return array();
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
             $msg = base64_encode('Error in function: '.__FUNCTION__);
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return array();
         }
         return $result;
     }
@@ -946,12 +946,12 @@ class OeawFunctions {
             $msg = base64_encode("Resource does not exist!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return array();
         }         
         
         return $meta;
@@ -979,23 +979,23 @@ class OeawFunctions {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return array();
         }     
         catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
             $msg = base64_encode("Resource does not exist!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return array();
         } catch (\acdhOeaw\fedora\exceptions\Deleted $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return array();
         }          
         
         return $graph;

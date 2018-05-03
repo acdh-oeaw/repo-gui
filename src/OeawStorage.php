@@ -176,12 +176,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;            
+           return array();            
         }catch (\InvalidArgumentException $ex){            
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }
     }
 
@@ -214,12 +214,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;            
+           return array();            
         }catch (\InvalidArgumentException $ex){            
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }
     }
     
@@ -295,12 +295,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;            
+           return array();            
         }catch (\InvalidArgumentException $ex){            
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }
     }
     
@@ -335,12 +335,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }
     }
 
@@ -511,18 +511,18 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } 
         catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } 
     }
     
@@ -562,12 +562,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }  
     }
    
@@ -619,12 +619,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }  
     }
     
@@ -785,12 +785,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }  
     }
     
@@ -878,12 +878,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return "";
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+            return "";
         }  
     }
     
@@ -959,12 +959,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }        
     }
     
@@ -1420,12 +1420,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }        
     }
     
@@ -1455,12 +1455,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }  
     }
     
@@ -1514,12 +1514,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }  
     }
     
@@ -1592,12 +1592,12 @@ class OeawStorage {
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             $msg = base64_encode($ex->getMessage());
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;
+           return array();
         }  
     }
     

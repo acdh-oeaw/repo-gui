@@ -261,7 +261,7 @@ class OeawCustomSparql {
                     $msg = base64_encode("The Minimum date is wrong!");
                     $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                     $response->send();
-                    return;
+                    return "";
                 }
                 if( (bool)strtotime($data["maxdate"]) ){
                     $maxdate = new \DateTime($data["maxdate"]);
@@ -269,7 +269,7 @@ class OeawCustomSparql {
                     $msg = base64_encode("The Maximum date is wrong!");
                     $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                     $response->send();
-                    return;
+                    return "";
                 }
                 
                 $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
