@@ -665,6 +665,10 @@ class OeawStorage {
             OPTIONAL {
                 ?uri <https://vocabs.acdh.oeaw.ac.at/schema#vocabs> ?vocabs .
             }
+            OPTIONAL {
+                ?uri rdfs:comment ?comments .
+                FILTER regex(lang(?comments), 'en','i') .
+            }
             OPTIONAL{ 
                 SELECT  * WHERE { 
                     ?uri rdfs:range ?range .
@@ -682,9 +686,7 @@ class OeawStorage {
                 OPTIONAL {
                     ?subUri owl:minxCardinality ?minCardinality .
                 }
-                OPTIONAL {
-                    ?uri rdfs:comment ?comments .
-                }
+                
             }
         }"; 
         
