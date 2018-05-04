@@ -110,10 +110,7 @@ class ApiGetMetadataResource extends ResourceBase {
         $required = array();
                 
         if(count($properties) > 0){
-          
-           
             foreach($properties as $prop){
-                
                 if($prop['propID']){
                     $propID = "";
                     $propIDArr = explode("https://vocabs.acdh.oeaw.ac.at/schema#", $prop['propID']);
@@ -150,9 +147,8 @@ class ApiGetMetadataResource extends ResourceBase {
                     if( isset($prop['minCardinality']) && $prop['minCardinality'] >= 1 ){
                         $required[] = $propID;
                     }
-                    
-                    
-                    if( isset($prop['range']) ){
+                                        
+                    if( isset($prop['range']) && $prop['range'] ){
                         if( $result[$propID]['type'] == "array"){
                             $result[$propID]['items']['type'] = "string"; 
                             $result[$propID]['items']['range'] = $prop['range']; 
@@ -162,6 +158,20 @@ class ApiGetMetadataResource extends ResourceBase {
                             $result[$propID]['range'] = $prop['range']; 
                         }
                     }
+                    if( isset($prop['vocabs']) && $prop['vocabs'] ){
+                        $result[$propID]['vocabs'] = $prop['vocabs']; 
+                    }
+                    
+                    if( isset($prop['order']) && $prop['order'] ){
+                        $result[$propID]['order'] = $prop['order']; 
+                    }
+                    
+                    if( isset($prop['recommendedClass']) && $prop['recommendedClass'] ){
+                        $result[$propID]['recommendedClass'] = $prop['recommendedClass']; 
+                    }
+                    
+                    
+                    
                 }
             }
         }

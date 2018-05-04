@@ -648,18 +648,28 @@ class OeawStorage {
         $rdfsSubPropertyOf = self::$sparqlPref["rdfsSubPropertyOf"];
         
         
-        $select = "select ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?comment where { ";
+        $select = "select ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?vocabs (GROUP_CONCAT(DISTINCT ?comments;separator=',') AS ?comment) (GROUP_CONCAT(DISTINCT ?recommendedClasses;separator=',') AS ?recommendedClass)  where { ";
         $where = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
                 . "?uri <".$rdfsDomain."> ?class . "
                 . "?uri <".RC::get('fedoraTitleProp')."> ?propTitle . "
                 . "?uri <".RC::get('fedoraIdProp')."> ?propID . "
                 . "?uri rdf:type <http://www.w3.org/2002/07/owl#DatatypeProperty> . ";
         
-        $optionals = "	OPTIONAL{
-                            SELECT  * WHERE { 
-                                ?uri rdfs:range ?range .
-                            }
-                        } ";
+        $optionals = "	
+            OPTIONAL {
+                ?uri <https://vocabs.acdh.oeaw.ac.at/schema#ordering> ?order .
+            }
+            OPTIONAL {
+                ?uri <https://vocabs.acdh.oeaw.ac.at/schema#recommendedClass> ?recommendedClasses .
+            }
+            OPTIONAL {
+                ?uri <https://vocabs.acdh.oeaw.ac.at/schema#vocabs> ?vocabs .
+            }
+            OPTIONAL{ 
+                SELECT  * WHERE { 
+                    ?uri rdfs:range ?range .
+                }
+            } ";
         $optionals .= "OPTIONAL {
     	 SELECT * WHERE {
        		 <".$classURI."> rdfs:subClassOf ?subclass .
@@ -673,15 +683,14 @@ class OeawStorage {
                     ?subUri owl:minxCardinality ?minCardinality .
                 }
                 OPTIONAL {
-                    ?uri rdfs:comment ?comment .
-                }
-       		OPTIONAL {
-                    ?subUri <https://vocabs.acdh.oeaw.ac.at/schema#ordering> ?order .
+                    ?uri rdfs:comment ?comments .
                 }
             }
         }"; 
         
-        $string = $select.$where.$optionals." } ";
+        $groupby = " GROUP BY ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?vocabs"
+                . " ORDER BY ?order";
+        $string = $select.$where.$optionals." } ".$groupby;
         
         try {
             
