@@ -645,17 +645,27 @@ class OeawStorage {
         $lang = strtolower($lang);
         
         $prefix = "prefix owl: <http://www.w3.org/2002/07/owl#> "
-                . "";
+                . "prefix skos: <http://www.w3.org/2004/02/skos/core#> ";
+                
         $select = "select ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?vocabs "
                 . "(GROUP_CONCAT(DISTINCT ?comments;separator=',') AS ?comment) "
                 . "(GROUP_CONCAT(DISTINCT ?recommendedClasses;separator=',') AS ?recommendedClass)  "
                 . "where { ";
         
-        $where = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
+        $where_1 = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
                 . "?uri rdfs:domain ?class . "
-                . "?uri <".RC::get('fedoraTitleProp')."> ?propTitle . "
+                . "?uri skos:altLabel ?propTitle .  "
+                . "FILTER regex(lang(?propTitle), '".$lang."','i') . "
                 . "?uri <".RC::get('fedoraIdProp')."> ?propID . "
                 . "?uri rdf:type owl:DatatypeProperty . ";
+        
+        $where_2 = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
+                . "?uri rdfs:domain ?class . "
+                . "?uri skos:altLabel ?propTitle .  "
+                . "FILTER regex(lang(?propTitle), '".$lang."','i') . "
+                . "?uri <".RC::get('fedoraIdProp')."> ?propID . "
+                . "?uri owl:inverseOf ?inv . "
+                . "?uri rdf:type owl:ObjectProperty . ";
         
         $optionals = "	
             OPTIONAL {
@@ -691,10 +701,11 @@ class OeawStorage {
                 
             }
         }"; 
+        $union = " } UNION { ";
         
         $groupby = " GROUP BY ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?vocabs"
                 . " ORDER BY ?order";
-        $string = $prefix.$select.$where.$optionals." } ".$groupby;
+        $string = $prefix.$select." { ".$where_1.$optionals.$union.$where_2.$optionals." } "." } ".$groupby;
         
         try {
             
