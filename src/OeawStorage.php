@@ -636,38 +636,40 @@ class OeawStorage {
      *
      * @return Array
     */
-    public function getClassMetaForApi(string $classURI): array{
+    public function getClassMetaForApi(string $classURI, string $lang = "en"): array{
+        
         if (empty($classURI)) {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
         }
-        $rdfsSubClass = self::$sparqlPref['rdfsSubClass'];
-        $rdfsDomain = self::$sparqlPref["rdfsDomain"];
-        $owlCardinality = self::$sparqlPref["owlCardinality"];
-        $owlMinCardinality = self::$sparqlPref["owlMinCardinality"];
-        $owlMaxCardinality = self::$sparqlPref["owlMaxCardinality"];
-        $rdfsSubPropertyOf = self::$sparqlPref["rdfsSubPropertyOf"];
         
+        $lang = strtolower($lang);
         
-        $select = "select ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?vocabs (GROUP_CONCAT(DISTINCT ?comments;separator=',') AS ?comment) (GROUP_CONCAT(DISTINCT ?recommendedClasses;separator=',') AS ?recommendedClass)  where { ";
+        $prefix = "prefix owl: <http://www.w3.org/2002/07/owl#> "
+                . "";
+        $select = "select ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?vocabs "
+                . "(GROUP_CONCAT(DISTINCT ?comments;separator=',') AS ?comment) "
+                . "(GROUP_CONCAT(DISTINCT ?recommendedClasses;separator=',') AS ?recommendedClass)  "
+                . "where { ";
+        
         $where = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
-                . "?uri <".$rdfsDomain."> ?class . "
+                . "?uri rdfs:domain ?class . "
                 . "?uri <".RC::get('fedoraTitleProp')."> ?propTitle . "
                 . "?uri <".RC::get('fedoraIdProp')."> ?propID . "
-                . "?uri rdf:type <http://www.w3.org/2002/07/owl#DatatypeProperty> . ";
+                . "?uri rdf:type owl:DatatypeProperty . ";
         
         $optionals = "	
             OPTIONAL {
-                ?uri <https://vocabs.acdh.oeaw.ac.at/schema#ordering> ?order .
+                ?uri <".RC::get('fedoraVocabsNamespace')."ordering> ?order .
             }
             OPTIONAL {
-                ?uri <https://vocabs.acdh.oeaw.ac.at/schema#recommendedClass> ?recommendedClasses .
+                ?uri <".RC::get('fedoraVocabsNamespace')."recommendedClass> ?recommendedClasses .
             }
             OPTIONAL {
-                ?uri <https://vocabs.acdh.oeaw.ac.at/schema#vocabs> ?vocabs .
+                ?uri <".RC::get('fedoraVocabsNamespace')."vocabs> ?vocabs .
             }
             OPTIONAL {
                 ?uri rdfs:comment ?comments .
-                FILTER regex(lang(?comments), 'en','i') .
+                FILTER regex(lang(?comments), '".$lang."','i') .
             }
             OPTIONAL{ 
                 SELECT  * WHERE { 
@@ -678,7 +680,7 @@ class OeawStorage {
     	 SELECT * WHERE {
        		 <".$classURI."> rdfs:subClassOf ?subclass .
                 ?subUri <".RC::get('fedoraIdProp')."> ?subclass .
-       		?subUri rdf:type <http://www.w3.org/2002/07/owl#Restriction> .
+       		?subUri rdf:type owl:Restriction .
   		?subUri owl:onProperty ?propID .
                 OPTIONAL {
                     ?subUri owl:maxCardinality ?maxCardinality .
@@ -692,7 +694,7 @@ class OeawStorage {
         
         $groupby = " GROUP BY ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?vocabs"
                 . " ORDER BY ?order";
-        $string = $select.$where.$optionals." } ".$groupby;
+        $string = $prefix.$select.$where.$optionals." } ".$groupby;
         
         try {
             

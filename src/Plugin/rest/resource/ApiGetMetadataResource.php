@@ -27,7 +27,7 @@ use EasyRdf\Resource;
  *   id = "api_getMetadata",
  *   label = @Translation("ARCHE Metadata provider"),
  *   uri_paths = {
- *     "canonical" = "/api/getMetadata/{type}"
+ *     "canonical" = "/api/getMetadata/{type}/{lang}"
  *   }
  * )
  */
@@ -36,17 +36,21 @@ class ApiGetMetadataResource extends ResourceBase {
     /*
      * Usage:
      * 
-     *  https://domain.com/browser/api/getMetadata/MYVALUE?_format=json
+     *  https://domain.com/browser/api/getMetadata/MYVALUE/Language?_format=json
      */
     
     /**
     * Responds to entity GET requests.
     * @return \Drupal\rest\ResourceResponse
     */
-    public function get(string $type) {
+    public function get(string $type, string $lang) {
         
         if(empty($type)){
             return new JsonResponse(array("Please provide a type! For exmaple: person, collection, etc..."), 404, ['Content-Type'=> 'application/json']);
+        }
+        
+        if(empty($lang)){
+            return new JsonResponse(array("Please provide a language! For exmaple: en, de etc..."), 404, ['Content-Type'=> 'application/json']);
         }
         
         $classes = array();
@@ -73,7 +77,7 @@ class ApiGetMetadataResource extends ResourceBase {
                         && 
                     (isset($class['uri']) && !empty($class['uri']) ) 
                 ){
-                    $classMeta = $oeawStorage->getClassMetaForApi($class['uri']);
+                    $classMeta = $oeawStorage->getClassMetaForApi($class['uri'], $lang);
                     $typeID = $class['id'];
                 }
             }
