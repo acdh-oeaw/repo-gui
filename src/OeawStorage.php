@@ -652,20 +652,12 @@ class OeawStorage {
                 . "(GROUP_CONCAT(DISTINCT ?recommendedClasses;separator=',') AS ?recommendedClass)  "
                 . "where { ";
         
-        $where_1 = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
+        $where = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
                 . "?uri rdfs:domain ?class . "
                 . "?uri skos:altLabel ?propTitle .  "
                 . "FILTER regex(lang(?propTitle), '".$lang."','i') . "
-                . "?uri <".RC::get('fedoraIdProp')."> ?propID . "
-                . "?uri rdf:type owl:DatatypeProperty . ";
-        
-        $where_2 = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
-                . "?uri rdfs:domain ?class . "
-                . "?uri skos:altLabel ?propTitle .  "
-                . "FILTER regex(lang(?propTitle), '".$lang."','i') . "
-                . "?uri <".RC::get('fedoraIdProp')."> ?propID . "
-                . "?uri owl:inverseOf ?inv . "
-                . "?uri rdf:type owl:ObjectProperty . ";
+                . "?uri <".RC::get('fedoraIdProp')."> ?propID . ";
+                //. "?uri rdf:type owl:DatatypeProperty . ";
         
         $optionals = "	
             OPTIONAL {
@@ -705,8 +697,8 @@ class OeawStorage {
         
         $groupby = " GROUP BY ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?vocabs"
                 . " ORDER BY ?order";
-        $string = $prefix.$select." { ".$where_1.$optionals.$union.$where_2.$optionals." } "." } ".$groupby;
-        
+        $string = $prefix.$select.$where.$optionals." } ".$groupby;
+      
         try {
             
             $q = new SimpleQuery($string);

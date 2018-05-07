@@ -168,6 +168,8 @@ class ApiGetMetadataResource extends ResourceBase {
                     
                     if( isset($prop['order']) && $prop['order'] ){
                         $result[$propID]['order'] = $prop['order']; 
+                    }else {
+                        $result[$propID]['order'] = 0; 
                     }
                     
                     if( isset($prop['recommendedClass']) && $prop['recommendedClass'] ){
