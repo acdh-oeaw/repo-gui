@@ -167,7 +167,7 @@ class ApiGetMetadataResource extends ResourceBase {
                     }
                     
                     if( isset($prop['order']) && $prop['order'] ){
-                        $result[$propID]['order'] = $prop['order']; 
+                        $result[$propID]['order'] = (int)$prop['order']; 
                     }else {
                         $result[$propID]['order'] = 0; 
                     }

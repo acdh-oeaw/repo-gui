@@ -653,11 +653,16 @@ class OeawStorage {
                 . "where { ";
         
         $where = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
-                . "?uri rdfs:domain ?class . "
-                . "?uri skos:altLabel ?propTitle .  "
-                . "FILTER regex(lang(?propTitle), '".$lang."','i') . "
+                . "{ ?uri rdfs:domain ?class . "
+                . " ?uri skos:altLabel ?propTitle .  "
+                . " FILTER regex(lang(?propTitle), '".$lang."','i') . "
+                . "} UNION { "
+                . " <".$classURI."> <".RC::get('fedoraIdProp')."> ?mainID ."
+                . " ?uri rdfs:domain ?mainID . "
+                . " ?uri skos:altLabel ?propTitle ."
+                . " FILTER regex(lang(?propTitle), '".$lang."','i') . "
+                . " } "
                 . "?uri <".RC::get('fedoraIdProp')."> ?propID . ";
-                //. "?uri rdf:type owl:DatatypeProperty . ";
         
         $optionals = "	
             OPTIONAL {
