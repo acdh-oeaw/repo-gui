@@ -1867,7 +1867,7 @@ class OeawStorage implements OeawStorageInterface {
                 if($dissemination == true){
                     $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
                     $where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
-                    $where .= "FILTER regex(str(?identifier),'.at/uuid/','i') .";
+                    $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
                 }
                 
                 $where .= " } ";

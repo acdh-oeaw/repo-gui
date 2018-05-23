@@ -125,9 +125,28 @@ class OeawFunctions {
         return $uri;
     }
     
-    
-
-    
+    /**
+     * 
+     * This function is get the acdh identifier by the PID, because all of the functions
+     * are using the identifier and not the pid :)
+     * 
+     * @param string $identifier
+     * @return string
+     */
+    public function pidToAcdhIdentifier(string $identifier): string {
+        $return = "";
+        $oeawStorage = new OeawStorage();
+        $idsByPid = $oeawStorage->getACDHIdByPid($identifier);
+        if(count($idsByPid) > 0){
+            foreach ($idsByPid as $d){
+                if (strpos((string)$d['id'], RC::get('fedoraIdNamespace')) !== false) {
+                    $return = $d['id'];
+                    break;
+                }
+            }
+        }
+        return $return;
+    }
     
     /**
      * 
@@ -143,7 +162,7 @@ class OeawFunctions {
             try{
                 $id = $fedoraRes->getId();
                 $dissServ = $fedoraRes->getDissServices();
-                
+
                 if(count($dissServ) > 0){
                     $processed = array();
                 
@@ -159,6 +178,7 @@ class OeawFunctions {
                         //get the titles
                         $titles = array();
                         $titles = $oeawStorage->getTitleByIdentifierArray($processed, true);
+                        
                         if(count($titles) > 0){
                             $titles = Helper::removeDuplicateValuesFromMultiArrayByKey($titles, "title");
                             $result = $titles;

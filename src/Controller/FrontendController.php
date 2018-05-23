@@ -299,15 +299,7 @@ class FrontendController extends ControllerBase  {
         
         //if the browser url contains handle url then we need to get the acdh:hasIdentifier
         if (strpos($identifier, 'hdl.handle.net') !== false) {
-            $idsByPid = $this->oeawStorage->getACDHIdByPid($identifier);
-            if(count($idsByPid) > 0){
-                foreach ($idsByPid as $d){
-                    if (strpos((string)$d['id'], RC::get('fedoraIdNamespace')) !== false) {
-                        $identifier = $d['id'];
-                        break;
-                    }
-                }
-            }
+            $identifier = $this->oeawFunctions->pidToAcdhIdentifier($identifier);
         }
         
         if (empty($identifier)) {
@@ -415,7 +407,7 @@ class FrontendController extends ControllerBase  {
         $dissServices = array();
         //check the Dissemination services
         $dissServices = $this->oeawFunctions->getResourceDissServ($fedoraRes);
-        
+
         if(count($dissServices) > 0 && $fedoraRes->getId()){
             //we need to remove the raw from the list if it is a collection
             if(isset($results["acdh_rdf:type"]['title']) && $results["acdh_rdf:type"]['title'] == "Collection"){
