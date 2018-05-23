@@ -6,8 +6,8 @@ namespace Drupal\oeaw\Plugin\rest\resource;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 // our drupal custom libraries
-use Drupal\oeaw\OeawStorage;
-use Drupal\oeaw\OeawCustomSparql;
+use Drupal\oeaw\Model\OeawStorage;
+use Drupal\oeaw\Model\OeawCustomSparql;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 

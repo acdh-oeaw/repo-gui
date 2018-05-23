@@ -10,18 +10,18 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\oeaw\OeawStorage;
+use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
 
 class SidebarDateForm extends FormBase
 {
     
-    private $OeawStorage;
-    private $OeawFunctions;
+    private $oeawStorage;
+    private $oeawFunctions;
     
     public function __construct() {    
-        $this->OeawStorage = new OeawStorage();
-        $this->OeawFunctions = new OeawFunctions();
+        $this->oeawStorage = new OeawStorage();
+        $this->oeawFunctions = new OeawFunctions();
     }
     
     public function getFormId()

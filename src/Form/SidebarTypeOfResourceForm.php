@@ -10,18 +10,18 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\oeaw\OeawStorage;
+use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
 
 class SidebarTypeOfResourceForm extends FormBase
 {
     
-    private $OeawStorage;
-    private $OeawFunctions;
+    private $oeawStorage;
+    private $oeawFunctions;
     
     public function __construct() {    
-        $this->OeawStorage = new OeawStorage();
-        $this->OeawFunctions = new OeawFunctions();
+        $this->oeawStorage = new OeawStorage();
+        $this->oeawFunctions = new OeawFunctions();
     }
     
     public function getFormId()
@@ -34,7 +34,7 @@ class SidebarTypeOfResourceForm extends FormBase
     */
     public function buildForm(array $form, FormStateInterface $form_state) 
     { 
-        $data = $this->OeawStorage->getClassesForSideBar();
+        $data = $this->oeawStorage->getClassesForSideBar();
         $searchClasses = array();
         
         if(count($data) == 0){
@@ -44,7 +44,7 @@ class SidebarTypeOfResourceForm extends FormBase
             // get the fields from the sparql query 
             $fields = array_keys($data[0]);
 
-            $searchTerms = $this->OeawFunctions->createPrefixesFromArray($data, $fields);        
+            $searchTerms = $this->oeawFunctions->createPrefixesFromArray($data, $fields);        
 
             $i = 0;
             foreach($searchTerms["type"] as $v){

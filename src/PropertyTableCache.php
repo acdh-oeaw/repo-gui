@@ -2,8 +2,7 @@
 
 namespace Drupal\oeaw;
 
-use Drupal\oeaw\OeawStorage;
-use Drupal\oeaw\ConnData;
+use Drupal\oeaw\Model\OeawStorage;
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
 use acdhOeaw\util\RepoConfig as RC;
@@ -47,7 +46,6 @@ class PropertyTableCache {
                 }
             }
         }
-        
         return $result;
     }
     

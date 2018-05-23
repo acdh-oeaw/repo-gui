@@ -8,8 +8,8 @@ use Drupal\rest\ResourceResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 // our drupal custom libraries
-use Drupal\oeaw\OeawStorage;
-use Drupal\oeaw\OeawCustomSparql;
+use Drupal\oeaw\Model\OeawStorage;
+use Drupal\oeaw\Model\OeawCustomSparql;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;

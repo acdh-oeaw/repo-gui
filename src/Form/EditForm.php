@@ -24,7 +24,7 @@ use acdhOeaw\fedora\FedoraResource;
 use acdhOeaw\util\RepoConfig as RC;
 use EasyRdf_Graph;
 use EasyRdf_Resource;
-use Drupal\oeaw\OeawStorage;
+use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
@@ -109,7 +109,7 @@ class EditForm extends FormBase {
         $classVal = array();
         //get the identifier from the graph and convert the easyrdf_resource object to php array        
         
-        $classValue = $editMetaData->all(\Drupal\oeaw\ConnData::$rdfType);
+        $classValue = $editMetaData->all(\Drupal\oeaw\ConfigConstants::$rdfType);
         
         if(count($classValue) > 0){
             foreach ($classValue as $v) {

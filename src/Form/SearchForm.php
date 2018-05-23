@@ -10,18 +10,18 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\oeaw\OeawStorage;
+use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
 
 class SearchForm extends FormBase
 {
     
-    private $OeawStorage;
-    private $OeawFunctions;
+    private $oeawStorage;
+    private $oeawFunctions;
     
     public function __construct() {    
-        $this->OeawStorage = new OeawStorage();
-        $this->OeawFunctions = new OeawFunctions();
+        $this->oeawStorage = new OeawStorage();
+        $this->oeawFunctions = new OeawFunctions();
     }
     
     public function getFormId()
@@ -37,7 +37,7 @@ class SearchForm extends FormBase
         $propertys = array();
         $searchTerms = array();
                 
-        $propertys = $this->OeawStorage->getAllPropertyForSearch();
+        $propertys = $this->oeawStorage->getAllPropertyForSearch();
   
         if(empty($propertys)){
              drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SearchForm '), 'error');
@@ -46,7 +46,7 @@ class SearchForm extends FormBase
             $fields = array();
             // get the fields from the sparql query 
             $fields = array_keys($propertys[0]);        
-            $searchTerms = $this->OeawFunctions->createPrefixesFromArray($propertys, $fields);
+            $searchTerms = $this->oeawFunctions->createPrefixesFromArray($propertys, $fields);
 
             $searchTerms = $searchTerms["p"];
             asort($searchTerms);

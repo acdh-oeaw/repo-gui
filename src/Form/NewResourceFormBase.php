@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
 use acdhOeaw\util\RepoConfig as RC;
-use Drupal\oeaw\OeawStorage;
+use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 

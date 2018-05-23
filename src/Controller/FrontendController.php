@@ -11,9 +11,11 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Core\Archiver\Zip;
-use Drupal\oeaw\OeawStorage;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
-use Drupal\oeaw\OeawCustomSparql;
+use Drupal\oeaw\Helper\Helper;
+use Drupal\oeaw\Model\OeawCustomSparql;
 use Drupal\oeaw\PropertyTableCache;
 //ajax
 use Drupal\Core\Ajax\AjaxResponse;
@@ -30,30 +32,31 @@ use EasyRdf\Resource;
 
 use TCPDF;
 
-//autocomplete
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use GuzzleHttp\Client;
 
 
 class FrontendController extends ControllerBase  {
     
-    private $OeawStorage;
-    private $OeawFunctions;
-    private $OeawCustomSparql;
-    private $PropertyTableCache;
+    private $oeawStorage;
+    private $oeawFunctions;
+    private $oeawCustomSparql;
+    private $propertyTableCache;
     private $uriFor3DObj;
     
     
     
     public function __construct() {
-        $this->OeawStorage = new OeawStorage();
-        $this->OeawFunctions = new OeawFunctions();
-        $this->OeawCustomSparql = new OeawCustomSparql();
-        $this->PropertyTableCache = new PropertyTableCache();
+        $this->oeawStorage = new OeawStorage();
+        $this->oeawFunctions = new OeawFunctions();
+        $this->oeawCustomSparql = new OeawCustomSparql();
+        $this->propertyTableCache = new PropertyTableCache();
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
     }
 
@@ -75,7 +78,6 @@ class FrontendController extends ControllerBase  {
         $result = array();
         $datatable = array();
         $res = array();
-        $decodeUrl = "";
         $errorMSG = array();
         
         $limit = (int)$limit;
@@ -83,18 +85,18 @@ class FrontendController extends ControllerBase  {
         $page = $page-1;
         
         //count all root resource for the pagination
-        $countRes = $this->OeawStorage->getRootFromDB(0,0,true);
+        $countRes = $this->oeawStorage->getRootFromDB(0,0,true);
         $countRes = $countRes[0]["count"];
         if($countRes == 0){
-            $errorMSG = drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
+            drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
+            return array();
         }
         $search = array();
-        
         //create data for the pagination
-        $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $countRes);
-		$pagination = "";
+        $pageData = $this->oeawFunctions->createPaginationData($limit, $page, $countRes);
+        $pagination = "";
         if ($pageData['totalPages'] > 1) {
-            $pagination =  $this->OeawFunctions->createPaginationHTML($page, $pageData['page'], $pageData['totalPages'], $limit);
+            $pagination =  $this->oeawFunctions->createPaginationHTML($page, $pageData['page'], $pageData['totalPages'], $limit);
         }
 
         //Define offset for pagination
@@ -104,48 +106,48 @@ class FrontendController extends ControllerBase  {
             $offsetRoot = 0;
         }
 
-        $result = $this->OeawStorage->getRootFromDB($limit, $offsetRoot, false, $order);
-       
+        $result = $this->oeawStorage->getRootFromDB($limit, $offsetRoot, false, $order);
         $uid = \Drupal::currentUser()->id();
 
         if(count($result) > 0){
             $i = 0;
             foreach($result as $value){
-                $res[$i]["title"] = $value['title'];
-                $res[$i]["resUri"] = base64_encode($value['uri']);
+                //check the identifiers
+                $resUrlIdentifier = $this->oeawFunctions->createDetailViewUrl($value);
                 
-                if(isset($value["description"]) && !empty($value["description"]) ){
-                    $res[$i]["description"] = $value["description"];
-                }                
-                if( isset($value["rdfTypes"]) && !empty($value["rdfTypes"]) ){
-                    $types = explode(",", $value["rdfTypes"]);
-                    foreach($types as $t){
-                        if (strpos($t, 'vocabs.acdh.oeaw.ac.at') !== false) {
-                            $res[$i]["rdfType"][] = str_replace(RC::get('fedoraVocabsNamespace'), '', $t);
+                if($resUrlIdentifier){
+                    $res[$i]["title"] = $value['title'];
+                    $res[$i]["resUri"] = $this->oeawFunctions->detailViewUrlDecodeEncode($resUrlIdentifier, 1);
+                
+                    if(isset($value["description"]) && !empty($value["description"]) ){
+                        $res[$i]["description"] = $value["description"];
+                    }                
+                    if( isset($value["rdfTypes"]) && !empty($value["rdfTypes"]) ){
+                        $types = explode(",", $value["rdfTypes"]);
+                        foreach($types as $t){
+                            if (strpos($t, 'vocabs.acdh.oeaw.ac.at') !== false) {
+                                $res[$i]["rdfType"][] = str_replace(RC::get('fedoraVocabsNamespace'), '', $t);
+                            }
                         }
                     }
-                }
-                
-                if( isset($value['availableDate']) && !empty($value['availableDate']) ){
-                    $time = strtotime($value['availableDate']);
-                    $newTime = date('Y-m-d', $time);
-                    $res[$i]["availableDate"] = $newTime;
-                }
-                
-                if( isset($value['image']) && !empty($value['image']) ){
-                    $res[$i]["image"] = $value['image'];
-                }
-                if( isset($value['hasTitleImage']) && !empty($value['hasTitleImage']) ){
-                    $imageUrl = $this->OeawStorage->getImageByIdentifier($value['hasTitleImage']);
-                    if($imageUrl){
-                        $res[$i]["image"] = $imageUrl;
+                    if( isset($value['availableDate']) && !empty($value['availableDate']) ){
+                        $time = strtotime($value['availableDate']);
+                        $newTime = date('Y-m-d', $time);
+                        $res[$i]["availableDate"] = $newTime;
+                    }
+                    if( isset($value['image']) && !empty($value['image']) ){
+                        $res[$i]["image"] = $value['image'];
+                    }
+                    if( isset($value['hasTitleImage']) && !empty($value['hasTitleImage']) ){
+                        $imageUrl = $this->oeawStorage->getImageByIdentifier($value['hasTitleImage']);
+                        if($imageUrl){ $res[$i]["image"] = $imageUrl; }
                     }
                 }
                 $i++;
             }
-            $decodeUrl = "";            
         } else {
-            $errorMSG = drupal_set_message(t('Problem during the root listing'), 'error', FALSE);
+            drupal_set_message(t('Problem during the root listing'), 'error', FALSE);
+            return array();
         }
         
         //create the datatable values and pass the twig template name what we want to use
@@ -186,97 +188,11 @@ class FrontendController extends ControllerBase  {
     
     /**
      * 
-     * The autocomplete function to the edit and new form
+     * Display the error page template with the error message
      * 
-     * @param \Drupal\oeaw\Controller\request $request
-     * @param string $prop1
-     * @param string $fieldName
-     * @return JsonResponse
-    */
-    public function autocomplete(request $request, string $prop1, string $fieldName): JsonResponse {
-        
-        $matches = array();
-        $string = $request->query->get('q');
-        $matchClass = [];
-        //check the user entered char's
-        if(strlen($string) < 3) { return new JsonResponse(array()); }
-        
-        //f.e.: depositor
-        $propUri = base64_decode(strtr($prop1, '-_,', '+/='));
-
-        if(empty($propUri)){ return new JsonResponse(array()); }
-        
-        $fedora = new Fedora(); 
-        //get the property resources
-        $rangeRes = null;
-        
-        try {
-            //get the resource uri based on the propertURI
-            //f.e: http://purl.org/dc/terms/contributor and the res uri will be a fedora uri
-            $prop = $fedora->getResourceById($propUri);            
-            //get the property metadata
-            $propMeta = $prop->getMetadata();
-            // check the range property in the res metadata, we will use this in our next query
-            $rangeRes = $propMeta->getResource('http://www.w3.org/2000/01/rdf-schema#range');
-        }  catch (\RuntimeException $e){
-            return new JsonResponse(array());
-        }
-
-        if($rangeRes === null){
-            return new JsonResponse(array()); // range property is missing - no autocompletion
-        }
-        
-        $matchClass = $this->OeawStorage->checkValueToAutocomplete($string, $rangeRes->getUri());
-        
-        // if we want additional properties to be searched, we should add them here:
-        $match = array(
-            'title'  => $fedora->getResourcesByPropertyRegEx('http://purl.org/dc/elements/1.1/title', $string),
-            'name'   => $fedora->getResourcesByPropertyRegEx('http://xmlns.com/foaf/0.1/name', $string),
-            'acdhId' => $fedora->getResourcesByPropertyRegEx(RC::get('fedoraIdProp'), $string),
-        );
-        
-        $matchValue = array();
-
-        if(count($matchClass) > 0){
-            foreach ($matchClass as $i) {
-                $matchValue[] = $i;
-            }
-        }else{
-            return new JsonResponse(array()); 
-        }
-
-        foreach ($match as $i) {
-            foreach ($i as $j) {
-                $matchValue[]['res'] = $j->getUri();
-            }
-        }
-        
-        $mv = $this->OeawFunctions->arrUniqueToMultiArr($matchValue, "res");
-        
-        foreach ($mv as $i) {
-            
-            $acdhId = $fedora->getResourceByUri($i);
-            $meta = $acdhId->getMetadata();
-            
-            $label = empty($meta->label()) ? $acdhId : $meta->label();
-            //because of the special characters we need to convert it
-            $label = htmlentities($label, ENT_QUOTES, "UTF-8");
-                
-            $matches[] = ['value' => $i , 'label' => $label];
-
-            if(count($matches) >= 10){
-                 break;
-            }
-        }
-        
-        $response = new JsonResponse($matches);
-        $response->setCharset('utf-8');
-        $response->headers->set('charset', 'utf-8');
-        $response->headers->set('Content-Type', 'application/json');
-        
-        return $response;
-    }
-    
+     * @param string $errorMSG
+     * @return array
+     */
     public function oeaw_error_page(string $errorMSG){
         if (empty($errorMSG)) {
            return drupal_set_message(t('The $errorMSG is missing!'), 'error');
@@ -317,13 +233,13 @@ class FrontendController extends ControllerBase  {
         $errorMSG = "";
         $header = array();
         
-        $data = $this->OeawStorage->getValueByUriProperty($uri, \Drupal\oeaw\ConnData::$acdhQuery);
+        $data = $this->oeawStorage->getValueByUriProperty($uri, \Drupal\oeaw\ConfigConstants::$acdhQuery);
         
         if(isset($data)){
-            $userSparql = $this->OeawStorage->runUserSparql($data[0]['value']);
+            $userSparql = $this->oeawStorage->runUserSparql($data[0]['value']);
             
             if(count($userSparql) > 0){
-                $header = $this->OeawFunctions->getKeysFromMultiArray($userSparql);
+                $header = $this->oeawFunctions->getKeysFromMultiArray($userSparql);
             }
         }
         
@@ -350,54 +266,8 @@ class FrontendController extends ControllerBase  {
         return $datatable;
     }
     
-    public function oeaw_new_success(string $uri){
-        
-        if (empty($uri)) {
-           return drupal_set_message(t('Resource does not exist!'), 'error');
-        }
-        $uid = \Drupal::currentUser()->id();
-        // decode the uri hash
-        /*$uri = $this->OeawFunctions->createDetailsUrl($uri, 'decode');*/
-        $uri = base64_decode($uri);
-        
-        $datatable = array(
-            '#theme' => 'oeaw_success_resource',
-            '#result' => $uri,
-            '#userid' => $uid,
-            '#attached' => [
-                'library' => [
-                'oeaw/oeaw-styles', 
-                ]
-            ]
-        );
-        
-        return $datatable;
-    }
     
     
-    public function oeaw_form_success(string $url){
-        
-        if (empty($url)) {
-           return drupal_set_message(t('The $url is missing!'), 'error');
-        }
-        $uid = \Drupal::currentUser()->id();
-        // decode the uri hash
-        
-        //$url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]/modules/oeaw/src/pdftmp".$url.'.pdf';
-        $url = '/sites/default/files/'.$url.'/'.$url.'.pdf';
-        $datatable = array(
-            '#theme' => 'oeaw_form_resource',
-            '#result' => $url,
-            '#userid' => $uid,
-            '#attached' => [
-                'library' => [
-                'oeaw/oeaw-styles', 
-                ]
-            ]
-        );
-        
-        return $datatable;
-    }
     
     /**
      * 
@@ -410,75 +280,83 @@ class FrontendController extends ControllerBase  {
      * @return array
      */
     public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "1"): array {
-        
+     
         drupal_get_messages('error', TRUE);
-
-        //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
-        if ($page > 0) {
-            $page = $page-1;
-        }
-
-        if (empty($uri)) {
-            $msg = base64_encode("Resource does not exist");
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();            
-        }
         
-        if($limit == "0"){ $limit = "10"; }
-        $uri = base64_decode($uri);        
-        $hasBinary = "";  
+        $hasBinary = "";
         $inverseData = array();
-        
         $childResult = array();
         $rules = array();
         $ACL = array();
         $childrenData = array();
-        
-        
-        $fedora = $this->OeawFunctions->initFedora();
-        $uid = \Drupal::currentUser()->id();
-       
         $fedoraRes = array();
         
+        //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
+        if ($page > 0) { $page = $page-1; }
+        $identifier = "";
+        //transform the url from the browser to readable uri
+        $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
+        
+        //if the browser url contains handle url then we need to get the acdh:hasIdentifier
+        if (strpos($identifier, 'hdl.handle.net') !== false) {
+            $idsByPid = $this->oeawStorage->getACDHIdByPid($identifier);
+            if(count($idsByPid) > 0){
+                foreach ($idsByPid as $d){
+                    if (strpos((string)$d['id'], RC::get('fedoraIdNamespace')) !== false) {
+                        $identifier = $d['id'];
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (empty($identifier)) {
+            drupal_set_message(t('Resource does not exist!'), 'error');
+            return array();
+        }
+        
+        if($limit == "0"){ $limit = "10"; }
+        
+        $fedora = $this->oeawFunctions->initFedora();
+        $uid = \Drupal::currentUser()->id();
+        
         try{
-            $fedoraRes = $fedora->getResourceByUri($uri);
+            $fedoraRes = $fedora->getResourceById($identifier);
             $rootMeta = $fedoraRes->getMetadata();
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            $msg = base64_encode("Resource does not exist!");
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+            drupal_set_message(t('Fedora Exception during the getMetadata function!'), 'error');
+            return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+            drupal_set_message(t($ex->getMessage()), 'error');
+            return array();
         }
         //get the actual resource rules
-        $rules = $this->OeawFunctions->getRules($uri, $fedoraRes);
-        
+        $rules = $this->oeawFunctions->getRules($uri, $fedoraRes);
+      
+        /*
         if(count($rules) == 0){
             $msg = base64_encode("The Resource Rules are not reachable!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
            return array();
         }
-        
-        if(isset($rootMeta) && !empty($rootMeta) ){
+        */
+       
+        if(count((array)$rootMeta)){
             $results = array();
             
             //get the root table data for the expert view
-            $results = $this->OeawFunctions->createDetailViewTable($rootMeta);
-            
-            if(count($results) == 0){
-                $msg = base64_encode("The resource has no metadata!");
-                $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-                $response->send();
-               return array();
+            try {
+                $results = $this->oeawFunctions->createDetailViewTable($rootMeta);
+                if(count($results) == 0){
+                    throw new \ErrorException;
+                }
+            } catch (\ErrorException $ex) {
+                drupal_set_message(t("Error ARCHE cant generate the Resource Table View! ".$ex->getMessage()), 'error');
+                return array();
             }
             
-            $results['ACL'] = $this->OeawFunctions->checkRules($rules);
+            //$results['ACL'] = $this->oeawFunctions->checkRules($rules);
             
             //check the acdh:hasIdentifier data to the child view
             $identifiers = array();
@@ -491,11 +369,11 @@ class FrontendController extends ControllerBase  {
             if(count($identifiers) > 0){
                 //set up the necessary properties for the child data generation
                 $properties = array();
-                $properties = array("limit" => $limit, "page" => $page, "uri" => $uri);
+                $properties = array("limit" => $limit, "page" => $page, "identifier" => $identifier);
                 //get the child view data
                 $childArray = array();
-                $childArray = $this->OeawFunctions->generateChildViewData($identifiers, $results, $properties);
-               
+                $childArray = $this->oeawFunctions->generateChildViewData($identifiers, $results, $properties);
+                
                 if(count($childArray) > 0){
                     //pass the specialtype info to the template
                     if(isset($childArray['specialType'])){
@@ -512,18 +390,17 @@ class FrontendController extends ControllerBase  {
                 }
                 
                 $customDetailView = array();
-                $customDetailView = $this->OeawFunctions->generateCustomDetailViewData($results, $results["acdh_rdf:type"]['title']);
+                if(isset($results["acdh_rdf:type"])){
+                    $customDetailView = $this->oeawFunctions->generateCustomDetailViewData($results, $results["acdh_rdf:type"]['title']);
+                }
                 
                 if(count($customDetailView) > 0){
                     $results['specialType'] = $customDetailView;
                 }
-                
             }
         } else {
-            $msg = base64_encode("The resource has no metadata!");
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();            
+            drupal_set_message(t("The resource has no metadata!"), 'error');
+            return array();
         }
         
         /*
@@ -537,7 +414,7 @@ class FrontendController extends ControllerBase  {
      
         $dissServices = array();
         //check the Dissemination services
-        $dissServices = $this->OeawFunctions->getResourceDissServ($fedoraRes);
+        $dissServices = $this->oeawFunctions->getResourceDissServ($fedoraRes);
         
         if(count($dissServices) > 0 && $fedoraRes->getId()){
             //we need to remove the raw from the list if it is a collection
@@ -579,7 +456,7 @@ class FrontendController extends ControllerBase  {
         
         //generate the NiceUri to the detail View
         $niceUri = "";
-        $niceUri = $this->OeawFunctions->generateNiceUri($results);
+        $niceUri = Helper::generateNiceUri($results);
         if(!empty($niceUri)){
             $extras["niceURI"] = $niceUri;
         }
@@ -589,19 +466,19 @@ class FrontendController extends ControllerBase  {
         if(isset($results["acdh_rdf:type"]["title"]) && !empty($results["acdh_rdf:type"]["title"]) ){
             if (in_array($results["acdh_rdf:type"]["title"], $typesToBeCited)) {
                 //pass $rootMeta for rdf object
-                $extras["CiteThisWidget"] = $this->OeawFunctions->createCiteThisWidget($results);
+                $extras["CiteThisWidget"] = $this->oeawFunctions->createCiteThisWidget($results);
             }
         }
                 
         //get the tooltip from cache
-        $cachedTooltip = $this->PropertyTableCache->getCachedData($results["table"]);
+        $cachedTooltip = $this->propertyTableCache->getCachedData($results["table"]);
         if(count($cachedTooltip) > 0){
             $extras["tooltip"] = $cachedTooltip;
         }
         
         //if it is a resource then we need to check the 3dContent
         if(isset($results['acdh_rdf:type']) && $results['acdh_rdf:type']['title'] == "Resource"  ){
-            if($this->OeawFunctions->check3dData($results['table']) === true){
+            if(Helper::check3dData($results['table']) === true){
                 $extras['3dData'] = true;
             }
         }
@@ -669,32 +546,31 @@ class FrontendController extends ControllerBase  {
             $result = array();
             $pagination = "";        
             //get the current page for the pagination        
-            $currentPage = $this->OeawFunctions->getCurrentPageForPagination();
+            $currentPage = $this->oeawFunctions->getCurrentPageForPagination();
 
             $metavalue = urldecode($metavalue);
             $metavalue = str_replace(' ', '+', $metavalue);
 
-            $searchStr = $this->OeawFunctions->explodeSearchString($metavalue);        
+            $searchStr = $this->oeawFunctions->explodeSearchString($metavalue);        
             
-            $countSparql = $this->OeawCustomSparql->createFullTextSparql($searchStr, 0, 0, true);
-            $count = $this->OeawStorage->runUserSparql($countSparql);
+            $countSparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, 0, 0, true);
+            $count = $this->oeawStorage->runUserSparql($countSparql);
             $total = (int)count($count);
             //create data for the pagination
-            $pageData = $this->OeawFunctions->createPaginationData($limit, $page, $total);
+            $pageData = $this->oeawFunctions->createPaginationData($limit, $page, $total);
 
             if ($pageData['totalPages'] > 1) {
-                $pagination =  $this->OeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
+                $pagination =  $this->oeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
             }
-            
-            $sparql = $this->OeawCustomSparql->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
-
-            $res = $this->OeawStorage->runUserSparql($sparql);
+            $sparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
+            $res = $this->oeawStorage->runUserSparql($sparql);
                         
             if(count($res) > 0){
                 $i = 0;
                 foreach($res as $r){
-                    if( isset($r['uri']) && (!empty($r['uri'])) ){
-                        $result[$i]['resUri'] = base64_encode($r['uri']);
+                    if( isset($r['identifier']) && (!empty($r['identifier'])) ){
+                        $identifier = $this->oeawFunctions->createDetailViewUrl($r);
+                        $result[$i]['resUri'] = $this->oeawFunctions->detailViewUrlDecodeEncode($identifier, 1); 
                         $result[$i]['title'] = $r['title'];
 
                         if(isset($r['rdfTypes']) && !empty($r['rdfTypes']) ){
@@ -711,7 +587,7 @@ class FrontendController extends ControllerBase  {
                             $result[$i]['description'] = $r['description'];
                         }
                         if(isset($r['hasTitleImage']) && !empty($r['hasTitleImage'])){
-                            $imageUrl = $this->OeawStorage->getImageByIdentifier($r['hasTitleImage']);
+                            $imageUrl = $this->oeawStorage->getImageByIdentifier($r['hasTitleImage']);
                             if($imageUrl){
                                 $result[$i]['image'] = $imageUrl;
                             }
@@ -732,10 +608,11 @@ class FrontendController extends ControllerBase  {
                     }
                 }
             }
-
-            if (count($result) < 0){
+            
+            if (count($result) == 0){
                 $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
             }
+            
             $uid = \Drupal::currentUser()->id();
 
             $datatable['#theme'] = 'oeaw_complex_search_res';
@@ -756,148 +633,19 @@ class FrontendController extends ControllerBase  {
             } else {
                 $datatable['#totalPages'] = $pageData['totalPages'];
             }
-
             return $datatable;
-
         }
     }
    
-    
-    
-    /**
-     * 
-     * The multi step FORM to create resources based on the 
-     * fedora roots and classes      
-     * 
-     * @return type
-     */
-    public function multi_new_resource() {        
-        return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\NewResourceOneForm');
-    }
-    
-    public function oeaw_depagree_base(string $formid = NULL){
-        return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\DepAgreeOneForm');
-    }
-    
-    /**
-     * 
-     *  The editing form, based on the uri resource
-     * 
-     * @param string $uri
-     * @param Request $request
-     * @return type
-     */
-    public function oeaw_edit(string $uri, Request $request) {
-        drupal_get_messages('error', TRUE);
-        return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\EditForm');
-    }
-    
-    /**
-     * 
-     * User ACL revoke function
-     * 
-     * @param string $uri
-     * @param string $user
-     * @param Request $request
-     */
-    public function oeaw_revoke(string $uri, string $user, Request $request): JsonResponse {
-        
-        drupal_get_messages('error', TRUE);
-        $matches = array();
-        $response = array();
-        
-        $fedora = new Fedora();       
-        $fedora->begin();
-        $res = $fedora->getResourceByUri($uri);
-        $aclObj = $res->getAcl();
-        $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
-        $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::WRITE);        
-        $fedora->commit();
-        
-        $asd = array();
-        $asd = $this->OeawFunctions->getRules($uri);
-        
-//        $this->OeawFunctions->revokeRules($uri, $user);
-        
-        $matches = array(
-            "result" => true,
-            "error_msg" => "DONE"
-            );
-        
-        $response = new JsonResponse($matches);
-        
-        $response->setCharset('utf-8');
-        $response->headers->set('charset', 'utf-8');
-        $response->headers->set('Content-Type', 'application/json');
-        
-        return $response;
-    }
-    
-    
-    /**
-     * 
-     * Resource Delete function
-     * 
-     * @param string $uri
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function oeaw_delete(string $uri, Request $request): JsonResponse {
-        drupal_get_messages('error', TRUE);
-        $matches = array();
-        $response = array();
-        
-        if(!$uri){
-            $matches = array(
-                "result" => false,
-                "error_msg" => "Resource does not exist!"
-                );
-        }
-        
-        $resUri = base64_decode($uri);
-        $graph = $this->OeawFunctions->makeGraph($resUri);
-        $fedora = new Fedora();
-        
-        try{
-            
-            $fedora->begin();
-            $res = $fedora->getResourceByUri($resUri);            
-            $res->delete();            
-            $fedora->commit();
-            
-            $matches = array(
-                "result"=> true, 
-                "resourceid" => $uri
-                );
-            
-        } catch (Exception $ex) {
-            $fedora->rollback();
-            
-            $matches = array(
-                "result" => false,
-                "error_msg" => "Problem during the delete method!"
-                );
-        }
-        
-        $response = new JsonResponse($matches);
-        
-        $response->setCharset('utf-8');
-        $response->headers->set('charset', 'utf-8');
-        $response->headers->set('Content-Type', 'application/json');
-        
-        return $response;
-        
-    }
     
     
     
     /**
      * cache the acdh ontology 
      */
-    public function oeaw_cache_ontology(){
-    
+    public function oeaw_cache_ontology(): Response{
         $result = array();
-        if($this->PropertyTableCache->setCacheData() == true){
+        if($this->propertyTableCache->setCacheData() == true){
             $result = "cache updated succesfully!";
         }else {
             $result = "there is no ontology data to cache!";
@@ -916,22 +664,28 @@ class FrontendController extends ControllerBase  {
      * @param string $data - the resource url     
      * @return Response
      */
-    public function oeaw_inverse_result(string $data){
-
+    public function oeaw_inverse_result(string $data): Response{
         $invData = array();
         
         if(!empty($data)){
-            $uri = base64_decode($data);
-            $res = $this->OeawStorage->getInverseViewDataByURL($uri);
+            $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($data, 0);
+            $fdUrlArr = array();
+            $fdUrlArr = $this->oeawStorage->getTitleByIdentifier($identifier);
+            if(count($fdUrlArr) > 0){
+                if(isset($fdUrlArr[0]['uri'])){
+                    $uri = $fdUrlArr[0]['uri'];
+                    $res = $this->oeawStorage->getInverseViewDataByURL($uri);
             
-            if(count($res) <= 0){                
-                $invData["data"] = array();
-            }else {
-                for ($index = 0; $index <= count($res) - 1; $index++) {
-                    if(!empty($res[$index]['inverse']) && !empty($res[$index]['title']) && !empty($res[$index]['insideUri'])){
-                        $title = $res[$index]['title'];
-                        $insideUri = $res[$index]['insideUri'];
-                        $invData["data"][$index] = array($res[$index]['inverse'], "<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
+                    if(count($res) <= 0){
+                        $invData["data"] = array();
+                    }else {
+                        for ($index = 0; $index <= count($res) - 1; $index++) {
+                            if(!empty($res[$index]['inverse']) && !empty($res[$index]['title']) && !empty($res[$index]['insideUri'])){
+                                $title = $res[$index]['title'];
+                                $insideUri = $res[$index]['insideUri'];
+                                $invData["data"][$index] = array($res[$index]['inverse'], "<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
+                            }
+                        }
                     }
                 }
             }
@@ -950,22 +704,29 @@ class FrontendController extends ControllerBase  {
       * @param string $data - the resource url     
       * @return Response
     */
-    public function oeaw_ismember_result(string $data){
+    public function oeaw_ismember_result(string $data): Response{
          
         $memberData = array();
-
+        
         if(!empty($data)){
-            $uri = base64_decode($data);
-            $res = $this->OeawStorage->getIsMembers($uri);
+            $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($data, 0);
+            $fdUrlArr = array();
+            $fdUrlArr = $this->oeawStorage->getTitleByIdentifier($identifier);
+            if(count($fdUrlArr) > 0){
+                if(isset($fdUrlArr[0]['uri'])){
+                    $uri = $fdUrlArr[0]['uri'];
+                    $res = $this->oeawStorage->getIsMembers($uri);
+                }
              
-            if(count($res) <= 0){                
-                $memberData["data"] = array();
-            }else {
-                for ($index = 0; $index <= count($res) - 1; $index++) {
-                    if( !empty($res[$index]['title']) && !empty($res[$index]['uri'])){
-                        $title = $res[$index]['title'];
-                        $insideUri = base64_encode($res[$index]['uri']);
-                        $memberData["data"][$index] = array("<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
+                if(count($res) <= 0){                
+                    $memberData["data"] = array();
+                }else {
+                    for ($index = 0; $index <= count($res) - 1; $index++) {
+                        if( !empty($res[$index]['title']) && !empty($res[$index]['uri'])){
+                            $title = $res[$index]['title'];
+                            $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['uri'], 1); 
+                            $memberData["data"][$index] = array("<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
+                        }
                     }
                 }
             }
@@ -984,30 +745,44 @@ class FrontendController extends ControllerBase  {
      * to the drupal/sites/files/file_name_dir/file_name.extension directory and
      * pass the url to the 3d viewer template
      * 
-     * @param string $data -> the fedora url for the 3d content
+     * @param string $id -> the resource pid or identifier for the 3d content
      * @return array
      */
     public function oeaw_3d_viewer(string $data): array{
         
         if(empty($data)){
-             return drupal_set_message(t('Please add a resources!'), 'error', FALSE);
+             drupal_set_message(t('Please add a resources!'), 'error', FALSE);
+             return array();
         }
+        $templateData["insideUri"] = $data;
+        $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($data, 0);
         
         $templateData = array();
-        $title = "";
-        $templateData["insideUri"] = $data;
-        $fdUrl = base64_decode($data);
-        //get the filename
-        $fdFileName = $this->OeawStorage->getValueByUriProperty($fdUrl, "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename");
+        //get the title and the fedora url
+        $fdUrlArr = array();
+        $fdUrlArr = $this->oeawStorage->getTitleByIdentifier($identifier);
         
-        $fdFileSize = $this->OeawStorage->getValueByUriProperty($fdUrl, RC::get('fedoraExtentProp'));
-        //if we have a filename in the fedora
-        if( (count($fdFileName) > 0) && isset($fdFileName[0]["value"]) ){
-            //get the title
-            $title = $this->OeawStorage->getResourceTitle($fdUrl);
-            if(count($title) > 0){
-                $templateData["title"] = $title[0]['title'];
+        if(count($fdUrlArr) > 0){
+            if(isset($fdUrlArr[0]['title'])){
+                $templateData["title"] = $fdUrlArr[0]['title'];
             }
+            if( isset($fdUrlArr[0]) && isset($fdUrlArr[0]['uri']) ){
+                $fdUrl = $fdUrlArr[0]['uri'];
+            }else{
+                drupal_set_message(t('There is no valid fedora url!'), 'error', FALSE);
+                return array();
+            }
+        }else{
+            drupal_set_message(t('There is no valid fedora url!'), 'error', FALSE);
+            return array();
+        }
+        
+        //get the filename
+        $fdFileName = $this->oeawStorage->getValueByUriProperty($fdUrl, "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename");
+        $fdFileSize = $this->oeawStorage->getValueByUriProperty($fdUrl, RC::get('fedoraExtentProp'));
+        //if we have a filename in the fedora
+        if( isset($fdFileName[0]["value"]) && (count($fdFileName) > 0) ){
+            //get the title
             $dir = str_replace(".", "_", $fdFileName[0]["value"]);
             $fileDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/'.$dir.'/'.$fdFileName[0]["value"];
             
@@ -1022,6 +797,9 @@ class FrontendController extends ControllerBase  {
                     );
                 return $result;
             }
+        }else {
+            drupal_set_message(t('There resource file informations are missing!'), 'error', FALSE);
+            return array();
         }
         
         //this is a new 3d model, so we need to download it to the server.
@@ -1087,12 +865,6 @@ class FrontendController extends ControllerBase  {
             });
             $promise->wait();
             
-            $title = $this->OeawStorage->getResourceTitle($fdUrl);
-            if(count($title) > 0){
-                $templateData["title"] = $title[0]['title'];
-            }
-            
-            
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
             $this->uriFor3DObj['error'] = $ex->getMessage();
             
@@ -1105,7 +877,6 @@ class FrontendController extends ControllerBase  {
             return $result;
             
         }
-        
         $result = 
                 array(
                     '#theme' => 'oeaw_3d_viewer',
@@ -1129,18 +900,23 @@ class FrontendController extends ControllerBase  {
         $resData = array();
         $result = array();
         $resData['dl'] = false;
+        $resData['insideUri'] = $uri;
+        $encIdentifier = $uri;
+        $uri = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
+        
         if(empty($uri)){
             $errorMSG = "There is no valid URL";
         }else {
-            
-            $resData = $this->OeawFunctions->genCollectionData($uri);
-            $resData['insideUri'] = $uri;
+            $resData = $this->oeawFunctions->generateCollectionData($uri);
+            if(count($resData) == 0){
+                drupal_set_message(t('The collection doesnt exists!'), 'error', FALSE);   
+                return array();
+            }
         }
-        
         $result = 
             array(
                 '#theme' => 'oeaw_dl_collection_tree',
-                '#url' => $uri,
+                '#url' => $encIdentifier,
                 '#resourceData' => $resData,
                 '#errorMSG' =>  $errorMSG,
                 '#attached' => [
@@ -1189,27 +965,34 @@ class FrontendController extends ControllerBase  {
      * @return array
      */
     public function oeaw_iiif_viewer(string $uri): array{
-        $errorMSG = "";
+        
         $resData = array();
+        $identifier = "";
         if(empty($uri)){
-            $errorMSG = "There is no valid URL";
-        }
-        
-        //loris url generating fucntion
-        $resData = $this->OeawFunctions->generateLorisUrl($uri);
-        
-        if( count($resData) == 0){
-            $errorMSG = "There is no valid Image!";
+            drupal_set_message(t('The URL is not valid!'), 'error');
+            return array();
+        }else{
+            $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
+            
+            if($identifier){
+                $fdUrl = $this->oeawStorage->getFedoraUrlByIdentifierOrPid($identifier);
+                
+                //loris url generating fucntion
+                $resData = Helper::generateLorisUrl($fdUrl);
+            }
+            
+            if( count($resData) == 0){
+                drupal_set_message(t('There is no valid Image!'), 'error');
+                return array();
+            }
         }
         
         $result = 
             array(
                 '#theme' => 'oeaw_iiif_viewer',
                 '#url' => $uri,
-                '#templateData' => $resData,
-                '#errorMSG' =>  $errorMSG
+                '#templateData' => $resData
             );
-         
         return $result;
     }
     
@@ -1221,18 +1004,20 @@ class FrontendController extends ControllerBase  {
      * @return Response
      */
     public function oeaw_get_collection_data(string $uri){
+        
         if(empty($uri)){
             $errorMSG = "There is no valid URL";
         }else {
-            $resData = $this->OeawFunctions->genCollectionData($uri);
             $resData['insideUri'] = $uri;
+            $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
+            $resData = $this->oeawFunctions->generateCollectionData($identifier);
         }
         
         //setup the the treeview data
         $result = array();
         //add the main Root element
-        $resData['binaries'][] = array("uri" => base64_decode($uri), "uri_dl" => $uri, "title" => $resData['title'], "text" => $resData['title'], "filename" => str_replace(" ", "_", $resData['filename']), "rootTitle" => "");
-        $result = $this->OeawFunctions->convertToTree($resData['binaries'], "text", "rootTitle");
+        $resData['binaries'][] = array("uri" => $uri, "uri_dl" => $resData['fedoraUri'], "title" => $resData['title'], "text" => $resData['title'], "filename" => str_replace(" ", "_", $resData['filename']), "rootTitle" => "");
+        $result = $this->oeawFunctions->convertToTree($resData['binaries'], "text", "rootTitle");
 
         $response = new Response();
         $response->setContent(json_encode($result));
@@ -1334,7 +1119,6 @@ class FrontendController extends ControllerBase  {
                     if($ziph->open($archiveFile, \ZIPARCHIVE::CHECKCONS) !== TRUE)
                     {
                         $errMsg = "Unable to Open $archiveFile";
-                        error_log($errMsg);
                     }else{
                         foreach($dirFiles as $d){
                             if($d == "." || $d == ".."){
@@ -1345,7 +1129,6 @@ class FrontendController extends ControllerBase  {
                                 if(!$ziph->addFile($tmpDirDate.'/'.$d, $d))
                                 {
                                     $errMsg = "error archiving $file in $d";
-                                    error_log($errMsg);
                                 }
                             }
                         }
@@ -1362,7 +1145,7 @@ class FrontendController extends ControllerBase  {
                     
             $checkDir = true;
             do {
-                $checkDir = $this->OeawFunctions->checkArrayForValue($newDir, "collection.zip."); 
+                $checkDir = Helper::checkArrayForValue($newDir, "collection.zip."); 
                 //delete the files and keep the zip only
                 foreach($dirFiles as $file){ 
                     if(is_file($tmpDir.$dateID.'/'.$file)){ 
@@ -1379,9 +1162,277 @@ class FrontendController extends ControllerBase  {
         $response->headers->set('Content-Type', 'application/json');
         $response->setContent(json_encode($hasZip ));
         return $response;
-       
-        
-         
     }
+    
+    
+    
+    /***************************** FORM functions!   ***************************************/
+    
+    public function oeaw_new_success(string $uri){
+        
+        if (empty($uri)) {
+           drupal_set_message(t('Resource does not exist!'), 'error');
+           return array();
+        }
+        $uid = \Drupal::currentUser()->id();
+        // decode the uri hash
+        /*$uri = $this->oeawFunctions->createDetailsUrl($uri, 'decode');*/
+        $uri = base64_decode($uri);
+        
+        $datatable = array(
+            '#theme' => 'oeaw_success_resource',
+            '#result' => $uri,
+            '#userid' => $uid,
+            '#attached' => [
+                'library' => [
+                'oeaw/oeaw-styles', 
+                ]
+            ]
+        );
+        
+        return $datatable;
+    }
+    
+    
+    public function oeaw_form_success(string $url){
+        
+        if (empty($url)) {
+           drupal_set_message(t('The $url is missing!'), 'error');
+           return array();
+        }
+        $uid = \Drupal::currentUser()->id();
+        // decode the uri hash
+        
+        //$url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]/modules/oeaw/src/pdftmp".$url.'.pdf';
+        $url = '/sites/default/files/'.$url.'/'.$url.'.pdf';
+        $datatable = array(
+            '#theme' => 'oeaw_form_resource',
+            '#result' => $url,
+            '#userid' => $uid,
+            '#attached' => [
+                'library' => [
+                'oeaw/oeaw-styles', 
+                ]
+            ]
+        );
+        
+        return $datatable;
+    }
+    
+     /**
+     * 
+     * The autocomplete function to the edit and new form
+     * 
+     * @param \Drupal\oeaw\Controller\request $request
+     * @param string $prop1
+     * @param string $fieldName
+     * @return JsonResponse
+    */
+    public function autocomplete(request $request, string $prop1, string $fieldName): JsonResponse {
+        
+        $matches = array();
+        $string = $request->query->get('q');
+        $matchClass = [];
+        //check the user entered char's
+        if(strlen($string) < 3) { return new JsonResponse(array()); }
+        
+        //f.e.: depositor
+        $propUri = base64_decode(strtr($prop1, '-_,', '+/='));
+
+        if(empty($propUri)){ return new JsonResponse(array()); }
+        
+        $fedora = new Fedora(); 
+        //get the property resources
+        $rangeRes = null;
+        
+        try {
+            //get the resource uri based on the propertURI
+            //f.e: http://purl.org/dc/terms/contributor and the res uri will be a fedora uri
+            $prop = $fedora->getResourceById($propUri);            
+            //get the property metadata
+            $propMeta = $prop->getMetadata();
+            // check the range property in the res metadata, we will use this in our next query
+            $rangeRes = $propMeta->getResource('http://www.w3.org/2000/01/rdf-schema#range');
+        }  catch (\RuntimeException $e){
+            return new JsonResponse(array());
+        }
+
+        if($rangeRes === null){
+            return new JsonResponse(array()); // range property is missing - no autocompletion
+        }
+        
+        $matchClass = $this->oeawStorage->checkValueToAutocomplete($string, $rangeRes->getUri());
+        
+        // if we want additional properties to be searched, we should add them here:
+        $match = array(
+            'title'  => $fedora->getResourcesByPropertyRegEx('http://purl.org/dc/elements/1.1/title', $string),
+            'name'   => $fedora->getResourcesByPropertyRegEx('http://xmlns.com/foaf/0.1/name', $string),
+            'acdhId' => $fedora->getResourcesByPropertyRegEx(RC::get('fedoraIdProp'), $string),
+        );
+        
+        $matchValue = array();
+
+        if(count($matchClass) > 0){
+            foreach ($matchClass as $i) {
+                $matchValue[] = $i;
+            }
+        }else{
+            return new JsonResponse(array()); 
+        }
+
+        foreach ($match as $i) {
+            foreach ($i as $j) {
+                $matchValue[]['res'] = $j->getUri();
+            }
+        }
+        
+        $mv = $this->oeawFunctions->arrUniqueToMultiArr($matchValue, "res");
+        
+        foreach ($mv as $i) {
+            
+            $acdhId = $fedora->getResourceByUri($i);
+            $meta = $acdhId->getMetadata();
+            
+            $label = empty($meta->label()) ? $acdhId : $meta->label();
+            //because of the special characters we need to convert it
+            $label = htmlentities($label, ENT_QUOTES, "UTF-8");
+                
+            $matches[] = ['value' => $i , 'label' => $label];
+
+            if(count($matches) >= 10){
+                 break;
+            }
+        }
+        
+        $response = new JsonResponse($matches);
+        $response->setCharset('utf-8');
+        $response->headers->set('charset', 'utf-8');
+        $response->headers->set('Content-Type', 'application/json');
+        
+        return $response;
+    }
+    
+    
+    /**
+     * 
+     * Resource Delete function
+     * 
+     * @param string $uri
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function oeaw_delete(string $uri, Request $request): JsonResponse {
+        drupal_get_messages('error', TRUE);
+        $matches = array();
+        $response = array();
+        
+        if(!$uri){
+            $matches = array(
+                "result" => false,
+                "error_msg" => "Resource does not exist!"
+                );
+        }
+        
+        $resUri = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 1);
+        $graph = $this->oeawFunctions->makeGraph($resUri);
+        $fedora = new Fedora();
+        
+        try{
+            
+            $fedora->begin();
+            $res = $fedora->getResourceByUri($resUri);            
+            $res->delete();            
+            $fedora->commit();
+            
+            $matches = array(
+                "result"=> true, 
+                "resourceid" => $uri
+                );
+            
+        } catch (Exception $ex) {
+            $fedora->rollback();
+            $matches = array(
+                "result" => false,
+                "error_msg" => "Problem during the delete method!"
+                );
+        }
+        
+        $response = new JsonResponse($matches);
+        $response->setCharset('utf-8');
+        $response->headers->set('charset', 'utf-8');
+        $response->headers->set('Content-Type', 'application/json');
+        
+        return $response;
+    }
+    
+    /**
+     * 
+     * The multi step FORM to create resources based on the 
+     * fedora roots and classes      
+     * 
+     * @return type
+     */
+    public function multi_new_resource() {        
+        return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\NewResourceOneForm');
+    }
+    
+    public function oeaw_depagree_base(string $formid = NULL){
+        return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\DepAgreeOneForm');
+    }
+    
+    /**
+     * 
+     *  The editing form, based on the uri resource
+     * 
+     * @param string $uri
+     * @param Request $request
+     * @return type
+     */
+    public function oeaw_edit(string $uri, Request $request) {
+        drupal_get_messages('error', TRUE);
+        return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\EditForm');
+    }
+    
+    /**
+     * 
+     * User ACL revoke function
+     * 
+     * @param string $uri
+     * @param string $user
+     * @param Request $request
+     */
+    public function oeaw_revoke(string $uri, string $user, Request $request): JsonResponse {
+        
+        drupal_get_messages('error', TRUE);
+        $matches = array();
+        $response = array();
+        
+        $fedora = new Fedora();       
+        $fedora->begin();
+        $res = $fedora->getResourceByUri($uri);
+        $aclObj = $res->getAcl();
+        $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
+        $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::WRITE);        
+        $fedora->commit();
+        
+        $asd = array();
+        $asd = $this->oeawFunctions->getRules($uri);
+        
+//        $this->oeawFunctions->revokeRules($uri, $user);
+        
+        $matches = array(
+            "result" => true,
+            "error_msg" => "DONE"
+            );
+        
+        $response = new JsonResponse($matches);
+        
+        $response->setCharset('utf-8');
+        $response->headers->set('charset', 'utf-8');
+        $response->headers->set('Content-Type', 'application/json');
+        
+        return $response;
+    }
+    
     
 }

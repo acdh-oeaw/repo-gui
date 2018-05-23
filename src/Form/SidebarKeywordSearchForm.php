@@ -9,19 +9,19 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\oeaw\OeawStorage;
+use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
 use acdhOeaw\util\RepoConfig as RC;
 
 class SidebarKeywordSearchForm extends FormBase
 {
     
-    private $OeawStorage;
-    private $OeawFunctions;
+    private $oeawStorage;
+    private $oeawFunctions;
     
     public function __construct() {    
-        $this->OeawStorage = new OeawStorage();
-        $this->OeawFunctions = new OeawFunctions();
+        $this->oeawStorage = new OeawStorage();
+        $this->oeawFunctions = new OeawFunctions();
     }
     
     public function getFormId()
@@ -41,7 +41,7 @@ class SidebarKeywordSearchForm extends FormBase
         
         $resData["title"] = "Resource Types";
         $resData["type"] = "searchbox_types";
-        $resFields = $this->OeawStorage->getACDHTypes(true);
+        $resFields = $this->oeawStorage->getACDHTypes(true);
         
         $rs = array();
         foreach($resFields as $val){            
@@ -56,7 +56,7 @@ class SidebarKeywordSearchForm extends FormBase
         
         $formatData["title"] = "Format";
         $formatData["type"] = "searchbox_format";
-        $formatFields = $this->OeawStorage->getMimeTypes();
+        $formatFields = $this->oeawStorage->getMimeTypes();
         $frm = array();
         foreach($formatFields as $val){            
             $type = $val['mime'];
@@ -122,7 +122,7 @@ class SidebarKeywordSearchForm extends FormBase
         $propertys = array();
         $searchTerms = array();
         $basePath = base_path();
-        $propertys = $this->OeawStorage->getAllPropertyForSearch();
+        $propertys = $this->oeawStorage->getAllPropertyForSearch();
   
         if(empty($propertys)){
              drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SidebarKeywordSearchForm '), 'error');
@@ -131,7 +131,7 @@ class SidebarKeywordSearchForm extends FormBase
             $fields = array();
             // get the fields from the sparql query 
             $fields = array_keys($propertys[0]);        
-            $searchTerms = $this->OeawFunctions->createPrefixesFromArray($propertys, $fields);
+            $searchTerms = $this->oeawFunctions->createPrefixesFromArray($propertys, $fields);
             $searchTerms = $searchTerms["p"];
             asort($searchTerms);
             if(count($searchTerms) > 0) {
@@ -229,7 +229,7 @@ class SidebarKeywordSearchForm extends FormBase
         $metavalue = $form_state->getValue('metavalue');
         // Data AND thun NOT editions type:Collection NOT Person date:[20170501 TO 20171020]
                 
-        //$metaVal = $this->OeawFunctions->convertSearchString($metavalue);        
+        //$metaVal = $this->oeawFunctions->convertSearchString($metavalue);        
         
      
         //$form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metaVal]); 

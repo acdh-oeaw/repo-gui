@@ -2,7 +2,8 @@
 
 namespace Drupal\oeaw;
 
-use Drupal\oeaw\OeawStorage;
+use Drupal\oeaw\Model\OeawStorage;
+use Drupal\oeaw\Model\OeawCustomSparql;
 use Drupal\oeaw\ConnData;
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;

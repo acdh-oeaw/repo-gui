@@ -19,9 +19,10 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 
-use Drupal\oeaw\OeawStorage;
-use Drupal\oeaw\ConnData;
-use Drupal\oeaw\OeawCustomSparql;
+use Drupal\oeaw\Model\OeawStorage;
+use Drupal\oeaw\ConfigConstants as CC;
+use Drupal\oeaw\Helper\Helper;
+use Drupal\oeaw\Model\OeawCustomSparql;
 
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
@@ -50,29 +51,81 @@ class OeawFunctions {
         return $fedora;
     }
     
-    
-    
+    /**
+     * 
+     * Check the data array for the PID, identifier or uuid identifier
+     * 
+     * @param array $data
+     * @return string
+     */
+    public function createDetailViewUrl(array $data): string {
+        //check the PID
+        if(isset($data['pid']) && !empty($data['pid'])){
+            if (strpos($data['pid'], RC::get('epicResolver')) !== false) {
+                return $data['pid'];
+            }
+        }
+        
+        if(isset($data['identifier'])){
+            //if we dont have pid then check the identifiers
+            $idArr = explode(",", $data['identifier']);
+            $uuid = "";
+            foreach($idArr as $id){
+                //the id contains the acdh uuid
+                if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
+                    $uuid = $id;
+                    //if the identifier is the normal acdh identifier then return it
+                }else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
+                    return $id;
+                }
+            }
+            
+            if(!empty($uuid)){
+                return $uuid;
+            }
+        }
+        
+        return "";
+    }
     
     /**
      * 
-     * Checks the multi array by key, and if the key has a duplicated value then 
-     * it will remove it, the result will be an unique array
+     * Encode or decode the detail view url
      * 
-     * @param array $array
-     * @param string $key
-     * @return array
-     */
-    public function removeDuplicateValuesFromMultiArrayByKey(array $array, string $key): array
-    {
-        $temp_array = [];
-        foreach ($array as &$v) {
-            if (!isset($temp_array[$v[$key]])){
-                $temp_array[$v[$key]] =& $v;
+     * @param string $uri
+     * @param bool $code : 0 - decode / 1 -encode
+     * @return string
+    */
+    public function detailViewUrlDecodeEncode(string $uri, int $code = 0): string {
+        
+        if(empty($uri)){
+            return $uri;
+        }
+        
+        if($code == 0){
+            $uri = str_replace(" ", "/", rawurldecode($uri));
+            if (strpos($uri, 'hdl.handle.net') !== false) {
+                $uri = "http://".$uri;
+            }else {
+                $uri = "https://".$uri;
             }
         }
-        $array = array_values($temp_array);
-        return $array;
+        
+        if($code == 1){
+            if (strpos($uri, 'hdl.handle.net') !== false) {
+                $uri = str_replace("http://", "", $uri);
+                $uri = str_replace("/", " ", $uri);
+                $uri = rawurlencode($uri);
+            }else {
+                $uri = str_replace("https://", "", $uri);
+                $uri = str_replace("/", " ", $uri);
+                $uri = rawurlencode($uri);
+            }
+        }
+        return $uri;
     }
+    
+    
 
     
     
@@ -105,9 +158,9 @@ class OeawFunctions {
                         $oeawStorage = new OeawStorage();
                         //get the titles
                         $titles = array();
-                        $titles = $oeawStorage->getTitlyByIdentifierArray($processed, true);
+                        $titles = $oeawStorage->getTitleByIdentifierArray($processed, true);
                         if(count($titles) > 0){
-                            $titles = $this->removeDuplicateValuesFromMultiArrayByKey($titles, "title");
+                            $titles = Helper::removeDuplicateValuesFromMultiArrayByKey($titles, "title");
                             $result = $titles;
                         }
                     }
@@ -186,7 +239,7 @@ class OeawFunctions {
         //$operands = array("and" => "+", "not" => "-");
         $positions = array();
         
-        $res = "";
+        $res = array();
         
         $strArr = explode('&', $string);
                 
@@ -461,11 +514,7 @@ class OeawFunctions {
         $result = array();
         
         try{
-            $aclObj = $fedoraRes->getAcl();
-            $result = $aclObj->getRules();
-
-            //var_dump($aclObj->getMode(WAR::USER));
-            //PUBLIC_USER
+            $aclObj = $fedoraRes->getAcl()->getRules();
         }catch (Exception $ex) {
             $msg = base64_encode('Error in function: '.__FUNCTION__);
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
@@ -590,129 +639,17 @@ class OeawFunctions {
         $extendedProp = array();
         
         if(count($data['table']) > 0){
-            
-            switch ($type) {
-                case "person":
-                    $basicProp = array(
-                        "acdh:hasTitle",
-                        "acdh:hasIdentifier",
-                        "acdh:isMember"
-                    );
-                    
-                    //contact details
-                    $extendedProp = array(
-                        "acdh:hasAddressLine1",
-                        "acdh:hasAddressLine2",
-                        "acdh:hasCountry",
-                        "acdh:hasRegion",
-                        "acdh:hasCity",
-                        "acdh:hasEmail",
-                        "acdh:hasUrl",
-                        "acdh:hasPostcode"
-                    );
-                    
-                    break;
-                case "project":
-                    $basicProp = array(
-                        "acdh:hasTitle",
-                        "acdh:hasIdentifier",
-                        "acdh:hasAlternativeTitle",
-                        "acdh:hasUrl",
-                        "acdh:hasContact",
-                        "acdh:hasFunder",
-                        "acdh:hasPrincipalInvestigator",
-                        "acdh:hasStartDate",
-                        "acdh:hasEndDate",
-                        "acdh:hasLifeCycleStatus",
-                        "acdh:hasLanguage"
-                    );
-                    
-                    $extendedProp = array(
-                        "acdh:hasRelatedDiscipline",
-                        "acdh:hasSubject",
-                        "acdh:hasActor",
-                        "acdh:hasSpatialCoverage",
-                        "acdh:hasTemporalCoverage",
-                        "acdh:hasCoverageStartDate",
-                        "acdh:hasCoverageEndDate",
-                        "acdh:hasAppliedMethod",
-                        "acdh:hasAppliedMethodDescription",
-                        "acdh:hasTechnicalInfo",
-                        "acdh:hasEditorialPractice",
-                        "acdh:hasNote"
-                    );                    
-                    break;
-                case "organisation":
-                    $basicProp = array(
-                        "acdh:hasTitle",
-                        "acdh:hasAlternativeTitle",
-                        "acdh:hasIdentifier",
-                        "acdh:hasAddressLine1",
-                        "acdh:hasAddressLine2",
-                        "acdh:hasPostcode",
-                        "acdh:hasCity",
-                        "acdh:hasRegion",
-                        "acdh:hasCountry",
-                        "acdh:hasUrl",
-                        "acdh:hasEmail"
-                    );
-                    /*
-                    $extendedProp = array(
-                        "acdh:hasCreator",
-                        "acdh:hasAuthor",
-                        "acdh:hasEditor",
-                        "acdh:hasCurator",
-                        "acdh:hasDepositor",
-                        "acdh:hasMetadataCreator",
-                        "acdh:hasContact"
-                    );*/  
-                    break;
-                case "place":
-                    $basicProp = array(
-                        "acdh:hasTitle",
-                        "acdh:hasAlternativeTitle",
-                        "acdh:hasIdentifier",
-                        "acdh:hasAddressLine1",
-                        "acdh:hasAddressLine2",
-                        "acdh:hasPostcode",
-                        "acdh:hasCity",
-                        "acdh:hasRegion",
-                        "acdh:hasCountry",
-                        "acdh:hasPart",
-                        "acdh:isPartOf",
-                        "acdh:isIdenticalTo"
-                    );
-                    
-                    $extendedProp = array(
-                        "acdh:hasLatitude",
-                        "acdh:hasLongitude",
-                        "acdh:hasWKT"
-                        );
-                    break;
-                case "publication":
-                    $basicProp = array(
-                        "acdh:hasTitle",
-                        "acdh:hasAlternativeTitle",
-                        "acdh:hasIdentifier",
-                        "acdh:hasAuthor",
-                        "acdh:hasEditor",
-                        "acdh:hasSeriesInformation",
-                        "acdh:hasPages",
-                        "acdh:hasRegion",
-                        "acdh:hasCity",
-                        "acdh:hasPublisher",
-                        "acdh:isPartOf",
-                        "acdh:hasNonLinkedIdentifier",
-                        "acdh:hasUrl",
-                        "acdh:hasEditorialPractice",
-                        "acdh:hasNote",
-                        "acdh:hasLanguage"
-                    );
-                    break;
-                default:
-                break;
-        
+            $propertyData = array();
+            $propertyData = CC::getCustomDetailViewTemplateDataProperties($type);
+            if( count($propertyData) > 0){
+                if(isset($propertyData['basicProperties'])){
+                    $basicProp = $propertyData['basicProperties'];
+                }
+                if(isset($propertyData['extendedProperties'])){
+                    $extendedProp = $propertyData['extendedProperties'];
+                }
             }
+            
             if(count($basicProp) > 0){
                 foreach($basicProp as $bP) {
                     if( (isset($data['table'][$bP])) && (count($data['table'][$bP]) > 0) ){
@@ -769,7 +706,10 @@ class OeawFunctions {
                     } else {
                         if(isset($val["title"])){
                             $result = $val["title"];
-                        }else{
+                        }else if(isset($val["uri"])){
+                            $result = $val["uri"];
+                        }
+                        else{
                             $result = $val;
                         }
                     }
@@ -930,7 +870,7 @@ class OeawFunctions {
      * @param string $uri
      * @return \EasyRdf\Resource
      */
-    public function makeMetaData(string $uri): \EasyRdf\Resource{
+    public function makeMetaData(string $uri): \EasyRdf\Resource {
         
         if(empty($uri)){
             return drupal_set_message(t('Resource does not exist!'), 'error');
@@ -952,8 +892,7 @@ class OeawFunctions {
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
             return array();
-        }         
-        
+        }
         return $meta;
     }
     
@@ -1045,7 +984,6 @@ class OeawFunctions {
         }
         
         $ajax_response = new AjaxResponse();
-        
         if(empty($result)){ return $ajax_response; }
         
         foreach($result as $key => $value){
@@ -1063,11 +1001,9 @@ class OeawFunctions {
             }else {
                 $label = "";
             }
-                        
             $ajax_response->addCommand(new HtmlCommand('#edit-'.$key.'--description', "New Value: <a href='".(string)$value."' target='_blank'>".(string)$label."</a>"));
             $ajax_response->addCommand(new InvokeCommand('#edit-'.$key.'--description', 'css', array('color', 'green')));
         }
-        
         // Return the AjaxResponse Object.
         return $ajax_response;        
     }
@@ -1081,7 +1017,7 @@ class OeawFunctions {
      * @param array $fields
      * @return array
      */
-    public function createSparqlResult(\EasyRdf\Sparql\Result $result, array $fields): array{
+    public function createSparqlResult(\EasyRdf\Sparql\Result $result, array $fields): array {
         
         if(empty($result) && empty($fields)){
             return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error');
@@ -1107,14 +1043,13 @@ class OeawFunctions {
                         $res[$x][$f] = $val;
                     } else {
                         $res[$x][$f] = $result[$x]->$f->__toString();
-                    } 
+                    }
                 }
                 else{
                     $res[$x][$f] = "";
                 }
             }
         }
-        
         return $res;
     }
     
@@ -1130,30 +1065,25 @@ class OeawFunctions {
      */
     public function createStrongFromACDHVocabs(string $string): array {
         if (empty($string)) { return false; }
-        
         $result = array();
         
         if (strpos($string, RC::vocabsNmsp()) !== false) {
             $result['rdfType']['typeUri'] = $string;
             $result['rdfType']['typeName'] = str_replace(RC::vocabsNmsp(), '', $string);
         }
-        
         return $result;
     }
     
     /**
      * 
-     * create prefix from string based on the connData.php prefixes     
+     * create prefix from string based on the  prefixes     
      * 
      * @param string $string
      * @return string
      */
-    public static function createPrefixesFromString(string $string): string{
-        
+    public static function createPrefixesFromString(string $string): string {
         if (empty($string)) { return false; }
-        
-        $result = array();        
-        
+        $result = array();
         $endValue = explode('/', $string);
         $endValue = end($endValue);
         
@@ -1166,27 +1096,24 @@ class OeawFunctions {
         $newString = explode($endValue, $string);
         $newString = $newString[0];
                 
-        if(!empty(\Drupal\oeaw\ConnData::$prefixesToChange[$newString])){
-            
-            $result = \Drupal\oeaw\ConnData::$prefixesToChange[$newString].':'.$endValue;
-        }
-        else {
+        if(!empty(CC::$prefixesToChange[$newString])){
+            $result = CC::$prefixesToChange[$newString].':'.$endValue;
+        }else {
             $result = $string;
-        }         
-        
-        return $result;        
+        }
+        return $result;
     }
 
     
     /**
      * 
-     * create prefix from array based on the connData.php prefixes     
+     * create prefix from array based on the ConfigConstants.php prefixes     
      * 
      * @param array $array
      * @param array $header
      * @return array
      */
-    public function createPrefixesFromArray(array $array, array $header): array{
+    public function createPrefixesFromArray(array $array, array $header): array {
         
         if (empty($array) && empty($header)) {
             return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error');
@@ -1211,14 +1138,14 @@ class OeawFunctions {
                 $newString = explode($endValue, $value);
                 $newString = $newString[0];
                  
-                if(!empty(\Drupal\oeaw\ConnData::$prefixesToChange[$newString])){            
-                    $result[$key][] = \Drupal\oeaw\ConnData::$prefixesToChange[$newString].':'.$endValue;
+                if(!empty(CC::$prefixesToChange[$newString])){            
+                    $result[$key][] = CC::$prefixesToChange[$newString].':'.$endValue;
                 }else {
                     $result[$key][] = $value;
                 }
             }
-        }       
-        return $result;        
+        }
+        return $result;
     }
     
     
@@ -1231,18 +1158,17 @@ class OeawFunctions {
      * 
      */
     public function createChildrenViewData(array $data): array{
-        
         $result = array();
         if(count($data) < 0){ return $result; }
         
         for ($x = 0; $x <= count($data) - 1; $x++) {
             $result[$x] = $data[$x];
-            $result[$x]['insideUri'] = base64_encode($data[$x]['uri']);
+            $id = $this->createDetailViewUrl($data[$x]);
+            $result[$x]['insideUri'] = $this->detailViewUrlDecodeEncode($id, 1);
             if(isset($data[$x]['uri'])){
                 $result[$x]['typeName'] = explode(RC::get('fedoraVocabsNamespace'), $data[$x]['types'])[1];
             }
         }
-        
         return $result;
     }
     
@@ -1272,6 +1198,7 @@ class OeawFunctions {
         //get the resource Title
         $resourceTitle = $data->get(RC::get('fedoraTitleProp'));
         $resourceUri = $data->getUri();
+        $resourceIdentifier = $data->get(RC::get('fedoraIdProp'))->getUri();
         
         //get the resources and remove fedora properties
         $properties = array();
@@ -1281,27 +1208,33 @@ class OeawFunctions {
                 unset($properties[$key]);
             }
         }
+        
         //reorder the array because have missing keys
         $properties = array_values($properties);
-        
-        //it will be the function for the cache
-        //$acdhProp = $OeawStorage->getPropDataToExpertTable($properties);
-
         $searchTitle = array();
-        
+
         foreach ($properties as $p){
-            $propertyShortcut = $this->createPrefixesFromString($p);
             
+            $propertyShortcut = $this->createPrefixesFromString($p);
+            //get the properties data from the easyrdf resource object
             foreach ($data->all($p) as $key => $val){
                 
                 if(get_class($val) == "EasyRdf\Resource" ){
+                    
                     $classUri = $val->getUri();
+                    
+                    //var_dump($val->getGraph()->get(RC::titleProp()));
+                    if($p == RC::get("drupalRdfType"));{
+                        if (strpos($val->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false) {
+                            $result['acdh_rdf:type']['title'] = $val->localName();
+                            $result['acdh_rdf:type']['insideUri'] = $this->detailViewUrlDecodeEncode($val->__toString(), 1);   
+                        }
+                    }
                     $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
-                    $result['table'][$propertyShortcut][$key]['title'] = $classUri;
                     
                     //we will skip the title for the resource identifier
                     if($p != RC::idProp() ){
-                        //$title = $OeawStorage->getTitleByIdentifier($classUri);
+                        //this will be the proper
                         $searchTitle[] = $classUri;
                     }
                     //if the acdhImage is available or the ebucore MIME
@@ -1349,7 +1282,7 @@ class OeawFunctions {
                         //if we have image/tiff then we need to use the loris
                         if($val == "image/tiff"){
                             $lorisImg = array();
-                            $lorisImg = $this->generateLorisUrl(base64_encode($resourceUri), true);
+                            $lorisImg = Helper::generateLorisUrl(base64_encode($resourceUri), true);
                             if(count($lorisImg) > 0){
                                 $result['image'] = $lorisImg['imageUrl'];
                             }
@@ -1359,40 +1292,59 @@ class OeawFunctions {
                     }
                     if( $p == RC::get('fedoraExtentProp') ) {
                         if($val->getValue()){
-                            $result['table'][$propertyShortcut][$key] = $this->formatSizeUnits($val->getValue());
+                            $result['table'][$propertyShortcut][$key] = Helper::formatSizeUnits($val->getValue());
                         }
                     }
                 }
             }
         }
         
-      
-        //get the not literal propertys TITLE
-        $existinTitles = array();
-        $existinTitles = $OeawStorage->getTitlyByIdentifierArray($searchTitle);
-        
-        $resKeys = array_keys($result['table']);
-        //change the titles
-        foreach($resKeys as $k){
-            foreach($result['table'][$k] as $key => $val){
-                if(is_array($val)){
-                    foreach($existinTitles as $t){
-                        if($t['identifier'] == $val['title']){
-                            if($k == "rdf:type"){
-                                $result['acdh_'.$k]['title'] = $t['title'];
-                                $result['acdh_'.$k]['insideUri'] = base64_encode($t['uri']);
+
+        if(count($searchTitle) > 0){
+            //get the not literal propertys TITLE
+            $existinTitles = array();
+            $existinTitles = $OeawStorage->getTitleByIdentifierArray($searchTitle);
+            
+            $resKeys = array_keys($result['table']);
+           
+
+            //change the titles
+            foreach($resKeys as $k){
+                foreach($result['table'][$k] as $key => $val){
+                    if(is_array($val)){
+                        foreach($existinTitles as $t){
+                            
+                            if($t['identifier'] == $val['uri'] || $t['pid'] == $val['uri'] || $t['uuid'] == $val['uri']){
+                                $result['table'][$k][$key]['title'] = $t['title'];
+                                
+                                $decodId = "";
+                                if(isset($t['pid']) && !empty($t['pid'])){
+                                    $decodId = $t['pid'];
+                                }else if(isset($t['identifier']) && !empty($t['identifier'])){
+                                    $decodId = $t['identifier'];
+                                }else if(isset($t['uuid']) && !empty($t['uuid'])){
+                                    $decodId = $t['uuid'];
+                                }
+                                if(!empty($decodId)){
+                                    $result['table'][$k][$key]['insideUri'] = $this->detailViewUrlDecodeEncode($decodId, 1);
+                                }
+                            
                             }
-                            $result['table'][$k][$key]['title'] = $t['title'];
-                            $result['table'][$k][$key]['insideUri'] = base64_encode($t['uri']);
+                            
+                            
                         }
                     }
                 }
             }
         }
+        if(empty($result['acdh_rdf:type']['title']) || !isset($result['acdh_rdf:type']['title'])){
+            throw new \ErrorException("There is no acdh rdf type!", 0);
+        }
       
+        
         $result['resourceTitle'] = $resourceTitle;
         $result['uri'] = $resourceUri;
-        $result['insideUri'] = base64_encode($resourceUri);
+        $result['insideUri'] = $this->detailViewUrlDecodeEncode($resourceIdentifier, 1);
         
         return $result;
     }
@@ -1470,124 +1422,7 @@ class OeawFunctions {
         
         return $return;
     }
-     
-    /**
-     * Get the urls from the Table Detail View, and make an inside URL if it is possible
-     * 
-     * @param string $string
-     * @return string
-     */
-    public function getFedoraUrlHash(string $string): string{
-        if(!$string) { return false; }
-        
-        $return = "";        
-        $OeawStorage = new OeawStorage();
-        $urls = array('https://fedora', 'https://id.acdh.oeaw.ac.at/', 'https://redmine.acdh.oeaw.ac.at/');
-        
-        foreach($urls as $url){            
-            if (strpos($string, $url) !== false) {
-                
-                $itemRes = $OeawStorage->getDataByProp(RC::get('fedoraIdProp'), $string);
-                if(count($itemRes) > 0){
-                    if($itemRes[0]['uri']){
-                        $fedoraUrl = RC::get('fedoraApiUrl');
-                        $url = str_replace($fedoraUrl."/", "", $itemRes[0]['uri']);
-                        if($url){
-                            $return = base64_encode($url);
-                        }
-                    }
-                    
-                }
-            }
-        }
-        return $return;
-    }
     
-    /**
-     * 
-     * check that the string is URL
-     * 
-     * @param string $string
-     * @return string
-     */
-    public function isURL(string $string): string{
-        
-        $res = "";        
-        if (filter_var($string, FILTER_VALIDATE_URL)) {
-            if (strpos($string, RC::get('fedoraApiUrl')) !== false) {
-                $res = base64_encode($string);
-            }
-            return $res;
-        } else {
-            return false;
-        }        
-    }
-
-    /**
-     * 
-     * Creates a property uri based on the prefix
-     * 
-     * @param string $prefix
-     * @return string
-     */
-    public function createUriFromPrefix(string $prefix): string{
-        
-        if(empty($prefix)){ return false; }
-        
-        $res = "";
-        
-        $newValue = explode(':', $prefix);
-        $newPrefix = $newValue[0];
-        $newValue =  $newValue[1];
-        
-        $prefixes = \Drupal\oeaw\ConnData::$prefixesToChange;
-        
-        foreach ($prefixes as $key => $value){
-            if($value == $newPrefix){
-                $res = $key.$newValue;
-            }
-        }        
-        return $res;
-    }
-    
-    
-     /**
-     * 
-     * Create nice format from file sizes
-     * 
-     * @param type $bytes
-     * @return string
-     */
-    public function formatSizeUnits(string $bytes): string
-    {
-        if ($bytes >= 1073741824)
-        {
-            $bytes = number_format($bytes / 1073741824, 2) . ' GB';
-        }
-        elseif ($bytes >= 1048576)
-        {
-            $bytes = number_format($bytes / 1048576, 2) . ' MB';
-        }
-        elseif ($bytes >= 1024)
-        {
-            $bytes = number_format($bytes / 1024, 2) . ' KB';
-        }
-        elseif ($bytes > 1)
-        {
-            $bytes = $bytes . ' bytes';
-        }
-        elseif ($bytes == 1)
-        {
-            $bytes = $bytes . ' byte';
-        }
-        else
-        {
-            $bytes = '0 bytes';
-        }
-
-        return $bytes;
-    }
-
     
     /**
      * 
@@ -1620,91 +1455,9 @@ class OeawFunctions {
         return false;
     }
     
+   
     
     
-    /**
-     * 
-     * Array Unique function to multidimensional arrays
-     * 
-     * @param array $data
-     * @param string $key
-     * @return array
-     */
-    public function arrUniqueToMultiArr(array $data, string $key): array{
-        
-        if(empty($data) || empty($key)){ return array(); }
-        
-        $return = array();
-        
-        foreach ($data as $d) {
-            $return[] = $d[$key];
-        }
-        $return = array_unique($return);
-        
-        return $return;
-        
-    }
-    
-    /**
-     * 
-     * This function checks that the Resource is a 3dData or not
-     * 
-     * @param array $data
-     * @return bool
-     */
-    public function check3dData(array $data): bool{
-        $return = false;
-       
-        if( (isset($data['ebucore:filename'][0])) 
-            && 
-            ( (strpos(strtolower($data['ebucore:filename'][0]), '.nxs') !== false) 
-            || 
-            (strpos(strtolower($data['ebucore:filename'][0]), '.ply') !== false) ) 
-            &&
-            ( isset($data['acdh:hasCategory'][0]) && $data['acdh:hasCategory'][0] =="3dData")    
-        )
-        {
-            $return = true;
-        }
-        return $return;
-    }
-    
-    /**
-     * 
-     * Calculate the estimated Download time for the collection
-     * 
-     * @param int $binarySize
-     * @return string
-     */
-    public function estDLTime(int $binarySize): string{
-        
-        $result = "";
-        if($binarySize < 1){ return $result; }
-        
-        $kb=1024;
-        flush();
-        $time = explode(" ",microtime());
-        $start = $time[0] + $time[1];
-        for( $x=0; $x < $kb; $x++ ){
-            str_pad('', 1024, '.');
-            flush();
-        }
-        $time = explode(" ",microtime());
-        $finish = $time[0] + $time[1];
-        $deltat = $finish - $start;
-        
-        $input = (($binarySize / 512) * $deltat);
-        $input = floor($input / 1000);
-        $seconds = $input;
-        
-        if($seconds > 0){
-            //because of the zip time we add
-            $result = round($seconds * 1.35) * 4;
-            return $result;
-        }
-        
-        return $result;
-    }
     
     /**
      * 
@@ -1713,9 +1466,8 @@ class OeawFunctions {
      * @param string $uri
      * @return array
      */
-    public function genCollectionData(string $uri): array{
-        
-        $uri = base64_decode($uri);
+    public function generateCollectionData(string $id): array{
+                
         $fedora = $this->initFedora();
         $fedoraRes = array();
         $rootMeta = array();
@@ -1723,8 +1475,9 @@ class OeawFunctions {
 
         try{
             //get the resource data 
-            $fedoraRes = $fedora->getResourceByUri($uri);
+            $fedoraRes = $fedora->getResourceById($id);
             $rootMeta = $fedoraRes->getMetadata();            
+            $uri = $rootMeta->getUri();
             //get title
             $title = $rootMeta->get(RC::get('fedoraTitleProp'));
             //get number of files
@@ -1764,10 +1517,10 @@ class OeawFunctions {
                 $bs = $binarySize->getValue();
                 $resData['binarySize'] = $bs;
                 //formatted binary size for the gui
-                $resData['formattedSize'] = $this->formatSizeUnits($bs);
+                $resData['formattedSize'] = Helper::formatSizeUnits($bs);
 
                 //the estimated download time
-                $estDLTime = $this->estDLTime($bs);
+                $estDLTime = Helper::estDLTime($bs);
                 if($estDLTime > 0){ $resData['estDLTime'] = $estDLTime; }
 
                 $freeSpace = 0;
@@ -1779,7 +1532,7 @@ class OeawFunctions {
 
                 if($freeSpace){
                     $resData['freeSpace'] = $freeSpace;
-                    $resData['formattedFreeSpace'] = $this->formatSizeUnits((string)$freeSpace);
+                    $resData['formattedFreeSpace'] = Helper::formatSizeUnits((string)$freeSpace);
 
                     if($freeSpace > 1499999999 * 2.2){
                         //if there is no enough free space then we will not allow to DL the collection
@@ -1788,7 +1541,8 @@ class OeawFunctions {
                 }
             }
 
-            $resData["uri"] = $uri;
+            $resData["uri"] = $id;
+            $resData["fedoraUri"] = $uri;
             
             //check the cache
             $cacheData = array();
@@ -1803,7 +1557,7 @@ class OeawFunctions {
             if(count($cacheData) > 0){
                 foreach($cacheData as $k => $v){
                     if($v['binarySize']){
-                        $cacheData[$k]['formSize'] = $this->formatSizeUnits((string)$v['binarySize']);
+                        $cacheData[$k]['formSize'] = Helper::formatSizeUnits((string)$v['binarySize']);
                     }
 
                     if($v['uri']){
@@ -1869,127 +1623,6 @@ class OeawFunctions {
         return array($indexed[$root]);
     }
     
-    /**
-     * 
-     * Check the array if there is a string inside it
-     * 
-     * @param array $data
-     * @param string $str
-     * @return bool
-     */
-    public function checkArrayForValue(array $data, string $str):bool {
-        
-        if(count($data) > 0){
-            foreach($data as $item){
-                if(strpos($item, $str)!== false){
-                    return true;
-                }
-            }
-        }
-        
-        return false;
-    }
-    
-    /**
-     * Generate Loris Url and data for the IIIF Viwer and for the detail view
-     * 
-     * @param string $uri - base64 encoded fedora rest uri
-     * @param bool $image
-     * @return array
-     */
-    public function generateLorisUrl(string $uri, bool $image = false): array{
-        
-        $result = array();
-        if(!$uri){
-            return $result; 
-        }
-        
-        $url = "";
-        $lorisUrl = "https://loris.minerva.arz.oeaw.ac.at/";
-        $domain = "";
-        //check which instance we are using
-        if (strpos(RC::get('fedoraApiUrl'), 'hephaistos') !== false) {
-            $domain = "hephaistos:/rest/";
-        }else if(strpos(RC::get('fedoraApiUrl'), 'minerva') !== false ) {
-            $domain = "minerva:/rest/";
-        }else{
-         $domain = "apollo:/rest/";   
-        }
-        
-        $resource = explode("/rest/", base64_decode($uri));
-        
-        if(isset($resource[1]) && !empty($resource[1])){
-            if($image == false){
-                $result['imageUrl'] = $lorisUrl.$domain.$resource[1]."/info.json";
-            } else {
-                $result['imageUrl'] = $lorisUrl.$domain.$resource[1]."/full/500,/0/default.jpg";
-            }
-            $oeawStorage = new OeawStorage();
-            $tRes = $oeawStorage->getResourceTitle(base64_decode($uri));
-            if($tRes[0]["title"]){
-                $result['title'] = $tRes[0]["title"];
-            }
-            $result['insideUri'] = $uri;
-        }
-        
-        return $result;
-
-    }
-    
-    /**
-     * 
-     * Get hasPid & create copy link
-     * Order of desired URIs:
-     * PID > id.acdh > id.acdh/uuid > long gui url
-     * 
-     * 
-     * @param array $results
-     * @return string
-     */
-    public function generateNiceUri(array $results): string {
-        
-        $niceURI = "";
-        
-        if (isset($results["table"]["acdh:hasPid"])) {
-            if (isset($results["table"]["acdh:hasPid"][0]['uri'])) {
-                $niceURI = $results["table"]["acdh:hasPid"][0]['uri'];
-            }
-        }
-        
-        if (empty($niceURI)) {
-            if (isset($results["table"]["acdh:hasIdentifier"]) && !empty($results["table"]["acdh:hasIdentifier"]) ){
-                $acdhURIs = $results["table"]["acdh:hasIdentifier"];
-                //Only one value under acdh:hasIdentifier
-                if (isset($acdhURIs["uri"])) {
-                    //id.acdh/uuid
-                    if (strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
-                        $niceURI = $acdhURIs["uri"];
-                    }
-                    //id.acdh
-                    if (!isset($extras["niceURI"]) && strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at') !== false) {
-                       $niceURI = $acdhURIs["uri"];
-                    }
-                }
-                //Multiple values under acdh:hasIdentifier
-                else {
-                    foreach ($acdhURIs as $key => $acdhURI) {
-                        if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
-                            $acdhURIuuid = $acdhURI["uri"];
-                        } else if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at') !== false) {
-                            $acdhURIidacdh = $acdhURI["uri"];
-                        }
-                    }
-                    if (isset($acdhURIidacdh)) {
-                        $niceURI = $acdhURIidacdh;
-                    } else if (isset($acdhURIuuid)) {
-                        $niceURI = $acdhURIuuid;
-                    }
-                }
-            }
-        }
-        
-        return $niceURI;
-    }
     
     /**
      * 
@@ -2020,10 +1653,9 @@ class OeawFunctions {
                 if((isset($rt['uri'])) && 
                         (strpos($rt['uri'], RC::get('drupalPerson')) !== false)){
                     $specialType = "person";
-                    
-                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalPerson'));
+                    $typeProperties = CC::getDetailChildViewProperties(RC::get('drupalPerson'));
                     if(count($typeProperties) > 0){
-                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $properties['limit'], $properties['page'], true, $typeProperties);
                     }
                 }
                 //is it a concept or not
@@ -2034,50 +1666,49 @@ class OeawFunctions {
                     ){
                     $specialType = "concept";
                     
-                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalConcept'));
+                    $typeProperties = CC::getDetailChildViewProperties(RC::get('drupalConcept'));
                     if(count($typeProperties) > 0){
-                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $properties['limit'], $properties['page'], true, $typeProperties);
                     }
                 }
                 else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalProject') ) !== false)) {
                     $specialType = "project";
                     
-                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalProject'));
+                    $typeProperties = CC::getDetailChildViewProperties(RC::get('drupalProject'));
                     if(count($typeProperties) > 0){
-                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $properties['limit'], $properties['page'], true, $typeProperties);
                     }
                 }
                 else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalInstitute')) !== false)) {
                     $specialType = "institute";
                     
-                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalInstitute'));
+                    $typeProperties = CC::getDetailChildViewProperties(RC::get('drupalInstitute'));
                     if(count($typeProperties) > 0){
-                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $properties['limit'], $properties['page'], true, $typeProperties);
                     }
                     
                 }
                 else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('fedoraOrganisationClass')) !== false) ){
                     $specialType = "organisation";
-                    
-                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('fedoraOrganisationClass'));
+                    $typeProperties = CC::getDetailChildViewProperties(RC::get('fedoraOrganisationClass'));
                     if(count($typeProperties) > 0){
-                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $properties['limit'], $properties['page'], true, $typeProperties);
                     }
                 }
                 else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPlace')) !== false) ){
                     $specialType = "place";
                     
-                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalPlace'));
+                    $typeProperties = CC::getDetailChildViewProperties(RC::get('drupalPlace'));
                     if(count($typeProperties) > 0){
-                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $properties['limit'], $properties['page'], true, $typeProperties);
                     }
                 }
                 else if( isset($rt['uri']) &&  (strpos($rt['uri'], RC::get('drupalPublication')) !== false) ){
                     $specialType = "publication";
                     
-                    $typeProperties = \Drupal\oeaw\ConfigConstants::getDetailChildViewProperties(RC::get('drupalPublication'));
+                    $typeProperties = CC::getDetailChildViewProperties(RC::get('drupalPublication'));
                     if(count($typeProperties) > 0){
-                        $countData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $properties['limit'], $properties['page'], true, $typeProperties);
+                        $countData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $properties['limit'], $properties['page'], true, $typeProperties);
                     }
                 }
 
@@ -2100,31 +1731,30 @@ class OeawFunctions {
  
         switch ($specialType) {
             case "person":
-                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             case "concept":
-                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             case "project":
-                $childrenData = $oeawStorage->getChildResourcesByProperty($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                $childrenData = $oeawStorage->getChildResourcesByProperty($properties['identifier'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             case "institute":
-                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             case "organisation":
-                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             case "place":
-                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             case "publication":
-                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['uri'], $pagelimit, $pageData['end'], false, $typeProperties);
+                $childrenData = $oeawStorage->getSpecialDetailViewData($properties['identifier'], $pagelimit, $pageData['end'], false, $typeProperties);
                 break;
             default:
                 //there is no special children view, so we are using the the default children table
                 $childrenData = $oeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
         }        
-        
 
         //we have children data so we will generate the view for it
         if(count($childrenData) > 0){
