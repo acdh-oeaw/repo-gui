@@ -34,7 +34,13 @@ class SidebarTypeOfResourceForm extends FormBase
     */
     public function buildForm(array $form, FormStateInterface $form_state) 
     { 
-        $data = $this->oeawStorage->getClassesForSideBar();
+        try {
+            $data = $this->oeawStorage->getClassesForSideBar();
+        } catch (\ErrorException $ex) {
+            drupal_set_message($ex->getMessage(), 'error');
+            return array();
+        }
+        
         $searchClasses = array();
         
         if(count($data) == 0){

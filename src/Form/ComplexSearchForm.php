@@ -45,16 +45,22 @@ class ComplexSearchForm extends FormBase
         
         $rs = array();
         //create the resource type data
-        foreach($resFields as $val){
-            $type = str_replace(RC::get('fedoraVocabsNamespace'), '', $val['type']);
-            $count = str_replace(RC::get('fedoraVocabsNamespace'), '', $val['type'])." (".$val['typeCount'].")";
-            $rs[$type] = $count;
+        if(count($resFields) > 0){
+            foreach($resFields as $val){
+                $type = str_replace(RC::get('fedoraVocabsNamespace'), '', $val['type']);
+                $count = str_replace(RC::get('fedoraVocabsNamespace'), '', $val['type'])." (".$val['typeCount'].")";
+                $rs[$type] = $count;
+            }
+        }else {
+            drupal_set_message(t('You have no ACDH resource types!'), 'error', FALSE);
+            return array();
         }
+        
+        
         $resData["fields"] = $rs;
         if(count($resData["fields"]) > 0){
             $this->createBox($form, $resData);
         }
-        
         
         $dateData["title"] = "Entities by Year";
         $dateData["type"] = "datebox_years";
@@ -144,8 +150,16 @@ class ComplexSearchForm extends FormBase
         $propertys = array();
         $searchTerms = array();
         $basePath = base_path();
-        $propertys = $this->oeawStorage->getAllPropertyForSearch();
-        
+        try {
+            $propertys = $this->oeawStorage->getAllPropertyForSearch();
+        } catch (Exception $ex) {
+            drupal_set_message($ex->getMessage(), 'error');
+            return array();
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            drupal_set_message($ex->getMessage(), 'error');
+            return array();
+        }
+
         if(empty($propertys)){
              drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> CustomSearchForm '), 'error');
              return $form;

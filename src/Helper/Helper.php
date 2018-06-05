@@ -105,19 +105,19 @@ class Helper {
      * @param array $results
      * @return string
      */
-    public static function generateNiceUri(array $results): string {
+    public static function generateNiceUri(\Drupal\oeaw\Model\OeawResource $results): string {
         
         $niceURI = "";
         
-        if (isset($results["table"]["acdh:hasPid"])) {
-            if (isset($results["table"]["acdh:hasPid"][0]['uri'])) {
-                $niceURI = $results["table"]["acdh:hasPid"][0]['uri'];
+        if (isset($results->table["acdh:hasPid"])) {
+            if (isset($results->table["acdh:hasPid"][0]['uri'])) {
+                $niceURI = $results->table["acdh:hasPid"][0]['uri'];
             }
         }
         
         if (empty($niceURI)) {
-            if (isset($results["table"]["acdh:hasIdentifier"]) && !empty($results["table"]["acdh:hasIdentifier"]) ){
-                $acdhURIs = $results["table"]["acdh:hasIdentifier"];
+            if (isset($results->table["acdh:hasIdentifier"]) && !empty($results->table["acdh:hasIdentifier"]) ){
+                $acdhURIs = $results->table["acdh:hasIdentifier"];
                 //Only one value under acdh:hasIdentifier
                 if (isset($acdhURIs["uri"])) {
                     //id.acdh/uuid

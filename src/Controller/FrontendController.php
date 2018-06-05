@@ -13,6 +13,8 @@ use Drupal\Core\Link;
 use Drupal\Core\Archiver\Zip;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\oeaw\Model\OeawStorage;
+use Drupal\oeaw\Model\OeawResource;
+use Drupal\oeaw\Model\OeawResourceDetails;
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\Helper\Helper;
 use Drupal\oeaw\Model\OeawCustomSparql;
@@ -25,6 +27,7 @@ use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\InvokeCommand;
 
 use acdhOeaw\util\RepoConfig as RC;
+use Drupal\oeaw\ConfigConstants as CC;
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
 use EasyRdf\Graph;
@@ -49,8 +52,6 @@ class FrontendController extends ControllerBase  {
     private $oeawCustomSparql;
     private $propertyTableCache;
     private $uriFor3DObj;
-    
-    
     
     public function __construct() {
         $this->oeawStorage = new OeawStorage();
@@ -85,7 +86,16 @@ class FrontendController extends ControllerBase  {
         $page = $page-1;
         
         //count all root resource for the pagination
-        $countRes = $this->oeawStorage->getRootFromDB(0,0,true);
+        try {
+            $countRes = $this->oeawStorage->getRootFromDB(0,0,true);
+        } catch (Exception $ex) {
+            drupal_set_message($ex->getMessage(), 'error');
+            return array();
+        } catch (\InvalidArgumentException $ex) {
+            drupal_set_message($ex->getMessage(), 'error');
+            return array();
+        }
+        
         $countRes = $countRes[0]["count"];
         if($countRes == 0){
             drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
@@ -106,7 +116,16 @@ class FrontendController extends ControllerBase  {
             $offsetRoot = 0;
         }
 
-        $result = $this->oeawStorage->getRootFromDB($limit, $offsetRoot, false, $order);
+        try {
+            $result = $this->oeawStorage->getRootFromDB($limit, $offsetRoot, false, $order);
+        } catch (Exception $ex) {
+            drupal_set_message($ex->getMessage(), 'error');
+            return array();
+        } catch (\InvalidArgumentException $ex) {
+            drupal_set_message($ex->getMessage(), 'error');
+            return array();
+        }
+        
         $uid = \Drupal::currentUser()->id();
 
         if(count($result) > 0){
@@ -282,8 +301,7 @@ class FrontendController extends ControllerBase  {
     public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "1"): array {
      
         drupal_get_messages('error', TRUE);
-        
-        $hasBinary = "";
+                
         $inverseData = array();
         $childResult = array();
         $rules = array();
@@ -312,6 +330,7 @@ class FrontendController extends ControllerBase  {
         $fedora = $this->oeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
         
+        //get the resource metadata
         try{
             $fedoraRes = $fedora->getResourceById($identifier);
             $rootMeta = $fedoraRes->getMetadata();
@@ -322,50 +341,45 @@ class FrontendController extends ControllerBase  {
             drupal_set_message(t($ex->getMessage()), 'error');
             return array();
         }
+        
         //get the actual resource rules
-        $rules = $this->oeawFunctions->getRules($uri, $fedoraRes);
-      
-        /*
-        if(count($rules) == 0){
-            $msg = base64_encode("The Resource Rules are not reachable!");
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+        try{
+            $rules = $this->oeawFunctions->getRules($uri, $fedoraRes);
+        } catch (Exception $ex) {
+            drupal_set_message(t($ex->getMessage()), 'error');
+            return array();
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex ) {
+            drupal_set_message(t($ex->getMessage()), 'error');
+            return array();
         }
-        */
+        //check the rules array!!!!
        
         if(count((array)$rootMeta)){
             $results = array();
             
-            //get the root table data for the expert view
+            //create the OEAW resource Object for the GUI data
             try {
-                $results = $this->oeawFunctions->createDetailViewTable($rootMeta);
-                if(count($results) == 0){
-                    throw new \ErrorException;
-                }
+                $resultsObj = $this->oeawFunctions->createDetailViewTable($rootMeta);
             } catch (\ErrorException $ex) {
                 drupal_set_message(t("Error ARCHE cant generate the Resource Table View! ".$ex->getMessage()), 'error');
                 return array();
             }
-            
-            //$results['ACL'] = $this->oeawFunctions->checkRules($rules);
-            
-            //check the acdh:hasIdentifier data to the child view
-            $identifiers = array();
-            if(count($results['table']['acdh:hasIdentifier']) > 0){
-                foreach($results['table']['acdh:hasIdentifier'] as $i){
-                    $identifiers[] = $i['uri'];
-                }
+            try{
+                //$results['ACL'] = $this->oeawFunctions->checkRules($rules);
+            } catch (Exception $ex) {
+                drupal_set_message($ex->getMessage(), 'error');
+                return array();
             }
             
-            if(count($identifiers) > 0){
+            //check the acdh:hasIdentifier data to the child view
+            if(count($resultsObj->identifiers) > 0){
                 //set up the necessary properties for the child data generation
                 $properties = array();
-                $properties = array("limit" => $limit, "page" => $page, "identifier" => $identifier);
+                $properties = array("limit" => $limit, "page" => $page, "identifier" => $resultsObj->identifiers);
                 //get the child view data
                 $childArray = array();
-                $childArray = $this->oeawFunctions->generateChildViewData($identifiers, $results, $properties);
-                
+                $childArray = $this->oeawFunctions->generateChildViewData($resultsObj->identifiers, $resultsObj, $properties);
+
                 if(count($childArray) > 0){
                     //pass the specialtype info to the template
                     if(isset($childArray['specialType'])){
@@ -377,15 +391,21 @@ class FrontendController extends ControllerBase  {
                     }
                     //setup pagination infos
                     if(isset($childArray['pagination'])){
-                        $results["pagination"] = $childArray['pagination'];
+                        $extras["pagination"] = $childArray['pagination'];
                     }
                 }
                 
                 $customDetailView = array();
-                if(isset($results["acdh_rdf:type"])){
-                    $customDetailView = $this->oeawFunctions->generateCustomDetailViewData($results, $results["acdh_rdf:type"]['title']);
+                //if we have a type and this type can found in the available custom views array
+                if(isset($resultsObj->type) && in_array(strtolower($resultsObj->type), CC::$availableCustomViews)){
+                    try{
+                        $customDetailView = $this->oeawFunctions->createCustomDetailViewTemplateData($resultsObj, $resultsObj->type);
+                    } catch (\ErrorException $ex) {
+                        drupal_set_message(t("Error ARCHE cant generate the Resource Custom Table View! ".$ex->getMessage()), 'error');
+                        return array();
+                    }
                 }
-                
+
                 if(count($customDetailView) > 0){
                     $results['specialType'] = $customDetailView;
                 }
@@ -406,11 +426,19 @@ class FrontendController extends ControllerBase  {
      
         $dissServices = array();
         //check the Dissemination services
-        $dissServices = $this->oeawFunctions->getResourceDissServ($fedoraRes);
+        try {
+            $dissServices = $this->oeawFunctions->getResourceDissServ($fedoraRes);
+        } catch (Exception $ex) {
+            drupal_set_message($ex->getMessage(), 'error');
+            return array();
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
+            drupal_set_message($ex->getMessage(), 'error');
+            return array();
+        }
 
         if(count($dissServices) > 0 && $fedoraRes->getId()){
             //we need to remove the raw from the list if it is a collection
-            if(isset($results["acdh_rdf:type"]['title']) && $results["acdh_rdf:type"]['title'] == "Collection"){
+            if(isset($resultsObj->type) && $resultsObj->type == "Collection"){
                 for($i=0; $i <= count($dissServices); $i++){
                     if($dissServices[$i]['returnType'] == "raw"){
                         unset($dissServices[$i]);
@@ -431,57 +459,51 @@ class FrontendController extends ControllerBase  {
         }
         
         //format the hasavailable date
-        if(isset($results["table"]["acdh:hasAvailableDate"]) && !empty($results["table"]["acdh:hasAvailableDate"])){
-            if($results["table"]["acdh:hasAvailableDate"][0]){
-                if (\DateTime::createFromFormat('Y-m-d', $results["table"]["acdh:hasAvailableDate"][0]) !== FALSE) {
-                    $time = strtotime($results["table"]["acdh:hasAvailableDate"][0]);
+        if(isset($resultsObj->table["acdh:hasAvailableDate"]) && !empty($resultsObj->table["acdh:hasAvailableDate"])){
+            if($resultsObj->table["acdh:hasAvailableDate"][0]){
+                if (\DateTime::createFromFormat('Y-m-d', $resultsObj->table["acdh:hasAvailableDate"][0]) !== FALSE) {
+                    $time = strtotime($resultsObj->table["acdh:hasAvailableDate"][0]);
                     $newTime = date('Y-m-d', $time);
-                    $results["table"]["acdh:hasAvailableDate"][0] = $newTime;
+                    $resultsObj->table["acdh:hasAvailableDate"][0] = $newTime;
                 }
                 //if we dont have a real date just a year
-                if (\DateTime::createFromFormat('Y', $results["table"]["acdh:hasAvailableDate"][0]) !== FALSE) {
-                    $year = \DateTime::createFromFormat('Y', $results["table"]["acdh:hasAvailableDate"][0]);
-                    $results["table"]["acdh:hasAvailableDate"][0] = $year->format('Y');
+                if (\DateTime::createFromFormat('Y', $resultsObj->table["acdh:hasAvailableDate"][0]) !== FALSE) {
+                    $year = \DateTime::createFromFormat('Y', $resultsObj->table["acdh:hasAvailableDate"][0]);
+                    $resultsObj->table["acdh:hasAvailableDate"][0] = $year->format('Y');
                 }
             }
         }
         
         //generate the NiceUri to the detail View
         $niceUri = "";
-        $niceUri = Helper::generateNiceUri($results);
+        $niceUri = Helper::generateNiceUri($resultsObj);
         if(!empty($niceUri)){
             $extras["niceURI"] = $niceUri;
         }
 
         //Create data for cite-this widget
-        $typesToBeCited = ["Collection", "Project", "Resource", "Publication"];
-        if(isset($results["acdh_rdf:type"]["title"]) && !empty($results["acdh_rdf:type"]["title"]) ){
-            if (in_array($results["acdh_rdf:type"]["title"], $typesToBeCited)) {
-                //pass $rootMeta for rdf object
-                $extras["CiteThisWidget"] = $this->oeawFunctions->createCiteThisWidget($results);
-            }
+        $typesToBeCited = ["collection", "project", "resource", "publication"];
+        if(isset($resultsObj->type) && !empty($resultsObj->type) && in_array(strtolower($resultsObj->type), $typesToBeCited) ){
+            //pass $rootMeta for rdf object
+            $extras["CiteThisWidget"] = $this->oeawFunctions->createCiteThisWidget($resultsObj);
         }
                 
         //get the tooltip from cache
-        $cachedTooltip = $this->propertyTableCache->getCachedData($results["table"]);
+        $cachedTooltip = $this->propertyTableCache->getCachedData($resultsObj->table);
         if(count($cachedTooltip) > 0){
             $extras["tooltip"] = $cachedTooltip;
         }
         
         //if it is a resource then we need to check the 3dContent
-        if(isset($results['acdh_rdf:type']) && $results['acdh_rdf:type']['title'] == "Resource"  ){
-            if(Helper::check3dData($results['table']) === true){
+        if(isset($resultsObj->type) && $resultsObj->type == "Resource"  ){
+            if(Helper::check3dData($resultsObj->table) === true){
                 $extras['3dData'] = true;
             }
         }
-        /*
-        if(isset($results['acdh_rdf:type']) && $results['acdh_rdf:type']['title'] == "Collection"  ){
-            $this->oeaw_dl_collection(base64_encode($uri));
-        }*/
-     
+
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
-            '#result' => $results,
+            '#result' => $resultsObj,
             '#extras' => $extras,
             '#userid' => $uid,
             #'#query' => $query,            
@@ -543,9 +565,21 @@ class FrontendController extends ControllerBase  {
             $metavalue = urldecode($metavalue);
             $metavalue = str_replace(' ', '+', $metavalue);
 
-            $searchStr = $this->oeawFunctions->explodeSearchString($metavalue);        
+            $searchStr = $this->oeawFunctions->explodeSearchString($metavalue);
             
-            $countSparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, 0, 0, true);
+            if(!in_array("", $searchStr) === false){
+                drupal_set_message("Search String is not valid!", 'error');
+                return array();
+            }
+
+            
+            try{
+                $countSparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, 0, 0, true);
+            } catch (\ErrorException $ex) {
+                drupal_set_message($ex->getMessage(), 'error');
+                return array();
+            }
+            
             $count = $this->oeawStorage->runUserSparql($countSparql);
             $total = (int)count($count);
             //create data for the pagination
@@ -554,9 +588,14 @@ class FrontendController extends ControllerBase  {
             if ($pageData['totalPages'] > 1) {
                 $pagination =  $this->oeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
             }
-            $sparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
-            $res = $this->oeawStorage->runUserSparql($sparql);
-                        
+            try{
+                $sparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
+                $res = $this->oeawStorage->runUserSparql($sparql);
+            } catch (\ErrorException $ex) {
+                drupal_set_message($ex->getMessage(), 'error');
+                return array();
+            }
+            
             if(count($res) > 0){
                 $i = 0;
                 foreach($res as $r){
@@ -602,7 +641,8 @@ class FrontendController extends ControllerBase  {
             }
             
             if (count($result) == 0){
-                $errorMSG = drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
+                drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
+                return array();
             }
             
             $uid = \Drupal::currentUser()->id();

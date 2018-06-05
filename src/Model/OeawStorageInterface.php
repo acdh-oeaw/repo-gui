@@ -26,7 +26,7 @@ interface OeawStorageInterface {
     public function getAllPropertyForSearch():array;
     public function getClassesForSideBar():array;
     public function getDateForSearch(): array;
-    public function searchForData(string $value, string $property): array;
+    
     
     
     //the children view SQLs

@@ -59,9 +59,11 @@ class OeawStorage implements OeawStorageInterface {
         
     
     private $oeawFunctions;    
-    private $fedora;    
+    private $fedora;   
+    private static $instance;
     
     public function __construct() {
+       
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
                 
         $this->oeawFunctions = new OeawFunctions();
@@ -75,6 +77,13 @@ class OeawStorage implements OeawStorageInterface {
             if(!array_key_exists($val, $blazeGraphNamespaces)){
                 \EasyRdf\RdfNamespace::set($key, $val);
             }
+        }
+        
+        if (!self::$instance) {
+            self::$instance = $this;
+            return self::$instance;
+        } else {
+            return self::$instance;
         }
     }
 
@@ -177,15 +186,9 @@ class OeawStorage implements OeawStorageInterface {
             }
             
         } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();            
-        }catch (\InvalidArgumentException $ex){            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+            throw new Exception($ex->getMessage());
+        }catch (\InvalidArgumentException $ex){
+            throw new \InvalidArgumentException($ex->getMessage());
         }
     }
 
@@ -212,16 +215,10 @@ class OeawStorage implements OeawStorageInterface {
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);        
             return $getResult;
             
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();            
-        }catch (\InvalidArgumentException $ex){            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
+        } catch (\InvalidArgumentException $ex){            
+            throw new \InvalidArgumentException($ex->getMessage());
         }
     }
    
@@ -249,17 +246,10 @@ class OeawStorage implements OeawStorageInterface {
             $fields = $result->getFields();             
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);        
             return $getResult;
-            
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();            
-        }catch (\InvalidArgumentException $ex){            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+        }  catch (Exception $ex) {
+            return array();
+        } catch (\InvalidArgumentException $ex){            
+            return array();
         }
     }
     
@@ -333,15 +323,9 @@ class OeawStorage implements OeawStorageInterface {
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);        
             return $getResult;
             
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
+        } catch (Exception $ex) {
            return array();            
-        }catch (\InvalidArgumentException $ex){            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
+        }catch (\InvalidArgumentException $ex){
            return array();
         }
     }
@@ -364,25 +348,16 @@ class OeawStorage implements OeawStorageInterface {
             $q->setSelect(array('?p'));
         
             $query= $q->getQuery();
-            
             $result = $this->fedora->runSparql($query);
-            
-            $fields = $result->getFields(); 
-
+            $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
 
             return $getResult;                
             
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+        } catch (Exception $ex) {
+            throw new Exception($ex->getMessage());
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+            throw new \GuzzleHttp\Exception\ClientException($ex->getMessage());
         }
     }
 
@@ -550,21 +525,11 @@ class OeawStorage implements OeawStorageInterface {
             return $getResult;                
         
         } catch (\Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+            throw new \Exception($ex->getMessage());
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
-        } 
-        catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+            throw new \Exception($ex->getMessage());
+        } catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex){
+            throw new \Exception($ex->getMessage());
         } 
     }
     
@@ -600,16 +565,11 @@ class OeawStorage implements OeawStorageInterface {
             
             return $getResult; 
             
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+        } catch (Exception $ex) {
+            throw new \ErrorException($ex->getMessage());
+            
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
+            throw new \ErrorException($ex->getMessage());
         }  
     }
    
@@ -657,15 +617,9 @@ class OeawStorage implements OeawStorageInterface {
 
             return $getResult;
             
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
+        } catch (Exception $ex) {
            return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
            return array();
         }  
     }
@@ -757,15 +711,9 @@ class OeawStorage implements OeawStorageInterface {
             return $result;
             
             
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
+        } catch (Exception $ex) {
            return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
            return array();
         }  
     }
@@ -813,6 +761,7 @@ class OeawStorage implements OeawStorageInterface {
     
     /* 
      *
+     * We using it for the NEW/EDIT FORMS
      *  Get the digital rescources Meta data and the cardinality data by ResourceUri
      *
      * @param string $classURI 
@@ -888,70 +837,7 @@ class OeawStorage implements OeawStorageInterface {
         $string .= " } }"
                 . "GROUP BY ?prop ?propID ?propTitle ?cardinality ?minCardinality ?maxCardinality ?range
                     ORDER BY ?propID";
-                
         
-        
-        /*
-        $string = "select * 
-            where {
-                {
-                    SELECT  * 
-                    WHERE {  
-                        <".$classURI.">  <".RC::idProp()."> / ^ <".$rdfsDomain."> ?property .
-                    }
-                } 
-                UNION 
-                {
-                    SELECT  * 
-                    WHERE {
-                        <".$classURI."> <".$rdfsSubClass."> / ( ^<".RC::idProp()."> / <".$rdfsSubClass."> ) * / ^<".$rdfsDomain."> ?property .
-                    } 
-                }
-                { 
-                    SELECT  * 
-                    WHERE {
-                        ?property <".RC::idProp()."> ?id .
-                    }
-                }
-                optional{ 
-                    SELECT  * 
-                        WHERE {
-                            ?property <".$owlCardinality."> ?cardinality .
-                    }
-                }
-                optional{ 
-                    SELECT  * 
-                        WHERE {
-                            ?property <".$owlMinCardinality."> ?minCardinality .
-                    }
-                }
-                optional{ 
-                    SELECT  * 
-                        WHERE {
-                            ?property <".$owlMaxCardinality."> ?maxCardinality .
-                        }
-                    }
-                optional{ 
-                    SELECT  * 
-                        WHERE {
-                            ?property <".RC::get('fedoraTitleProp')."> ?title .
-                        }
-                    }
-                 optional{ 
-                    SELECT  * 
-                        WHERE {
-                            ?property <http://www.w3.org/2000/01/rdf-schema#range> ?range .
-                            }
-                    }
-                optional{ 
-                    SELECT  * 
-                        WHERE {
-                            ?property <".RC::get('drupalRdfsComment')."> ?comment .
-                        }
-                    }    
-                }
-                ORDER BY ?id";
-        */
         try {
             
             $q = new SimpleQuery($string);
@@ -963,15 +849,9 @@ class OeawStorage implements OeawStorageInterface {
             return $result;
             
             
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
+        } catch (Exception $ex) {
            return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
            return array();
         }  
     }
@@ -1003,17 +883,11 @@ class OeawStorage implements OeawStorageInterface {
                     $return = $r->uri->getUri();
                 }
             }
-            return $return;         
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
             return $return;
+        } catch (Exception $ex) {
+            return "";
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-            return $return;
+            return "";
         }  
     }
     
@@ -1032,13 +906,12 @@ class OeawStorage implements OeawStorageInterface {
     {         
         
         if (empty($value)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return "";
         }
         
         if($property == null){ $property = RC::idProp(); } 
-        
         $foafImage = self::$sparqlPref["foafImage"];
-        
         $res = "";
 
         try{            
@@ -1054,100 +927,12 @@ class OeawStorage implements OeawStorageInterface {
                     $res = $r->res->getUri();
                 }                
             }
-            
-            return $res;         
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
+            return $res;
+        } catch (Exception $ex) {
             return "";
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
             return "";
         }  
-    }
-    
-    /*
-     * 
-     * Search function
-     * 
-     * @param string $value -> the property value 
-     * @param string $property -> the property
-     * 
-     * @return array
-     * 
-     */    
-    public function searchForData(string $value, string $property): array
-    {
-        if (empty($value) || empty($property)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
-        }
-                
-        
-        $rdfsLabel = self::$sparqlPref["rdfsLabel"];
-        
-        $foafThumbnail = self::$sparqlPref["foafThumbnail"];
-        $foafImage = self::$sparqlPref["foafImage"];
-        $getResult = array();
-        
-        //we need to extend the Filter options in the DB class, to we can use the
-        // Filter =  value
-        try {
-           
-            $q = new Query();            
-            $q->setSelect(array('?res', '?property', '?value', '?title', '?label', '?thumb', '?image'));
-            $q->setDistinct(true);     
-            //$q->addParameter(new HasTriple('?uri', $property, '?value'));            
-            $q->addParameter(new MatchesRegEx($property, $value), 'i');
-            
-            $q2 = new Query();
-            $q2->addParameter((new HasTriple('?res', RC::titleProp(), '?title')));
-            $q2->setJoinClause('optional');
-            $q->addSubquery($q2);
-
-            $q3 = new Query();
-            $q3->addParameter((new HasTriple('?res', $rdfsLabel, '?label')));
-            $q3->setJoinClause('optional');
-            $q->addSubquery($q3);
-            
-            $q4 = new Query();
-            $q4->addParameter((new HasTriple('?res', $foafThumbnail, '?thumb')));
-            $q4->setJoinClause('optional');
-            $q->addSubquery($q4);
-            
-            $q5 = new Query();
-            $q5->addParameter((new HasTriple('?res', RC::get('drupalRdfType'), '?type')));
-            $q5->setJoinClause('optional');
-            $q->addSubquery($q5);
-            
-            $q6 = new Query();
-            $q6->addParameter((new HasValue('?image', $foafImage ))->setSubVar('?res'));
-            //$q6->addParameter((new HasTriple('?res', '?image', $foafImage)));
-            $q6->setJoinClause('optional');
-            $q->addSubquery($q6);
-            
-            $query = $q->getQuery();
-         
-            $result = $this->fedora->runSparql($query);
-           
-            $fields = $result->getFields(); 
-            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
-           
-            return $getResult;
-
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return array();
-        }        
     }
     
     
@@ -1600,19 +1385,19 @@ class OeawStorage implements OeawStorageInterface {
            
             return $getResult;
 
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
+        } catch (Exception $ex) {
            return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
            return array();
-        }        
+        }
     }
     
+    /**
+     * 
+     * Get the MIME infos
+     * 
+     * @return array
+     */
     public function getMimeTypes(): array{
         
         $getResult = array();
@@ -1635,15 +1420,9 @@ class OeawStorage implements OeawStorageInterface {
             
             return $getResult;
 
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
+        } catch (Exception $ex) {
            return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
            return array();
         }  
     }
@@ -1684,25 +1463,17 @@ class OeawStorage implements OeawStorageInterface {
                 ";
             
             $queryStr = $select.$queryStr;
-
             $q = new SimpleQuery($queryStr);            
             $query = $q->getQuery();
-
             $result = $this->fedora->runSparql($query);
             $fields = $result->getFields(); 
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
             
             return $getResult;
 
-        } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
+        } catch (\Exception $ex) {
            return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
            return array();
         }  
     }
@@ -1773,15 +1544,9 @@ class OeawStorage implements OeawStorageInterface {
             return $getResult;
 
         } catch (Exception $ex) {            
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return $getResult;
+            throw new \ErrorException($ex->getMessage());
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $msg = base64_encode($ex->getMessage());
-            $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-            $response->send();
-           return $getResult;
+            throw new \ErrorException($ex->getMessage());
         }  
     }
     
@@ -2082,17 +1847,7 @@ class OeawStorage implements OeawStorageInterface {
                     }
                     BIND( IF( !bound(?commentsLang) , ?commentsEN, ?commentsLang) as ?comment ) .  "
                 . "}";
-        
-        /*
-        $select = 'SELECT ?title ?id (GROUP_CONCAT(DISTINCT ?comments;separator=",") AS ?comment) WHERE { ';
-        $where = "?uri <".RC::get('drupalRdfType')."> ?type ."
-                . "FILTER( ?type IN ( <http://www.w3.org/2002/07/owl#DatatypeProperty>, <http://www.w3.org/2002/07/owl#ObjectProperty>)) . "
-                . "?uri <".RC::get('fedoraIdProp')."> ?id . "
-                . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
-                . "?uri <".RC::get('drupalRdfsComment')."> ?comments ."
-                . "}"
-                . "Group by ?title ?id";
-         */
+       
         $queryStr = $select.$where;
 
         try {

@@ -258,27 +258,26 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
             }
             
         }else{
-            if(isset($data["mindate"]) && isset($data["maxdate"])){
-            
-                if( (bool)strtotime($data["mindate"])  ){
-                    $mindate = new \DateTime($data["mindate"]);
-                }else  {
-                    $msg = base64_encode("The Minimum date is wrong!");
-                    $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-                    $response->send();
-                    return "";
-                }
-                if( (bool)strtotime($data["maxdate"]) ){
-                    $maxdate = new \DateTime($data["maxdate"]);
-                }else  {
-                    $msg = base64_encode("The Maximum date is wrong!");
-                    $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
-                    $response->send();
-                    return "";
-                }
+            if(isset($data["mindate"]) && isset($data["maxdate"])) {
+                if(!empty($data["mindate"]) && ($data["maxdate"])){
+                    if( (bool)strtotime($data["mindate"])  ){
+                        $mindate = new \DateTime($data["mindate"]);
+                    }else  {
+                        throw new \ErrorException("The Minimum date is wrong!");
+                    }
+                    if( (bool)strtotime($data["maxdate"]) ){
+                        $maxdate = new \DateTime($data["maxdate"]);
+                    }else  {
+                        throw new \ErrorException("The Maximum date is wrong!");
+                    }
+                    if(isset($mindate) && isset($maxdate)){
+                        $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
+                        $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
+                    }
                 
-                $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
-                $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
+                }else{
+                    throw new \ErrorException("Minimum or maximum date is empty!");
+                }
             }
         }
         

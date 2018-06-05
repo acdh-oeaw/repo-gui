@@ -44,6 +44,9 @@ abstract class ConfigConstants {
     //propertys
     public static $acdhQueryType = "https://vocabs.acdh.oeaw.ac.at/schema#querytype";
     
+    public static $availableCustomViews = array(
+        "person", "project", "organisation", "publication", "place"
+    );
     
     static function getCustomDetailViewTemplateDataProperties(string $property): array {
         $result = array();

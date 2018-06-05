@@ -1,32 +1,33 @@
 {% if errorMSG %}
     {{ errorMSG }}
 {% else %}
-    <input type="hidden" id="insideUri" name="insideUri" value="{{ result['insideUri'] }}">
+    
+    <input type="hidden" id="insideUri" name="insideUri" value="{{ result.insideUri }}">
     
     <h3 class="single-res-heading">
             Overview
         <div class="res-act-button res-act-button-expertview basic">
-                <i class="material-icons">&#xE896;</i>
-                <span>Switch to Expert-View</span>
+            <i class="material-icons">&#xE896;</i>
+            <span>Switch to Expert-View</span>
         </div>
         {% if extras.niceURI %}
         <div class="res-act-button res-act-button-copy-url" id="res-act-button-copy-url" data-copyuri="{{ extras.niceURI }}">
                 
-                <!--
-                <span href="javascript://" id="copy-url-tooltip" data-toggle="copy-url-tooltip"  data-placement="bottom" data-html="true" data-trigger="manual" title="Copied to Clipboard! URL: {{ extras.niceURI }}">
-                	Copy Resource Link
+            <!--
+            <span href="javascript://" id="copy-url-tooltip" data-toggle="copy-url-tooltip"  data-placement="bottom" data-html="true" data-trigger="manual" title="Copied to Clipboard! URL: {{ extras.niceURI }}">
+                    Copy Resource Link
+            </span>
+            -->
+            <span id="copy-url-button">
+                <i class="material-icons">&#xE157;</i>
+                Copy Resource Link
+            </span>
+            <span id="copyLinkTextfield-wrapper">
+                <span type="text" name="copyLinkInputBtn" id="copyLinkInputBtn" data-copyuri="{{ extras.niceURI }}">
+                    <i class="material-icons">&#xE14D;</i>
                 </span>
-                -->
-                <span id="copy-url-button">
-                	<i class="material-icons">&#xE157;</i>
-                	Copy Resource Link
-                </span>
-                <span id="copyLinkTextfield-wrapper">
-                	<span type="text" name="copyLinkInputBtn" id="copyLinkInputBtn" data-copyuri="{{ extras.niceURI }}">
-                		<i class="material-icons">&#xE14D;</i>
-                	</span>
-                	<input type="text" name="copyLinkTextfield" id="copyLinkTextfield" value="{{ extras.niceURI }}"/>
-                </span>
+                <input type="text" name="copyLinkTextfield" id="copyLinkTextfield" value="{{ extras.niceURI }}"/>
+            </span>
         </div>
         {% endif %}
     </h3> 
@@ -58,7 +59,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for key,value in result['table'] %}
+                {% for key,value in result.table %}
                     <tr>
                         <td width='40%'>
                             {% if extras["tooltip"][key]['title'] %}
@@ -88,104 +89,69 @@
                            {% endfor %}
                         </td>
                     </tr>
-	            {% endfor %}
-	        </tbody>
-	    </table>
-            <div class="res-act-button">
-                <a href="#" id="showInverse" data-tableuri="{{result['insideUri']}}">Show Inverse Table</a>
-            </div>
-            <div id="inverseTableDiv" style="display: none;">
-                <h3>Inverse Data</h3>
-                <table class="inverseTable table table-striped" cellspacing="0" width="100%">
-                    <thead>
-                        <tr>                        
-                            <th>Property</th>
-                            <th>Value(s)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-            </div>    
-            
-                    
-            {% if userid == 1  %}
-                <!--  The ACL rights  -->    
-                <h3 class="single-res-heading">Access Rights</h3>
-                <span class="res-title">Actual users and rights</span>
-                <table class="display table table-striped" cellspacing="0" width="100%">
-                    <thead>
-                        <tr>
-                            <th>User</th>           
-                            <th>Rights</th>
-                            <th>Revoke</th>                    
-                        </tr>
-                    </thead>
-                    <tbody>            
-                    {% for acl in result['ACL'] %}
-                        <tr>
-                            <td>
-                                {{ acl.username }}
-                            </td>
-                            <td>
-                                {{ acl.mode }}
-                            </td>
-                            <td>
-                                {% if userid == 1  %}
-                                    {% if result['ACL']|length > 1  %}
-                                        <div class="res-act-button">
-                                            <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
-                                                <i class="material-icons">&#xE872;</i><span>Revoke Rights</span>
-                                            </a>
-                                        </div>
-                                    {% else %}
-                                        <span>-</span>
-                                    {% endif %}
-                                {% else %}
-                                    <span>You cant Revoke Rights</span>
-                                {% endif %}
-                            </td>
-                        </tr>            
-                    {% endfor %}
-                    </tbody>        
-                </table>
-                <br>
-                <!--
-                <span class="res-title">Add rights</span>
-                <table class="display table table-striped" cellspacing="0" width="100%">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Rights</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>  
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="res-act-button">
+            <a href="#" id="showInverse" data-tableuri="{{result.insideUri}}">Show Inverse Table</a>
+        </div>
+        <div id="inverseTableDiv" style="display: none;">
+            <h3>Inverse Data</h3>
+            <table class="inverseTable table table-striped" cellspacing="0" width="100%">
+                <thead>
+                    <tr>                        
+                        <th>Property</th>
+                        <th>Value(s)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        
+        {% if userid == 1  %}
+            <!--  The ACL rights  -->    
+            <h3 class="single-res-heading">Access Rights</h3>
+            <span class="res-title">Actual users and rights</span>
+            <table class="display table table-striped" cellspacing="0" width="100%">
+                <thead>
+                    <tr>
+                        <th>User</th>           
+                        <th>Rights</th>
+                        <th>Revoke</th>                    
+                    </tr>
+                </thead>
+                <tbody>            
+                {% for acl in result.ACL %}
                     <tr>
                         <td>
-                            <select>
-                                <option value="">----</option>
-                                <option value="user1">User1</option>
-                                <option value="user2">User2</option>
-                                <option value="user3">User3</option>
-                            </select>
+                            {{ acl.username }}
                         </td>
                         <td>
-                            <select>
-                                <option value="">----</option>
-                                <option value="read">Read</option>
-                                <option value="write">Write</option>                
-                            </select>
+                            {{ acl.mode }}
                         </td>
                         <td>
-                            <button>Add</button>
+                            {% if userid == 1  %}
+                                {% if result.ACL|length > 1  %}
+                                    <div class="res-act-button">
+                                        <a href="/#" id="delete-rule" data-resourceid="{{ editResData.editUrl }}" data-user="{{ acl.user }}" class="use-ajax" data-dialog-type="modal">
+                                            <i class="material-icons">&#xE872;</i><span>Revoke Rights</span>
+                                        </a>
+                                    </div>
+                                {% else %}
+                                    <span>-</span>
+                                {% endif %}
+                            {% else %}
+                                <span>You cant Revoke Rights</span>
+                            {% endif %}
                         </td>
-                    </tr>        
-                    </tbody>        
-                </table>-->
-                <br>
-            {% endif %}
-	</div>	
+                    </tr>            
+                {% endfor %}
+                </tbody>        
+            </table>
+            <br>
+        {% endif %}
+    </div>	
 
         
     {% if extras['dissServ'] %}
@@ -207,29 +173,29 @@
         </div>
     {% endif %}    	
     
-    {% if (result['table']['acdh:hasDescription'] or result['table']['acdh:hasSpatialCoverage'] or result['table']['acdh:hasNote']) %}
+    {% if (result.table['acdh:hasDescription'] or result.table['acdh:hasSpatialCoverage'] or result.table['acdh:hasNote']) %}
         <h3 class="single-res-heading">Summary</h3>
-        {% if result['table']['acdh:hasSpatialCoverage'] %}
+        {% if result.table['acdh:hasSpatialCoverage'] %}
             <div class="res-property">
                 <i class="material-icons">info_outline</i>
                 <span class="res-prop-label">Spatial Coverage:&nbsp;&nbsp;</span>
-                <span class="res-prop-value"><a href="/browser/oeaw_detail/{{ result['table']['acdh:hasSpatialCoverage'][0]['insideUri'] }}">{{ result['table']['acdh:hasSpatialCoverage'][0]['title'] }}</a></span>
+                <span class="res-prop-value"><a href="/browser/oeaw_detail/{{ result.table['acdh:hasSpatialCoverage'][0]['insideUri'] }}">{{ result.table['acdh:hasSpatialCoverage'][0]['title'] }}</a></span>
             </div>
         {% endif %}
         
-        {% if result['table']['acdh:hasDescription'][0] %}
+        {% if result.table['acdh:hasDescription'][0] %}
             <div class="res-property">
                 <i class="material-icons">info_outline</i>
                 <span class="res-prop-label">Description:&nbsp;&nbsp;</span>
-                <span class="res-prop-value">{{ result['table']['acdh:hasDescription'][0] }}</span>
+                <span class="res-prop-value">{{ result.table['acdh:hasDescription'][0] }}</span>
             </div>
         {% endif %}
         
-        {% if result['table']['acdh:hasNote'][0] %}
+        {% if result.table['acdh:hasNote'][0] %}
             <div class="res-property">
                 <i class="material-icons">info_outline</i>
                 <span class="res-prop-label">Note:&nbsp;&nbsp;</span>
-                <span class="res-prop-value">{{ result['table']['acdh:hasNote'][0] }}</span>
+                <span class="res-prop-value">{{ result.table['acdh:hasNote'][0] }}</span>
             </div>
         {% endif %}
     {% endif%}
@@ -237,43 +203,24 @@
     {% if extras.CiteThisWidget %}
     <h3 class="single-res-heading">Cite Resource</h3>
         <div class="cite-selector">
-                <div class="cite-style selected">
-                    MLA
-                    <a href="javascript://" id="cite-tooltip-mla" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
-                    title="&quot;MLA (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
-                            <i class="material-icons">&#xE88F;</i>
-                    </a>
-                </div>
-                <!--
-                <div class="cite-style">
-                    APA
-                    <a href="javascript://" id="cite-tooltip-apa" data-toggle="cite-tooltip-apa"  data-placement="right" data-html="true" data-trigger="focus"
-                    title="&quot;APA (American Psychological Association) style is most commonly used to cite sources within the social sciences.&quot; <a href='https://owl.english.purdue.edu/owl/resource/560/01/'>Read more...</a>">
-                            <i class="material-icons">&#xE88F;</i>
-                    </a>
-                </div>
-                <div class="cite-style">
-                    CMS
-                    <a href="javascript://" id="cite-tooltip-cms" data-toggle="cite-tooltip-cms"  data-placement="right" data-html="true" data-trigger="focus"
-                    title="&quot;The Chicago Manual of Style (CMS) covers a variety of topics from manuscript preparation and publication to grammar, usage, and documentation.&quot; <a href='https://owl.english.purdue.edu/owl/resource/717/01/'>Read more...</a>">
-                            <i class="material-icons">&#xE88F;</i>
-                    </a>
-                </div>
-                -->
+            <div class="cite-style selected">
+                MLA
+                <a href="javascript://" id="cite-tooltip-mla" data-toggle="cite-tooltip-mla"  data-placement="right" data-html="true" data-trigger="focus"
+                title="&quot;MLA (Modern Language Association) style is most commonly used to write papers and cite sources within the liberal arts and humanities.&quot; <a href='https://owl.english.purdue.edu/owl/resource/747/01/'>Read more...</a>">
+                        <i class="material-icons">&#xE88F;</i>
+                </a>
+            </div>
         </div>
 
         <div class="bd-clipboard">
             <span id="copy-cite-btn" class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span>
-        <span id="copy-cite-btn-confirmation">Citation information copied!</span>
+            <span id="copy-cite-btn-confirmation">Citation information copied!</span>
         </div>
-
-            <figure class="highlight">
-
-                    <span class="cite-content active">{{ extras.CiteThisWidget.MLA.string | raw }}</span>
-                    <span class="cite-content">{{ extras.CiteThisWidget.APA.string | raw }}</span>
-                    <span class="cite-content">{{ extras.CiteThisWidget.CMS.string | raw }}</span>
-
-            </figure>
+        <figure class="highlight">
+            <span class="cite-content active">{{ extras.CiteThisWidget.MLA.string | raw }}</span>
+            <span class="cite-content">{{ extras.CiteThisWidget.APA.string | raw }}</span>
+            <span class="cite-content">{{ extras.CiteThisWidget.CMS.string | raw }}</span>
+        </figure>
 
     {% endif%}
 
@@ -294,22 +241,21 @@
     {% endif %}
     
     
-    
     {% if childResult %}
         <div class="res-el res-info res-child-info col-block col-lg-12">
             <div class="result-basic-info">
                 <span class="results-info-bar"><h3>{{ childTitle }}</h3></span>
-          <div class="res-act-button res-act-button-reverse res-act-button-treeview basic">
-              <i class="material-icons">&#xE335;</i>
-              <span>Switch to Tree-View</span>
-          </div>
-                {% if result['pagination'] %}
-                    <span class="results-info-bar pagination-span">{{ result['pagination']|raw }}</span>
+                <div class="res-act-button res-act-button-reverse res-act-button-treeview basic">
+                    <i class="material-icons">&#xE335;</i>
+                    <span>Switch to Tree-View</span>
+                </div>
+                {% if extras['pagination'] %}
+                    <span class="results-info-bar pagination-span">{{ extras['pagination']|raw }}</span>
                 {% endif%}
             </div>
         </div>
             
-        {% if result['acdh_rdf:type']['title'] == "Collection" %}
+        {% if result.type == "Collection" %}
             <div class="children-overview children-overview-tree">
                 <!-- Here comes the tree-view -->
                 {{ include('/modules/oeaw/templates/resDetail_treeView.html.twig' ) }}
@@ -320,51 +266,47 @@
             {% for cItem in childResult %}
                 <div class="child-res">
 
-                <div class="res-property">
-                    <span class="res-title">
-                        <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">                                         
+                    <div class="res-property">
+                        <span class="res-title">
+                            <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">                                         
                                 {{ cItem.title }}
-                        </a>
-                    </span>		
-                </div>
-
-                <div class="res-property">
-                    <i class="material-icons">&#xE54E;</i>
-                    <span class="res-rdftype">
-                        <a href="{{url('<front>') }}discover/&type={{ cItem.typeName }}/10">
-                                {{ cItem.typeName }}
-                        </a>
-                    </span>
-                </div>
-
-                {% if cItem.description %}
-                    <div class="res-property res-property-desc">
-                        <i class="material-icons">&#xE88F;</i>	
-                        <span class="res-description">{{ cItem.description }}</span>
+                            </a>
+                        </span>		
                     </div>
-                {% endif%}
 
-                <div class="res-actions">
+                    <div class="res-property">
+                        <i class="material-icons">&#xE54E;</i>
+                        <span class="res-rdftype">
+                            <a href="{{url('<front>') }}discover/&type={{ cItem.typeName }}/10">
+                                {{ cItem.typeName }}
+                            </a>
+                        </span>
+                    </div>
 
                     {% if cItem.description %}
-                        <div class="res-act-button res-act-button-summary closed">
-                            <i class="material-icons">&#xE145;</i>
-                            <span>Show Summary</span>
+                        <div class="res-property res-property-desc">
+                            <i class="material-icons">&#xE88F;</i>	
+                            <span class="res-description">{{ cItem.description }}</span>
                         </div>
                     {% endif%}
 
-                    <div class="res-act-button">
-                        <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">
-                            <i class="material-icons">&#xE873;</i>
-                            <span>Detailed View</span>
-                        </a>	
-                    </div>          	
-                </div>	
+                    <div class="res-actions">
+                        {% if cItem.description %}
+                            <div class="res-act-button res-act-button-summary closed">
+                                <i class="material-icons">&#xE145;</i>
+                                <span>Show Summary</span>
+                            </div>
+                        {% endif%}
 
+                        <div class="res-act-button">
+                            <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">
+                                <i class="material-icons">&#xE873;</i>
+                                <span>Detailed View</span>
+                            </a>	
+                        </div>          	
+                    </div>
                 </div>
-                {% endfor %}
-            </div><!-- .children-overview-basic -->
-    {% endif%}
-
-	                                        
+            {% endfor %}
+        </div><!-- .children-overview-basic -->
+    {% endif%}                                  
 {% endif%}

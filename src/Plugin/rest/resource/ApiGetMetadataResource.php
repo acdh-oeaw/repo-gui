@@ -60,7 +60,11 @@ class ApiGetMetadataResource extends ResourceBase {
         $oeawFunctions = new OeawFunctions();
         
         //get the actual classes from the DB
-        $classes = $oeawStorage->getClass();
+        try {
+            $classes = $oeawStorage->getClass();
+        } catch (\ErrorException $ex) {
+            return new JsonResponse(array("There are no classes"), 404, ['Content-Type'=> 'application/json']);
+        }
         
         if(count($classes) == 0){
             return new JsonResponse(array("There are no classes"), 404, ['Content-Type'=> 'application/json']);
@@ -103,12 +107,17 @@ class ApiGetMetadataResource extends ResourceBase {
             $response->setContent(json_encode($result, true));
             $response->headers->set('Content-Type', 'application/json');
             return $response;
-            
         }
-        
         return new JsonResponse(array("There is no data!"), 404, ['Content-Type'=> 'application/json']);
     }
     
+    /**
+     * 
+     * Transform the API properties result for the JSON response
+     * 
+     * @param array $properties
+     * @return array
+     */
     private function transformProperties(array $properties): array{
         $result = array();
         $required = array();

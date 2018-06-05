@@ -37,8 +37,6 @@ class SidebarKeywordSearchForm extends FormBase
 
         $this->createSearchInput($form);
         
-        //$this->createTypeData();
-        
         $resData["title"] = "Resource Types";
         $resData["type"] = "searchbox_types";
         $resFields = $this->oeawStorage->getACDHTypes(true);

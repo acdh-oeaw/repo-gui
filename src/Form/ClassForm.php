@@ -32,8 +32,13 @@ class ClassForm extends FormBase
     */
     public function buildForm(array $form, FormStateInterface $form_state) 
     {
+        try{
+            $data = $this->oeawStorage->getClassesForSideBar();
+        } catch (\ErrorException $ex) {
+            drupal_set_message($ex->getMessage(), 'error');
+            return array();
+        }
         
-        $data = $this->oeawStorage->getClassesForSideBar();
         $searchClasses = array();
         
         if(count($data) == 0){
