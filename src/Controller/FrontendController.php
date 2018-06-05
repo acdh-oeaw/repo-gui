@@ -406,7 +406,7 @@ class FrontendController extends ControllerBase  {
                     }
                 }
 
-                if(count($customDetailView) > 0){
+                if(count((array)$customDetailView) > 0){
                     $results['specialType'] = $customDetailView;
                 }
             }
