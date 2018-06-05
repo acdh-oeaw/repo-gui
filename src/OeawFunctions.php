@@ -739,7 +739,7 @@ class OeawFunctions {
         
         $result = "";
         
-        if(count($data) > 0){
+        if(count((array)$data) > 0){
             if (isset($data->table[$property])) {
                 foreach ($data->table[$property] as $key => $val) {
                     if ($key > 0) {
@@ -1681,7 +1681,7 @@ class OeawFunctions {
     public function generateChildViewData(array $identifiers, \Drupal\oeaw\Model\OeawResource $data, array $properties): array{
         
         $result = array();
-        if( (count($identifiers) == 0 ) || (count($data) == 0 ) || (count($properties) == 0) ){
+        if( (count($identifiers) == 0 ) || (count((array)$data) == 0 ) || (count($properties) == 0) ){
             return $result;
         }
         
