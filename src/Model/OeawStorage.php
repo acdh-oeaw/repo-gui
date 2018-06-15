@@ -643,7 +643,7 @@ class OeawStorage implements OeawStorageInterface {
         $prefix = "prefix owl: <http://www.w3.org/2002/07/owl#> "
                 . "prefix skos: <http://www.w3.org/2004/02/skos/core#> ";
                 
-        $select = "select ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?vocabs "
+        $select = "select ?uri ?propID ?propTitle ?range ?subUri ?cardinality ?maxCardinality ?minCardinality ?order ?vocabs "
                 . "(GROUP_CONCAT(DISTINCT ?comments;separator=',') AS ?comment) "
                 . "(GROUP_CONCAT(DISTINCT ?recommendedClasses;separator=',') AS ?recommendedClass)  "
                 . "where { ";
@@ -680,10 +680,7 @@ class OeawStorage implements OeawStorageInterface {
                 }
             } ";
         $optionals .= "OPTIONAL {
-    	 SELECT * WHERE {
-       		 <".$classURI."> rdfs:subClassOf ?subclass .
-                ?subUri <".RC::get('fedoraIdProp')."> ?subclass .
-       		?subUri rdf:type owl:Restriction .
+    	
   		?subUri owl:onProperty ?propID .
                 OPTIONAL {
                     ?subUri owl:maxCardinality ?maxCardinality .
@@ -691,12 +688,15 @@ class OeawStorage implements OeawStorageInterface {
                 OPTIONAL {
                     ?subUri owl:minxCardinality ?minCardinality .
                 }
+                OPTIONAL {
+                    ?subUri owl:cardinality ?cardinality .
+                }
                 
-            }
+           
         }"; 
         $union = " } UNION { ";
         
-        $groupby = " GROUP BY ?uri ?propID ?propTitle ?range ?subUri ?maxCardinality ?minCardinality ?order ?vocabs"
+        $groupby = " GROUP BY ?uri ?propID ?propTitle ?range ?subUri ?cardinality ?maxCardinality ?minCardinality ?order ?vocabs"
                 . " ORDER BY ?order";
         $string = $prefix.$select.$where.$optionals." } ".$groupby;
       

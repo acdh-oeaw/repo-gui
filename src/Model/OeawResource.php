@@ -11,16 +11,16 @@ namespace Drupal\oeaw\Model;
  */
 class OeawResource {
     
-    public $uri;
-    public $insideUri;
-    public $fedoraUri;
-    public $identifiers = array();
-    public $title;
-    public $pid;
-    public $type;
-    public $typeUri;
-    public $imageUrl;
-    public $table = array();
+    private $uri;
+    private $insideUri;
+    private $fedoraUri;
+    private $identifiers = array();
+    private $title;
+    private $pid;
+    private $type;
+    private $typeUri;
+    private $imageUrl;
+    private $table = array();
     public $errors = array();
     
     public function __construct(\ArrayObject $arrayObj) {
@@ -67,5 +67,48 @@ class OeawResource {
         
     }
     
+    public function getUri(){
+        return $this->uri;
+    }
+    
+    public function getInsideUri(){
+        return $this->insideUri;
+    }
+    
+    public function getIdentifiers(){
+        return $this->identifiers;
+    }
+    
+    public function getFedoraUri(){
+        return $this->fedoraUri;
+    }
+    
+    public function getTitle(){
+        return $this->title;
+    }
+    
+    public function getType(){
+        return $this->type;
+    }
+    
+    public function getTypeUri(){
+        return $this->typeUri;
+    }
+    
+    public function getTable(){
+        return $this->table;
+    }
+    
+    public function getTableData(string $prop){
+        if(isset($this->table[$prop])){
+            return $this->table[$prop];
+        }
+    }
+    
+    public function setTableData(string $prop, array $data){
+        if(isset($this->table[$prop])){
+            $this->table[$prop] = $data;
+        }
+    }
     
 }

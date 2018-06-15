@@ -12,12 +12,15 @@ use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Core\Archiver\Zip;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
-use Drupal\oeaw\Model\OeawStorage;
-use Drupal\oeaw\Model\OeawResource;
-use Drupal\oeaw\Model\OeawResourceDetails;
+
+use Drupal\oeaw\Model\ {
+    OeawStorage,
+    OeawResource,
+    OeawResourceDetails,
+    OeawCustomSparql
+};
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\Helper\Helper;
-use Drupal\oeaw\Model\OeawCustomSparql;
 use Drupal\oeaw\PropertyTableCache;
 //ajax
 use Drupal\Core\Ajax\AjaxResponse;
@@ -205,33 +208,6 @@ class FrontendController extends ControllerBase  {
         return $datatable;
     }
     
-    /**
-     * 
-     * Display the error page template with the error message
-     * 
-     * @param string $errorMSG
-     * @return array
-     */
-    public function oeaw_error_page(string $errorMSG){
-        if (empty($errorMSG)) {
-           return drupal_set_message(t('The $errorMSG is missing!'), 'error');
-        }
-        $errorMSG = base64_decode($errorMSG);
-        
-        $datatable = array(
-            '#theme' => 'oeaw_errorPage',
-            '#errorMSG' => $errorMSG,            
-            '#attached' => [
-                'library' => [
-                'oeaw/oeaw-styles', 
-                ]
-            ]
-        );
-        
-        return $datatable;
-    }
-    
-    
     
     /**
      * 
@@ -372,13 +348,13 @@ class FrontendController extends ControllerBase  {
             }
             
             //check the acdh:hasIdentifier data to the child view
-            if(count($resultsObj->identifiers) > 0){
+            if(count($resultsObj->getIdentifiers()) > 0){
                 //set up the necessary properties for the child data generation
                 $properties = array();
-                $properties = array("limit" => $limit, "page" => $page, "identifier" => $resultsObj->identifiers);
+                $properties = array("limit" => $limit, "page" => $page, "identifier" => $resultsObj->getIdentifiers());
                 //get the child view data
                 $childArray = array();
-                $childArray = $this->oeawFunctions->generateChildViewData($resultsObj->identifiers, $resultsObj, $properties);
+                $childArray = $this->oeawFunctions->generateChildViewData($resultsObj->getIdentifiers(), $resultsObj, $properties);
 
                 if(count($childArray) > 0){
                     //pass the specialtype info to the template
@@ -397,9 +373,9 @@ class FrontendController extends ControllerBase  {
                 
                 $customDetailView = array();
                 //if we have a type and this type can found in the available custom views array
-                if(isset($resultsObj->type) && in_array(strtolower($resultsObj->type), CC::$availableCustomViews)){
+                if(in_array(strtolower($resultsObj->getType()), CC::$availableCustomViews)){
                     try{
-                        $customDetailView = $this->oeawFunctions->createCustomDetailViewTemplateData($resultsObj, $resultsObj->type);
+                        $customDetailView = $this->oeawFunctions->createCustomDetailViewTemplateData($resultsObj, $resultsObj->getType());
                     } catch (\ErrorException $ex) {
                         drupal_set_message(t("Error ARCHE cant generate the Resource Custom Table View! ".$ex->getMessage()), 'error');
                         return array();
@@ -438,7 +414,7 @@ class FrontendController extends ControllerBase  {
 
         if(count($dissServices) > 0 && $fedoraRes->getId()){
             //we need to remove the raw from the list if it is a collection
-            if(isset($resultsObj->type) && $resultsObj->type == "Collection"){
+            if($resultsObj->getType() == "Collection"){
                 for($i=0; $i <= count($dissServices); $i++){
                     if($dissServices[$i]['returnType'] == "raw"){
                         unset($dissServices[$i]);
@@ -459,18 +435,18 @@ class FrontendController extends ControllerBase  {
         }
         
         //format the hasavailable date
-        if(isset($resultsObj->table["acdh:hasAvailableDate"]) && !empty($resultsObj->table["acdh:hasAvailableDate"])){
-            if($resultsObj->table["acdh:hasAvailableDate"][0]){
-                if (\DateTime::createFromFormat('Y-m-d', $resultsObj->table["acdh:hasAvailableDate"][0]) !== FALSE) {
-                    $time = strtotime($resultsObj->table["acdh:hasAvailableDate"][0]);
-                    $newTime = date('Y-m-d', $time);
-                    $resultsObj->table["acdh:hasAvailableDate"][0] = $newTime;
-                }
-                //if we dont have a real date just a year
-                if (\DateTime::createFromFormat('Y', $resultsObj->table["acdh:hasAvailableDate"][0]) !== FALSE) {
-                    $year = \DateTime::createFromFormat('Y', $resultsObj->table["acdh:hasAvailableDate"][0]);
-                    $resultsObj->table["acdh:hasAvailableDate"][0] = $year->format('Y');
-                }
+        if(!empty($resultsObj->getTableData("acdh:hasAvailableDate"))){
+            $avDate = $resultsObj->getTableData("acdh:hasAvailableDate");
+            if(is_array($avDate)){ $avDate = $avDate[0]; }
+            if (\DateTime::createFromFormat('Y-d-d', $avDate) !== FALSE) {
+                $time = strtotime($avDate);
+                $newTime = date('Y-m-d', $time);
+                $resultsObj->setTableData("acdh:hasAvailableDate", array($newTime));
+            }
+            //if we dont have a real date just a year
+            if (\DateTime::createFromFormat('Y', $avDate) !== FALSE) {
+                $year = \DateTime::createFromFormat('Y', $avDate);
+                $resultsObj->setTableData("acdh:hasAvailableDate", array($year->format('Y')) );
             }
         }
         
@@ -483,20 +459,20 @@ class FrontendController extends ControllerBase  {
 
         //Create data for cite-this widget
         $typesToBeCited = ["collection", "project", "resource", "publication"];
-        if(isset($resultsObj->type) && !empty($resultsObj->type) && in_array(strtolower($resultsObj->type), $typesToBeCited) ){
+        if(!empty($resultsObj->getType()) && in_array(strtolower($resultsObj->getType()), $typesToBeCited) ){
             //pass $rootMeta for rdf object
             $extras["CiteThisWidget"] = $this->oeawFunctions->createCiteThisWidget($resultsObj);
         }
                 
         //get the tooltip from cache
-        $cachedTooltip = $this->propertyTableCache->getCachedData($resultsObj->table);
+        $cachedTooltip = $this->propertyTableCache->getCachedData($resultsObj->getTable());
         if(count($cachedTooltip) > 0){
             $extras["tooltip"] = $cachedTooltip;
         }
         
         //if it is a resource then we need to check the 3dContent
-        if(isset($resultsObj->type) && $resultsObj->type == "Resource"  ){
-            if(Helper::check3dData($resultsObj->table) === true){
+        if($resultsObj->getType() == "Resource"  ){
+            if(Helper::check3dData($resultsObj->getTable()) === true){
                 $extras['3dData'] = true;
             }
         }
@@ -1200,32 +1176,6 @@ class FrontendController extends ControllerBase  {
     
     /***************************** FORM functions!   ***************************************/
     
-    public function oeaw_new_success(string $uri){
-        
-        if (empty($uri)) {
-           drupal_set_message(t('Resource does not exist!'), 'error');
-           return array();
-        }
-        $uid = \Drupal::currentUser()->id();
-        // decode the uri hash
-        /*$uri = $this->oeawFunctions->createDetailsUrl($uri, 'decode');*/
-        $uri = base64_decode($uri);
-        
-        $datatable = array(
-            '#theme' => 'oeaw_success_resource',
-            '#result' => $uri,
-            '#userid' => $uid,
-            '#attached' => [
-                'library' => [
-                'oeaw/oeaw-styles', 
-                ]
-            ]
-        );
-        
-        return $datatable;
-    }
-    
-    
     public function oeaw_form_success(string $url){
         
         if (empty($url)) {
@@ -1344,85 +1294,8 @@ class FrontendController extends ControllerBase  {
         return $response;
     }
     
-    
-    /**
-     * 
-     * Resource Delete function
-     * 
-     * @param string $uri
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function oeaw_delete(string $uri, Request $request): JsonResponse {
-        drupal_get_messages('error', TRUE);
-        $matches = array();
-        $response = array();
-        
-        if(!$uri){
-            $matches = array(
-                "result" => false,
-                "error_msg" => "Resource does not exist!"
-                );
-        }
-        
-        $resUri = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 1);
-        $graph = $this->oeawFunctions->makeGraph($resUri);
-        $fedora = new Fedora();
-        
-        try{
-            
-            $fedora->begin();
-            $res = $fedora->getResourceByUri($resUri);            
-            $res->delete();            
-            $fedora->commit();
-            
-            $matches = array(
-                "result"=> true, 
-                "resourceid" => $uri
-                );
-            
-        } catch (Exception $ex) {
-            $fedora->rollback();
-            $matches = array(
-                "result" => false,
-                "error_msg" => "Problem during the delete method!"
-                );
-        }
-        
-        $response = new JsonResponse($matches);
-        $response->setCharset('utf-8');
-        $response->headers->set('charset', 'utf-8');
-        $response->headers->set('Content-Type', 'application/json');
-        
-        return $response;
-    }
-    
-    /**
-     * 
-     * The multi step FORM to create resources based on the 
-     * fedora roots and classes      
-     * 
-     * @return type
-     */
-    public function multi_new_resource() {        
-        return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\NewResourceOneForm');
-    }
-    
     public function oeaw_depagree_base(string $formid = NULL){
         return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\DepAgreeOneForm');
-    }
-    
-    /**
-     * 
-     *  The editing form, based on the uri resource
-     * 
-     * @param string $uri
-     * @param Request $request
-     * @return type
-     */
-    public function oeaw_edit(string $uri, Request $request) {
-        drupal_get_messages('error', TRUE);
-        return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\EditForm');
     }
     
     /**

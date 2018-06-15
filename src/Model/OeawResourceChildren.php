@@ -10,14 +10,14 @@ namespace Drupal\oeaw\Model;
  */
 class OeawResourceChildren {
     
-    public $uri;
-    public $title;
-    public $pid;
-    public $description;
-    public $types;
-    public $identifier;
-    public $insideUri;
-    public $typeName;
+    private $uri;
+    private $title;
+    private $pid;
+    private $description;
+    private $types;
+    private $identifier;
+    private $insideUri;
+    private $typeName;
     public $errors = array();
     
     public function __construct(\ArrayObject $arrayObj) {
@@ -56,6 +56,38 @@ class OeawResourceChildren {
         if(empty($this->types)){ array_push($this->errors, "types");  }
         if(empty($this->identifier)){ array_push($this->errors, "identifier");  }
         if(empty($this->insideUri)){ array_push($this->errors, "insideUri");  }
+    }
+    
+    public function getUri(){
+        return $this->uri;
+    }
+    
+    public function getTitle(){
+        return $this->title;
+    }
+    
+    public function getPid(){
+        return $this->pid;
+    }
+    
+    public function getDescription(){
+        return $this->description;
+    }
+    
+    public function getTypes(){
+        return $this->types;
+    }
+    
+    public function getIdentifier(){
+        return $this->identifier;
+    }
+    
+    public function getInsideUri(){
+        return $this->insideUri;
+    }
+    
+    public function getTypeName(){
+        return $this->typeName;
     }
     
     

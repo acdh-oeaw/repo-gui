@@ -11,15 +11,15 @@ namespace Drupal\oeaw\Model;
  */
 class OeawResourceCustomData {
     
-    public $uri;
-    public $title;
-    public $type;
-    public $pid;
-    public $identifiers;
-    public $insideUri;
-    public $typeUri;
-    public $basicProperties = array();
-    public $extendedProperties = array();
+    private $uri;
+    private $title;
+    private $type;
+    private $pid;
+    private $identifiers;
+    private $insideUri;
+    private $typeUri;
+    private $basicProperties = array();
+    private $extendedProperties = array();
     public $errors = array();
     
     public function __construct(\ArrayObject $arrayObj) {
@@ -59,4 +59,41 @@ class OeawResourceCustomData {
         if(empty($this->insideUri)){ array_push($this->errors, "insideUri");  }
         if(empty($this->basicProperties)){ array_push($this->errors, "basicProperties");  }
     }
+    
+    public function getUri(){
+        return $this->uri;
+    }
+    
+    public function getTitle(){
+        return $this->title;
+    }
+    
+    public function getType(){
+        return $this->type;
+    }
+    
+    public function getPid(){
+        return $this->pid;
+    }
+    
+    public function getIdentifiers(){
+        return $this->identifiers;
+    }
+    
+    public function getInsideUri(){
+        return $this->insideUri;
+    }
+    
+    public function getTypeUri(){
+        return $this->typeUri;
+    }
+    
+    public function getBasicProperties(){
+        return $this->basicProperties;
+    }
+    
+    public function getExtendedProperties(){
+        return $this->extendedProperties;
+    }
+    
 }
