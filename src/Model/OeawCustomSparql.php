@@ -51,7 +51,12 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $orderby = ' ORDER BY ASC( fn:lower-case(?title)) LIMIT 10 ';
         
         $query = $prefix.$select.$where.$groupby.$orderby;
-        
+        echo "<pre>";
+        var_dump($query);
+        echo "</pre>";
+
+        die();
+
         return $query;
         
     }

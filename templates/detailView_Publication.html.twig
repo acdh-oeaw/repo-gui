@@ -1,86 +1,86 @@
 <!-- START : ACDH PERSON template: detailView_Project  -->
 {% if result['image'] %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
     
-    {%  if result['basic']['acdh:hasTitle'] %}
+    {%  if result.getTitle() %}
         <div class="res-property">
-            <span class="res-title">{{ result['basic']['acdh:hasTitle'][0] }}</span>
+            <span class="res-title">{{ result.getTitle() }}</span>
         </div>
     {% endif%} 
     
-    {%  if result['basic']['acdh:hasAlternativeTitle'] %}
+    {%  if result.basicProperties['acdh:hasAlternativeTitle'] %}
         <div class="res-property">
             <i class="material-icons">&#xE264;</i>
             <span class="res-prop-label">Alternative Title:</span> 
-            <span class="res-title">{{ result['basic']['acdh:hasAlternativeTitle'][0] }}</span>
+            <span class="res-title">{{ result.basicProperties['acdh:hasAlternativeTitle'][0] }}</span>
         </div>
     {% endif%}
     
-    {% if result['basic']['acdh_rdf:type'] %}
+    {% if result.getType() %}
         <div class="res-property">
             <i class="material-icons">&#xE54E;</i>
             <span class="res-prop-label">Type:</span> 
             <span class="res-prop-value">
-                <a href="{{ url('<front>') }}discover/&type={{ result['basic']['acdh_rdf:type']['title'] }}/10">{{ result['basic']['acdh_rdf:type']['title'] }}</a>
+                <a href="{{ url('<front>') }}discover/&type={{ result.getType() }}/10">{{ result.getType() }}</a>
             </span>
         </div>
     {% endif%}	
     
-    {%  if result['basic']['acdh:hasIdentifier'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasIdentifier'], 'icon': "copyright", 'label': "Identifier(s)" } ) }}
+    {%  if result.getNonAcdhIdentifiers() %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.getNonAcdhIdentifiers(), 'icon': "copyright", 'label': "Identifier(s)" } ) }}
     {% endif%}
     
-    {% if result['basic']['acdh:hasAuthor'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasAuthor'], 'icon': "person_add", 'label': "Author(s)" } ) }}
+    {% if result.basicProperties['acdh:hasAuthor'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasAuthor'], 'icon': "person_add", 'label': "Author(s)" } ) }}
     {% endif%}	
     
-    {% if result['basic']['acdh:hasEditor'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasEditor'], 'icon': "person_add", 'label': "Editor(s)" } ) }}
+    {% if result.basicProperties['acdh:hasEditor'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasEditor'], 'icon': "person_add", 'label': "Editor(s)" } ) }}
     {% endif%}	
     
-    {% if result['basic']['acdh:hasSeriesInformation'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasSeriesInformation'], 'icon': "", 'label': "Series information" } ) }}
+    {% if result.basicProperties['acdh:hasSeriesInformation'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasSeriesInformation'], 'icon': "", 'label': "Series information" } ) }}
     {% endif%}	
     
-    {% if result['basic']['acdh:hasPages'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasPages'], 'icon': "", 'label': "Page(s)" } ) }}
+    {% if result.basicProperties['acdh:hasPages'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasPages'], 'icon': "", 'label': "Page(s)" } ) }}
     {% endif%}	
     
-     {%  if result['basic']['acdh:hasRegion'] %}
-         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasRegion'], 'icon': "", 'label': "Region" } ) }}
-    {% endif%}
-        
-    {%  if result['basic']['acdh:hasCity'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasCity'], 'icon': "subtitles", 'label': "City" } ) }}
+     {%  if result.basicProperties['acdh:hasRegion'] %}
+         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasRegion'], 'icon': "", 'label': "Region" } ) }}
     {% endif%}
         
-    {%  if result['basic']['acdh:hasPublisher'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasPublisher'], 'icon': "", 'label': "Publisher" } ) }}
+    {%  if result.basicProperties['acdh:hasCity'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasCity'], 'icon': "subtitles", 'label': "City" } ) }}
+    {% endif%}
+        
+    {%  if result.basicProperties['acdh:hasPublisher'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasPublisher'], 'icon': "", 'label': "Publisher" } ) }}
     {% endif%}
     
-    {% if result['basic']['acdh:hasUrl'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasUrl'], 'icon': "web", 'label': "Url" } ) }}
+    {% if result.basicProperties['acdh:hasUrl'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasUrl'], 'icon': "web", 'label': "Url" } ) }}
     {% endif%}
         
             
-    {% if result['basic']['acdh:hasNonLinkedIdentifier'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasNonLinkedIdentifier'], 'icon': "", 'label': "Non Linked Identifier" } ) }}
+    {% if result.basicProperties['acdh:hasNonLinkedIdentifier'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasNonLinkedIdentifier'], 'icon': "", 'label': "Non Linked Identifier" } ) }}
     {% endif%}
         
-    {% if result['basic']['acdh:hasEditorialPractice'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['basic']['acdh:hasEditorialPractice'], 'icon': "", 'label': "Editorial Practice" } ) }}
+    {% if result.basicProperties['acdh:hasEditorialPractice'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasEditorialPractice'], 'icon': "", 'label': "Editorial Practice" } ) }}
     {% endif%}
         
-    {%  if result['extended']['acdh:hasNote'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['extended']['acdh:hasNote'], 'icon': "", 'label': "Note" } ) }}
+    {%  if result.extendedProperties['acdh:hasNote'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasNote'], 'icon': "", 'label': "Note" } ) }}
     {% endif%}
         
-    {%  if result['extended']['acdh:hasLanguage'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result['extended']['acdh:hasLanguage'], 'icon': "", 'label': "Language" } ) }}
+    {%  if result.extendedProperties['acdh:hasLanguage'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasLanguage'], 'icon': "", 'label': "Language" } ) }}
     {% endif%}
     
     <div>
         <div class="res-act-button">
-            <a href="#" id="showIsMember" data-tableurl="{{ insideUrl }}">Get Member(s) </a>
+            <a href="#" id="showIsMember" data-tableurl="{{ result.getInsideUri() }}">Get Member(s) </a>
         </div>
         <div id="isMemberTableDiv" style="display: none;">
             <h3 class="single-res-heading">Related Resource(s)</h3>
@@ -97,7 +97,7 @@
     </div>
         
     
-    {% if result['extended'] %}
+    {% if result.extendedProperties %}
         <h3 class="single-res-heading">Involved In:</h3>
         
     {% endif%}        

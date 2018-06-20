@@ -4,20 +4,14 @@
 namespace Drupal\oeaw\Plugin\rest\resource;
 
 use Drupal\rest\Plugin\ResourceBase;
-use Drupal\rest\ResourceResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+
 // our drupal custom libraries
 use Drupal\oeaw\Model\OeawStorage;
-use Drupal\oeaw\OeawFunctions;
-use Drupal\oeaw\Model\OeawCustomSparql;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
-use acdhOeaw\fedora\Fedora;
-use acdhOeaw\fedora\FedoraResource;
-use EasyRdf\Graph;
-use EasyRdf\Resource;
 
 
 /**
@@ -37,6 +31,11 @@ class ApiGetMetadataResource extends ResourceBase {
      * Usage:
      * 
      *  https://domain.com/browser/api/getMetadata/MYVALUE/Language?_format=json
+     * 
+     * F.e.: https://vocabs.acdh.oeaw.ac.at/schema#AgentOrPlace -> AgentOrPlace
+     * 
+     * https://domain.com/browser/api/getMetadata/AgentOrPlace/en?_format=json
+     * 
      */
     
     /**
@@ -53,47 +52,22 @@ class ApiGetMetadataResource extends ResourceBase {
             return new JsonResponse(array("Please provide a language! For exmaple: en, de etc..."), 404, ['Content-Type'=> 'application/json']);
         }
         
-        $classes = array();
         $classMeta = array();
-        
         $oeawStorage = new OeawStorage();
-        $oeawFunctions = new OeawFunctions();
         
-        //get the actual classes from the DB
         try {
-            $classes = $oeawStorage->getClass();
-        } catch (\ErrorException $ex) {
-            return new JsonResponse(array("There are no classes"), 404, ['Content-Type'=> 'application/json']);
+            $classMeta = $oeawStorage->getClassMetaForApi(ucfirst($type), $lang);
+        } catch (Exception $ex) {
+            return new JsonResponse(array($ex->getMessage()), 404, ['Content-Type'=> 'application/json']);
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return new JsonResponse(array($ex->getMessage()), 404, ['Content-Type'=> 'application/json']);
         }
-        
-        if(count($classes) == 0){
-            return new JsonResponse(array("There are no classes"), 404, ['Content-Type'=> 'application/json']);
-        }
-        
-        $typeAvailable = false;
-        //check that we have a class like the user requires
-        $typeAvailable = $oeawFunctions->checkMultiDimArrayForValue(strtolower($type), $classes);
-        $typeID = "";
-        if($typeAvailable == true){
-            
-            foreach($classes as $class){
-                if( (isset($class['title']) && $class['title'] == strtolower($type)) 
-                        && 
-                    (isset($class['uri']) && !empty($class['uri']) ) 
-                ){
-                    $classMeta = $oeawStorage->getClassMetaForApi($class['uri'], $lang);
-                    $typeID = $class['id'];
-                }
-            }
-        }else {
-            return new JsonResponse(array("There is no type like this: ".$type), 404, ['Content-Type'=> 'application/json']);
-        }
-        
+       
         if(count($classMeta) > 0){
             
             $result = array();
             $result['$schema'] = "http://json-schema.org/draft-07/schema#";
-            $result['id'] = $typeID;
+            $result['id'] = RC::get('fedoraVocabsNamespace').$type;
             $result['type'] = "object";
             $result['title'] = $type;
            
@@ -184,9 +158,6 @@ class ApiGetMetadataResource extends ResourceBase {
                     if( isset($prop['recommendedClass']) && $prop['recommendedClass'] ){
                         $result[$propID]['recommendedClass'] = $prop['recommendedClass']; 
                     }
-                    
-                    
-                    
                 }
             }
         }

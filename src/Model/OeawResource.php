@@ -2,6 +2,8 @@
 
 namespace Drupal\oeaw\Model;
 
+use acdhOeaw\util\RepoConfig as RC;
+
 /**
  * 
  * This object is contains the necessary data for the oeaw_detail Resource.
@@ -23,7 +25,11 @@ class OeawResource {
     private $table = array();
     public $errors = array();
     
+
+    
     public function __construct(\ArrayObject $arrayObj) {
+        
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         
         if (is_object($arrayObj) || !empty($arrayObj)) {
             $objIterator = $arrayObj->getIterator();
@@ -64,7 +70,6 @@ class OeawResource {
         if(empty($this->type)){ array_push($this->errors, "type");  }
         if(empty($this->typeUri)){ array_push($this->errors, "typeUri");  }
         if(empty($this->table)){ array_push($this->errors, "table");  }
-        
     }
     
     public function getUri(){
@@ -77,6 +82,26 @@ class OeawResource {
     
     public function getIdentifiers(){
         return $this->identifiers;
+    }
+    
+    public function getAcdhIdentifier(): string{
+        if (count($this->identifiers) > 0){
+            $uuid = "";
+            foreach($this->identifiers as $id){
+                if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
+                    $uuid = $id;
+                    //if the identifier is the normal acdh identifier then return it
+                }else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
+                    $this->insideUri = $id;
+                    return $id;
+                }
+            }
+            if(!empty($uuid)){
+                return $uuid;
+            }
+        }
+        return "";
+        
     }
     
     public function getFedoraUri(){
@@ -95,6 +120,14 @@ class OeawResource {
         return $this->typeUri;
     }
     
+    public function getImageUrl(){
+        return $this->imageUrl;
+    }
+    
+    public function getPID(){
+        return $this->pid;
+    }
+    
     public function getTable(){
         return $this->table;
     }
@@ -105,9 +138,12 @@ class OeawResource {
         }
     }
     
-    public function setTableData(string $prop, array $data){
+    public function setTableData(string $prop, array $data) : bool{
         if(isset($this->table[$prop])){
             $this->table[$prop] = $data;
+            return true;
+        }else{
+            return false;
         }
     }
     

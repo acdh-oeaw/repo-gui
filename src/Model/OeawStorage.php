@@ -632,9 +632,9 @@ class OeawStorage implements OeawStorageInterface {
      *
      * @return Array
     */
-    public function getClassMetaForApi(string $classURI, string $lang = "en"): array{
+    public function getClassMetaForApi(string $classString, string $lang = "en"): array{
         
-        if (empty($classURI)) {
+        if (empty($classString)) {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
         }
         
@@ -648,12 +648,13 @@ class OeawStorage implements OeawStorageInterface {
                 . "(GROUP_CONCAT(DISTINCT ?recommendedClasses;separator=',') AS ?recommendedClass)  "
                 . "where { ";
         
-        $where = " <".$classURI."> (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
+        $where = " ?mainURI <".RC::get('fedoraIdProp').">  <".RC::get('fedoraVocabsNamespace').$classString."> . "
+                . "?mainURI (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . "
                 . "{ ?uri rdfs:domain ?class . "
                 . " ?uri skos:altLabel ?propTitle .  "
                 . " FILTER regex(lang(?propTitle), '".$lang."','i') . "
                 . "} UNION { "
-                . " <".$classURI."> <".RC::get('fedoraIdProp')."> ?mainID ."
+                . " ?mainURI <".RC::get('fedoraIdProp')."> ?mainID ."
                 . " ?uri rdfs:domain ?mainID . "
                 . " ?uri skos:altLabel ?propTitle ."
                 . " FILTER regex(lang(?propTitle), '".$lang."','i') . "

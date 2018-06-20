@@ -340,7 +340,8 @@ class FrontendController extends ControllerBase  {
                 drupal_set_message(t("Error ARCHE cant generate the Resource Table View! ".$ex->getMessage()), 'error');
                 return array();
             }
-            try{
+            
+            try {
                 //$results['ACL'] = $this->oeawFunctions->checkRules($rules);
             } catch (Exception $ex) {
                 drupal_set_message($ex->getMessage(), 'error');
@@ -373,17 +374,15 @@ class FrontendController extends ControllerBase  {
                 
                 $customDetailView = array();
                 //if we have a type and this type can found in the available custom views array
-                if(in_array(strtolower($resultsObj->getType()), CC::$availableCustomViews)){
-                    try{
-                        $customDetailView = $this->oeawFunctions->createCustomDetailViewTemplateData($resultsObj, $resultsObj->getType());
-                    } catch (\ErrorException $ex) {
-                        drupal_set_message(t("Error ARCHE cant generate the Resource Custom Table View! ".$ex->getMessage()), 'error');
-                        return array();
-                    }
+                try{
+                    $customDetailView = $this->oeawFunctions->createCustomDetailViewTemplateData($resultsObj, $resultsObj->getType());
+                } catch (\ErrorException $ex) {
+                    drupal_set_message(t("Error ARCHE cant generate the Resource Custom Table View! ".$ex->getMessage()), 'error');
+                    return array();
                 }
-
+                
                 if(count((array)$customDetailView) > 0){
-                    $results['specialType'] = $customDetailView;
+                    $extras['specialType'][strtolower($resultsObj->getType())] = $customDetailView;
                 }
             }
         } else {
@@ -441,12 +440,18 @@ class FrontendController extends ControllerBase  {
             if (\DateTime::createFromFormat('Y-d-d', $avDate) !== FALSE) {
                 $time = strtotime($avDate);
                 $newTime = date('Y-m-d', $time);
-                $resultsObj->setTableData("acdh:hasAvailableDate", array($newTime));
+                if($resultsObj->setTableData("acdh:hasAvailableDate", array($newTime)) == false || empty($newTime)){
+                    drupal_set_message('Available date modification error!', 'error');
+                    return array();
+                }
             }
             //if we dont have a real date just a year
             if (\DateTime::createFromFormat('Y', $avDate) !== FALSE) {
                 $year = \DateTime::createFromFormat('Y', $avDate);
-                $resultsObj->setTableData("acdh:hasAvailableDate", array($year->format('Y')) );
+                if($resultsObj->setTableData("acdh:hasAvailableDate", array($year->format('Y')) ) == false || empty($year->format('Y'))){
+                    drupal_set_message('Available date modification error!', 'error');
+                    return array();
+                }
             }
         }
         
@@ -476,6 +481,7 @@ class FrontendController extends ControllerBase  {
                 $extras['3dData'] = true;
             }
         }
+       
 
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',

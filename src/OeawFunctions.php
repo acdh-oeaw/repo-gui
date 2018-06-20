@@ -651,76 +651,32 @@ class OeawFunctions {
      * @param array $data
      */
     public function createCustomDetailViewTemplateData(\Drupal\oeaw\Model\OeawResource $data, string $type): \Drupal\oeaw\Model\OeawResourceCustomData {
-        $result = array();
-        $basicProp = array();
-        $extendedProp = array();
-        $bpData = array();
-        $expData = array();
+        
         //check the table data in the object that we have enough data :)
-        if(count($data->table) > 0){
-            //get the necessary properties for the different types
-            $propertyData = array();
-            $propertyData = CC::getCustomDetailViewTemplateDataProperties($type);
-            //create the basic and extended properties arrays
-            if( count($propertyData) > 0){
-                if(isset($propertyData['basicProperties'])){
-                    $basicProp = $propertyData['basicProperties'];
-                }
-                if(isset($propertyData['extendedProperties'])){
-                    $extendedProp = $propertyData['extendedProperties'];
-                }
-            }
+        if(count($data->getTable()) > 0){
+            //set the data for the resource custom data object
             $arrayObject = new \ArrayObject();
-            $arrayObject->offsetSet('uri', $data->uri);
-            $arrayObject->offsetSet('insideUri', $data->insideUri);
-            $arrayObject->offsetSet('fedoraUri', $data->fedoraUri);
-            $arrayObject->offsetSet('identifiers', $data->identifiers);
-            $arrayObject->offsetSet('title', $data->title);
-            $arrayObject->offsetSet('type', $data->type);
-            $arrayObject->offsetSet('typeUri', $data->typeUri);
-            if(isset($data->pid)){
-                $arrayObject->offsetSet('pid', $data->pid);
+            $arrayObject->offsetSet('uri', $data->getUri());
+            $arrayObject->offsetSet('insideUri', $data->getInsideUri());
+            $arrayObject->offsetSet('fedoraUri', $data->getFedoraUri());
+            $arrayObject->offsetSet('identifiers', $data->getIdentifiers());
+            $arrayObject->offsetSet('title', $data->getTitle());
+            $arrayObject->offsetSet('type', $data->getType());
+            $arrayObject->offsetSet('typeUri', $data->getTypeUri());
+            if(!empty($data->getPID())){
+                $arrayObject->offsetSet('pid', $data->getPID());
             }
-            //create the basic
-            if(count($basicProp) > 0){
-                if(isset($data->type)){
-                    $arrayObject->offsetSet('acdh_rdf:type', $data->type );
-                }
-                
-                foreach($basicProp as $bP) {
-                    //if we have the basic prop tin our object then we will add it to the new arrobj
-                    if( (isset($data->table[$bP])) && (count($data->table[$bP]) > 0) ){
-                        foreach($data->table[$bP] as $val){
-                            $bpData[$bP] =  $val;
-                        }
-                    }
-                }
-                $arrayObject->offsetSet('basicProperties', $bpData);
+            if(!empty($data->getType())){
+                $arrayObject->offsetSet('acdh_rdf:type', $data->getType() );
             }
             
-            if(count($extendedProp) > 0){
-                //generate the contact data
-                foreach ($extendedProp as $prop){
-                    if( (isset($data->table[$prop])) && (count($data->table[$prop]) > 0) ){
-                        $expData[$prop] = $data->table[$prop];
-                    }
-                }
+            try {
+                //get the obj
+                $obj = new \Drupal\oeaw\Model\OeawResourceCustomData($arrayObject);
+                $obj->setupBasicExtendedData($data);
+            } catch (\ErrorException $ex) {
+                throw new \ErrorException($ex->getMessage());
             }
-        }
-        
-        if(count($bpData) > 0){
-            $arrayObject->offsetSet('basicProperties', $bpData);
-        }
-        
-        if(count($expData) > 0){
-            $arrayObject->offsetSet('extendedProperties', $expData);
-        }
-        
-        
-        try {
-            $obj = new \Drupal\oeaw\Model\OeawResourceCustomData($arrayObject);
-        } catch (\ErrorException $ex) {
-             throw new \ErrorException($ex->getMessage());
         }
         
         return $obj;
@@ -740,8 +696,9 @@ class OeawFunctions {
         $result = "";
         
         if(count((array)$data) > 0){
-            if (isset($data->table[$property])) {
-                foreach ($data->table[$property] as $key => $val) {
+            
+            if ($data->getTableData($property) !== null) {
+                foreach ($data->getTableData($property) as $key => $val) {
                     if ($key > 0) {
                         if(isset($val["title"])){
                             $result .= ", " . $val["title"];
@@ -1377,6 +1334,8 @@ class OeawFunctions {
         $result['uri'] = $resourceUri;
         $result['insideUri'] = $this->detailViewUrlDecodeEncode($resourceIdentifier, 1);
         
+        
+
         $arrayObject->offsetSet('table', $result['table']);
         $arrayObject->offsetSet('title', $resourceTitle->__toString());
         $arrayObject->offsetSet('uri', $this->detailViewUrlDecodeEncode($resourceIdentifier, 0));
@@ -1389,8 +1348,6 @@ class OeawFunctions {
         if(isset($result['image'])){
             $arrayObject->offsetSet('imageUrl', $result['image']);
         }
-        
-
         try {
             $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
         } catch (ErrorException $ex) {
