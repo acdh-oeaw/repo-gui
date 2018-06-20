@@ -41,6 +41,11 @@ class ApiCheckACDHIdentifierResource extends ResourceBase {
      * 
      */
     
+    
+    public function __construct(){
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+    }
+    
     /**
     * Responds to entity GET requests.
     * @return \Drupal\rest\ResourceResponse

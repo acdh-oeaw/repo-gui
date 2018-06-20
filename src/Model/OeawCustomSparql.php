@@ -22,6 +22,9 @@ use EasyRdf\Resource;
  */
 class OeawCustomSparql implements OeawCustomSparqlInterface {
     
+     public function __construct(){
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+    }
     
     /**
      * 
@@ -51,12 +54,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $orderby = ' ORDER BY ASC( fn:lower-case(?title)) LIMIT 10 ';
         
         $query = $prefix.$select.$where.$groupby.$orderby;
-        echo "<pre>";
-        var_dump($query);
-        echo "</pre>";
-
-        die();
-
+       
         return $query;
         
     }
@@ -81,7 +79,8 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $where = "WHERE {"
                 . "?uri ?prop ?obj . "
                 . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
-                . "FILTER( ?prop IN (<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasAlternativeTitle').">, <".RC::get('drupalHasAuthor').">, <".RC::get('drupalHasEditor').">, <".RC::get('fedoraIdProp')."> )) . "
+                . "FILTER( ?prop IN (<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasAlternativeTitle').">, "
+                . " <".RC::get('drupalHasAuthor').">, <".RC::get('drupalHasEditor').">, <".RC::get('fedoraIdProp')."> )) . "
                 . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
                 . "?uri <".RC::get('fedoraIdProp')."> ?identifier ."
                 . "?uri <".RC::get('drupalRdfType')."> <".RC::get('drupalPublication')."> . "
@@ -104,20 +103,32 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
      * 
      * @param string $str : search text
      */
-    public function createBasicApiSparql(string $str, string $type): string {
+    public function createBasicApiSparql(string $str, string $type, array $filters = array()): string {
         
         $query = "";
+        if(empty($str) || empty($type)){ return $query; }
         
-        if(empty($str) || empty($type)){
-            return $query;
+        if(count($filters) == 0) {
+            $filters[] = RC::get('fedoraTitleProp'); 
+            $filters[] = RC::get('drupalHasAlternativeTitle');
+            $filters[] = RC::get('fedoraIdProp');
         }
-        
+
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         $select = 'SELECT DISTINCT ?uri ?title ?altTitle (GROUP_CONCAT(DISTINCT ?identifier;separator=",") AS ?identifiers)   ';
         $where = "WHERE {"
                 . "?uri ?prop ?obj . "
                 . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
-                . "FILTER( ?prop IN (<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasAlternativeTitle').">, <".RC::get('fedoraIdProp')."> )) . "
+                . "FILTER( ?prop IN ( ";
+                
+                for ($x = 0; $x <= count($filters) - 1; $x++) {
+                    $where .= "<".$filters[$x]."> ";
+                    if($x !== count($filters) - 1 ){
+                        $where .= ", ";
+                    }
+                }
+                //<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasAlternativeTitle').">, <".RC::get('fedoraIdProp')."> 
+        $where .= " )) . "
                 . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
                 . "?uri <".RC::get('fedoraIdProp')."> ?identifier ."
                 . "OPTIONAL { ?uri <".RC::get('drupalHasAlternativeTitle')."> ?altTitle . } . "
@@ -127,7 +138,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $orderby = ' ORDER BY ASC( fn:lower-case(?title)) LIMIT 10 ';
         
         $query = $prefix.$select.$where.$groupby.$orderby;
-        
+
         return $query;
         
     }

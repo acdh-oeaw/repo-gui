@@ -34,6 +34,10 @@ class ApiGetDataResource extends ResourceBase {
      *  https://domain.com/browser/api/getData/{class}/{querystring}?_format=json
      */
     
+     public function __construct(){
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+    }
+    
     /**
     * Responds to entity GET requests.
     * @return \Drupal\rest\ResourceResponse
@@ -45,9 +49,11 @@ class ApiGetDataResource extends ResourceBase {
         if(empty($class) || empty($searchStr)){
             return new JsonResponse(array("Please provide a link"), 404, ['Content-Type'=> 'application/json']);
         }
+        $filters = array();
         
-        $class = "https://vocabs.acdh.oeaw.ac.at/schema#".$class;
-                
+        $class = RC::get('fedoraVocabsNamespace').$class;
+        $filters = $this->generateFilterData($class);
+        
         $sparql = "";
         $spRes = array();
         $result = array();
@@ -55,7 +61,7 @@ class ApiGetDataResource extends ResourceBase {
         $OeawCustomSparql = new OeawCustomSparql();
         $OeawStorage = new OeawStorage();
         
-        $sparql = $OeawCustomSparql->createBasicApiSparql($searchStr, $class);
+        $sparql = $OeawCustomSparql->createBasicApiSparql($searchStr, $class, $filters);
         
         if($sparql){
             $spRes = $OeawStorage->runUserSparql($sparql);
@@ -114,6 +120,43 @@ class ApiGetDataResource extends ResourceBase {
         }else {
             return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
         }
+    }
+    
+    /**
+     * 
+     * Generate the filters array for the sparql query
+     * 
+     * @param string $type
+     * @return array
+     */
+    private static function generateFilterData(string $type): array{
+        
+        $filters = array();
+        
+        if($type == RC::get('drupalPerson')){
+            $filters[] = RC::get('drupalHasLastName'); 
+            $filters[] = RC::get('drupalHasFirstName');
+            $filters[] = RC::get('fedoraIdProp');
+            return $filters;
+        }
+        
+        if($type == RC::get('fedoraOrganisationClass') || $type == RC::get('drupalPlace') 
+                || $type == RC::get('drupalConcept') || $type == RC::get('drupalCollection')){
+            $filters[] = RC::get('fedoraTitleProp'); 
+            $filters[] = RC::get('drupalHasAlternativeTitle');
+            $filters[] = RC::get('fedoraIdProp');
+            return $filters;
+        }
+        
+        if($type == RC::get('drupalPublication')){
+            $filters[] = RC::get('drupalHasLastName'); 
+            $filters[] = RC::get('drupalHasFirstName');
+            $filters[] = RC::get('fedoraIdProp');
+            $filters[] = RC::get('drupalHasAuthor');
+            $filters[] = RC::get('drupalHasEditor');
+            return $filters;
+        }
+        return $filters;
     }
 
 }
