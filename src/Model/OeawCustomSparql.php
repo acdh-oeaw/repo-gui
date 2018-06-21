@@ -117,6 +117,10 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         $select = 'SELECT DISTINCT ?uri ?title ?altTitle (GROUP_CONCAT(DISTINCT ?identifier;separator=",") AS ?identifiers)   ';
         $where = "WHERE {"
+                . " { "
+                . "?uriM rdfs:subClassOf <".$type."> . "
+                . "?uriM <".RC::get('fedoraIdProp')."> ?id . "
+                ." ?uri <".RC::get('drupalRdfType')."> ?id . "
                 . "?uri ?prop ?obj . "
                 . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
                 . "FILTER( ?prop IN ( ";
@@ -132,13 +136,30 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                 . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
                 . "?uri <".RC::get('fedoraIdProp')."> ?identifier ."
                 . "OPTIONAL { ?uri <".RC::get('drupalHasAlternativeTitle')."> ?altTitle . } . "
-                . "?uri <".RC::get('drupalRdfType')."> <".$type."> . "
-                . "}";
+                . " } UNION { "
+                . " ?uri <".RC::get('drupalRdfType').">  <".$type."> . "
+                . " ?uri ?prop ?obj . "
+                . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
+                . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
+                . "FILTER( ?prop IN ( ";
+                
+                for ($x = 0; $x <= count($filters) - 1; $x++) {
+                    $where .= "<".$filters[$x]."> ";
+                    if($x !== count($filters) - 1 ){
+                        $where .= ", ";
+                    }
+                }
+        $where .= " )) . "
+                . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
+                . "?uri <".RC::get('fedoraIdProp')."> ?identifier ."
+                . "OPTIONAL { ?uri <".RC::get('drupalHasAlternativeTitle')."> ?altTitle . } . "
+                . " }";
+        $where .= "}";
         $groupby = ' GROUP BY ?title ?uri ?altTitle ';
         $orderby = ' ORDER BY ASC( fn:lower-case(?title)) LIMIT 10 ';
         
         $query = $prefix.$select.$where.$groupby.$orderby;
-
+     
         return $query;
         
     }
