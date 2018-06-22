@@ -347,17 +347,18 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $query = "";
         //?nUri <".RC::get('drupalRdfType')."> ?types .
         
-        $query = "
-        select ?uri ?title ?rootTitle ?binarySize ?filename 
-        where {  
+        $query = ' select ?uri ?title ?rootTitle ?binarySize ?filename (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
+        
+        $query .= "where {  
             ?uri ( <".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* <".$url."> .
             FILTER(?uri = ?nUri){
-                select ?nUri ?title ?rootTitle  ?binarySize ?filename 
+                select ?nUri ?title ?rootTitle  ?binarySize ?filename ?identifiers
                 where {
                     ?nUri <".RC::get('fedoraTitleProp')."> ?title .
                     ?nUri <".RC::get('fedoraRelProp')."> ?isPartOf .
-                    ?rUrl <".RC::get('fedoraIdProp')."> ?isPartOf .
-                    ?rUrl <".RC::get('fedoraTitleProp')."> ?rootTitle .
+                    ?nUri <".RC::get('fedoraIdProp')."> ?identifiers .
+                    ?rUri <".RC::get('fedoraIdProp')."> ?isPartOf .
+                    ?rUri <".RC::get('fedoraTitleProp')."> ?rootTitle .
                     OPTIONAL { 
                         ?nUri <".RC::get('fedoraExtentProp')."> ?binarySize .
                         ?nUri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename . 
@@ -368,9 +369,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename
         ORDER BY ?filename ?title ?rootTitle
         ";
-        
         return $query;
-        
     }
     
 }

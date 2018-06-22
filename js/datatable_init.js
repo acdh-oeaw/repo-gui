@@ -55,7 +55,7 @@ jq2(function( $ ) {
             //hide the button
             jq2('#showIsMember').parent().hide("slow");
             //get the uri            
-            var url = jq2('#showIsMember').data('tableurl');            
+            var url = jq2('#showIsMember').data('tableurl');    
             //genereate the data
             jq2('table.isMemberTable').DataTable({
                 "ajax": {
