@@ -1487,7 +1487,7 @@ class OeawFunctions {
             $binarySize = $rootMeta->get(RC::get('fedoraExtentProp'));
             $license = $rootMeta->get(RC::get('fedoraVocabsNamespace').'hasLicense');
             $isPartOf = $rootMeta->get(RC::get('fedoraRelProp'));
-
+            
             if(isset($title) && $title->getValue()){
                 $resData['title'] = $title->getValue();
             }
@@ -1554,15 +1554,17 @@ class OeawFunctions {
             }else{
                 $cacheData = $cache->setCacheData($uri);
             }
-     
+
             if(count($cacheData) > 0){
                 foreach($cacheData as $k => $v){
                     if($v['binarySize']){
                         $cacheData[$k]['formSize'] = Helper::formatSizeUnits((string)$v['binarySize']);
                     }
 
-                    if($v['uri']){
-                        $cacheData[$k]['encodedUri'] = base64_encode($v['uri']);
+                    if($v['identifier']){
+                        $dtUri = $this->createDetailViewUrl($v);
+                        $dtUri = $this->detailViewUrlDecodeEncode($dtUri, 1);
+                        $cacheData[$k]['encodedUri'] = $dtUri;
                     }
 
                     if(!empty($v['filename']) && $v['binarySize'] > 0){
