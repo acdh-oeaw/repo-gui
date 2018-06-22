@@ -41,11 +41,6 @@ class ApiCheckACDHIdentifierResource extends ResourceBase {
      * 
      */
     
-    
-    public function __construct(){
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-    }
-    
     /**
     * Responds to entity GET requests.
     * @return \Drupal\rest\ResourceResponse
@@ -55,6 +50,7 @@ class ApiCheckACDHIdentifierResource extends ResourceBase {
         if(empty($identifier)){
             return new JsonResponse(array("Please provide an identifier!"), 404, ['Content-Type'=> 'application/json']);
         }
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         
         $oeawFunctions = new OeawFunctions();
         $oeawStorage = new OeawStorage();

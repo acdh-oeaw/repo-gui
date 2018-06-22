@@ -4,14 +4,19 @@
 namespace Drupal\oeaw\Plugin\rest\resource;
 
 use Drupal\rest\Plugin\ResourceBase;
+use Drupal\rest\ResourceResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-
 // our drupal custom libraries
 use Drupal\oeaw\Model\OeawStorage;
+use Drupal\oeaw\Model\OeawCustomSparql;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
+use acdhOeaw\fedora\Fedora;
+use acdhOeaw\fedora\FedoraResource;
+use EasyRdf\Graph;
+use EasyRdf\Resource;
 
 
 /**
@@ -38,15 +43,13 @@ class ApiGetMetadataResource extends ResourceBase {
      * 
      */
     
-    public function __construct(){
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-    }
-    
     /**
     * Responds to entity GET requests.
     * @return \Drupal\rest\ResourceResponse
     */
     public function get(string $type, string $lang) {
+        
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         
         if(empty($type)){
             return new JsonResponse(array("Please provide a type! For exmaple: person, collection, etc..."), 404, ['Content-Type'=> 'application/json']);
@@ -99,7 +102,9 @@ class ApiGetMetadataResource extends ResourceBase {
     private function transformProperties(array $properties): array{
         $result = array();
         $required = array();
-                
+        
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');        
+        
         if(count($properties) > 0){
             foreach($properties as $prop){
                 if($prop['propID']){

@@ -33,17 +33,15 @@ class ApiGetDataResource extends ResourceBase {
      * 
      *  https://domain.com/browser/api/getData/{class}/{querystring}?_format=json
      */
-    
-     public function __construct(){
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-    }
-    
+        
     /**
     * Responds to entity GET requests.
     * @return \Drupal\rest\ResourceResponse
     */
     public function get(string $class, string $searchStr) {
         
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+
         $response = new Response();
         
         if(empty($class) || empty($searchStr)){
@@ -131,6 +129,7 @@ class ApiGetDataResource extends ResourceBase {
      */
     private static function generateFilterData(string $type): array{
         
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $filters = array();
         
         if($type == RC::get('drupalPerson')){

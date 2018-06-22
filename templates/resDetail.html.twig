@@ -62,9 +62,9 @@
                 {% for key,value in result.table %}
                     <tr>
                         <td width='40%'>
-                            {% if extras["tooltip"][key]['title'] %}
+                            {% if extras["tooltip"][key]['desc'] %}
                                 <div style='float:left;'>
-                                    {{ extras["tooltip"][key]['title'] }}
+                                    {{ key }}
                                 </div>
                                 <div style='float:right;'>
                                     <a  class="" data-toggle="tooltip" data-placement="right" data-html="true" title="{{ extras["tooltip"][key]['desc'] }}">
@@ -258,7 +258,7 @@
         {% if result.type == "Collection" %}
             <div class="children-overview children-overview-tree">
                 <!-- Here comes the tree-view -->
-                {{ include('/modules/oeaw/templates/resDetail_treeView.html.twig' ) }}
+                {{ include('/modules/oeaw/templates/resDetail_treeView.html.twig', {'resourceData': result } ) }}
             </div>
         {% endif %}    
 
