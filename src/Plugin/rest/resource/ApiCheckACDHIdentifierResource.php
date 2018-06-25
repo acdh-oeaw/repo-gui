@@ -58,12 +58,12 @@ class ApiCheckACDHIdentifierResource extends ResourceBase {
         //transform the url from the browser to readable uri
         $identifier = $oeawFunctions->detailViewUrlDecodeEncode($identifier, 0);
         
-//if the browser url contains handle url then we need to get the acdh:hasIdentifier
+        //if the browser url contains handle url then we need to get the acdh:hasIdentifier
         if (strpos($identifier, 'hdl.handle.net') !== false) {
-            return new JsonResponse(array("This is not a valid ACDH identifier1"), 404, ['Content-Type'=> 'application/json']);
+            return new JsonResponse(array("This is not a valid ACDH identifier"), 404, ['Content-Type'=> 'application/json']);
         }
         if (strpos($identifier, RC::get('fedoraIdNamespace')) === false) {
-            return new JsonResponse(array("This is not a valid ACDH identifier2"), 404, ['Content-Type'=> 'application/json']);
+            return new JsonResponse(array("This is not a valid ACDH identifier"), 404, ['Content-Type'=> 'application/json']);
         }
         
         try {
@@ -74,7 +74,21 @@ class ApiCheckACDHIdentifierResource extends ResourceBase {
             return new JsonResponse(array($ex->getMessage()), 404, ['Content-Type'=> 'application/json']);
         }
         if(count($classMeta) > 0){
-            return new JsonResponse(array("The Identifier already used!"), 404, ['Content-Type'=> 'application/json']);
+            
+            $result = array();
+            if(isset($classMeta[0]['title'])){
+                $result['title'] = $classMeta[0]['title'];
+            }
+            if(isset($classMeta[0]['rdfTypes'])){
+                $result["rdfTypes"] = $classMeta[0]['rdfTypes'];
+            }
+            if(isset($classMeta[0]['creationdate'])){
+                $result["creationDate"] = $classMeta[0]['creationdate'];
+            }
+            if(isset($classMeta[0]['fdCreated'])){
+                $result["fedoraCreateDate"] = $classMeta[0]['fdCreated'];
+            }
+            return new JsonResponse($result, 200, ['Content-Type'=> 'application/json']);
         }        
         return new JsonResponse(array("The identifier is free"), 200, ['Content-Type'=> 'application/json']);
     }

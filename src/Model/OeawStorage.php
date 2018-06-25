@@ -61,6 +61,35 @@ class OeawStorage implements OeawStorageInterface {
     private $oeawFunctions;    
     private $fedora;   
     private static $instance;
+    //the date formats for the formatting possibilities
+    private $dateFormats = array(
+        'Y-m-d' => array('YEAR', 'MONTH', 'DAY'), 
+        'd-m-Y' => array('DAY', 'MONTH', 'YEAR'), 
+        'Y' => array('YEAR')
+    );
+    
+    private function convertFieldDate(string $inputVar, string $outputVar, string $format): string{
+        $result = "";
+        
+        if(!array_key_exists($format, $this->dateFormats)){
+            $format = 'd-m-Y';
+        }
+        
+        $count = count($this->dateFormats[$format]);
+        $result = ' (CONCAT ( ';
+        for ($x = 0; $x <= count($this->dateFormats[$format]) - 1; $x++) {
+            //setup the vars
+            $result .= 'STR( '.$this->dateFormats[$format][$x].'(?'.$inputVar.'))';
+            //setup the 
+            if( (count($this->dateFormats[$format]) - 1 > 1) && ( $x < count($this->dateFormats[$format]) - 1  ) ){
+                $result .= ', "-", ';
+            }
+        }
+        $result .= ') as ?'.$outputVar.')';
+        
+        return $result;
+    }
+    
     
     public function __construct() {
        
@@ -499,9 +528,10 @@ class OeawStorage implements OeawStorageInterface {
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfType'), '?rdfType'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasFirstName'), '?firstName'), true);
                 $q->addParameter(new HasTriple('?uri', RC::get('drupalHasLastName'), '?lastName'), true);
+                $q->addParameter(new HasTriple('?uri', '<http://fedora.info/definitions/v4/repository#created>', '?fdCreated'), true);
                 //Select and aggregate multiple sets of values into a comma seperated string
-                $q->setSelect(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
-                $q->setGroupBy(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName'));
+                $q->setSelect(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', $this->convertFieldDate("fdCreated", "fdCreated", 0), '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
+                $q->setGroupBy(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', '?fdCreated'));
                 //If it's a person order by their name, if not by resource title
                 if ($value == RC::get('drupalPerson') ) {
                         $q->setOrderBy(array('?firstName'));
@@ -516,7 +546,7 @@ class OeawStorage implements OeawStorageInterface {
             }                       
             
             $query = $q->getQuery();
-                       
+
             $result = $this->fedora->runSparql($query);
             
             $fields = $result->getFields(); 
