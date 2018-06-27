@@ -109,15 +109,15 @@ class Helper {
         
         $niceURI = "";
         
-        if (isset($results->table["acdh:hasPid"])) {
-            if (isset($results->table["acdh:hasPid"][0]['uri'])) {
-                $niceURI = $results->table["acdh:hasPid"][0]['uri'];
+        if (!empty($results->getTableData("acdh:hasPid"))) {
+            if (isset($results->getTableData("acdh:hasPid")[0]['uri'])) {
+                $niceURI = $results->getTableData("acdh:hasPid")[0]['uri'];
             }
         }
         
         if (empty($niceURI)) {
-            if (isset($results->table["acdh:hasIdentifier"]) && !empty($results->table["acdh:hasIdentifier"]) ){
-                $acdhURIs = $results->table["acdh:hasIdentifier"];
+            if (!empty($results->getTableData("acdh:hasIdentifier")) && !empty($results->getTableData("acdh:hasIdentifier")) ){
+                $acdhURIs = $results->getTableData("acdh:hasIdentifier");
                 //Only one value under acdh:hasIdentifier
                 if (isset($acdhURIs["uri"])) {
                     //id.acdh/uuid

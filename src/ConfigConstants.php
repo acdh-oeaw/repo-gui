@@ -57,7 +57,7 @@ abstract class ConfigConstants {
             $result['basicProperties'] = array(
                 "acdh:hasTitle",
                 "acdh:hasIdentifier",
-                "acdh:isMember"
+                "acdh:isMemberOf"
             );
                     
             //contact details
@@ -212,7 +212,11 @@ abstract class ConfigConstants {
         if($propertyUri == RC::get('drupalPerson')){
             $result = 
                 array(
-                    RC::get('drupalHasContributor')
+                    RC::get('drupalHasContributor'),
+                    RC::get('drupalHasAuthor'),
+                    RC::get('drupalHasEditor'),
+                    RC::get('drupalHasCreator'),
+                    RC::get('drupalHasPrincipalInvestigator')
                 );
         }
         //concept
