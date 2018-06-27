@@ -132,6 +132,15 @@ class OeawResource {
         return $this->table;
     }
     
+    /**
+     * 
+     * Get the property based info from the object table
+     * The properties are in a shortcut format in the table
+     * F.e: acdh:hasAvailableDate
+     * 
+     * @param string $prop
+     * @return type
+     */
     public function getTableData(string $prop){
         if(isset($this->table[$prop])){
             return $this->table[$prop];

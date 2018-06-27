@@ -692,14 +692,12 @@ class OeawFunctions {
      * @return string - a string with the available data
      */
     private function getCiteWidgetData(\Drupal\oeaw\Model\OeawResource $data, string $property): string{
-        
         $result = "";
         
         if(count((array)$data) > 0){
-            
-            if ($data->getTableData($property) !== null) {
+            if (!empty($data->getTableData($property))) {
                 foreach ($data->getTableData($property) as $key => $val) {
-                    if ($key > 0) {
+                    if (count($data->getTableData($property)) > 1) {
                         if(isset($val["title"])){
                             $result .= ", " . $val["title"];
                         }else{
@@ -718,7 +716,6 @@ class OeawFunctions {
                 }
             }
         }
-        
         return $result;
     }
     
@@ -761,19 +758,19 @@ class OeawFunctions {
         }
 
         //Get title
-        if (isset($resourceData->title)) {
-            $widget["MLA"]["title"] = $resourceData->title;
+        if (!empty($resourceData->getTitle())) {
+            $widget["MLA"]["title"] = $resourceData->getTitle();
         }
 
         //Get isPartOf		
-        if (isset($resourceData->table["acdh:isPartOf"])) {
-            $isPartOf = $resourceData->table["acdh:isPartOf"][0]["title"];
+        if (!empty($resourceData->getTableData("acdh:isPartOf"))) {
+            $isPartOf = $resourceData->getTableData("acdh:isPartOf")[0]["title"];
             $widget["MLA"]["isPartOf"] = $isPartOf;		
         }
         
         //Get hasHosting		
-        if (isset($resourceData->table["acdh:hasHosting"])) {
-            $hasHosting = $resourceData->table["acdh:hasHosting"][0]["title"];
+        if (!empty($resourceData->getTableData("acdh:hasHosting"))) {
+            $hasHosting = $resourceData->getTableData("acdh:hasHosting")[0]["title"];
             $widget["MLA"]["hasHosting"] = $hasHosting;		
         }
 
@@ -781,13 +778,13 @@ class OeawFunctions {
          * Order of desired URIs:
          * PID > id.acdh > id.acdh/uuid > long gui url
          */
-        if (isset($resourceData->pid)) {
+        if (!empty($resourceData->getPID())) {
             $widget["MLA"]["acdhURI"] = $resourceData->pid;
         }
         
         if (!$widget["MLA"]["acdhURI"]) {
-            if (isset($resourceData->identifiers) && count($resourceData->identifiers) > 0 ){
-                $acdhURIs = $resourceData->identifiers;
+            if (!empty($resourceData->getIdentifiers()) && count($resourceData->getIdentifiers()) > 0 ){
+                $acdhURIs = $resourceData->getIdentifiers();
                 //Only one value under acdh:hasIdentifier
                 
                 $uuid = "";
@@ -807,8 +804,8 @@ class OeawFunctions {
         }
 
         //Get available date
-        if (isset($resourceData->table["acdh:hasAvailableDate"])) {
-            $availableDate = $resourceData->table["acdh:hasAvailableDate"][0];
+        if (!empty($resourceData->getTableData("acdh:hasAvailableDate"))) {
+            $availableDate = $resourceData->getTableData("acdh:hasAvailableDate")[0];
             $availableDate = strtotime($availableDate);
             $widget["MLA"]["availableDate"] = date('Y',$availableDate);
         }

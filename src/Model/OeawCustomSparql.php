@@ -3,6 +3,7 @@
 namespace Drupal\oeaw\Model;
 
 use Drupal\oeaw\Model\OeawStorage;
+use Drupal\oeaw\Model\ModelFunctions;
 use Drupal\oeaw\ConfigConstants;
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
@@ -121,8 +122,9 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                 . "?uriM rdfs:subClassOf <".$type."> . "
                 . "?uriM <".RC::get('fedoraIdProp')."> ?id . "
                 ." ?uri <".RC::get('drupalRdfType')."> ?id . "
-                . "?uri ?prop ?obj . "
-                . "?uri <".RC::get('fedoraTitleProp')."> ?title . "
+                . "?uri ?prop ?obj . ";
+        //$where  .= \Drupal\oeaw\Model\ModelFunctions->filterLanguage();
+        $where  .= "?uri <".RC::get('fedoraTitleProp')."> ?title . "
                 . "FILTER( ?prop IN ( ";
                 
                 for ($x = 0; $x <= count($filters) - 1; $x++) {

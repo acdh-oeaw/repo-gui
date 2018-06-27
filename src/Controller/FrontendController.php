@@ -91,7 +91,7 @@ class FrontendController extends ControllerBase  {
         //count all root resource for the pagination
         try {
             $countRes = $this->oeawStorage->getRootFromDB(0,0,true);
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             drupal_set_message($ex->getMessage(), 'error');
             return array();
         } catch (\InvalidArgumentException $ex) {
@@ -461,14 +461,14 @@ class FrontendController extends ControllerBase  {
         if(!empty($niceUri)){
             $extras["niceURI"] = $niceUri;
         }
-
+        
         //Create data for cite-this widget
         $typesToBeCited = ["collection", "project", "resource", "publication"];
         if(!empty($resultsObj->getType()) && in_array(strtolower($resultsObj->getType()), $typesToBeCited) ){
             //pass $rootMeta for rdf object
             $extras["CiteThisWidget"] = $this->oeawFunctions->createCiteThisWidget($resultsObj);
         }
-                
+        
         //get the tooltip from cache
         $cachedTooltip = $this->propertyTableCache->getCachedData($resultsObj->getTable());
         if(count($cachedTooltip) > 0){
