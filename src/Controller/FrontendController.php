@@ -481,7 +481,6 @@ class FrontendController extends ControllerBase  {
                 $extras['3dData'] = true;
             }
         }
-       
 
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',

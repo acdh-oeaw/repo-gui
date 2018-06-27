@@ -223,18 +223,18 @@
         </figure>
 
     {% endif%}
-
-    {% if extras['childType'] == "concept" %}
+    
+    {% if extras['childType']|lower == "concept" %}
         {% set childTitle = "Narrower(s)"%}
-    {% elseif  extras['childType'] == "person" %}
+    {% elseif  extras['childType']|lower == "person" %}
         {% set childTitle = "Contributed to"%}
-    {% elseif  extras['childType'] == "project" %}
+    {% elseif  extras['childType']|lower == "project" %}
         {% set childTitle = "Related collection(s)"%}
-    {% elseif  extras['childType'] == "organisation" %}
+    {% elseif  extras['childType']|lower == "organisation" %}
         {% set childTitle = "Involved in"%}
-    {% elseif  extras['childType'] == "place" %}
+    {% elseif  extras['childType']|lower == "place" %}
         {% set childTitle = "Spatial coverage in"%}
-    {% elseif  extras['childType'] == "publication" %}
+    {% elseif  extras['childType']|lower == "publication" %}
         {% set childTitle = "Related resource(s)"%}
     {% else %}
         {% set childTitle = "Child Resource(s)"%}

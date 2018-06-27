@@ -1647,10 +1647,10 @@ class OeawFunctions {
         $specialType = "child";
         $currentPage = $this->getCurrentPageForPagination();
         //we checks if the acdh:Person is available then we will get the Person Detail view data
-        if(isset($data->type) && isset($data->typeUri)){
-            if(in_array(strtolower($data->type), CC::$availableCustomViews)){
-                $specialType = $data->type;
-                $typeProperties = CC::getDetailChildViewProperties($data->typeUri);
+        if(!empty($data->getType()) && !empty($data->getTypeUri())){
+            if(in_array(strtolower($data->getType()), CC::$availableCustomViews)){
+                $specialType = $data->getType();
+                $typeProperties = CC::getDetailChildViewProperties($data->getTypeUri());
                 if(count($typeProperties) > 0){
                     $countData = $oeawStorage->getSpecialDetailViewData($properties['identifier'][0], $properties['limit'], $properties['page'], true, $typeProperties);
                 }
