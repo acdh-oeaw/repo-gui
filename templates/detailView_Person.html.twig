@@ -1,10 +1,14 @@
 <!-- START : ACDH PERSON template: detailView_Person  -->
-{% if result['image'] %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
+{% if result.imageUrl %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
     
-    
-    {%  if result.basicProperties['acdh:hasTitle'] %}
+    {%  if result.getTitle() %}
         <div class="res-property">
-            <span class="res-title">{{ result.basicProperties['acdh:hasTitle'] }}</span>
+            <span class="res-title">
+                 {%  if result.getAccessRestriction() %}
+                    {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
+                {% endif%}
+                {{ result.getTitle() }}
+            </span>
         </div>
     {% endif%} 
     
@@ -67,11 +71,11 @@
     {% endif%}
 
     
-{% if result['image'] %}</div>{% endif%}    
-{% if result['image'] %}	
+{% if result.imageUrl %}</div>{% endif%}    
+{% if result.imageUrl %}	
     <div class="res-inside-wrap col-lg-4 ">	
         <div class="single-res-thumb">
-            <a data-lightbox="{{ result['resourceTitle'] }}" href="{{ result['image'] }}"><img src="{{ result['image'] }}"></a>
+            <a data-lightbox="{{ result['resourceTitle'] }}" href="{{ result.imageUrl }}"><img src="{{ result.imageUrl }}"></a>
         </div>
     </div>
 {% endif%}

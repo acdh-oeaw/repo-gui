@@ -136,24 +136,29 @@ class OeawStorage implements OeawStorageInterface {
 
             $where = " WHERE { ";
 
-            #$where .= "?uri <". RC::titleProp()."> ?title . ";
+            
             $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang );
             $where .= "?uri <".RC::get('drupalRdfType')."> <".RC::get('drupalCollection')."> . ";
+            
             $where .= "?uri <". RC::idProp()."> ?identifiers . ";
             $where .= "OPTIONAL { ?uri <".RC::get('epicPidProp')."> ?pid .  } ";
-            //$where .= "OPTIONAL { ?uri <".RC::get('drupalHasDescription')."> ?description .  } ";
             $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasContributor')."> ?contributors . } ";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasAuthor')."> ?authors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
-            $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?avDate ."
-                            . " BIND( (CONCAT(STR(substr(?avDate, 0, 10)))) as ?availableDate) . } ";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
+                            //. " BIND( (CONCAT(STR(substr(?avDate, 0, 10)))) as ?availableDate) . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationStartDate')."> ?hasCreationStartDate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationEndDate')."> ?hasCreationEndDate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('fedoraRelProp')."> ?isPartOf . } ";
+            $where .= "OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage . } ";
 
             if($count == false){
                     $where .= "?uri <".RC::get('drupalRdfType')."> ?rdfType .  ";
+                    $where .= '?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
+                   . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") . ';
+                   
             }
 
             $where .=" 
@@ -167,12 +172,17 @@ class OeawStorage implements OeawStorageInterface {
             $where .= " } ";
 
             if($count == false){
-                    $select = 'SELECT ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate '
+                    $select = 'SELECT ?uri ?title ?pid '; 
+                    $select .= $this->modelFunctions->convertFieldDate("availableDate", "availableDate", 0); 
+                    $select .= ' ?isPartOf ?image ?hasTitleImage ';
+                    $select .= $this->modelFunctions->convertFieldDate("hasCreationStartDate", "hasCreationStartDate", 0);
+                    $select .= $this->modelFunctions->convertFieldDate("hasCreationEndDate", "hasCreationEndDate", 0);
+                    $select .= ' ?accessRestriction ?acdhType '
                                     . '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) (GROUP_CONCAT(DISTINCT ?contributors;separator=",") AS ?contributor) '
-                                    . '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)'
+                                    . ' (GROUP_CONCAT(DISTINCT ?authors;separator=",") AS ?author) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)'
                                     . '(GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)';
 
-                    $groupby = " GROUP BY ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ";
+                    $groupby = " GROUP BY ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ?accessRestriction ?acdhType ";
                     $orderby = " ORDER BY ".$order." ";
                     $limitOffset = "LIMIT ".$limit." OFFSET ".$offset." ";
             }else {
@@ -181,7 +191,7 @@ class OeawStorage implements OeawStorageInterface {
             }
 
             $query = $prefix.$select.$where.$groupby.$orderby.$limitOffset;
-
+           
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
                 $fields = $result->getFields();             
@@ -1032,7 +1042,8 @@ class OeawStorage implements OeawStorageInterface {
         $queryStr = "";
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         if($count == false){
-            $select = 'SELECT ?uri ?title ?pid (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)  ';            
+            $select = 'SELECT ?uri ?title ?pid ?accessRestriction '
+                    . '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)  ';            
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
         }else {
@@ -1044,8 +1055,9 @@ class OeawStorage implements OeawStorageInterface {
         $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
         $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
         $where .= '
-                OPTIONAL { ?uri <'.RC::get("epicPidProp").'> ?pid .} 
-                ?uri  <'.RC::get("drupalRdfType").'> ?type .
+                OPTIONAL { ?uri <'.RC::get("epicPidProp").'> ?pid .} ';
+        $where .= ' OPTIONAL { ?uri <'.RC::get("fedoraAccessRestrictionProp").'> ?accessRestriction . } ';
+        $where .= ' ?uri  <'.RC::get("drupalRdfType").'> ?type .
                 ?uri <'.RC::idProp().'> ?identifiers . 
                 FILTER regex(str(?type),"vocabs.acdh","i") .
                 ?uri <'.RC::get("fedoraRelProp").'>  ?isPartOf .
@@ -1062,7 +1074,7 @@ class OeawStorage implements OeawStorageInterface {
             }
         }
         $where .= ')';
-        $groupBy = ' }  GROUP BY ?uri ?title ?pid ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' }  GROUP BY ?uri ?title ?pid ?accessRestriction ORDER BY ASC( fn:lower-case(?title))';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
         
@@ -1635,7 +1647,8 @@ class OeawStorage implements OeawStorageInterface {
         $queryStr = "";
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         if($count == false){
-            $select = 'SELECT ?uri ?title ?pid (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';
+            $select = 'SELECT ?uri ?title ?pid ?accessRestriction '
+                    . '(GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
         }else {
@@ -1644,8 +1657,9 @@ class OeawStorage implements OeawStorageInterface {
         
         $where = '
             WHERE {
-                ?mainUri <'.RC::get("fedoraIdProp").'> <'.$uri.'> . '
-                . '?mainUri <'.RC::get("fedoraIdProp").'> ?id . '
+                ?mainUri <'.RC::get("fedoraIdProp").'> <'.$uri.'> . ';
+        $where .= "OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
+        $where .= '?mainUri <'.RC::get("fedoraIdProp").'> ?id . '
                 . 'OPTIONAL { ?mainUri <'.RC::get("epicPidProp").'> ?pid . } . '
                 . '?uri ?prop ?id . '
                 . 'FILTER( ?prop IN ( ';
@@ -1658,16 +1672,14 @@ class OeawStorage implements OeawStorageInterface {
         
         $where .= ' )) . ';
         $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true );
-        //$where .= ' OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .} ';
         $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
-        //$where .= 'OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?descriptions .} ';
         $where .= '?uri  <'.RC::get("drupalRdfType").'> ?type . 
                 FILTER regex(str(?type),"vocabs.acdh","i") . ';
         $where .= '?uri <'.RC::get("fedoraIdProp").'> ?identifiers .
             }
             ';
         
-        $groupBy = ' GROUP BY ?uri ?title ?pid ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' GROUP BY ?uri ?title ?pid ?accessRestriction ORDER BY ASC( fn:lower-case(?title))';
         
         $queryStr = $prefix.$select.$where.$groupBy.$limitStr;
         
@@ -1733,9 +1745,7 @@ class OeawStorage implements OeawStorageInterface {
         $where .='  )) . ';
         $where .= '?uri <'.RC::get('fedoraIdProp').'> ?obj .    ';
         $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true );
-        //$where .= 'OPTIONAL { ?uri <'.RC::get("fedoraTitleProp").'> ?title .} ';
         $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
-        //$where .= 'OPTIONAL { ?uri <'.RC::get("drupalHasDescription").'> ?descriptions .} ';
         $where .= '?uri  <'.RC::get("drupalRdfType").'> ?type . 
                 FILTER regex(str(?type),"vocabs.acdh","i") . ';
         $groupBy = ' }  GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';

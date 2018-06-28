@@ -1,0 +1,9 @@
+{%  if data %}
+    {%  if data == 'public' %}
+        <span class="green-dot" title="public"></span>
+    {%  elseif data == 'academic' %}
+        <span class="orange-dot" title="academic"></span>
+    {%  elseif data == 'restricted' %}
+        <span class="red-dot" title="restricted"></span>
+    {% endif%} 
+{% endif%}

@@ -3,7 +3,12 @@
     
     {%  if result.getTitle() %}
         <div class="res-property">
-            <span class="res-title">{{ result.getTitle() }}</span>
+            <span class="res-title">
+                {%  if result.getAccessRestriction() %}
+                    {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
+                {% endif%}
+                {{ result.getTitle() }}
+            </span>
         </div>
     {% endif%} 
     

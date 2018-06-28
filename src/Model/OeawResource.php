@@ -22,10 +22,11 @@ class OeawResource {
     private $type;
     private $typeUri;
     private $imageUrl;
+    private $availableDate;
+    private $accessRestriction = 'public';
     private $table = array();
     public $errors = array();
     
-
     
     public function __construct(\ArrayObject $arrayObj) {
         
@@ -44,6 +45,8 @@ class OeawResource {
                 ($objIterator->key() == "type") ? $this->type = $objIterator->current() :  NULL;
                 ($objIterator->key() == "typeUri") ? $this->typeUri = $objIterator->current() :  NULL;
                 ($objIterator->key() == "imageUrl") ? $this->imageUrl = $objIterator->current() : NULL ;
+                ($objIterator->key() == "availableDate") ? $this->availableDate = $objIterator->current() : NULL ;
+                ($objIterator->key() == "accessRestriction") ? $this->accessRestriction = $objIterator->current() : 'public' ;
                 ($objIterator->key() == "table") ? $this->table = $objIterator->current() : NULL ;
                 
                 $objIterator->next();
@@ -130,6 +133,14 @@ class OeawResource {
     
     public function getTable(){
         return $this->table;
+    }
+    
+    public function getAvailableDate(){
+        return $this->availableDate;
+    }
+    
+    public function getAccessRestriction(){
+        return $this->accessRestriction;
     }
     
     /**

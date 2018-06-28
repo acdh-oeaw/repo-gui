@@ -3,7 +3,12 @@
     
     {%  if result.basicProperties['acdh:hasTitle'] %}
         <div class="res-property">
-            <span class="res-title">{{ result.basicProperties['acdh:hasTitle'][0] }}</span>
+            <span class="res-title">
+                {%  if result.getAccessRestriction() %}
+                    {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
+                {% endif%}
+                {{ result.basicProperties['acdh:hasTitle'][0] }}
+            </span>
         </div>
     {% endif%} 
     

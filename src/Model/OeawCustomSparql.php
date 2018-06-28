@@ -209,11 +209,12 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         if($count == true){
             $select = "SELECT (COUNT(?uri) as ?count) ";
         }else {
-            $select = 'SELECT DISTINCT ?uri ?title ?pid ?availableDate ?hasTitleImage (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
-                        (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)                       
-                        (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
-                        (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) 
-                        (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
+            $select = 'SELECT DISTINCT ?uri ?title ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction 
+                (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
+                (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) 
+                (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
+                (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) 
+                (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
         }
         
         $conditions = "";
@@ -320,14 +321,17 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
             }
         }
         
-        $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?descriptions .}                
-    	OPTIONAL{ ?uri <".RC::get('drupalHasAuthor')."> ?author .}	    	
+        $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?descriptions .} ";
+        $query .= 'OPTIONAL { ?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
+                   . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") . } ';
+    	$query .= "OPTIONAL{ ?uri <".RC::get('drupalHasAuthor')."> ?author .}	    	
         OPTIONAL{ ?uri <".RC::get('drupalHasContributor')."> ?contrib .}	
     	OPTIONAL{ ?uri <".RC::get('drupalRdfType')."> ?rdfType . }
         OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
         OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
+        $query .= " OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
         
-        $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?uri ?pid ?hasTitleImage ?availableDate ORDER BY " . $order;
+        $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?uri ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
         if($limit){
             $query .= " LIMIT ".$limit." ";
             if($page){

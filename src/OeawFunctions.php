@@ -666,6 +666,10 @@ class OeawFunctions {
             if(!empty($data->getPID())){
                 $arrayObject->offsetSet('pid', $data->getPID());
             }
+            if(!empty($data->getAccessRestriction())){
+                $arrayObject->offsetSet('accessRestriction', $data->getAccessRestriction());
+            }
+            
             if(!empty($data->getType())){
                 $arrayObject->offsetSet('acdh_rdf:type', $data->getType() );
             }
@@ -682,6 +686,27 @@ class OeawFunctions {
         return $obj;
     }
     
+    /**
+     * 
+     * Convers the sparql result contributors, authors, creators data to fit our spec. Obj
+     * 
+     * @param array $data
+     * @return array
+     */
+    public function createContribAuthorData(array $data): array {
+        $result = array();
+        $oeawStorage = new OeawStorage();
+        foreach ($data as $d) {
+            $title = $oeawStorage->getTitleByIdentifier($d);
+            if(count($title) > 0){
+                if(!empty($title[0]['title'])) {
+                    $result[] = array("title" => $title[0]['title'], "insideUri" => $this->detailViewUrlDecodeEncode($d, 1));
+                }
+            }
+        }
+        return $result;
+        
+    }
 
     /**
      * 
@@ -1145,6 +1170,7 @@ class OeawFunctions {
             $arrayObject->offsetSet('types', $d['types']);
             $arrayObject->offsetSet('identifier', $d['identifier']);
             $arrayObject->offsetSet('insideUri', $this->detailViewUrlDecodeEncode($id, 1));
+            $arrayObject->offsetSet('accessRestriction', $d['accessRestriction']);
             
             if(isset($d['uri'])){
                 $arrayObject->offsetSet('typeName', explode(RC::get('fedoraVocabsNamespace'), $d['types'])[1]);
@@ -1212,7 +1238,7 @@ class OeawFunctions {
                 
                 if(get_class($val) == "EasyRdf\Resource" ){
                     $classUri = $val->getUri();
-                    //var_dump($val->getGraph()->get(RC::titleProp()));
+                    
                     if($p == RC::get("drupalRdfType"));{
                         if (strpos($val->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false) {
                             $result['acdh_rdf:type']['title'] = $val->localName();
@@ -1220,7 +1246,6 @@ class OeawFunctions {
                             $result['acdh_rdf:type']['uri'] = $val->__toString();
                         }
                     }
-                    
                     $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
                     
                     //we will skip the title for the resource identifier
@@ -1331,8 +1356,6 @@ class OeawFunctions {
         $result['uri'] = $resourceUri;
         $result['insideUri'] = $this->detailViewUrlDecodeEncode($resourceIdentifier, 1);
         
-        
-
         $arrayObject->offsetSet('table', $result['table']);
         $arrayObject->offsetSet('title', $resourceTitle->__toString());
         $arrayObject->offsetSet('uri', $this->detailViewUrlDecodeEncode($resourceIdentifier, 0));
@@ -1341,6 +1364,9 @@ class OeawFunctions {
         $arrayObject->offsetSet('acdh_rdf:type', array("title" => $result['acdh_rdf:type']['title'], "insideUri" => $result['acdh_rdf:type']['insideUri']));
         $arrayObject->offsetSet('fedoraUri', $resourceUri);
         $arrayObject->offsetSet('identifiers', $rsId);
+        if(isset($result['table']['acdh:hasAccessRestriction']) && !empty($result['table']['acdh:hasAccessRestriction'][0]) ){
+            $arrayObject->offsetSet('accessRestriction', $result['table']['acdh:hasAccessRestriction'][0]);
+        }
         $arrayObject->offsetSet('insideUri', $this->detailViewUrlDecodeEncode($resourceIdentifier, 1));
         if(isset($result['image'])){
             $arrayObject->offsetSet('imageUrl', $result['image']);
@@ -1675,7 +1701,8 @@ class OeawFunctions {
         }else{
             //there is no special children view, so we are using the the default children table
             $childrenData = $oeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
-        }        
+        }
+
         //we have children data so we will generate the view for it
         if(count($childrenData) > 0){
             try {

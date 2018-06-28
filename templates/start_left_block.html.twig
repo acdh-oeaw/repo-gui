@@ -5,23 +5,23 @@
     {% for item in result %}
         <div class="res-el col-block col-lg-12">
 		
-        {% if item.image %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
+        {% if item.imageUrl %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
    
             {% if item.title %}
                 <div class="res-property">
-                    <span class="res-title"><a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">{{ item.title }}</a></span>
+                    <span class="res-title">
+                        {%  if item.getAccessRestriction() %}
+                            {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': item.getAccessRestriction()|lower } ) }}
+                        {% endif%}
+                        <a href="{{ url('<front>') }}oeaw_detail/{{ item.insideUri }}">{{ item.title }}</a></span>
                 </div>
             {% endif%}    
 
-            {% if item.rdfType %}
+            {% if item.getType() %}
                 <div class="res-property">
                     <i class="material-icons">&#xE54E;</i>
                     Type: 
-                    {% for key,value in item.rdfType %}
-                        {% if key == "typeName" %}
-                            <span class="res-rdfType"><a href="{{ url('<front>') }}oeaw_complexsearch/&type={{ value }}/10">{{ value }}</a></span>
-                        {% endif %}
-                    {% endfor %}
+                    <span class="res-rdfType"><a href="{{ url('<front>') }}oeaw_complexsearch/&type={{ item.getType() }}/10">{{ item.getType() }}</a></span>
                 </div>
             {% endif%}
             
@@ -55,22 +55,22 @@
                 </div>
             {% endif%}
             
-            {% if item.authors %}
+            {% if item.table['authors'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FB;</i>
-                    Author(s):
-                    {% for author in item.authors %}  	
-                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ author.authorUri }}">{{ author.authorName }}</a></span>
+                    <span class="res-prop-label">Author(s): </span>
+                    {% for author in item.table['authors'] %}  	
+                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ author.insideUri }}">{{ author.title }}</a></span>
                     {% endfor %}	
                 </div>
             {% endif%}
-
-            {% if item.contributors %}
+            
+            {% if item.table['contributors'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FE;</i>
-                    Contributor(s):
-                    {% for contributor in item.contributors %}  	
-                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ contributor.contributorUri }}">{{ contributor.contributorName }}</a></span>
+                    <span class="res-prop-label">Contributor(s): </span>
+                    {% for contributor in item.table['contributors']%}  	
+                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ contributor.insideUri }}">{{ contributor.title }}</a></span>
                     {% endfor %}	
                 </div>
             {% endif%}
@@ -93,7 +93,7 @@
                 {% endif%}
 
                 <div class="res-act-button">
-                    <a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}">
+                    <a href="{{ url('<front>') }}oeaw_detail/{{ item.insideUri }}">
                         <i class="material-icons">&#xE873;</i>
                         <span>Detailed View </span>
                     </a>	
@@ -106,12 +106,12 @@
                 </div>
                 -->            	
             </div>           
-            {% if item.image %}</div>{% endif%}
+            {% if item.imageUrl %}</div>{% endif%}
 
-            {% if item.image %}	
+            {% if item.imageUrl %}	
                 <div class="res-inside-wrap col-lg-4 ">	
                     <div class="single-res-thumb">
-                        <a href="{{ url('<front>') }}oeaw_detail/{{ item.resUri }}"><img src="{{ item.image }}"></a>
+                        <a href="{{ url('<front>') }}oeaw_detail/{{ item.insideUri }}"><img src="{{ item.imageUrl }}"></a>
                     </div>
                 </div>
             {% endif%}   

@@ -18,6 +18,7 @@ class OeawResourceChildren {
     private $identifier;
     private $insideUri;
     private $typeName;
+    private $accessRestriction = 'public';
     public $errors = array();
     
     public function __construct(\ArrayObject $arrayObj) {
@@ -34,6 +35,7 @@ class OeawResourceChildren {
                 ($objIterator->key() == "identifier") ? $this->identifier = $objIterator->current() : NULL ;
                 ($objIterator->key() == "insideUri") ? $this->insideUri = $objIterator->current() : NULL;
                 ($objIterator->key() == "typeName") ? $this->typeName = $objIterator->current() : NULL;
+                ($objIterator->key() == "accessRestriction") ? $this->accessRestriction = $objIterator->current() : 'public' ;
                 $objIterator->next();
             }
             
@@ -90,5 +92,8 @@ class OeawResourceChildren {
         return $this->typeName;
     }
     
+    public function getAccessRestriction(){
+        return $this->accessRestriction;
+    }
     
 }

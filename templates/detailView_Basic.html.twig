@@ -3,10 +3,15 @@
     <!---- TITLE --->
     {%  if result.title %}
         <div class="res-property">
-            <span class="res-title">{{ result.title }}</span>
+            <span class="res-title">
+                {%  if result.getAccessRestriction() %}
+                    {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
+                {% endif%}
+                {{ result.title }}
+            </span>
         </div>
     {% endif%} 
-
+    
     <!---- TYPE --->
     {% if result.type %}
         <div class="res-property">
@@ -95,8 +100,8 @@
     {% endif%}
 
      <!---- ACCESS RESTRICTION --->
-    {%  if result.table['acdh:hasAccessRestriction'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasAccessRestriction'], 'icon': "verified_user", 'label': "Access Restriction" } ) }}
+    {%  if result.getAccessRestriction() %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.getAccessRestriction(), 'icon': "verified_user", 'label': "Access Restriction" } ) }}
     {% endif%}
    
     <!---- schema --->

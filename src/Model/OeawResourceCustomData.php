@@ -24,6 +24,7 @@ class OeawResourceCustomData {
     private $bpKeys = array();
     private $extendedProperties = array();
     private $epKeys = array();
+    private $accessRestriction = 'public';
     public $errors = array();
     
     public static $availableCustomViews = array(
@@ -45,6 +46,7 @@ class OeawResourceCustomData {
                 ($objIterator->key() == "typeUri") ? $this->typeUri = $objIterator->current() : NULL;
                 ($objIterator->key() == "basicProperties") ? $this->basicProperties = $objIterator->current() : NULL;
                 ($objIterator->key() == "extendedProperties") ? $this->extendedProperties = $objIterator->current() :  NULL;
+                ($objIterator->key() == "accessRestriction") ? $this->accessRestriction = $objIterator->current() : 'public' ;
                 $objIterator->next();
             }
             
@@ -199,4 +201,7 @@ class OeawResourceCustomData {
         return $this->extendedProperties;
     }
     
+    public function getAccessRestriction(){
+        return $this->accessRestriction;
+    }
 }
