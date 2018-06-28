@@ -139,7 +139,7 @@ class FrontendController extends ControllerBase  {
                 
                 $arrayObject = new \ArrayObject();
                 $arrayObject->offsetSet('title', $value['title']);
-                $tblArray['title'] = $value['title'];
+                
                 $resourceIdentifier = $this->oeawFunctions->createDetailViewUrl($value);
                 $arrayObject->offsetSet('uri', $resourceIdentifier);
                 $arrayObject->offsetSet('fedoraUri', $value['uri']);
@@ -169,6 +169,9 @@ class FrontendController extends ControllerBase  {
                     if($imageUrl){ $arrayObject->offsetSet('imageUrl', $imageUrl); }
                 }
                 
+                if(count($tblArray) == 0){
+                    $tblArray['title'] = $value['title'];
+                }
                 
                 $arrayObject->offsetSet('table', $tblArray);
            
@@ -589,8 +592,7 @@ class FrontendController extends ControllerBase  {
             if(count($res) > 0){
                 
                 foreach($res as $r){
-                    $authors = array();
-                    $contribs = array();
+                    $tblArray = array();
                     
                     $arrayObject = new \ArrayObject();
                     $arrayObject->offsetSet('title', $r['title']);
@@ -612,18 +614,18 @@ class FrontendController extends ControllerBase  {
                     
                     if(isset($r['authors']) && !empty($r['authors'])){
                         $authArr = explode(',', $r['authors']);
-                        $authors[] = $this->oeawFunctions->createContribAuthorData($authArr);
+                        $tblArray['authors'] = $this->oeawFunctions->createContribAuthorData($authArr);
                     }
                     
                     if(isset($r['contribs']) && !empty($r['contribs'])){
                         $contrArr = explode(',', $r['contribs']);
-                        $contribs[] = $this->oeawFunctions->createContribAuthorData($contrArr);
+                        $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
                     }
                     
-                    $arrayObject->offsetSet('table', array( 
-                        "title" => $r['title'], "authors" => $authors, "contributors" => $contribs
-                        )
-                    );
+                    if(count($tblArray) == 0){
+                        $tblArray['title'] = $r['title']; 
+                    }
+                    $arrayObject->offsetSet('table', $tblArray);
                 
                     if(isset($r['image']) && !empty($r['image'])){
                         $arrayObject->offsetSet('imageUrl', $r['image']);
