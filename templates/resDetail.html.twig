@@ -268,6 +268,9 @@
 
                     <div class="res-property">
                         <span class="res-title">
+                            {%  if cItem.getAccessRestriction() %}
+                                {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': cItem.getAccessRestriction()|lower } ) }}
+                            {% endif%}
                             <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">                                         
                                 {{ cItem.title }}
                             </a>

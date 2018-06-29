@@ -202,6 +202,11 @@ class OeawResourceCustomData {
     }
     
     public function getAccessRestriction(){
-        return $this->accessRestriction;
+        if( (strtolower($this->getType()) == "collection") || 
+            (strtolower($this->getType()) == "resource") || 
+            (strtolower($this->getType()) == "metadata") ){
+            return $this->accessRestriction;
+        }
+        return '';
     }
 }

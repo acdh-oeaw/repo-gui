@@ -93,7 +93,12 @@ class OeawResourceChildren {
     }
     
     public function getAccessRestriction(){
-        return $this->accessRestriction;
+        if( (strtolower($this->getTypeName()) == "collection") || 
+            (strtolower($this->getTypeName()) == "resource") || 
+            (strtolower($this->getTypeName()) == "metadata") ){
+            return $this->accessRestriction;
+        }
+        return '';
     }
     
 }

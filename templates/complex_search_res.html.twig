@@ -58,26 +58,6 @@
                 </div>
             {% endif%}    
 
-            {% if item.table['authors'] %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE7FB;</i>
-                    <span class="res-prop-label">Author(s): </span>
-                    {% for author in item.table['authors'] %}  	
-                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ author.insideUri }}">{{ author.title }}</a></span>
-                    {% endfor %}	
-                </div>
-            {% endif%}
-
-            {% if item.table['contributors'] %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE7FE;</i>
-                    <span class="res-prop-label">Contributor(s): </span>
-                    {% for contributor in item.table['contributors']%}  	
-                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ contributor.insideUri }}">{{ contributor.title }}</a></span>
-                    {% endfor %}	
-                </div>
-            {% endif%}
-
            
             {% if item.type %}
                 <div class="res-property">
@@ -105,6 +85,26 @@
                 </div>
             {% endif%}            
             
+            {% if item.table['authors'] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE7FB;</i>
+                    <span class="res-prop-label">Author(s): </span>
+                    {% for author in item.table['authors'] %}  	
+                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ author.insideUri }}">{{ author.title }}</a></span>
+                    {% endfor %}	
+                </div>
+            {% endif%}
+
+            
+            {% if item.table['contributors'] %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE7FE;</i>
+                    <span class="res-prop-label">Contributor(s): </span>
+                    {% for contributor in item.table['contributors']%}  	
+                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ contributor.insideUri }}">{{ contributor.title }}</a></span>
+                    {% endfor %}	
+                </div>
+            {% endif%}
             
             {% if item.description %}
                 <div class="res-property res-property-desc">
