@@ -1208,8 +1208,9 @@ class OeawFunctions {
         //get the resource Title
         $resourceTitle = $data->get(RC::get('fedoraTitleProp'));
         $resourceUri = $data->getUri();
-        $resourceIdentifier = $data->get(RC::get('fedoraIdProp'))->getUri();
         $resourceIdentifiers = $data->all(RC::get('fedoraIdProp'));
+        $resourceIdentifier = Helper::getAcdhIdentifier($resourceIdentifiers);
+        
         $rsId = array();
         if(count($resourceIdentifiers) > 0){
             foreach ($resourceIdentifiers as $ids){
