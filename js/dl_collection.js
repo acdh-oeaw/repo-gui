@@ -98,8 +98,6 @@ jq2(function( $ ) {
                     
                     //check the rights
                     if( ((resourceRestriction != 'public') &&  resourceRestriction != actualUserRestriction) && actualUserRestriction != 'admin' ){
-                        console.log("itt");
-                        console.log(actualUserRestriction);
                         //if the user doesnt have any rights on the resource then we will make it unreachable to download
                         $('#'+id+" > a").removeClass();
                         $('#'+id+" > a").addClass("jstree-anchor jstree-disabled");
