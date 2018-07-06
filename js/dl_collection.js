@@ -55,7 +55,6 @@ jq2(function( $ ) {
                     whole_node : false
                 },
                 plugins : [ 'checkbox' ],
-		
 	})
         //handle the node clicking to download the file
         .on("changed.jstree", function (node, data) {
@@ -158,15 +157,13 @@ jq2(function( $ ) {
                 }
             }
         });
-        
     });
 
     jq2(window).load(function() {
         //jq2("#loader").delay(3000).fadeOut("fast");
         jq2("#loader-div").hide();
     });
-
-
+    
     //prepare the zip file
     jq2( "#getCollectionData" ).click(function(e) {
         jq2("#loader-div").show();
@@ -180,8 +177,9 @@ jq2(function( $ ) {
         
         jq2.each(selectedItems, function(index, value) {
             uriStr += value.uri_dl+"__";
+            
             var resArr = {};
-            resArr['uri'] = value.uri_dl;
+            resArr['uri'] = value.uri;
             resArr['filename'] = value.filename;
             myObj[index] = resArr;
 	});

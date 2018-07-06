@@ -1075,9 +1075,10 @@ class FrontendController extends ControllerBase  {
         $result = array();
         $errorMSG = "";
         $GLOBALS['resTmpDir'] = "";
+        //the binary files
         $binaries = array();
         $binaries = json_decode($_POST['jsonData'], true);
-        
+      
         //the main dir
         $tmpDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/';
         //the collection own dir
@@ -1105,7 +1106,7 @@ class FrontendController extends ControllerBase  {
             foreach($binaries as $b){
                 try {
                     //if we have filename then save it
-                    if(isset($b['filename'])){
+                    if(isset($b['filename']) && isset($b['uri'])){
                         $filename = ltrim($b['filename']);
                         //remove spaces from the filenames
                         $filename = str_replace(' ', "_", $filename);
@@ -1114,14 +1115,14 @@ class FrontendController extends ControllerBase  {
                             if (!file_exists($GLOBALS['resTmpDir'])){ mkdir($GLOBALS['resTmpDir'], 0777);}
                             $resource = fopen($GLOBALS['resTmpDir'].'/'.$filename, 'w');
                             $stream = \GuzzleHttp\Psr7\stream_for($resource);
-                            $client->request('GET', base64_decode($b['uri']), ['save_to' => $stream]);
+                            $client->request('GET', $b['uri'], ['save_to' => $stream]);
                             chmod($GLOBALS['resTmpDir'].'/'.$filename, 0777);
                         }else{
                             //if the file is not exists
                             if(!file_exists($GLOBALS['resTmpDir'].'/'.$filename)){
                                 $resource = fopen($GLOBALS['resTmpDir'].'/'.$filename, 'w');
                                 $stream = \GuzzleHttp\Psr7\stream_for($resource);
-                                $client->request('GET', base64_decode($b['uri']), ['save_to' => $stream]);
+                                $client->request('GET', $b['uri'], ['save_to' => $stream]);
                                 chmod($GLOBALS['resTmpDir'].'/'.$filename, 0777);
                             }
                         }
