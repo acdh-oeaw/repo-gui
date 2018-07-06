@@ -3,6 +3,7 @@
 namespace Drupal\oeaw\Model;
 
 use Drupal\oeaw\ConfigConstants as CC;
+use acdhOeaw\util\RepoConfig as RC;
 
 /**
  * 
@@ -32,6 +33,8 @@ class OeawResourceCustomData {
     );
     
     public function __construct(\ArrayObject $arrayObj) {
+        
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         
         if (is_object($arrayObj) || !empty($arrayObj)) {
             $objIterator = $arrayObj->getIterator();
@@ -208,5 +211,25 @@ class OeawResourceCustomData {
             return $this->accessRestriction;
         }
         return '';
+    }
+    
+     public function getAcdhIdentifier(): string{
+        if (count($this->identifiers) > 0){
+            $uuid = "";
+            foreach($this->identifiers as $id){
+                if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
+                    $uuid = $id;
+                    //if the identifier is the normal acdh identifier then return it
+                }else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
+                    $this->insideUri = $id;
+                    return $id;
+                }
+            }
+            if(!empty($uuid)){
+                return $uuid;
+            }
+        }
+        return "";
+        
     }
 }
