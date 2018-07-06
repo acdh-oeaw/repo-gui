@@ -351,28 +351,28 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
     public function getCollectionBinaries(string $url): string{
         
         $query = "";
-        //?nUri <".RC::get('drupalRdfType')."> ?types .
         
-        $query = ' select ?uri ?title ?rootTitle ?binarySize ?filename (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
+        $query = ' select ?uri ?title ?rootTitle ?binarySize ?filename ?accessRestriction (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
         
         $query .= "where {  
             ?uri ( <".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* <".$url."> .
             FILTER(?uri = ?nUri){
-                select ?nUri ?title ?rootTitle  ?binarySize ?filename ?identifiers
+                select ?nUri ?title ?rootTitle  ?binarySize ?filename ?identifiers ?accessRestriction
                 where {
                     ?nUri <".RC::get('fedoraTitleProp')."> ?title .
                     ?nUri <".RC::get('fedoraRelProp')."> ?isPartOf .
                     ?nUri <".RC::get('fedoraIdProp')."> ?identifiers .
                     ?rUri <".RC::get('fedoraIdProp')."> ?isPartOf .
-                    ?rUri <".RC::get('fedoraTitleProp')."> ?rootTitle .
-                    OPTIONAL { 
+                    ?rUri <".RC::get('fedoraTitleProp')."> ?rootTitle .";
+            $query .= " OPTIONAL {?nUri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";        
+            $query .= " OPTIONAL { 
                         ?nUri <".RC::get('fedoraExtentProp')."> ?binarySize .
                         ?nUri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename . 
                     }
                 }
             }
         }
-        GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename
+        GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename ?accessRestriction
         ORDER BY ?filename ?title ?rootTitle
         ";
         return $query;

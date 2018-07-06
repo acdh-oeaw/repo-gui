@@ -98,9 +98,16 @@ function oeaw_theme() {
 function oeaw_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id){
  
     $form['#attached']['library'][] = 'oeaw/mylibrary';
-    $form['#attached']['drupalSettings']['oeaw']['mylibrary']['variable'] = 'value';
+    $form['#attached']['drupalSettings']['oeaw']['users']['id'] = \Drupal::currentUser()->id();
+    $roles = array();
+    $roles = \Drupal::currentUser()->getRoles();
+    if(count($roles) > 0){ $roles = implode(",", $roles); }
+    $form['#attached']['drupalSettings']['oeaw']['users']['roles'] = $roles;
 
     return $form;
-
 }
+
+
+
+?>
 

@@ -943,6 +943,7 @@ class FrontendController extends ControllerBase  {
             $errorMSG = "There is no valid URL";
         }else {
             $resData = $this->oeawFunctions->generateCollectionData($uri);
+           
             if(count($resData) == 0){
                 drupal_set_message(t('The collection doesnt exists!'), 'error', FALSE);   
                 return array();

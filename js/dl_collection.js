@@ -19,6 +19,25 @@ jq2(function( $ ) {
 */
     jq2(document).ready(function() {
 			
+        //var uid = Drupal.settings.currentUser;
+        var roles = drupalSettings.oeaw.users.roles;
+        var actualUserRestriction = 'public';
+        
+        if (roles !== ''){
+            if (roles.includes('administrator')) {
+                actualUserRestriction = 'admin';
+            }
+            if (roles.includes('academic')) {
+                actualUserRestriction = 'academic';
+            }
+            if (roles.includes('restricted')) {
+                actualUserRestriction = 'restricted';
+            }
+            if (roles.includes('anonymus')) {
+                actualUserRestriction = 'public';
+            }
+        }
+        
         var url = jq2('#insideUri').val();
         
         var sumSize = 0;
@@ -45,7 +64,15 @@ jq2(function( $ ) {
             if(data.selected.length == 1) {
                 //if we have a directory then do not open the fedora url
                 if(data.node.original.dir === false){
-                    window.location.href = data.instance.get_node(data.selected[0]).original.uri;
+                    //check the permissions for the file download
+                    var resourceRestriction = data.instance.get_node(data.selected[0]).original.accessRestriction;
+                    if( ((resourceRestriction != 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
+                        window.location.href = data.instance.get_node(data.selected[0]).original.uri;
+                    } else if( resourceRestriction == 'public'){
+                        window.location.href = data.instance.get_node(data.selected[0]).original.uri;
+                    }else {
+                        alert("Sorry! But you dont have enough rights to download it!");
+                    }
                 }
             }
         })
@@ -54,8 +81,9 @@ jq2(function( $ ) {
             jq2('#dl_link').hide();
             jq2('#dl_link_txt').hide();
             jq2('#getCollectionData').prop('disabled', false);
-            
+
             if(data.instance.get_checked(true)) {
+                
                 var formData = data.instance.get_checked(true);
                 sumSize = 0;
                 selectedItems = [];
@@ -66,15 +94,26 @@ jq2(function( $ ) {
                     var uri = value.original.uri;
                     var uri_dl = value.original.encodedUri;
                     var filename = value.original.filename;
+                    var resourceRestriction = value.original.accessRestriction;
+                    
+                    //check the rights
+                    if( ((resourceRestriction != 'public') &&  resourceRestriction != actualUserRestriction) ){
+                        //if the user doesnt have any rights on the resource then we will make it unreachable to download
+                        $('#'+id+" > a").removeClass();
+                        $('#'+id+" > a").addClass("jstree-anchor jstree-disabled");
+                    }
+                    
                     if(size && uri){
-                        selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
-                        sumSize += Number(size);
-                        if(sumSize > 1599999999){
-                            jq2("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " (Max zip download limit is 1.5GB)</p> ");
-                            jq2("#getCollectionDiv").hide();
-                        }else {
-                            jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" (Max zip download limit is 1.5GB) </p> ");   
-                            jq2("#getCollectionDiv").show();
+                        if( ((resourceRestriction == 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
+                            selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
+                            sumSize += Number(size);
+                            if(sumSize > 1599999999){
+                                jq2("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " (Max zip download limit is 1.5GB)</p> ");
+                                jq2("#getCollectionDiv").hide();
+                            }else {
+                                jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" (Max zip download limit is 1.5GB) </p> ");   
+                                jq2("#getCollectionDiv").show();
+                            }
                         }
                     }
                 });
@@ -100,15 +139,19 @@ jq2(function( $ ) {
                         var uri = value.original.uri;
                         var uri_dl = value.original.encodedUri;
                         var filename = value.original.filename;
+                        var resourceRestriction = value.original.accessRestriction;
+                        
                         if(size && uri){
-                            selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
-                            sumSize += Number(size);
-                            if(sumSize > 1599999999){
-                                jq2("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " (Max zip download limit is 1.5GB)</p> ");
-                                jq2("#getCollectionDiv").hide();
-                            }else {
-                                jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" (Max zip download limit is 1.5GB) </p> ");   
-                                jq2("#getCollectionDiv").show();
+                            if( ((resourceRestriction == 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
+                                selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
+                                sumSize += Number(size);
+                                if(sumSize > 1599999999){
+                                    jq2("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " (Max zip download limit is 1.5GB)</p> ");
+                                    jq2("#getCollectionDiv").hide();
+                                }else {
+                                    jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" (Max zip download limit is 1.5GB) </p> ");   
+                                    jq2("#getCollectionDiv").show();
+                                }
                             }
                         }
                     });

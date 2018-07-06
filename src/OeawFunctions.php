@@ -1496,6 +1496,11 @@ class OeawFunctions {
         $fedoraRes = array();
         $rootMeta = array();
         $resData = array();
+        
+        //if the id is not an acdh id
+        if (strpos($id, RC::get('fedoraIdNamespace')) === false) {
+            return $resData;
+        }
 
         try{
             //get the resource data 
@@ -1510,9 +1515,13 @@ class OeawFunctions {
             $binarySize = $rootMeta->get(RC::get('fedoraExtentProp'));
             $license = $rootMeta->get(RC::get('fedoraVocabsNamespace').'hasLicense');
             $isPartOf = $rootMeta->get(RC::get('fedoraRelProp'));
+            $accessRestriction = $rootMeta->get(RC::get('fedoraAccessRestrictionProp'));
             
             if(isset($title) && $title->getValue()){
                 $resData['title'] = $title->getValue();
+            }
+            if(isset($accessRestriction) && $accessRestriction->getValue()){
+                $resData['accessRestriction'] = $accessRestriction->getValue();
             }
             if(isset($filesNum) && $filesNum->getValue()){
                 $resData['filesNum'] = $filesNum->getValue();
@@ -1577,11 +1586,15 @@ class OeawFunctions {
             }else{
                 $cacheData = $cache->setCacheData($uri);
             }
-
+            
             if(count($cacheData) > 0){
                 foreach($cacheData as $k => $v){
                     if($v['binarySize']){
                         $cacheData[$k]['formSize'] = Helper::formatSizeUnits((string)$v['binarySize']);
+                    }
+                    if(isset($v['accessRestriction'])){
+                        if(empty($v['accessRestriction'])){ $v['accessRestriction'] = "public"; }
+                        $cacheData[$k]['accessRestriction'] = $v['accessRestriction'];
                     }
 
                     if($v['identifier']){
@@ -1608,11 +1621,10 @@ class OeawFunctions {
             }
 
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            $errorMSG = "Error during the url parsing";
+            return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
-            $errorMSG = "Error during the url parsing";
+            return array();
         }
-        
         return $resData;
     }
     
