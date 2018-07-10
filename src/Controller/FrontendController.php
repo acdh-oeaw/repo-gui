@@ -715,11 +715,23 @@ class FrontendController extends ControllerBase  {
                         $invData["data"] = array();
                     }else {
                         for ($index = 0; $index <= count($res) - 1; $index++) {
-                            if(!empty($res[$index]['inverse']) && !empty($res[$index]['title']) && !empty($res[$index]['insideUri'])){
+                            
+                            if( !empty($res[$index]['title']) && !empty($res[$index]['inverse']) && 
+                                ( isset($res[$index]['childId']) || isset($res[$index]['childUUID']) ||
+                                isset($res[$index]['externalId']) ) 
+                            ){
+                                
                                 $title = $res[$index]['title'];
-                                $insideUri = $res[$index]['insideUri'];
+                                if( !empty($res[$index]['childId']) ){
+                                    $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['childId'], 1); 
+                                }else if( !empty($res[$index]['childUUID']) ){
+                                    $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['childUUID'], 1); 
+                                }
+                                else if( !empty($res[$index]['externalId']) ){
+                                    $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['externalId'], 1); 
+                                }
                                 $invData["data"][$index] = array($res[$index]['inverse'], "<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
-                            }
+                                }
                         }
                     }
                 }
@@ -757,9 +769,20 @@ class FrontendController extends ControllerBase  {
                     $memberData["data"] = array();
                 }else {
                     for ($index = 0; $index <= count($res) - 1; $index++) {
-                        if( !empty($res[$index]['title']) && !empty($res[$index]['uri'])){
+                        
+                        if( !empty($res[$index]['title']) && 
+                                ( isset($res[$index]['childId']) || isset($res[$index]['childUUID']) ||
+                                isset($res[$index]['externalId']) ) ){
                             $title = $res[$index]['title'];
-                            $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['uri'], 1); 
+                            if( !empty($res[$index]['childId']) ){
+                                $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['childId'], 1); 
+                            }else if( !empty($res[$index]['childUUID']) ){
+                                $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['childUUID'], 1); 
+                            }
+                            else if( !empty($res[$index]['externalId']) ){
+                                $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['externalId'], 1); 
+                            }
+                            
                             $memberData["data"][$index] = array("<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
                         }
                     }

@@ -472,11 +472,12 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $value
      * @return array
      */
-    public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false): array {
+    public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false, $lang = "en"): array {
         
         if (empty($value) || empty($property)) {
             return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
         }
+        $lanf = strtolower($lang);
        if($offset < 0) { $offset = 0; }
        
         if(!filter_var($property, FILTER_VALIDATE_URL)){
@@ -501,49 +502,57 @@ class OeawStorage implements OeawStorageInterface {
         $getResult = array();
 
         try {
-            
-            $q = new Query();            
-            $q->addParameter((new HasValue($property, $value))->setSubVar('?uri'));
+            $where = "?uri ".$property." ".$value." . ";
             
             if($count == false){
-                //Query parameters for the properties we want to get, true stands for optional
-                $q->addParameter((new HasTriple('?uri', RC::titleProp(), '?title')), true);
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasAuthor'), '?author'), true);           
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasDescription'), '?descriptions'), true);
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfsLabel'), '?label'), true);
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasContributor'), '?contributor'), true);            
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasCreatedDate'), '?creationdate'), true);
-                $q->addParameter(new HasTriple('?uri', RC::get('fedoraRelProp'), '?isPartOf'), true);
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalRdfType'), '?rdfType'), true);
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasFirstName'), '?firstName'), true);
-                $q->addParameter(new HasTriple('?uri', RC::get('drupalHasLastName'), '?lastName'), true);
-                $q->addParameter(new HasTriple('?uri', '<http://fedora.info/definitions/v4/repository#created>', '?fdCreated'), true);
-                //Select and aggregate multiple sets of values into a comma seperated string
-                $q->setSelect(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', $this->modelFunctions->convertFieldDate("fdCreated", "fdCreated", 0), 
-                    '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)', '(GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors)', 
-                    '(GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors)', '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes)'));
-                $q->setGroupBy(array('?uri', '?title', '?label', '?creationdate', '?isPartOf', '?firstName', '?lastName', '?fdCreated'));
-                //If it's a person order by their name, if not by resource title
-                if ($value == RC::get('drupalPerson') ) {
-                        $q->setOrderBy(array('?firstName'));
-                } else {
-                        $q->setOrderBy(array('?title'));
-                }
-                $q->setLimit($limit);
-                $q->setOffset($offset); 
-            }else {
-                $q->setSelect(array('(COUNT(?uri) as ?count)'));
-                $q->setOrderBy(array('?uri'));
-            }                       
+                 $select  = 'SELECT  
+                            ?uri ?title ?label ?creationdate ?isPartOf ?firstName ?lastName  
+                            (CONCAT ( STR( DAY(?fdCreated)), "-", STR( MONTH(?fdCreated)), "-", STR( YEAR(?fdCreated))) as ?fdCreated) 
+                            (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) 
+                            (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
+                            (GROUP_CONCAT(DISTINCT ?contributor;separator=",") AS ?contributors) 
+                            (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
+                        WHERE { ';
             
-            $query = $q->getQuery();
+                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true );
+                //$where .= " OPTIONAL { ?uri <".RC::get('fedoraTitleProp')."> ?title . } ";
+                $where .= " OPTIONAL { ?uri <".RC::get('drupalHasAuthor')."> ?author . } ";
+                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
+                //$where .= " OPTIONAL { ?uri <".RC::get('drupalHasDescription')."> ?descriptions . } ";
+                $where .= " OPTIONAL { ?uri <".RC::get('drupalRdfsLabel')."> ?label . } ";
+                $where .= " OPTIONAL { ?uri <".RC::get('drupalHasContributor')."> ?contributor . } ";
+                $where .= " OPTIONAL { ?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
+                $where .= " OPTIONAL { ?uri <".RC::get('fedoraRelProp')."> ?isPartOf . } ";
+                $where .= " OPTIONAL { ?uri <".RC::get('drupalRdfType')."> ?rdfType . } ";
+                $where .= " OPTIONAL { ?uri <".RC::get('drupalHasFirstName')."> ?firstName . } ";
+                $where .= " OPTIONAL { ?uri <".RC::get('drupalHasLastName')."> ?lastName . } ";
+                $where .= " OPTIONAL { ?uri <http://fedora.info/definitions/v4/repository#created> ?fdCreated . } ";
+                $where .= " OPTIONAL { ?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
+                $where .= " } ";
+                $groupby = "GROUP BY ?uri ?title ?label ?creationdate ?isPartOf ?firstName ?lastName ?fdCreated ";
+                if($limit == 0){ $limit = 10; }
+                $limit = "LIMIT $limit ";
+                $offset = "OFFSET $offset ";
+                if ($value == RC::get('drupalPerson') ) {
+                    $orderby = "ORDER BY ?firstName ";
+                } else {
+                    $orderby = "ORDER BY ?title ";
+                }
+                
+                $query = $select.$where.$groupby.$orderby.$limit.$offset;
+                
+            }else {
+                $select = "SELECT COUNT(?uri) as ?count) WHERE { ";
+                $orderby = "ORDER BY ?uri ";
+                $query = $select.$where.$groupby.$orderby;
+            }
+            
 
             $result = $this->fedora->runSparql($query);
-            
             $fields = $result->getFields(); 
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
 
-            return $getResult;                
+            return $getResult;
         
         } catch (\Exception $ex) {            
             throw new \Exception($ex->getMessage());
@@ -569,28 +578,27 @@ class OeawStorage implements OeawStorageInterface {
         
         try {
             
-            $query=
-                self::$prefixes . ' 
-                    SELECT 
+            $select = "SELECT 
                         ?id ?collection 
-                    WHERE {
-                            ?class a owl:Class .
-                            ?class dct:identifier ?id .
-                            OPTIONAL {
-                              {
-                                {?class rdfs:subClassOf* <'.RC::get('drupalCollection').'>}
-                                UNION
-                                {?class rdfs:subClassOf* <'.RC::get('drupalDigitalCollection').'>}
-                                UNION
-                                {?class dct:identifier <'.RC::get('drupalCollection').'>}
-                                UNION
-                                {?class dct:identifier <'.RC::get('drupalDigitalCollection').'>}
-                              }
-                              VALUES ?collection {true}
+                    WHERE { ";
+            
+            
+            $where = " ?class a owl:Class . ";
+            $where .= " OPTIONAL {
+                              { ";
+            $where .= " {?class rdfs:subClassOf* <'.RC::get('drupalCollection').'>} ";
+            $where .= " UNION ";
+            $where .= " {?class rdfs:subClassOf* <'.RC::get('drupalDigitalCollection').'>} ";
+            $where .= " UNION ";
+            $where .= " {?class dct:identifier <'.RC::get('drupalCollection').'>} ";
+            $where .= " {?class dct:identifier <'.RC::get('drupalDigitalCollection').'>} ";
+            $where .= " } ";
+            $where .= " VALUES ?collection {true}
                             }
-                        }
-            ';
-      
+                        } ";
+            
+            $query = self::$prefixes . $select.$where; 
+            
             $result = $this->fedora->runSparql($query);
             $fields = $result->getFields(); 
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
@@ -747,58 +755,58 @@ class OeawStorage implements OeawStorageInterface {
         $lang = strtolower($lang);
         
         $rdfsDomain = self::$sparqlPref["rdfsDomain"];
-        $owlCardinality = self::$sparqlPref["owlCardinality"];
-        $owlMinCardinality = self::$sparqlPref["owlMinCardinality"];
-        $owlMaxCardinality = self::$sparqlPref["owlMaxCardinality"];
         
-        
-        $string = "
+        $select = "
             SELECT  
                 ?prop ?propID ?propTitle ?cardinality ?minCardinality ?maxCardinality ?range (GROUP_CONCAT(DISTINCT ?comments;separator=',') AS ?comment)
             WHERE 
             {
                 {";
+        
         //where the person id a subclassof
-        $string .= "        
-            <".$classURI."> <".RC::get('fedoraTitleProp')."> ?classTitle .            
-            <".$classURI."> (rdfs:subClassOf / ^<https://vocabs.acdh.oeaw.ac.at/schema#hasIdentifier>)* / rdfs:subClassOf ?class . 
-        ";
-        $string .= "
-            ?prop <".$rdfsDomain."> ?class .
-            ?prop <".RC::idProp()."> ?propID .";
-        $string .= $this->modelFunctions->filterLanguage("prop", RC::get('fedoraTitleProp'), "propTitle", $lang, false );
+        $where = "  <".$classURI."> <".RC::get('fedoraTitleProp')."> ?classTitle . ";
+        $where .= " <".$classURI."> (rdfs:subClassOf / ^<https://vocabs.acdh.oeaw.ac.at/schema#hasIdentifier>)* / rdfs:subClassOf ?class . ";
+        
+        $where .= " ?prop <".$rdfsDomain."> ?class . ";
+        $where .= " ?prop <".RC::idProp()."> ?propID . ";
+        $where .= $this->modelFunctions->filterLanguage("prop", RC::get('fedoraTitleProp'), "propTitle", $lang, false );
         $optionals = "";
         $optionals = "
             OPTIONAL{ 
-                SELECT  * WHERE { ?prop <".$owlCardinality."> ?cardinality .}
-            }
+                SELECT  * WHERE { ?prop <".RC::get('drupalOwlCardinality')."> ?cardinality .}
+            }";
+        $optionals .="
             OPTIONAL { 
-                SELECT  * WHERE { ?prop <".$owlMinCardinality."> ?minCardinality .}
-            }
+                SELECT  * WHERE { ?prop <".RC::get('drupalOwlMinCardinality')."> ?minCardinality .}
+            }";
+        $optionals .="
             OPTIONAL {
                 SELECT  * WHERE { ?prop <http://www.w3.org/2000/01/rdf-schema#range> ?range .}
-            }
-            OPTIONAL {
-                SELECT  * WHERE { ?prop <".$owlMaxCardinality."> ?maxCardinality .}
             }";
+        $optionals .="
+            OPTIONAL {
+                SELECT  * WHERE { ?prop <".RC::get('drupalOwlMaxCardinality')."> ?maxCardinality .}
+            }";
+        
         $optionals .= $this->modelFunctions->filterLanguage("prop", RC::get('drupalRdfsComment'), "comments", $lang, true );
-        $string .= $optionals;
+        $where .= $optionals;
         
-        $string .="
-            } UNION {
-                <".$classURI."> <".RC::idProp()."> ?classID .
-                ?prop <".$rdfsDomain."> ?classID .
-                ?prop <".RC::idProp()."> ?propID .";
-        $string .= $this->modelFunctions->filterLanguage("prop", RC::get('fedoraTitleProp'), "propTitle", $lang, false );
-        $string .= $optionals;
+        $where .="
+            } UNION { ";
+        $where .=" <".$classURI."> <".RC::idProp()."> ?classID . ";
+        $where .= " ?prop <".$rdfsDomain."> ?classID . ";
+        $where .= " ?prop <".RC::idProp()."> ?propID .";
+        $where .= $this->modelFunctions->filterLanguage("prop", RC::get('fedoraTitleProp'), "propTitle", $lang, false );
+        $where .= $optionals;
         
-        $string .= " } }"
-                . "GROUP BY ?prop ?propID ?propTitle ?cardinality ?minCardinality ?maxCardinality ?range
-                    ORDER BY ?propID";
+        $where .= " } }";
+        $groupby =" GROUP BY ?prop ?propID ?propTitle ?cardinality ?minCardinality ?maxCardinality ?range ";
+        $orderby =" ORDER BY ?propID ";
         
+        $query = $select.$where.$groupby.$orderby;
         try {
             
-            $q = new SimpleQuery($string);
+            $q = new SimpleQuery($query);
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
@@ -915,23 +923,38 @@ class OeawStorage implements OeawStorageInterface {
         $result = array();
         $select = "";
         $where = "";
-        $limitStr = "";
         $queryStr = "";
+        
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         
-            $select = 'SELECT ?uri ?title ';
-        
-        $where = '
-            WHERE {
-                <'.$uri.'> <'.RC::get("fedoraIdProp").'> ?id .
-                ?uri <'.RC::get('drupalIsMember').'> ?id . ';
+        $select = 'SELECT ?uri ?title  ?childId ?childUUID ?externalId WHERE { ';
+        $where = '<'.$uri.'> <'.RC::get("fedoraIdProp").'> ?id . ';
+        $where .= '?uri <'.RC::get('drupalIsMember').'> ?id . ';
+        //$where .= '?uri <'.RC::get('fedoraTitleProp').'> ?title . ';
         $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+        $where .= ' OPTIONAL { '
+                . ' ?uri  <'.RC::get("fedoraIdProp").'> ?childId . '
+                . ' FILTER regex(str(?childId),"id.acdh.oeaw.ac.at","i") . '
+                . ' FILTER (!regex(str(?childId),"id.acdh.oeaw.ac.at/uuid","i")) .'
+                . ' } ';
+        
+        $where .= ' OPTIONAL { '
+                . ' ?uri  <'.RC::get("fedoraIdProp").'> ?childUUID . '
+                . ' FILTER regex(str(?childUUID),"id.acdh.oeaw.ac.at/uuid","i") . '
+                . ' } ';
+        
+        $where .= ' OPTIONAL { '
+                . ' ?uri  <'.RC::get("fedoraIdProp").'> ?externalId . '
+                . ' FILTER (!regex(str(?externalId),"id.acdh.oeaw.ac.at","i")) .'
+                . ' } ';
+        
         $where .= ' } ';
         
-        $groupBy = ' GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' GROUP BY ?uri ?title ?childId ?childUUID ?externalId  ORDER BY ASC( fn:lower-case(?title)) ';
         
-        $queryStr = $select.$where.$groupBy.$limitStr;
+        $queryStr = $prefix.$select.$where.$groupBy;
         
+
         try {
             $q = new SimpleQuery($queryStr);
             $query = $q->getQuery();
@@ -939,8 +962,8 @@ class OeawStorage implements OeawStorageInterface {
             
             $fields = $res->getFields(); 
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
-            
             return $result;
+            
 
         } catch (\Exception $ex) {
             return $result;
@@ -1164,18 +1187,38 @@ class OeawStorage implements OeawStorageInterface {
         
         $result = array();
         
-        $where .= '<'.$url.'> <'.RC::get("fedoraIdProp").'> ?obj .'
-                . '?uri ?prop ?obj .'
-                . 'MINUS { ?uri <'.RC::get("fedoraIdProp").'> ?obj  } . MINUS { ?uri <'.RC::get("fedoraRelProp").'> ?obj  } . '
-                . '?propUri <'.RC::get("fedoraIdProp").'> ?prop .'
-                . '?propUri <'.RC::get("drupalOwlInverseOf").'> ?inverse .';
+        $where = ' <'.$url.'> <'.RC::get("fedoraIdProp").'> ?obj . ';
+        $where .=  ' ?uri ?prop ?obj . ';
+        $where .= ' MINUS { ?uri <'.RC::get("fedoraIdProp").'> ?obj  } . ';
+        $where .= ' MINUS { ?uri <'.RC::get("fedoraRelProp").'> ?obj  } . ';
+        $where .= ' ?propUri <'.RC::get("fedoraIdProp").'> ?prop . ';
+        $where .= ' ?propUri <'.RC::get("drupalOwlInverseOf").'> ?inverse . ';
+        $where .= ' OPTIONAL { '
+                . ' ?uri  <'.RC::get("fedoraIdProp").'> ?childId . '
+                . ' FILTER regex(str(?childId),"id.acdh.oeaw.ac.at","i") . '
+                . ' FILTER (!regex(str(?childId),"id.acdh.oeaw.ac.at/uuid","i")) .'
+                . ' } ';
+
+        $where .= ' OPTIONAL { '
+                . ' ?uri  <'.RC::get("fedoraIdProp").'> ?childUUID . '
+                . ' FILTER regex(str(?childUUID),"id.acdh.oeaw.ac.at/uuid","i") . '
+                . ' } ';
+
+        $where .= ' OPTIONAL { '
+                . ' ?uri  <'.RC::get("fedoraIdProp").'> ?externalId . '
+                . ' FILTER (!regex(str(?externalId),"id.acdh.oeaw.ac.at","i")) .'
+                . ' } ';
                 
         $select = '
-            select DISTINCT ?uri ?prop ?obj ?inverse where { ';
+            select DISTINCT ?uri ?prop ?obj ?inverse ?childId ?childUUID ?externalId  where { ';
         $end = ' } ';
         
-        $string = $select.$where.$end;
+        $groupBy = ' GROUP BY ?uri ?prop ?obj ?inverse ?childId ?childUUID ?externalId  ORDER BY ASC( fn:lower-case(?uri)) ';
         
+        $string = $select.$where.$end.$groupBy;
+        
+
+
         try {
             $q = new SimpleQuery($string);
             $query = $q->getQuery();
@@ -1587,7 +1630,8 @@ class OeawStorage implements OeawStorageInterface {
                 
                 if($dissemination == true){
                     $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
-                    $where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
+                    $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
+                    //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
                     $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
                 }
                 
