@@ -42,9 +42,11 @@ class ApiCheckACDHIdentifierResource extends ResourceBase {
      */
     
     /**
-    * Responds to entity GET requests.
-    * @return \Drupal\rest\ResourceResponse
-    */
+     * Responds to entity GET requests.
+     * 
+     * @param string $identifier
+     * @return JsonResponse
+     */
     public function get(string $identifier) {
         
         if(empty($identifier)){

@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>API Documentation</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">API Documentation</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/Drupal.html">\Drupal</a></li>
+                                                    </ul>
+                    </li>
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">467</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                            <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-891162166"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-891162166" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-562961378"></a>
+                                <a href="../namespaces/Drupal.html" style="margin-left: 30px; padding-left: 0">Drupal</a>
+            </div>
+            <div id="namespace-562961378" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-258150846"></a>
+                                <a href="../namespaces/Drupal.oeaw.html" style="margin-left: 30px; padding-left: 0">oeaw</a>
+            </div>
+            <div id="namespace-258150846" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-142158962"></a>
+                                <a href="../namespaces/Drupal.oeaw.Controller.html" style="margin-left: 30px; padding-left: 0">Controller</a>
+            </div>
+            <div id="namespace-142158962" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Controller.FrontendController.html">FrontendController</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-967226890"></a>
+                                <a href="../namespaces/Drupal.oeaw.EventSubscriber.html" style="margin-left: 30px; padding-left: 0">EventSubscriber</a>
+            </div>
+            <div id="namespace-967226890" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.EventSubscriber.MyEventSubscriber.html">MyEventSubscriber</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.EventSubscriber.MyExampleSubscriber.html">MyExampleSubscriber</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-929878343"></a>
+                                <a href="../namespaces/Drupal.oeaw.Form.html" style="margin-left: 30px; padding-left: 0">Form</a>
+            </div>
+            <div id="namespace-929878343" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.AdminForm.html">AdminForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.AutoCompleteForm.html">AutoCompleteForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.ClassForm.html">ClassForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.ComplexSearchForm.html">ComplexSearchForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeBaseForm.html">DepAgreeBaseForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeForm.html">DepAgreeForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeFourForm.html">DepAgreeFourForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeOneForm.html">DepAgreeOneForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeThreeForm.html">DepAgreeThreeForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeTwoForm.html">DepAgreeTwoForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.SearchForm.html">SearchForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.SidebarDateForm.html">SidebarDateForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.SidebarKeywordSearchForm.html">SidebarKeywordSearchForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.SidebarTypeOfResourceForm.html">SidebarTypeOfResourceForm</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-570617732"></a>
+                                <a href="../namespaces/Drupal.oeaw.Helper.html" style="margin-left: 30px; padding-left: 0">Helper</a>
+            </div>
+            <div id="namespace-570617732" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Helper.Helper.html">Helper</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-880990422"></a>
+                                <a href="../namespaces/Drupal.oeaw.Model.html" style="margin-left: 30px; padding-left: 0">Model</a>
+            </div>
+            <div id="namespace-880990422" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                    <li class="interface"><a href="../classes/Drupal.oeaw.Model.OeawCustomSparqlInterface.html">OeawCustomSparqlInterface</a></li>
+                                                    <li class="interface"><a href="../classes/Drupal.oeaw.Model.OeawStorageInterface.html">OeawStorageInterface</a></li>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.ModelFunctions.html">ModelFunctions</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.OeawCustomSparql.html">OeawCustomSparql</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.OeawResource.html">OeawResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.OeawResourceChildren.html">OeawResourceChildren</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.OeawResourceCustomData.html">OeawResourceCustomData</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.OeawStorage.html">OeawStorage</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1965611405"></a>
+                                <a href="../namespaces/Drupal.oeaw.Plugin.html" style="margin-left: 30px; padding-left: 0">Plugin</a>
+            </div>
+            <div id="namespace-1965611405" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1871749097"></a>
+                                <a href="../namespaces/Drupal.oeaw.Plugin.Block.html" style="margin-left: 30px; padding-left: 0">Block</a>
+            </div>
+            <div id="namespace-1871749097" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.ClassBlock.html">ClassBlock</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.SearchSBBlock.html">SearchSBBlock</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.SidebarDateBlock.html">SidebarDateBlock</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.SidebarKeywordSearchBlock.html">SidebarKeywordSearchBlock</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.SidebarTypeOfResourceBlock.html">SidebarTypeOfResourceBlock</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.StartPageLeftBlock.html">StartPageLeftBlock</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-669262945"></a>
+                                <a href="../namespaces/Drupal.oeaw.Plugin.rest.html" style="margin-left: 30px; padding-left: 0">rest</a>
+            </div>
+            <div id="namespace-669262945" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-835899374"></a>
+                                <a href="../namespaces/Drupal.oeaw.Plugin.rest.resource.html" style="margin-left: 30px; padding-left: 0">resource</a>
+            </div>
+            <div id="namespace-835899374" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.APICacheOntologyResource.html">APICacheOntologyResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiCheckACDHIdentifierResource.html">ApiCheckACDHIdentifierResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiConceptsResource.html">ApiConceptsResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiGetDataResource.html">ApiGetDataResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiGetMetadataResource.html">ApiGetMetadataResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiOrganisationsResource.html">ApiOrganisationsResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiPersonsResource.html">ApiPersonsResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiPlacesResource.html">ApiPlacesResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiPublicationsResource.html">ApiPublicationsResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.DemoResource.html">DemoResource</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.CollectionCache.html">CollectionCache</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.ConfigConstants.html">ConfigConstants</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.DepAgreeConstants.html">DepAgreeConstants</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.deppPDF.html">deppPDF</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.OeawFunctions.html">OeawFunctions</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.PropertyTableCache.html">PropertyTableCache</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-427403512"></a>
+                                <a href="../namespaces/Drupal.Tests.html" style="margin-left: 30px; padding-left: 0">Tests</a>
+            </div>
+            <div id="namespace-427403512" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1676403000"></a>
+                                <a href="../namespaces/Drupal.Tests.oeaw.html" style="margin-left: 30px; padding-left: 0">oeaw</a>
+            </div>
+            <div id="namespace-1676403000" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1064944711"></a>
+                                <a href="../namespaces/Drupal.Tests.oeaw.Unit.html" style="margin-left: 30px; padding-left: 0">Unit</a>
+            </div>
+            <div id="namespace-1064944711" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1039136873"></a>
+                                <a href="../namespaces/Drupal.Tests.oeaw.Unit.Model.html" style="margin-left: 30px; padding-left: 0">Model</a>
+            </div>
+            <div id="namespace-1039136873" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.Tests.oeaw.Unit.Model.OeawResourceTest.html">OeawResourceTest</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.Tests.oeaw.Unit.OeawFunctions.html">OeawFunctions</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/Drupal.oeaw.Controller.html">\Drupal\oeaw\Controller</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\Drupal\oeaw\Controller</small>FrontendController</h1>
+                    <p><em>Class FrontendController</em></p>
+                    
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_roots_list" class="">roots_list()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_query" class="">oeaw_query()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_detail" class="">oeaw_detail()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_complexsearch" class="">oeaw_complexsearch()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_cache_ontology" class="">oeaw_cache_ontology()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_inverse_result" class="">oeaw_inverse_result()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_ismember_result" class="">oeaw_ismember_result()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_3d_viewer" class="">oeaw_3d_viewer()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_dl_collection_view" class="">oeaw_dl_collection_view()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_shibboleth_login" class="">oeaw_shibboleth_login()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_iiif_viewer" class="">oeaw_iiif_viewer()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_get_collection_data" class="">oeaw_get_collection_data()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_dl_collection" class="">oeaw_dl_collection()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_form_success" class="">oeaw_form_success()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_autocomplete" class="">autocomplete()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_depagree_base" class="">oeaw_depagree_base()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#method_oeaw_revoke" class="">oeaw_revoke()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No constants found</em>
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <em>No protected methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No protected properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <em>No private methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#property_oeawStorage" class="">$oeawStorage</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#property_oeawFunctions" class="">$oeawFunctions</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#property_oeawCustomSparql" class="">$oeawCustomSparql</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#property_propertyTableCache" class="">$propertyTableCache</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.Controller.FrontendController.html#property_uriFor3DObj" class="">$uriFor3DObj</a><br />
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/src.Controller.FrontendController.html"><div class="path-wrapper">src/Controller/FrontendController.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">Default</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                                                                                                                                                
+                                        <div class="namespace-wrapper">\Drupal\Core\Controller\ControllerBase</div>
+                                                                                                    <div class="namespace-wrapper">\Drupal\oeaw\Controller\FrontendController</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr><td colspan="2"><em>None found</em></td></tr>
+                                        </table>
+                </aside>
+            </div>
+
+                        
+                                    <a id="properties" name="properties"></a>
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <h2>Properties</h2>
+                </div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_oeawStorage" name="property_oeawStorage" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$oeawStorage</h3>
+                <pre class="signature">$oeawStorage : </pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_oeawFunctions" name="property_oeawFunctions" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$oeawFunctions</h3>
+                <pre class="signature">$oeawFunctions : </pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_oeawCustomSparql" name="property_oeawCustomSparql" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$oeawCustomSparql</h3>
+                <pre class="signature">$oeawCustomSparql : </pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_propertyTableCache" name="property_propertyTableCache" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$propertyTableCache</h3>
+                <pre class="signature">$propertyTableCache : </pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="property_uriFor3DObj" name="property_uriFor3DObj" class="anchor"></a>
+            <article class="property">
+                <h3 class="private ">$uriFor3DObj</h3>
+                <pre class="signature">$uriFor3DObj : </pre>
+                <p><em></em></p>
+                
+
+                                <h4>Type</h4>
+                
+                                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                        <dl>
+                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                            
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___construct" name="method___construct" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__construct()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__construct() </pre>
+                <p><em>Set up the necessary properties and config</em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_roots_list" name="method_roots_list" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">roots_list()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">roots_list(integer  <span class="argument">$limit = &quot;10&quot;</span>, integer  <span class="argument">$page = &quot;1&quot;</span>, string  <span class="argument">$order = &quot;datedesc&quot;</span>) : array</pre>
+                <p><em>The root Resources list</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$limit </td>
+                                <td><p>Amount of resources to get</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$page </td>
+                                <td><p>nth Page for pagination</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$order </td>
+                                <td><p>Order resources by, usage: ASC/DESC(?property)</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_query" name="method_oeaw_query" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_query()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_query(string  <span class="argument">$uri</span>) : array</pre>
+                <p><em>The acdh:query display page with the user defined sparql query</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_detail" name="method_oeaw_detail" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_detail()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_detail(string  <span class="argument">$uri</span>, \Symfony\Component\HttpFoundation\Request  <span class="argument">$request</span>, string  <span class="argument">$limit = &quot;10&quot;</span>, string  <span class="argument">$page = &quot;1&quot;</span>) : array</pre>
+                <p><em>The detail view of the Resource with the existing children resources</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Symfony\Component\HttpFoundation\Request</td>
+                                <td>$request </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$limit </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$page </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_complexsearch" name="method_oeaw_complexsearch" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_complexsearch()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_complexsearch(string  <span class="argument">$metavalue = &quot;root&quot;</span>, string  <span class="argument">$limit = &quot;10&quot;</span>, string  <span class="argument">$page = &quot;1&quot;</span>, string  <span class="argument">$order = &quot;datedesc&quot;</span>) : array</pre>
+                <p><em>The complex search frontend function</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$metavalue </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$limit </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$page </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$order </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\ErrorException</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_cache_ontology" name="method_oeaw_cache_ontology" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_cache_ontology()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_cache_ontology() </pre>
+                <p><em>cache the acdh ontology</em></p>
+                
+
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_inverse_result" name="method_oeaw_inverse_result" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_inverse_result()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_inverse_result(string  <span class="argument">$data</span>) : \Symfony\Component\HttpFoundation\Response</pre>
+                <p><em>This function is for the oeaw_detail view. to the user can get the inverse table data</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$data </td>
+                                <td><ul>
+<li>the resource url</li>
+</ul></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Symfony\Component\HttpFoundation\Response
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_ismember_result" name="method_oeaw_ismember_result" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_ismember_result()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_ismember_result(string  <span class="argument">$data</span>) : \Symfony\Component\HttpFoundation\Response</pre>
+                <p><em>This function is for the oeaw_detail view. It is used for the Organisations view, to get the isMembers</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$data </td>
+                                <td><ul>
+<li>the resource url</li>
+</ul></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Symfony\Component\HttpFoundation\Response
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_3d_viewer" name="method_oeaw_3d_viewer" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_3d_viewer()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_3d_viewer(string  <span class="argument">$data</span>) : array</pre>
+                <p><em>This function will download the 3d model with a guzzle async request.</em></p>
+                <p>After the download it will save the file
+to the drupal/sites/files/file_name_dir/file_name.extension directory and
+pass the url to the 3d viewer template</p>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$data </td>
+                                <td><p>-&gt; the resource pid or identifier for the 3d content</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_dl_collection_view" name="method_oeaw_dl_collection_view" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_dl_collection_view()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_dl_collection_view(string  <span class="argument">$uri</span>) : string</pre>
+                <p><em>The view for the collection download with some basic information</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_shibboleth_login" name="method_oeaw_shibboleth_login" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_shibboleth_login()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_shibboleth_login() : array</pre>
+                <p><em>Displaying the federated login with shibboleth</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_iiif_viewer" name="method_oeaw_iiif_viewer" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_iiif_viewer()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_iiif_viewer(string  <span class="argument">$uri</span>) : array</pre>
+                <p><em>Displaying the iiif viewer</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_get_collection_data" name="method_oeaw_get_collection_data" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_get_collection_data()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_get_collection_data(string  <span class="argument">$uri</span>) : \Symfony\Component\HttpFoundation\Response</pre>
+                <p><em>This controller view is for the ajax collection tree view generating</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Symfony\Component\HttpFoundation\Response
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_dl_collection" name="method_oeaw_dl_collection" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_dl_collection()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_dl_collection(string  <span class="argument">$uri</span>) : array</pre>
+                <p><em>The selected files zip download func</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_form_success" name="method_oeaw_form_success" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_form_success()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_form_success(string  <span class="argument">$url</span>) : array</pre>
+                <p><em>The deposition agreement form success page with the pdf url</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$url </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_autocomplete" name="method_autocomplete" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">autocomplete()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">autocomplete(\Drupal\oeaw\Controller\request  <span class="argument">$request</span>, string  <span class="argument">$prop1</span>, string  <span class="argument">$fieldName</span>) : \Symfony\Component\HttpFoundation\JsonResponse</pre>
+                <p><em>The autocomplete function to the edit and new form</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Drupal\oeaw\Controller\request</td>
+                                <td>$request </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$prop1 </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$fieldName </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Symfony\Component\HttpFoundation\JsonResponse
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_depagree_base" name="method_oeaw_depagree_base" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_depagree_base()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_depagree_base(string  <span class="argument">$formid = NULL</span>) : \Drupal\oeaw\Controller\type</pre>
+                <p><em>the deposition agreement form</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$formid </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Drupal\oeaw\Controller\type
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_oeaw_revoke" name="method_oeaw_revoke" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">oeaw_revoke()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">oeaw_revoke(string  <span class="argument">$uri</span>, string  <span class="argument">$user</span>, \Symfony\Component\HttpFoundation\Request  <span class="argument">$request</span>) </pre>
+                <p><em>User ACL revoke function</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$user </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Symfony\Component\HttpFoundation\Request</td>
+                                <td>$request </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">FrontendController.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/src/Controller/FrontendController.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                            <li><a href="../namespaces/Drupal.html">\Drupal</a></li>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on July 24th, 2018 at 08:13.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>

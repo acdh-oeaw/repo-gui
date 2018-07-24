@@ -17,21 +17,34 @@ class ClassForm extends FormBase
     private $oeawStorage;    
     private $oeawFunctions;
     
-    public function __construct() {
+    /**
+     * Set up the necessary properties
+     */
+    public function __construct() 
+    {
         $this->oeawStorage = new OeawStorage();
         $this->oeawFunctions = new OeawFunctions();
     }
     
+    /**
+     * Set up the form id
+     * @return string
+     */
     public function getFormId()
     {
         return "class_form";
     }
     
-    /*
-    * {@inheritdoc}.
-    */
+    /**
+     * Class form 
+     * 
+     * @param array $form
+     * @param FormStateInterface $form_state
+     * @return array
+     */
     public function buildForm(array $form, FormStateInterface $form_state) 
     {
+        echo "ssssssssssssssss";
         try{
             $data = $this->oeawStorage->getClassesForSideBar();
         } catch (\ErrorException $ex) {
@@ -82,28 +95,17 @@ class ClassForm extends FormBase
                 }            
                 $i++;
             }
-
             return $form;
         }
-        
-        
     }
     
-    
-    public function validateForm(array &$form, FormStateInterface $form_state) 
-    {
-        /*
-        if (strlen($form_state->getValue('metavalue')) < 1) {
-            $form_state->setErrorByName('metavalue', $this->t(''));
-        }*/
-        
-    }
-  
-  
-  
-    public function submitForm(array &$form, FormStateInterface $form_state) {
-        
-        
+    /**
+     * Class Form submit
+     * @param array $form
+     * @param FormStateInterface $form_state
+     */
+    public function submitForm(array &$form, FormStateInterface $form_state) 
+    {   
     }
   
 }

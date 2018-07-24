@@ -63,7 +63,10 @@ class OeawStorage implements OeawStorageInterface {
     private $fedora;   
     private static $instance;
     
-    
+    /**
+     * Set up the necessary properties, variables
+     * @return type
+     */
     public function __construct() {
        
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
@@ -90,16 +93,17 @@ class OeawStorage implements OeawStorageInterface {
         }
     }
 
-    
-    /*
+    /**
      * Get the root elements from fedora
-     *
-     * @param int $limit Amount of resources to get
-     * @param int $offset Offset for further pages
-     * @param bool $count Whether to get the count of resources
-     * @param string $order Order resources by, usage: ASC/DESC(?property)
-     *
-     * @return Array     
+     * 
+     * @param int $limit
+     * @param int $offset
+     * @param bool $count
+     * @param string $order
+     * @param string $lang
+     * @return array
+     * @throws \Exception
+     * @throws \InvalidArgumentException
      */
     public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc", string $lang = "en" ): array 
     {
@@ -135,7 +139,6 @@ class OeawStorage implements OeawStorageInterface {
             $limitOffset = "";
 
             $where = " WHERE { ";
-
             
             $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang );
             $where .= "?uri <".RC::get('drupalRdfType')."> <".RC::get('drupalCollection')."> . ";
@@ -211,12 +214,13 @@ class OeawStorage implements OeawStorageInterface {
     }
 
     /**
-     * 
      * If we have hasPid as an URL then we need the acdh Identifier, to we can 
      * work with the resource data
      * 
      * @param string $pid
      * @return array
+     * @throws Exception
+     * @throws \InvalidArgumentException
      */
     public function getACDHIdByPid(string $pid): array 
     {
@@ -243,26 +247,26 @@ class OeawStorage implements OeawStorageInterface {
     }
    
     /**
-     * 
      * Get the reource title by its acdh:hasIdentifier property
      * 
      * @param string $string
+     * @param string $lang
      * @return array
-     * 
      */
-    public function getTitleByIdentifier(string $string): array
+    public function getTitleByIdentifier(string $string, string $lang = "en"): array
     {
         $getResult = array();
+        $lang = strtolower($lang);
         
         try {
+            $select = " SELECT * WHERE { ";
             
-            $q = new Query();
-            $q->addParameter((new HasValue(RC::idProp(), $string ))->setSubVar('?uri'));
-            $q->addParameter(new HasTriple('?uri', RC::titleProp(), '?title'));
+            $where = " ?uri <".RC::get('fedoraIdProp')."> <".$string."> . ";
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+            $where .= " } ";
             
-            $query = $q->getQuery();
+            $query = $select.$where;
             $result = $this->fedora->runSparql($query);
-            
             $fields = $result->getFields();             
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);        
             return $getResult;
@@ -277,7 +281,8 @@ class OeawStorage implements OeawStorageInterface {
      * Create the property data for the expert view
      * 
      * @param array $data
-     * @return type
+     * @param string $lang
+     * @return array
      */
     public function getPropDataToExpertTable(array $data, string $lang = "en"): array
     {
@@ -323,21 +328,22 @@ class OeawStorage implements OeawStorageInterface {
         return $result;
     }
     
-    /***
+    /**
+     * get the resource title by language
      * 
-     * 
+     * @param string $uri
+     * @param string $lang
+     * @return array
      */
-    public function getResourceTitle(string $uri): array 
+    public function getResourceTitle(string $uri, string $lang = "en"): array 
     {
         $getResult = array();
+        $lang = strtolower($lang);
         
         try {
-            
             $q = new Query();
             $q->addParameter(new HasTriple($uri, RC::titleProp(), '?title'), true);
-            
             $query = $q->getQuery();
-            
             $result = $this->fedora->runSparql($query);
             
             $fields = $result->getFields();             
@@ -352,10 +358,11 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Get all property for search
      * 
      * @return array
+     * @throws Exception
+     * @throws \GuzzleHttp\Exception\ClientException
      */
     public function getAllPropertyForSearch():array 
     {
@@ -383,13 +390,11 @@ class OeawStorage implements OeawStorageInterface {
     }
 
     /**
-     * 
      * Get value by the resource uri and property
      * 
      * @param string $uri
      * @param string $property
      * @return array
-     * 
      */
     public function getValueByUriProperty(string $uri, string $property): array
     {
@@ -423,13 +428,11 @@ class OeawStorage implements OeawStorageInterface {
     }
 
     /**
-     * 
      * Get a value as string with resource uri and property
      * 
      * @param string $uri
      * @param string $property
      * @return string
-     * 
      */
     public function getPropertyValueByUri(string $uri, string $property): string
     {
@@ -465,12 +468,16 @@ class OeawStorage implements OeawStorageInterface {
     }
 
     /**
-     * 
      * Get all data by property and value
      * 
      * @param string $property
      * @param string $value
+     * @param int $limit
+     * @param int $offset
+     * @param bool $count
+     * @param type $lang
      * @return array
+     * @throws \Exception
      */
     public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false, $lang = "en"): array {
         
@@ -563,25 +570,18 @@ class OeawStorage implements OeawStorageInterface {
         } 
     }
     
-   
-   
-    /* 
-     *
+    /**
      * Get the digital rescources to we can know which is needed a file upload
-     *     
-     *
-     * @return Array     
-    */    
+     * 
+     * @return array
+     */
     public function getDigitalResources(): array
     {        
         $getResult = array();
         
         try {
             
-            $select = "SELECT 
-                        ?id ?collection 
-                    WHERE { ";
-            
+            $select = "SELECT  ?id ?collection  WHERE { ";
             
             $where = " ?class a owl:Class . ";
             $where .= " OPTIONAL {
@@ -612,14 +612,13 @@ class OeawStorage implements OeawStorageInterface {
         }  
     }
     
-    /* 
-     *
-     *  Get the digital rescources Meta data and the cardinality data by ResourceUri
-     *
-     * @param string $classURI 
-     *
-     * @return Array
-    */
+    /**
+     * Get the digital rescources Meta data and the cardinality data by ResourceUri
+     * 
+     * @param string $classString
+     * @param string $lang
+     * @return array
+     */
     public function getClassMetaForApi(string $classString, string $lang = "en"): array{
         
         if (empty($classString)) {
@@ -698,8 +697,7 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
-     * Get the a
+     * Get the fedora url by the id or pid
      * 
      * @param string $id
      * @return string
@@ -737,16 +735,16 @@ class OeawStorage implements OeawStorageInterface {
             return $result;
         } 
     }
+  
     
-    /* 
-     *
+    /**
      * We using it for the NEW/EDIT FORMS
      *  Get the digital rescources Meta data and the cardinality data by ResourceUri
-     *
-     * @param string $classURI 
-     *
-     * @return Array
-    */
+     * 
+     * @param string $classURI
+     * @param string $lang
+     * @return array
+     */
     public function getClassMeta(string $classURI, string $lang = "en"): array{
        
         if (empty($classURI)) {
@@ -823,12 +821,10 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Get the image by the identifier
      * 
      * @param string $string - image acdh:hasIdentifier value
      * @return string - the fedora url of the image
-     * 
      */
     public function getImageByIdentifier(string $string): string{
         
@@ -857,17 +853,13 @@ class OeawStorage implements OeawStorageInterface {
         }  
     }
     
-    /*
-     * 
+    /**
      * Get the resource thumbnail image
      * 
      * @param string $value -> the property value 
      * @param string $property -> the property
-     * 
      * @return string
-     * 
      */
-    
     public function getImage(string $value, string $property = null ): string
     {         
         
@@ -901,17 +893,12 @@ class OeawStorage implements OeawStorageInterface {
         }  
     }
     
-    
     /**
-     * 
      * Get the acdh:isMember values by resource URI for the Organisation view.
      * 
      * @param string $uri
-     * @param string $limit
-     * @param string $offset
-     * @param bool $count
+     * @param string $lang
      * @return array
-     * 
      */
     public function getIsMembers(string $uri, string $lang = "en"): array {
         
@@ -971,20 +958,19 @@ class OeawStorage implements OeawStorageInterface {
             return $result;
         }
     }
-    
-  
+        
     /**
-     * 
      * We are using this sparql if we want to get Special children data by the property
      * We have also a similar sparql which is the getSpecialDetailViewData, but there we
      * have some extra filtering, this sparql is the clone of the get ChildrenViewData
      * just with a property
      * 
-     * @param string $uri -> defora uri of the actual resource
-     * @param string $limit -> pagination limit
-     * @param string $offset -> pagination offset
-     * @param bool $count -> pagination count
+     * @param string $uri
+     * @param string $limit
+     * @param string $offset
+     * @param bool $count
      * @param array $property -> the property from the config.ini what is the "Parent"
+     * @param string $lang
      * @return array
      */
     public function getChildResourcesByProperty(string $uri, string $limit, string $offset, bool $count, array $property, string $lang = "en"): array{
@@ -1042,16 +1028,14 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Get the necessary data for the children view
      * 
-     * @param string $uri  the root uri
-     * @param string $limit the pagination limit
+     * @param array $ids
+     * @param string $limit
      * @param string $offset
      * @param bool $count
+     * @param string $lang
      * @return array
-     * 
-     * 
      */
     public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "en"): array {
         
@@ -1119,14 +1103,10 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Get the HasMetadata Inverse property by Resource Identifier
-     * 
      * 
      * @param string $id
      * @return array
-     * 
-     * 
      */
     public function getMetaInverseData(string $uri): array{
         
@@ -1177,7 +1157,6 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Create the Inverse table data by URL
      * 
      * @param string $url
@@ -1217,8 +1196,6 @@ class OeawStorage implements OeawStorageInterface {
         
         $string = $select.$where.$end.$groupBy;
         
-
-
         try {
             $q = new SimpleQuery($string);
             $query = $q->getQuery();
@@ -1253,7 +1230,6 @@ class OeawStorage implements OeawStorageInterface {
     
     
     /**
-     * 
      * Create the data for the InverseViews by the Resource Identifier
      * 
      * @param array $data
@@ -1321,7 +1297,6 @@ class OeawStorage implements OeawStorageInterface {
     
     
     /**
-     * 
      * Run users sparql from the resource views
      * 
      * @param string $string
@@ -1389,7 +1364,6 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Get the MIME infos
      * 
      * @return array
@@ -1424,7 +1398,6 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Function Return the ACDH vocabs Namespace Types with a count
      * 
      * @param bool $count -> we want only count or not
@@ -1475,11 +1448,9 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Generate the data for the left side complexSearch Year searching function
      * 
      * @return array
-     * 
      */
     public function getDateForSearch(): array
     {
@@ -1507,20 +1478,15 @@ class OeawStorage implements OeawStorageInterface {
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             return $result;
         }
-        
-        
         return $result;
     }
     
-    
-    /*
-     * 
+    /**
      * Get the actual classes for the SideBar block
      * 
      * @return array
-     * 
+     * @throws \ErrorException
      */
-    
     public function getClassesForSideBar():array
     {
         $getResult = array();
@@ -1546,12 +1512,11 @@ class OeawStorage implements OeawStorageInterface {
         }  
     }
     
-    
     /**
-     * 
      * This func gets the parent title from the DB
      * 
-     * @param string $id - the uri id of the parent
+     * @param string $id
+     * @param string $lang
      * @return array
      */
     public function getParentTitle(string $id, string $lang = "en"): array
@@ -1590,11 +1555,11 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Get the titles for the detail view property values
      * 
      * @param array $data
-     * @param bool $dissemination true: get some extra prop for the dissServ
+     * @param bool $dissemination
+     * @param string $lang
      * @return array
      */
     public function getTitleByIdentifierArray(array $data, bool $dissemination = false, string $lang = "en"): array
@@ -1670,14 +1635,14 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Create the Sparql Query for the special ACDH rdf:type "children views"
      * 
-     * @param string $uri - the resource fedora uri
-     * @param string $limit 
+     * @param string $uri
+     * @param string $limit
      * @param string $offset
-     * @param bool $count - we need a count sparql or not
-     * @param array $property - the properties array
+     * @param bool $count
+     * @param array $property
+     * @param string $lang
      * @return array
      */
     public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en"): array 
@@ -1745,14 +1710,14 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
-     * 
      * Create the children data for the detail views
-     *  
+     * 
      * @param string $uri -> resource URI
      * @param string $limit -> limit for pagination
      * @param string $offset -> offset for pagination
      * @param bool $count -> true = count the values
      * @param string $property -> the Prop which we need for get the data f.e. https://vocabs.acdh.oeaw.ac.at/schema#hasRelatedCollection
+     * @param string $lang
      * @return array
      */
     public function getSpecialChildrenViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en"): array 
@@ -1813,11 +1778,10 @@ class OeawStorage implements OeawStorageInterface {
         }
     }
     
-    
     /**
-     * 
      * This sparql will create an array with the ontology for the caching
      * 
+     * @param string $lang
      * @return array
      */
     public function getOntologyForCache(string $lang = "en"): array{
@@ -1854,7 +1818,4 @@ class OeawStorage implements OeawStorageInterface {
         }
         return $result;
     }
- 
-    
-
 } 

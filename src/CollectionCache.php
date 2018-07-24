@@ -20,17 +20,14 @@ use Drupal\Core\Cache\CacheBackendInterface;
  */
 class CollectionCache {
     
-    
     //\Drupal\Core\Cache\Cache::PERMANENT means cacheable forever,
     //\Drupal::cache()->set('cache_demo_posts', $posts, CacheBackendInterface::CACHE_PERMANENT);
     
-    
     /**
-     * 
      * Get the actually cached property data by the expert view table array
      * 
-     * @param array $data
-     * @return type
+     * @param string $uri
+     * @return array
      */
     public function getCachedData(string $uri): array{
         $result = array();
@@ -42,11 +39,11 @@ class CollectionCache {
         return $result;
     }
     
-    
     /**
-     * 
      * Set the DRUPAL cache based on the acdh ontology
      * 
+     * @param string $uri
+     * @return array
      */
     public function setCacheData(string $uri): array{
         $oeawCustSparql = new OeawCustomSparql();

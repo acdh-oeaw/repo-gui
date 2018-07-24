@@ -35,9 +35,12 @@ class ApiGetDataResource extends ResourceBase {
      */
         
     /**
-    * Responds to entity GET requests.
-    * @return \Drupal\rest\ResourceResponse
-    */
+     * Responds to entity GET requests.
+     * 
+     * @param string $class
+     * @param string $searchStr
+     * @return Response|JsonResponse
+     */
     public function get(string $class, string $searchStr) {
         
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
@@ -121,7 +124,6 @@ class ApiGetDataResource extends ResourceBase {
     }
     
     /**
-     * 
      * Generate the filters array for the sparql query
      * 
      * @param string $type

@@ -44,9 +44,11 @@ class ApiGetMetadataResource extends ResourceBase {
      */
     
     /**
-    * Responds to entity GET requests.
-    * @return \Drupal\rest\ResourceResponse
-    */
+     * Responds to entity GET requests.
+     * @param string $type
+     * @param string $lang
+     * @return Response|JsonResponse
+     */
     public function get(string $type, string $lang) {
         
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
@@ -93,7 +95,6 @@ class ApiGetMetadataResource extends ResourceBase {
     }
     
     /**
-     * 
      * Transform the API properties result for the JSON response
      * 
      * @param array $properties

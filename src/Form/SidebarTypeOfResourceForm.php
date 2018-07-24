@@ -34,6 +34,7 @@ class SidebarTypeOfResourceForm extends FormBase
     */
     public function buildForm(array $form, FormStateInterface $form_state) 
     { 
+        echo "side bar typeof res";
         try {
             $data = $this->oeawStorage->getClassesForSideBar();
         } catch (\ErrorException $ex) {

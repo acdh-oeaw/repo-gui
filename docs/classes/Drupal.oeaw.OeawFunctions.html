@@ -1,0 +1,2152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta charset="utf-8"/>
+    <title>API Documentation</title>
+    <meta name="author" content=""/>
+    <meta name="description" content=""/>
+
+    <link href="../css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+    <link href="../css/font-awesome.min.css" rel="stylesheet">
+    <link href="../css/prism.css" rel="stylesheet" media="all"/>
+    <link href="../css/template.css" rel="stylesheet" media="all"/>
+    
+    <!--[if lt IE 9]>
+    <script src="../js/html5.js"></script>
+    <![endif]-->
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script src="../js/ui/1.10.4/jquery-ui.min.js"></script>
+    <script src="../js/bootstrap.min.js"></script>
+    <script src="../js/jquery.smooth-scroll.js"></script>
+    <script src="../js/prism.min.js"></script>
+    <!-- TODO: Add http://jscrollpane.kelvinluck.com/ to style the scrollbars for browsers not using webkit-->
+    <script type="text/javascript">
+    function loadExternalCodeSnippets() {
+        Array.prototype.slice.call(document.querySelectorAll('pre[data-src]')).forEach(function (pre) {
+            var src = pre.getAttribute('data-src');
+            var extension = (src.match(/\.(\w+)$/) || [, ''])[1];
+            var language = 'php';
+
+            var code = document.createElement('code');
+            code.className = 'language-' + language;
+
+            pre.textContent = '';
+
+            code.textContent = 'Loading…';
+
+            pre.appendChild(code);
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', src, true);
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4) {
+
+                    if (xhr.status < 400 && xhr.responseText) {
+                        code.textContent = xhr.responseText;
+
+                        Prism.highlightElement(code);
+                    }
+                    else if (xhr.status >= 400) {
+                        code.textContent = '✖ Error ' + xhr.status + ' while fetching file: ' + xhr.statusText;
+                    }
+                    else {
+                        code.textContent = '✖ Error: File does not exist or is empty';
+                    }
+                }
+            };
+
+            xhr.send(null);
+        });
+    }
+
+    $(document).ready(function(){
+        loadExternalCodeSnippets();
+    });
+    $('#source-view').on('shown', function () {
+        loadExternalCodeSnippets();
+    })
+</script>
+
+    <link rel="shortcut icon" href="../images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="../images/apple-touch-icon.png"/>
+    <link rel="apple-touch-icon" sizes="72x72" href="../images/apple-touch-icon-72x72.png"/>
+    <link rel="apple-touch-icon" sizes="114x114" href="../images/apple-touch-icon-114x114.png"/>
+</head>
+<body>
+
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <i class="icon-ellipsis-vertical"></i>
+            </a>
+            <a class="brand" href="../index.html">API Documentation</a>
+
+            <div class="nav-collapse">
+                <ul class="nav pull-right">
+                                        <li class="dropdown">
+                        <a href="../index.html" class="dropdown-toggle" data-toggle="dropdown">
+                            API Documentation <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                                                        <li><a href="../namespaces/Drupal.html">\Drupal</a></li>
+                                                    </ul>
+                    </li>
+                                        <li class="dropdown" id="charts-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Charts <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../graphs/class.html">
+                                    <i class="icon-list-alt"></i>&#160;Class hierarchy diagram
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="dropdown" id="reports-menu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Reports <b class="caret"></b>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a href="../reports/errors.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Errors <span class="label label-info pull-right">467</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/markers.html">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <i class="icon-list-alt"></i>&#160;Markers <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../reports/deprecated.html">
+                                                                                                            <i class="icon-list-alt"></i>&#160;Deprecated <span class="label label-info pull-right">0</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!--<div class="go_to_top">-->
+    <!--<a href="#___" style="color: inherit">Back to top&#160;&#160;<i class="icon-upload icon-white"></i></a>-->
+    <!--</div>-->
+</div>
+
+<div id="___" class="container-fluid">
+        <section class="row-fluid">
+        <div class="span2 sidebar">
+                                <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle " data-toggle="collapse" data-target="#namespace-2002847317"></a>
+                                <a href="../namespaces/default.html" style="margin-left: 30px; padding-left: 0">\</a>
+            </div>
+            <div id="namespace-2002847317" class="accordion-body collapse in">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1452713585"></a>
+                                <a href="../namespaces/Drupal.html" style="margin-left: 30px; padding-left: 0">Drupal</a>
+            </div>
+            <div id="namespace-1452713585" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-280349910"></a>
+                                <a href="../namespaces/Drupal.oeaw.html" style="margin-left: 30px; padding-left: 0">oeaw</a>
+            </div>
+            <div id="namespace-280349910" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-472400520"></a>
+                                <a href="../namespaces/Drupal.oeaw.Controller.html" style="margin-left: 30px; padding-left: 0">Controller</a>
+            </div>
+            <div id="namespace-472400520" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Controller.FrontendController.html">FrontendController</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-431681106"></a>
+                                <a href="../namespaces/Drupal.oeaw.EventSubscriber.html" style="margin-left: 30px; padding-left: 0">EventSubscriber</a>
+            </div>
+            <div id="namespace-431681106" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.EventSubscriber.MyEventSubscriber.html">MyEventSubscriber</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.EventSubscriber.MyExampleSubscriber.html">MyExampleSubscriber</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-767793330"></a>
+                                <a href="../namespaces/Drupal.oeaw.Form.html" style="margin-left: 30px; padding-left: 0">Form</a>
+            </div>
+            <div id="namespace-767793330" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.AdminForm.html">AdminForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.AutoCompleteForm.html">AutoCompleteForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.ClassForm.html">ClassForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.ComplexSearchForm.html">ComplexSearchForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeBaseForm.html">DepAgreeBaseForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeForm.html">DepAgreeForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeFourForm.html">DepAgreeFourForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeOneForm.html">DepAgreeOneForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeThreeForm.html">DepAgreeThreeForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.DepAgreeTwoForm.html">DepAgreeTwoForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.SearchForm.html">SearchForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.SidebarDateForm.html">SidebarDateForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.SidebarKeywordSearchForm.html">SidebarKeywordSearchForm</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Form.SidebarTypeOfResourceForm.html">SidebarTypeOfResourceForm</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-764157815"></a>
+                                <a href="../namespaces/Drupal.oeaw.Helper.html" style="margin-left: 30px; padding-left: 0">Helper</a>
+            </div>
+            <div id="namespace-764157815" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Helper.Helper.html">Helper</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1468059465"></a>
+                                <a href="../namespaces/Drupal.oeaw.Model.html" style="margin-left: 30px; padding-left: 0">Model</a>
+            </div>
+            <div id="namespace-1468059465" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                    <li class="interface"><a href="../classes/Drupal.oeaw.Model.OeawCustomSparqlInterface.html">OeawCustomSparqlInterface</a></li>
+                                                    <li class="interface"><a href="../classes/Drupal.oeaw.Model.OeawStorageInterface.html">OeawStorageInterface</a></li>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.ModelFunctions.html">ModelFunctions</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.OeawCustomSparql.html">OeawCustomSparql</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.OeawResource.html">OeawResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.OeawResourceChildren.html">OeawResourceChildren</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.OeawResourceCustomData.html">OeawResourceCustomData</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Model.OeawStorage.html">OeawStorage</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1584918920"></a>
+                                <a href="../namespaces/Drupal.oeaw.Plugin.html" style="margin-left: 30px; padding-left: 0">Plugin</a>
+            </div>
+            <div id="namespace-1584918920" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-523477249"></a>
+                                <a href="../namespaces/Drupal.oeaw.Plugin.Block.html" style="margin-left: 30px; padding-left: 0">Block</a>
+            </div>
+            <div id="namespace-523477249" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.ClassBlock.html">ClassBlock</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.SearchSBBlock.html">SearchSBBlock</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.SidebarDateBlock.html">SidebarDateBlock</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.SidebarKeywordSearchBlock.html">SidebarKeywordSearchBlock</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.SidebarTypeOfResourceBlock.html">SidebarTypeOfResourceBlock</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.Block.StartPageLeftBlock.html">StartPageLeftBlock</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1416276125"></a>
+                                <a href="../namespaces/Drupal.oeaw.Plugin.rest.html" style="margin-left: 30px; padding-left: 0">rest</a>
+            </div>
+            <div id="namespace-1416276125" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-833141735"></a>
+                                <a href="../namespaces/Drupal.oeaw.Plugin.rest.resource.html" style="margin-left: 30px; padding-left: 0">resource</a>
+            </div>
+            <div id="namespace-833141735" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.APICacheOntologyResource.html">APICacheOntologyResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiCheckACDHIdentifierResource.html">ApiCheckACDHIdentifierResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiConceptsResource.html">ApiConceptsResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiGetDataResource.html">ApiGetDataResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiGetMetadataResource.html">ApiGetMetadataResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiOrganisationsResource.html">ApiOrganisationsResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiPersonsResource.html">ApiPersonsResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiPlacesResource.html">ApiPlacesResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.ApiPublicationsResource.html">ApiPublicationsResource</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.Plugin.rest.resource.DemoResource.html">DemoResource</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.oeaw.CollectionCache.html">CollectionCache</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.ConfigConstants.html">ConfigConstants</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.DepAgreeConstants.html">DepAgreeConstants</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.deppPDF.html">deppPDF</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.OeawFunctions.html">OeawFunctions</a></li>
+                                                    <li class="class"><a href="../classes/Drupal.oeaw.PropertyTableCache.html">PropertyTableCache</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-549388610"></a>
+                                <a href="../namespaces/Drupal.Tests.html" style="margin-left: 30px; padding-left: 0">Tests</a>
+            </div>
+            <div id="namespace-549388610" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-1657012043"></a>
+                                <a href="../namespaces/Drupal.Tests.oeaw.html" style="margin-left: 30px; padding-left: 0">oeaw</a>
+            </div>
+            <div id="namespace-1657012043" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-567835402"></a>
+                                <a href="../namespaces/Drupal.Tests.oeaw.Unit.html" style="margin-left: 30px; padding-left: 0">Unit</a>
+            </div>
+            <div id="namespace-567835402" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                                                    <div class="accordion" style="margin-bottom: 0">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                                    <a class="accordion-toggle collapsed" data-toggle="collapse" data-target="#namespace-331717374"></a>
+                                <a href="../namespaces/Drupal.Tests.oeaw.Unit.Model.html" style="margin-left: 30px; padding-left: 0">Model</a>
+            </div>
+            <div id="namespace-331717374" class="accordion-body collapse ">
+                <div class="accordion-inner">
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.Tests.oeaw.Unit.Model.OeawResourceTest.html">OeawResourceTest</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                                    <li class="class"><a href="../classes/Drupal.Tests.oeaw.Unit.OeawFunctions.html">OeawFunctions</a></li>
+                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+                    
+                    <ul>
+                                                                                            </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        </div>
+    </section>
+    <section class="row-fluid">
+        <div class="span10 offset2">
+            <div class="row-fluid">
+                <div class="span8 content class">
+                    <nav>
+                                                <a href="../namespaces/Drupal.oeaw.html">\Drupal\oeaw</a> <i class="icon-level-up"></i>
+                                            </nav>
+                    <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal"><i class="icon-code"></i></a>
+
+                    <h1><small>\Drupal\oeaw</small>OeawFunctions</h1>
+                    <p><em>Description of OeawFunctions</em></p>
+                    
+                    
+                                        
+                    <section id="summary">
+                        <h2>Summary</h2>
+                        <section class="row-fluid heading">
+                            <section class="span4">
+                                <a href="#methods">Methods</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#properties">Properties</a>
+                            </section>
+                            <section class="span4">
+                                <a href="#constants">Constants</a>
+                            </section>
+                        </section>
+                        <section class="row-fluid public">
+                            <section class="span4">
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method___construct" class="">__construct()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_initFedora" class="">initFedora()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createDetailViewUrl" class="">createDetailViewUrl()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_detailViewUrlDecodeEncode" class="">detailViewUrlDecodeEncode()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_pidToAcdhIdentifier" class="">pidToAcdhIdentifier()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_getResourceDissServ" class="">getResourceDissServ()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createPaginationData" class="">createPaginationData()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_explodeSearchString" class="">explodeSearchString()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_getCurrentPageForPagination" class="">getCurrentPageForPagination()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_convertSearchString" class="">convertSearchString()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createPaginationHTML" class="">createPaginationHTML()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_checkRules" class="">checkRules()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_getRules" class="">getRules()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_grantAccess" class="">grantAccess()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_revokeRules" class="">revokeRules()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createPlacesTemplateData" class="">createPlacesTemplateData()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createCustomDetailViewTemplateData" class="">createCustomDetailViewTemplateData()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createContribAuthorData" class="">createContribAuthorData()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createCiteThisWidget" class="">createCiteThisWidget()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_makeMetaData" class="">makeMetaData()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_makeGraph" class="">makeGraph()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_getFieldNewTitle" class="">getFieldNewTitle()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createSparqlResult" class="">createSparqlResult()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createStrongFromACDHVocabs" class="">createStrongFromACDHVocabs()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createPrefixesFromString" class="">createPrefixesFromString()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createPrefixesFromArray" class="">createPrefixesFromArray()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createChildrenViewData" class="">createChildrenViewData()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_createDetailViewTable" class="">createDetailViewTable()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_getKeysFromMultiArray" class="">getKeysFromMultiArray()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_getTitleByUri" class="">getTitleByUri()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_getTitleByTheFedIdNameSpace" class="">getTitleByTheFedIdNameSpace()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_checkMultiDimArrayForValue" class="">checkMultiDimArrayForValue()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_in_array_r" class="">in_array_r()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_generateCollectionData" class="">generateCollectionData()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_convertToTree" class="">convertToTree()</a><br />
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_generateChildViewData" class="">generateChildViewData()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No public properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No constants found</em>
+                                                            </section>
+                        </section>
+                        <section class="row-fluid protected">
+                            <section class="span4">
+                                                                    <em>No protected methods found</em>
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No protected properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                        <section class="row-fluid private">
+                            <section class="span4">
+                                                                    <a href="../classes/Drupal.oeaw.OeawFunctions.html#method_getCiteWidgetData" class="">getCiteWidgetData()</a><br />
+                                                            </section>
+                            <section class="span4">
+                                                                    <em>No private properties found</em>
+                                                            </section>
+                            <section class="span4">
+                                <em>N/A</em>
+                            </section>
+                        </section>
+                    </section>
+                </div>
+                <aside class="span4 detailsbar">
+                                        
+                    
+                    <dl>
+                        <dt>File</dt>
+                            <dd><a href="../files/src.OeawFunctions.html"><div class="path-wrapper">src/OeawFunctions.php</div></a></dd>
+                                                <dt>Package</dt>
+                            <dd><div class="namespace-wrapper">Default</div></dd>
+                                                <dt>Class hierarchy</dt>
+                            <dd class="hierarchy">
+                                                                                                                                                                    <div class="namespace-wrapper">\Drupal\oeaw\OeawFunctions</div>
+                            </dd>
+
+                        
+                        
+                        
+                        
+                                                                        </dl>
+                    <h2>Tags</h2>
+                    <table class="table table-condensed">
+                                            <tr>
+                            <th>
+                                author
+                            </th>
+                            <td>
+                                                                    <p>nczirjak</p>
+                                                            </td>
+                        </tr>
+                                        </table>
+                </aside>
+            </div>
+
+                        
+                        
+                                    <a id="methods" name="methods"></a>
+            <div class="row-fluid">
+                <div class="span8 content class"><h2>Methods</h2></div>
+                <aside class="span4 detailsbar"></aside>
+            </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method___construct" name="method___construct" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">__construct()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">__construct(\Drupal\oeaw\type  <span class="argument">$cfg = null</span>) </pre>
+                <p><em>Set up the config file</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$cfg </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_initFedora" name="method_initFedora" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">initFedora()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">initFedora() : \acdhOeaw\fedora\Fedora</pre>
+                <p><em>Creates the Fedora instance</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    \acdhOeaw\fedora\Fedora
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createDetailViewUrl" name="method_createDetailViewUrl" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createDetailViewUrl()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createDetailViewUrl(array  <span class="argument">$data</span>) : string</pre>
+                <p><em>Check the data array for the PID, identifier or uuid identifier</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$data </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_detailViewUrlDecodeEncode" name="method_detailViewUrlDecodeEncode" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">detailViewUrlDecodeEncode()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">detailViewUrlDecodeEncode(string  <span class="argument">$uri</span>, boolean  <span class="argument">$code</span>) : string</pre>
+                <p><em>Encode or decode the detail view url</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$code </td>
+                                <td><p>: 0 - decode / 1 -encode</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_pidToAcdhIdentifier" name="method_pidToAcdhIdentifier" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">pidToAcdhIdentifier()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">pidToAcdhIdentifier(string  <span class="argument">$identifier</span>) : string</pre>
+                <p><em>This function is get the acdh identifier by the PID, because all of the functions
+are using the identifier and not the pid :)</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$identifier </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getResourceDissServ" name="method_getResourceDissServ" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getResourceDissServ()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getResourceDissServ(\acdhOeaw\fedora\FedoraResource  <span class="argument">$fedoraRes</span>) : array</pre>
+                <p><em>Get the actual Resource Dissemination services</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\acdhOeaw\fedora\FedoraResource</td>
+                                <td>$fedoraRes </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\Exception</dt>
+                            <dd></dd>
+                                                    <dt>\acdhOeaw\fedora\exceptions\NotFound</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createPaginationData" name="method_createPaginationData" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createPaginationData()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createPaginationData(integer  <span class="argument">$limit</span>, integer  <span class="argument">$page</span>, integer  <span class="argument">$total</span>) : array</pre>
+                <p><em>Create the data for the pagination function</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$limit </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$page </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>integer</td>
+                                <td>$total </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_explodeSearchString" name="method_explodeSearchString" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">explodeSearchString()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">explodeSearchString(string  <span class="argument">$string</span>) : array</pre>
+                <p><em>Prepare the searchString for the sparql Query</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$string </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getCurrentPageForPagination" name="method_getCurrentPageForPagination" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getCurrentPageForPagination()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getCurrentPageForPagination() : string</pre>
+                <p><em>Creates a string from the currentPage For the pagination</em></p>
+                
+
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_convertSearchString" name="method_convertSearchString" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">convertSearchString()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">convertSearchString(string  <span class="argument">$string</span>, array  <span class="argument">$extras = null</span>) : string</pre>
+                <p><em>Create a rawurlencoded string from the users entered search string</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$string </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$extras </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createPaginationHTML" name="method_createPaginationHTML" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createPaginationHTML()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createPaginationHTML(\Drupal\oeaw\type  <span class="argument">$actualPage</span>, \Drupal\oeaw\type  <span class="argument">$page</span>, \Drupal\oeaw\type  <span class="argument">$tpages</span>, \Drupal\oeaw\type  <span class="argument">$limit</span>) : string</pre>
+                <p><em>create the page navigation html code</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$actualPage </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$page </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$tpages </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$limit </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_checkRules" name="method_checkRules" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">checkRules()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">checkRules(array  <span class="argument">$rules</span>) : array</pre>
+                <p><em>Check the Resource Rules and display the users/grants</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$rules </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getRules" name="method_getRules" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getRules()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getRules(string  <span class="argument">$uri</span>, \acdhOeaw\fedora\FedoraResource  <span class="argument">$fedoraRes</span>) : array</pre>
+                <p><em>Get the Fedora Resource Rules
+If it is empty, then it is a private resource</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\acdhOeaw\fedora\FedoraResource</td>
+                                <td>$fedoraRes </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_grantAccess" name="method_grantAccess" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">grantAccess()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">grantAccess(string  <span class="argument">$uri</span>, string  <span class="argument">$user</span>, \acdhOeaw\fedora\Fedora  <span class="argument">$fedora</span>) : array</pre>
+                <p><em>Add access to the user on the actual resource</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$user </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\acdhOeaw\fedora\Fedora</td>
+                                <td>$fedora </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_revokeRules" name="method_revokeRules" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">revokeRules()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">revokeRules(string  <span class="argument">$uri</span>, string  <span class="argument">$user</span>, \acdhOeaw\fedora\Fedora  <span class="argument">$fedora</span>) : array</pre>
+                <p><em>Remove the user rules from the resource</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$user </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\acdhOeaw\fedora\Fedora</td>
+                                <td>$fedora </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createPlacesTemplateData" name="method_createPlacesTemplateData" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createPlacesTemplateData()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createPlacesTemplateData(array  <span class="argument">$data</span>) : array</pre>
+                <p><em>This functions create the Concept template data for the basic view</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$data </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createCustomDetailViewTemplateData" name="method_createCustomDetailViewTemplateData" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createCustomDetailViewTemplateData()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createCustomDetailViewTemplateData(\Drupal\oeaw\Model\OeawResource  <span class="argument">$data</span>, string  <span class="argument">$type</span>) : \Drupal\oeaw\Model\OeawResourceCustomData</pre>
+                <p><em>This functions create the Project template data for the basic view</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td><a href="../classes/Drupal.oeaw.Model.OeawResource.html">\Drupal\oeaw\Model\OeawResource</a></td>
+                                <td>$data </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$type </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                                    <h4>Throws</h4>
+                    <dl>
+                                                    <dt>\ErrorException</dt>
+                            <dd></dd>
+                                                                    </dl>
+                
+                                    <h4>Returns</h4>
+                    <a href="../classes/Drupal.oeaw.Model.OeawResourceCustomData.html">\Drupal\oeaw\Model\OeawResourceCustomData</a>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createContribAuthorData" name="method_createContribAuthorData" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createContribAuthorData()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createContribAuthorData(array  <span class="argument">$data</span>) : array</pre>
+                <p><em>Convers the sparql result contributors, authors, creators data to fit our spec. Obj</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$data </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createCiteThisWidget" name="method_createCiteThisWidget" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createCiteThisWidget()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createCiteThisWidget(array  <span class="argument">$resourceData</span>) : array</pre>
+                <p><em>Create the HTML content of the cite-this widget on single resource view</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$resourceData </td>
+                                <td><p>Delivers the properties of the resource</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>$widget Returns the cite-this widget as HTML</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_makeMetaData" name="method_makeMetaData" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">makeMetaData()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">makeMetaData(string  <span class="argument">$uri</span>) : \EasyRdf\Resource</pre>
+                <p><em>Creates the EasyRdf_Resource by uri</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \EasyRdf\Resource
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_makeGraph" name="method_makeGraph" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">makeGraph()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">makeGraph(string  <span class="argument">$uri</span>) : \EasyRdf\Graph</pre>
+                <p><em>Creates the EasyRdf_Graph by uri</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$uri </td>
+                                <td><ul>
+<li>resource uri</li>
+</ul></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \EasyRdf\Graph
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getFieldNewTitle" name="method_getFieldNewTitle" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getFieldNewTitle()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getFieldNewTitle(array  <span class="argument">$formElements</span>, string  <span class="argument">$mode = &#039;edit&#039;</span>) : \Drupal\Core\Ajax\AjaxResponse</pre>
+                <p><em>Get the title by the property
+This is a static method because the Edit/Add form will use it
+over their callback method.</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$formElements </td>
+                                <td><p>-&gt; the actual form input</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$mode </td>
+                                <td><p>-&gt; edit/new form.</p></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Drupal\Core\Ajax\AjaxResponse
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createSparqlResult" name="method_createSparqlResult" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createSparqlResult()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createSparqlResult(\EasyRdf\Sparql\Result  <span class="argument">$result</span>, array  <span class="argument">$fields</span>) : array</pre>
+                <p><em>Create array from  EasyRdf_Sparql_Result object</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\EasyRdf\Sparql\Result</td>
+                                <td>$result </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$fields </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createStrongFromACDHVocabs" name="method_createStrongFromACDHVocabs" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createStrongFromACDHVocabs()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createStrongFromACDHVocabs(string  <span class="argument">$string</span>) : array</pre>
+                <p><em>Creating an array from the vocabsNamespace</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$string </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createPrefixesFromString" name="method_createPrefixesFromString" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createPrefixesFromString()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createPrefixesFromString(string  <span class="argument">$string</span>) : string</pre>
+                <p><em>create prefix from string based on the  prefixes</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$string </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                            <span class="label label-info">static</span>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createPrefixesFromArray" name="method_createPrefixesFromArray" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createPrefixesFromArray()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createPrefixesFromArray(array  <span class="argument">$array</span>, array  <span class="argument">$header</span>) : array</pre>
+                <p><em>create prefix from array based on the ConfigConstants.php prefixes</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$array </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$header </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createChildrenViewData" name="method_createChildrenViewData" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createChildrenViewData()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createChildrenViewData(array  <span class="argument">$data</span>) : array</pre>
+                <p><em>Format data to children array</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$data </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_createDetailViewTable" name="method_createDetailViewTable" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">createDetailViewTable()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">createDetailViewTable(Resource  <span class="argument">$data</span>) : array</pre>
+                <p><em>this will generate an array with the Resource data.</em></p>
+                <p>The Table will contains the resource properties with the values in array.</p>
+<p>There will be also some additional data:</p>
+<ul>
+<li>resourceTitle -&gt; the Main Resource Title</li>
+<li>uri -&gt; the Main Resource Uri</li>
+<li>insideUri -&gt; the base64_encoded uri to the gui browsing</li>
+</ul>
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>Resource</td>
+                                <td>$data </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getKeysFromMultiArray" name="method_getKeysFromMultiArray" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getKeysFromMultiArray()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getKeysFromMultiArray(array  <span class="argument">$arr</span>) : array</pre>
+                <p><em>Get the keys from a multidimensional array</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$arr </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getTitleByUri" name="method_getTitleByUri" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getTitleByUri()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getTitleByUri(string  <span class="argument">$string</span>) : boolean</pre>
+                <p><em>Get the Resource Title by the uri</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$string </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getTitleByTheFedIdNameSpace" name="method_getTitleByTheFedIdNameSpace" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">getTitleByTheFedIdNameSpace()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getTitleByTheFedIdNameSpace(string  <span class="argument">$string</span>) : array</pre>
+                <p><em>Get the title if the url contains the fedoraIDNamespace or the viaf.org ID</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$string </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_checkMultiDimArrayForValue" name="method_checkMultiDimArrayForValue" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">checkMultiDimArrayForValue()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">checkMultiDimArrayForValue(\Drupal\oeaw\type  <span class="argument">$needle</span>, \Drupal\oeaw\type  <span class="argument">$haystack</span>, \Drupal\oeaw\type  <span class="argument">$strict = false</span>) : boolean</pre>
+                <p><em>Check the value in the array</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$needle </td>
+                                <td><p>-&gt; strtolower value of the string</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$haystack </td>
+                                <td><p>-&gt; the array where the func should serach</p></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$strict </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_in_array_r" name="method_in_array_r" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">in_array_r()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">in_array_r(string  <span class="argument">$needle</span>, array  <span class="argument">$haystack</span>, boolean  <span class="argument">$strict = false</span>, array  <span class="argument">$keys</span>) : boolean</pre>
+                <p><em>Check value in array, recursive mode</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$needle </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$haystack </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>boolean</td>
+                                <td>$strict </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$keys </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    boolean
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_generateCollectionData" name="method_generateCollectionData" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">generateCollectionData()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">generateCollectionData(string  <span class="argument">$id</span>) : array</pre>
+                <p><em>Generate the collection data for the download view</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>string</td>
+                                <td>$id </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_convertToTree" name="method_convertToTree" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">convertToTree()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">convertToTree(array  <span class="argument">$flat</span>, \Drupal\oeaw\type  <span class="argument">$idField = &#039;id&#039;</span>, \Drupal\oeaw\type  <span class="argument">$parentIdField = &#039;parentId&#039;</span>, \Drupal\oeaw\type  <span class="argument">$childNodesField = &#039;children&#039;</span>) : \Drupal\oeaw\type</pre>
+                <p><em>THis func is generating a child based array from a single array</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$flat </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$idField </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$parentIdField </td>
+                                <td></td>
+                            </tr>
+                                                    <tr>
+                                <td>\Drupal\oeaw\type</td>
+                                <td>$childNodesField </td>
+                                <td></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    \Drupal\oeaw\type
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_generateChildViewData" name="method_generateChildViewData" class="anchor"></a>
+            <article class="method">
+                <h3 class="public ">generateChildViewData()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">generateChildViewData(array  <span class="argument">$identifiers</span>, array  <span class="argument">$data</span>, array  <span class="argument">$properties</span>) : array</pre>
+                <p><em>Generate the resource child data and some pagination data also</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$identifiers </td>
+                                <td><ul>
+<li>Resource acdh:hasIdentifier</li>
+</ul></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$data </td>
+                                <td><ul>
+<li>Resource metadata</li>
+</ul></td>
+                            </tr>
+                                                    <tr>
+                                <td>array</td>
+                                <td>$properties </td>
+                                <td><ul>
+<li>actual uri and for pagination: limit, page</li>
+</ul></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    array
+                                            &mdash; <p>with children array, type and currentpage</p>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                                                    <div class="row-fluid">
+        <div class="span8 content class">
+            <a id="method_getCiteWidgetData" name="method_getCiteWidgetData" class="anchor"></a>
+            <article class="method">
+                <h3 class="private ">getCiteWidgetData()</h3>
+                <a href="#source-view" role="button" class="pull-right btn" data-toggle="modal" style="font-size: 1.1em; padding: 9px 14px"><i class="icon-code"></i></a>
+                <pre class="signature" style="margin-right: 54px;">getCiteWidgetData(array  <span class="argument">$data</span>, string  <span class="argument">$property</span>) : string</pre>
+                <p><em>Get the necessary data for the CITE Widget based on the properties</em></p>
+                
+
+                                    <h4>Parameters</h4>
+                    <table class="table table-condensed table-hover">
+                                                    <tr>
+                                <td>array</td>
+                                <td>$data </td>
+                                <td><ul>
+<li>resource data array</li>
+</ul></td>
+                            </tr>
+                                                    <tr>
+                                <td>string</td>
+                                <td>$property </td>
+                                <td><ul>
+<li>shortcur property - f.e.: acdh:hasCreator</li>
+</ul></td>
+                            </tr>
+                                            </table>
+                
+                
+                                    <h4>Returns</h4>
+                    string
+                                            &mdash; <ul>
+<li>a string with the available data</li>
+</ul>
+                                    				
+                            </article>
+        </div>
+        <aside class="span4 detailsbar">
+            <h1><i class="icon-arrow-down"></i></h1>
+                                                            <dl>
+                                                                            </dl>
+            <h2>Tags</h2>
+            <table class="table table-condensed">
+                                    <tr><td colspan="2"><em>None found</em></td></tr>
+                            </table>
+        </aside>
+    </div>
+
+                                    </div>
+    </section>
+
+    <div id="source-view" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="source-view-label" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="source-view-label">OeawFunctions.php</h3>
+        </div>
+        <div class="modal-body">
+            <pre data-src="../files/src/OeawFunctions.php.txt" class="language-php line-numbers"></pre>
+        </div>
+    </div>
+
+    <footer class="row-fluid">
+        <section class="span10 offset2">
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <section class="row-fluid footer-sections">
+                        <section class="span4">
+                                                        <h1><i class="icon-code"></i></h1>
+                            <div>
+                                <ul>
+                                                                            <li><a href="../namespaces/Drupal.html">\Drupal</a></li>
+                                                                    </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-bar-chart"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../graphs/class.html">Class Hierarchy Diagram</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                        <section class="span4">
+                                                        <h1><i class="icon-pushpin"></i></h1>
+                            <div>
+                                <ul>
+                                    <li><a href="../reports/errors.html">Errors</a></li>
+                                    <li><a href="../reports/markers.html">Markers</a></li>
+                                </ul>
+                            </div>
+                        </section>
+                    </section>
+                </section>
+            </section>
+            <section class="row-fluid">
+                <section class="span10 offset1">
+                    <hr />
+                    Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and authored
+                    on July 24th, 2018 at 08:14.
+                </section>
+            </section>
+        </section>
+    </footer>
+</div>
+
+</body>
+</html>

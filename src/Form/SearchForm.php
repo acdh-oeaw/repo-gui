@@ -19,21 +19,36 @@ class SearchForm extends FormBase
     private $oeawStorage;
     private $oeawFunctions;
     
-    public function __construct() {    
+    /**
+     * Set up the necessary properties
+     */
+    public function __construct() 
+    {    
         $this->oeawStorage = new OeawStorage();
         $this->oeawFunctions = new OeawFunctions();
     }
     
+    /**
+     * set up the form id
+     * 
+     * @return string
+     */
     public function getFormId()
     {
         return "search_form";
     }
     
-    /*
-    * {@inheritdoc}.
+   /**
+    * 
+    * Build Search form
+    * 
+    * @param array $form
+    * @param FormStateInterface $form_state
+    * @return array
     */
     public function buildForm(array $form, FormStateInterface $form_state) 
     {   
+        echo "search form";
         $propertys = array();
         $searchTerms = array();
                 
@@ -93,36 +108,22 @@ class SearchForm extends FormBase
                 return $form;
             }
         }
-        
-        
     }
-    
-    
-    public function validateForm(array &$form, FormStateInterface $form_state) 
+  
+    /**
+     * Search submit
+     * 
+     * @param array $form
+     * @param FormStateInterface $form_state
+     */
+    public function submitForm(array &$form, FormStateInterface $form_state) 
     {
-        
-    }
-  
-  
-  
-    public function submitForm(array &$form, FormStateInterface $form_state) {
-        
-        
-        
         $metakey = $form_state->getValue('metakey');
         $metavalue = $form_state->getValue('metavalue');
         $metakey = base64_encode($metakey);
         $metavalue = base64_encode($metavalue);
         
         $form_state->setRedirect('oeaw_resources', ["metakey" => $metakey, "metavalue" => $metavalue]); 
-    
-/*        foreach ($form_state->getValues() as $key => $value) {
-        
-            // I pass the values with the session to the redirected url where i generating the tables
-            $_SESSION['oeaw_form_result_'.$key] = $value;
-            $url = Url::fromRoute('oeaw_resources');
-            $form_state->setRedirectUrl($url);           
-        }*/
     }
   
 }

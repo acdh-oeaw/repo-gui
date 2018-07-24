@@ -18,16 +18,16 @@ use Drupal\Core\Block\BlockBase;
  * )
  */
 class SidebarDateBlock extends BlockBase {
-
+    
     /**
-    * {@inheritdoc}
-    */
-    public function build() {
-        
+     * Sidebar date block
+     * 
+     * @return type
+     */
+    public function build() 
+    {
         $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\SidebarDateForm');
-         
         return $form;
- 
     }
     
 }

@@ -33,11 +33,24 @@ use acdhOeaw\util\RepoConfig as RC;
 use EasyRdf\Graph;
 use EasyRdf\Resource;
 
- 
+/**
+ * Description of OeawFunctions
+ *
+ * @author nczirjak
+ */
 class OeawFunctions {
     
-    public function __construct(){
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+    /**
+     * Set up the config file
+     * @param type $cfg
+     */
+    public function __construct($cfg = null){
+        if($cfg == null){
+            \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        }else {
+            \acdhOeaw\util\RepoConfig::init($cfg);
+        }
+        
     }
         
     /**
@@ -161,11 +174,12 @@ class OeawFunctions {
     }
     
     /**
-     * 
      * Get the actual Resource Dissemination services
      * 
-     * @param string $uri
+     * @param FedoraResource $fedoraRes
      * @return array
+     * @throws \Exception
+     * @throws \acdhOeaw\fedora\exceptions\NotFound
      */
     public function getResourceDissServ(\acdhOeaw\fedora\FedoraResource $fedoraRes): array {
         
@@ -199,7 +213,7 @@ class OeawFunctions {
                 }
                 return $result;
             } catch (Exception $ex) {
-                throw new Exception('Error in function: '.__FUNCTION__.' Error msg: '.$ex->getMessage());
+                throw new \Exception('Error in function: '.__FUNCTION__.' Error msg: '.$ex->getMessage());
             } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
                 throw new \acdhOeaw\fedora\exceptions\NotFound('Error in function: '.__FUNCTION__.' Error msg: '.$ex->getMessage());
             }
@@ -284,11 +298,9 @@ class OeawFunctions {
     }
     
     /**
-     * 
      * Creates a string from the currentPage For the pagination
      * 
      * @return string
-     * 
      */
     public function getCurrentPageForPagination(): string{
         
@@ -306,14 +318,13 @@ class OeawFunctions {
         return $currentPage;
     }
     
-    
     /**
-     * 
      * Create a rawurlencoded string from the users entered search string
      * 
      * @param string $string
+     * @param array $extras
      * @return string
-     */        
+     */
     public function convertSearchString(string $string, array $extras = null): string{
       
         $filters = array("type", "date", "words",);
@@ -519,14 +530,14 @@ class OeawFunctions {
         }
         
         if(count($rights) == 0 || $this->checkMultiDimArrayForValue('NONE', $rights) == true){
-            throw new Exception("You have no rights to check the Resource!");
+            throw new \Exception("You have no rights to check the Resource!");
         }
         return $rights;
     }
     
     /**
      * 
-     * * Get the Fedora Resource Rules
+     * Get the Fedora Resource Rules
      * If it is empty, then it is a private resource
      * 
      * @param string $uri
@@ -539,14 +550,22 @@ class OeawFunctions {
         try{
             $aclObj = $fedoraRes->getAcl()->getRules();
         }catch (Exception $ex) {
-            throw new Exception('Error in function: '.__FUNCTION__.' Error: '.$ex->getMessage());
+            throw new \Exception('Error in function: '.__FUNCTION__.' Error: '.$ex->getMessage());
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
             throw new \acdhOeaw\fedora\exceptions\NotFound('Error in function: '.__FUNCTION__.' Error: '.$ex->getMessage());
         }
         return $result;
     }
     
-    
+    /**
+     * 
+     * Add access to the user on the actual resource
+     * 
+     * @param string $uri
+     * @param string $user
+     * @param Fedora $fedora
+     * @return array
+     */
     public function grantAccess(string $uri, string $user, \acdhOeaw\fedora\Fedora $fedora): array{
         $result = array();
         
@@ -570,6 +589,14 @@ class OeawFunctions {
 
     }   
     
+    /**
+     * Remove the user rules from the resource
+     * 
+     * @param string $uri
+     * @param string $user
+     * @param Fedora $fedora
+     * @return array
+     */
     public function revokeRules(string $uri, string $user, \acdhOeaw\fedora\Fedora $fedora): array{
         $result = array();
         
@@ -585,11 +612,11 @@ class OeawFunctions {
         return $result;
     }
     
-    
     /**
      * This functions create the Concept template data for the basic view
      * 
      * @param array $data
+     * @return array
      */
     public function createPlacesTemplateData(array $data): array {
         $result = array();
@@ -645,10 +672,14 @@ class OeawFunctions {
         return $result;
     }
     
+    
     /**
      * This functions create the Project template data for the basic view
      * 
-     * @param array $data
+     * @param OeawResource $data
+     * @param string $type
+     * @return \Drupal\oeaw\Model\OeawResourceCustomData
+     * @throws \ErrorException
      */
     public function createCustomDetailViewTemplateData(\Drupal\oeaw\Model\OeawResource $data, string $type): \Drupal\oeaw\Model\OeawResourceCustomData {
         
@@ -919,8 +950,8 @@ class OeawFunctions {
         try{
             $graph = $fedora->getResourceByUri($uri);
             $graph = $graph->getMetadata()->getGraph();
-        }catch (\Exception $ex){
-            throw new Exception($ex->getMessage());
+        }catch ( \Exception $ex){
+            throw new \Exception($ex->getMessage());
         }     
         catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
             throw new \acdhOeaw\fedora\exceptions\NotFound("Resource does not exist!");
@@ -1320,7 +1351,6 @@ class OeawFunctions {
             //get the not literal propertys TITLE
             $existinTitles = array();
             $existinTitles = $OeawStorage->getTitleByIdentifierArray($searchTitle);
-            
             $resKeys = array_keys($result['table']);
 
             //change the titles
@@ -1419,7 +1449,7 @@ class OeawFunctions {
         if(!$string) { return false; }
         
         $return = "";
-        $OeawStorage = new OeawStorage();
+        $OeawStorage = new OeawStorage(); 
         
         $itemRes = $OeawStorage->getResourceTitle($string);
 
@@ -1431,13 +1461,11 @@ class OeawFunctions {
         return $return;
     }
     
-        
     /**
      * Get the title if the url contains the fedoraIDNamespace or the viaf.org ID
      * 
-     * 
      * @param string $string
-     * @return string
+     * @return array
      */
     public function getTitleByTheFedIdNameSpace(string $string): array{
         
@@ -1471,6 +1499,15 @@ class OeawFunctions {
         return false;
     }
     
+    /**
+     * Check value in array, recursive mode
+     * 
+     * @param string $needle
+     * @param array $haystack
+     * @param bool $strict
+     * @param array $keys
+     * @return bool
+     */
     function in_array_r(string $needle, array $haystack, bool $strict = false, array &$keys): bool {
         foreach ($haystack as $key => $item) {
             if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && $this->in_array_r($needle, $item, $strict, $keys))) {
@@ -1485,10 +1522,9 @@ class OeawFunctions {
     }
     
     /**
-     * 
      * Generate the collection data for the download view
      * 
-     * @param string $uri
+     * @param string $id
      * @return array
      */
     public function generateCollectionData(string $id): array{
@@ -1664,8 +1700,7 @@ class OeawFunctions {
     
     
     /**
-     * 
-     * generate the resource child data and some pagination data also
+     * Generate the resource child data and some pagination data also
      * 
      * @param array $identifiers - Resource acdh:hasIdentifier
      * @param array $data - Resource metadata

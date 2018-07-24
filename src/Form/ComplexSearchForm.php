@@ -20,24 +20,32 @@ class ComplexSearchForm extends FormBase
     private $oeawStorage;
     private $oeawFunctions;
     
+    /**
+     * Set up necessary properties
+     */
     public function __construct() {    
         $this->oeawStorage = new OeawStorage();
         $this->oeawFunctions = new OeawFunctions();
     }
     
+    /**
+     * Set up the form id
+     * @return string
+     */
     public function getFormId()
     {
         return "sks_form";
     }
     
-    /*
-    * {@inheritdoc}.
-    */
+    /**
+     * Build form
+     * @param array $form
+     * @param FormStateInterface $form_state
+     * @return array
+     */
     public function buildForm(array $form, FormStateInterface $form_state) 
     {   
         $this->createSearchInput($form);
-        
-        //$this->createTypeData();
         
         $resData["title"] = "Type of Entity";
         $resData["type"] = "searchbox_types";
@@ -111,21 +119,17 @@ class ComplexSearchForm extends FormBase
                 'placeholder' => t('dd/mm/yyyy'),
             )
         ];
-
         return $form;
-        
     }
     
     /**
-     * 
      * Create the checkbox templates
      * 
      * @param array $form
      * @param array $data
-     * 
      */
-    private function createBox(array &$form, array $data){
-        
+    private function createBox(array &$form, array $data)
+    {
         $form['search'][$data["type"]] = array(
             '#type' => 'checkboxes',
             '#title' => $this->t($data["title"]),
@@ -139,14 +143,13 @@ class ComplexSearchForm extends FormBase
     
     
     /**
-     * 
      * this function creates the search input field 
      * 
      * @param array $form
      * @return array
      */
-    private function createSearchInput(array &$form){
-        
+    private function createSearchInput(array &$form)
+    {
         $propertys = array();
         $searchTerms = array();
         $basePath = base_path();
@@ -204,6 +207,12 @@ class ComplexSearchForm extends FormBase
         }
     }
     
+    /**
+     * Validate the form
+     * 
+     * @param array $form
+     * @param FormStateInterface $form_state
+     */
     public function validateForm(array &$form, FormStateInterface $form_state) 
     {
         $metavalue = $form_state->getValue('metavalue');
@@ -224,6 +233,12 @@ class ComplexSearchForm extends FormBase
         }
     }
     
+    /**
+     * Form submit
+     * 
+     * @param array $form
+     * @param FormStateInterface $form_state
+     */
     public function submitForm(array &$form, FormStateInterface $form_state) {
         
         $metavalue = $form_state->getValue('metavalue');
@@ -260,10 +275,8 @@ class ComplexSearchForm extends FormBase
         }
 
         $metaVal = $this->oeawFunctions->convertSearchString($metavalue, $extras);
-     
         $metaVal = urlencode($metaVal);
         $form_state->setRedirect('oeaw_complexsearch', ["metavalue" => $metaVal, "limit" => 10,  "page" => 1]); 
-        
     }
   
 }

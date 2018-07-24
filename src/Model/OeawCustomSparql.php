@@ -25,16 +25,20 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
     
     private $modelFunctions;
 
+    /**
+     * Set up the necessary properties
+     */
     public function __construct(){
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->modelFunctions = new MC();
     }
     
     /**
-     * 
      * This function creates a sparql query for the Persons API call
      * 
      * @param string $str : search text
+     * @param string $lang
+     * @return string
      */
     public function createPersonsApiSparql(string $str, string $lang = "en"): string {
         
@@ -66,10 +70,10 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
     }
     
     /**
-     * 
      * This function creates a sparql query for the Publication API call
-     * 
-     * @param string $str : search text
+     * @param string $str : query string
+     * @param string $lang
+     * @return string
      */
     public function createPublicationsApiSparql(string $str, string $lang = "en"): string {
         
@@ -100,16 +104,17 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $orderby = ' ORDER BY ASC( fn:lower-case(?title)) LIMIT 10 ';
         
         $query = $prefix.$select.$where.$groupby.$orderby;
-        
         return $query;
-        
     }
     
     /**
-     * 
      * This function creates a sparql query for the Basic API calls by type
      * 
-     * @param string $str : search text
+     * @param string $str
+     * @param string $type
+     * @param array $filters
+     * @param type $lang
+     * @return string
      */
     public function createBasicApiSparql(string $str, string $type, array $filters = array(), $lang = "en"): string {
         
@@ -170,13 +175,11 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $orderby = ' ORDER BY ASC( fn:lower-case(?title)) LIMIT 10 ';
         
         $query = $prefix.$select.$where.$groupby.$orderby;
-       
         return $query;
-        
     }
     
-     /**
-     * 
+    
+    /**
      * Creates the sparql for the complex search
      * 
      * @param array $data
@@ -184,7 +187,9 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
      * @param string $page
      * @param bool $count
      * @param string $order
+     * @param type $lang
      * @return string
+     * @throws \ErrorException
      */
     public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "datedesc", $lang = "en"): string{
 
@@ -353,10 +358,10 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
     }
     
     /**
-     * 
      * The sparql gets a fedora Collection all child elements till the depth 5
      * 
      * @param string $url
+     * @param string $lang
      * @return string
      */
     public function getCollectionBinaries(string $url, string $lang = "en"): string{

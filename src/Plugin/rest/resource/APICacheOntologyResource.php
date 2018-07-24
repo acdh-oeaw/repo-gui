@@ -32,6 +32,7 @@ class APICacheOntologyResource extends ResourceBase {
     
     /**
     * Responds to entity GET requests.
+     * 
     * @return \Drupal\rest\ResourceResponse
     */
     public function get() {

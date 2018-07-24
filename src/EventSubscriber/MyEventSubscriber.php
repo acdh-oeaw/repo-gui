@@ -17,10 +17,14 @@ use Drupal\Core\Routing\TrustedRedirectResponse;
 
 
 class MyEventSubscriber implements EventSubscriberInterface {
- /**
-  * @param GetResponseEvent $event
-  */
-
+    
+    /**
+     * Check the shibboleth user logins
+     * 
+     * @global type $user
+     * @param GetResponseEvent $event
+     * @return TrustedRedirectResponse
+     */
     public function checkForShibboleth(GetResponseEvent $event) {    
         
         if ( ($event->getRequest()->getPathInfo() == '/user/logout') /*&&  (\Drupal::currentUser()->getUsername() == "shibboleth") */) {
@@ -63,15 +67,22 @@ class MyEventSubscriber implements EventSubscriberInterface {
         }
     }
 
-    /**
-    * {@inheritdoc}
-    */
 
+    /**
+     * This is the event handler main method
+     * 
+     * @return string
+     */
     static function getSubscribedEvents() {
         $events[KernelEvents::REQUEST][] = array('checkForShibboleth');
         return $events;
     }
     
+    /**
+     * create the shibb. user inside the drupal DB
+     * 
+     * @return type
+     */
     private function createShibbolethUser(){
         $user = \Drupal\user\Entity\User::create();
         // Mandatory.

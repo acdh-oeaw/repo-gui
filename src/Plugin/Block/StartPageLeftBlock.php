@@ -17,18 +17,18 @@ use Drupal\oeaw\Controller\FrontendController;
  *   category = @Translation("Provides search bar and latest additions linked to Fedora")
  * )
  */
-class StartPageLeftBlock extends BlockBase {
-
+class StartPageLeftBlock extends BlockBase 
+{
     /**
-    * {@inheritdoc}
-    */
-    public function build() {
-    
+     * Left block build function
+     * @return type
+     */
+    public function build() 
+    {
         $result = array();
 	$this->FrontendController = new FrontendController();
-	    
         $data = $this->FrontendController->roots_list(3,1,'datedesc');
-
+        
         if(count($data) > 0){
             if(isset($data['#result'])){
                 $result = $data['#result'];    
@@ -38,7 +38,5 @@ class StartPageLeftBlock extends BlockBase {
         $datatable['#result'] = $result;
 		            
         return $datatable;
-
     }
-    
 }

@@ -31,11 +31,12 @@ use EasyRdf\Resource;
  */
 class ApiPlacesResource extends ResourceBase {
     
-    
     /**
-    * Responds to entity GET requests.
-    * @return \Drupal\rest\ResourceResponse
-    */
+     * Responds to entity GET requests.
+     * 
+     * @param string $data
+     * @return Response|JsonResponse
+     */
     public function get(string $data) {
         
         $response = new Response();

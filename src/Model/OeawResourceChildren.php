@@ -21,6 +21,12 @@ class OeawResourceChildren {
     private $accessRestriction = 'public';
     public $errors = array();
     
+    /**
+     * Set up the properties and init the obj
+     * 
+     * @param \ArrayObject $arrayObj
+     * @throws \ErrorException
+     */
     public function __construct(\ArrayObject $arrayObj) {
         
         if (is_object($arrayObj) || !empty($arrayObj)) {
@@ -48,9 +54,11 @@ class OeawResourceChildren {
         if(count($this->errors) > 0){
             throw new \ErrorException("You have errors during the OeawResource Object initilaizing! Following data are missing: ".print_r($this->errors, true));
         }
-        
     }
     
+    /**
+     *  Check the necessary properties for the obj init
+     */
     private function checkEmptyVariables() {
         if(empty($this->uri)){ array_push($this->errors, "uri"); }
         if(empty($this->title)){ array_push($this->errors, "title");  }

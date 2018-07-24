@@ -18,16 +18,14 @@ use Drupal\Core\Block\BlockBase;
  * )
  */
 class SidebarTypeOfResourceBlock extends BlockBase {
-
-    /**
-    * {@inheritdoc}
-    */
-    public function build() {
-        
-        $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\SidebarTypeOfResourceForm');
-         
-        return $form;
- 
-    }
     
+    /**
+     * Sidebar of type resources
+     * @return type
+     */
+    public function build() 
+    {
+        $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\SidebarTypeOfResourceForm');
+        return $form;
+    }
 }

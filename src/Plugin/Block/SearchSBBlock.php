@@ -20,14 +20,14 @@ use Drupal\Core\Block\BlockBase;
 class SearchSBBlock extends BlockBase {
 
     /**
-    * {@inheritdoc}
-    */
-    public function build() {
-        
+     * Search Sb block
+     * 
+     * @return type
+     */
+    public function build() 
+    {
         $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\ComplexSearchForm');
-         
         return $form;
- 
     }
     
 }

@@ -20,14 +20,14 @@ use Drupal\Core\Block\BlockBase;
 class SidebarKeywordSearchBlock extends BlockBase {
 
     /**
-    * {@inheritdoc}
-    */
-    public function build() {
-        
+     * Sidebar keyword search
+     * 
+     * @return type
+     */
+    public function build() 
+    {
         $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\SidebarKeywordSearchForm');
-         
         return $form;
- 
     }
     
 }

@@ -1,10 +1,5 @@
 <?php
 
-/**
-  @file
-  Contains \Drupal\oeaw\Controller\FrontendController.
- */
-
 namespace Drupal\oeaw\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
@@ -13,16 +8,15 @@ use Drupal\Core\Link;
 use Drupal\Core\Archiver\Zip;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 
-use Drupal\oeaw\Model\ {
-    OeawStorage,
-    OeawResource,
-    OeawResourceDetails,
-    OeawCustomSparql
-};
+use Drupal\oeaw\Model\OeawStorage;
+use Drupal\oeaw\Model\OeawResource;
+use Drupal\oeaw\Model\OeawResourceDetails;
+use Drupal\oeaw\Model\OeawCustomSparql;
+
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\Helper\Helper;
 use Drupal\oeaw\PropertyTableCache;
-//ajax
+
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ChangedCommand;
 use Drupal\Core\Ajax\CssCommand;
@@ -47,8 +41,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 use GuzzleHttp\Client;
 
-
-class FrontendController extends ControllerBase  {
+/**
+ * Class FrontendController
+ *
+ */
+class FrontendController extends ControllerBase 
+{
     
     private $oeawStorage;
     private $oeawFunctions;
@@ -56,6 +54,9 @@ class FrontendController extends ControllerBase  {
     private $propertyTableCache;
     private $uriFor3DObj;
     
+    /**
+     * Set up the necessary properties and config
+     */
     public function __construct() {
         $this->oeawStorage = new OeawStorage();
         $this->oeawFunctions = new OeawFunctions();
@@ -520,10 +521,12 @@ class FrontendController extends ControllerBase  {
      * @param string $metavalue
      * @param string $limit
      * @param string $page
+     * @param string $order
      * @return array
-    */
-    public function oeaw_complexsearch(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "datedesc" ):array {
-        drupal_get_messages('error', TRUE);
+     * @throws \ErrorException
+     */
+    public function oeaw_complexsearch(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "datedesc" ): array {
+        drupal_get_messages('error', TRUE); 
        
         if(empty($metavalue)){
             $metavalue = "root";
@@ -796,6 +799,7 @@ class FrontendController extends ControllerBase  {
         return $response;
     }
     
+    
     /**
      * 
      * This function will download the 3d model with a guzzle async request.
@@ -803,7 +807,7 @@ class FrontendController extends ControllerBase  {
      * to the drupal/sites/files/file_name_dir/file_name.extension directory and
      * pass the url to the 3d viewer template
      * 
-     * @param string $id -> the resource pid or identifier for the 3d content
+     * @param string $data -> the resource pid or identifier for the 3d content
      * @return array
      */
     public function oeaw_3d_viewer(string $data): array{
@@ -1228,6 +1232,13 @@ class FrontendController extends ControllerBase  {
     
     /***************************** FORM functions!   ***************************************/
     
+    /**
+     * 
+     * The deposition agreement form success page with the pdf url
+     * 
+     * @param string $url
+     * @return array
+     */
     public function oeaw_form_success(string $url){
         
         if (empty($url)) {
@@ -1346,6 +1357,13 @@ class FrontendController extends ControllerBase  {
         return $response;
     }
     
+    /**
+     * 
+     * the deposition agreement form
+     * 
+     * @param string $formid
+     * @return type
+     */
     public function oeaw_depagree_base(string $formid = NULL){
         return $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\DepAgreeOneForm');
     }

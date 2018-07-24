@@ -20,14 +20,14 @@ use Drupal\Core\Block\BlockBase;
 class ClassBlock extends BlockBase {
 
     /**
-    * {@inheritdoc}
-    */
-    public function build() {
-                
+     * Class block
+     * 
+     * @return type
+     */
+    public function build() 
+    {
         $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\ClassForm');
-         
         return $form;
- 
     }
     
 }

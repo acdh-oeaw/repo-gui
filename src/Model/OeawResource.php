@@ -27,10 +27,20 @@ class OeawResource {
     private $table = array();
     public $errors = array();
     
-    
-    public function __construct(\ArrayObject $arrayObj) {
+    /**
+     * Set up the properties and init the obj
+     * 
+     * @param \ArrayObject $arrayObj
+     * @param type $cfg
+     * @throws \ErrorException
+     */
+    public function __construct(\ArrayObject $arrayObj, $cfg = null) {
         
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        if($cfg == null){
+            \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        } else {
+            \acdhOeaw\util\RepoConfig::init($cfg);
+        }
         
         if (is_object($arrayObj) || !empty($arrayObj)) {
             $objIterator = $arrayObj->getIterator();
@@ -60,9 +70,11 @@ class OeawResource {
         if(count($this->errors) > 0){
             throw new \ErrorException("You have errors during the OeawResource Object initilaizing! Following data are missing: ".print_r($this->errors, true));
         }
-        
     }
     
+    /**
+     *  Check the necessary properties for the obj init
+     */
     private function checkEmptyVariables() {
         if(empty($this->uri)){ array_push($this->errors, "uri"); }
         if(empty($this->title)){ array_push($this->errors, "title");  }
@@ -75,10 +87,18 @@ class OeawResource {
         if(empty($this->table)){ array_push($this->errors, "table");  }
     }
     
+    /**
+     * Resource URI
+     * @return type
+     */
     public function getUri(){
         return $this->uri;
     }
     
+    /**
+     * ARCHE supported inside url for the detail view display
+     * @return type
+     */    
     public function getInsideUri(){
         return $this->insideUri;
     }

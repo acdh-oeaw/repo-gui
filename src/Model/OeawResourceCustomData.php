@@ -32,13 +32,19 @@ class OeawResourceCustomData {
         "person", "project", "organisation", "publication", "place"
     );
     
-    public function __construct(\ArrayObject $arrayObj) {
-        
+    /**
+     * Set up the necessary properties and init the obj
+     * 
+     * @param \ArrayObject $arrayObj
+     * @throws \ErrorException
+     */
+    public function __construct(\ArrayObject $arrayObj) 
+    {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         
         if (is_object($arrayObj) || !empty($arrayObj)) {
-            $objIterator = $arrayObj->getIterator();
             
+            $objIterator = $arrayObj->getIterator();
             while($objIterator->valid()) {
                 ($objIterator->key() == "uri") ? $this->uri = $objIterator->current() : NULL;
                 ($objIterator->key() == "title") ? $this->title = $objIterator->current() : NULL;
@@ -64,10 +70,13 @@ class OeawResourceCustomData {
         }
         //setup the basic and extended prperties values
         $this->setupBasicExtendedKeys();
-        
     }
     
-    private function checkEmptyVariables() {
+    /**
+     * Check the necessary properties for the obj init.
+     */
+    private function checkEmptyVariables() 
+    {
         if(empty($this->uri)){ array_push($this->errors, "uri"); }
         if(empty($this->title)){ array_push($this->errors, "title");  }
         if(empty($this->type)){ array_push($this->errors, "type");  }
@@ -76,9 +85,7 @@ class OeawResourceCustomData {
     }
     
     /**
-     * 
-     * Setup the basic and extended properties by the type
-     * 
+     * Setup the basic properties by the type
      */
     private function setupBasicExtendedKeys(){
         if($this->isCustomType() === true){
@@ -87,6 +94,12 @@ class OeawResourceCustomData {
         }
     }
     
+    /**
+     * 
+     * Setup the extended properties by the type
+     * 
+     * @param \Drupal\oeaw\Model\OeawResource $data
+     */
     public function setupBasicExtendedData(\Drupal\oeaw\Model\OeawResource $data){
         if(count($this->bpKeys) > 0){
             foreach($this->bpKeys as $bP) {
@@ -111,7 +124,6 @@ class OeawResourceCustomData {
     }
     
     /**
-     * 
      * Check that the available type is in the custom type array
      * 
      * @return bool
@@ -123,6 +135,11 @@ class OeawResourceCustomData {
         return false;
     }
     
+    /**
+     * Get the basic properties by the type
+     * 
+     * @return array
+     */
     private function getBasicPropertiesByType(): array{
         //get the necessary properties for the different types
         $propertyData = array();
@@ -136,6 +153,11 @@ class OeawResourceCustomData {
         return array(); 
     }
     
+    /**
+     * Get the extended properties by the type
+     * 
+     * @return array
+     */
     private function getExtendedPropertiesByType() : array {
         //get the necessary properties for the different types
         $propertyData = array();
@@ -149,24 +171,45 @@ class OeawResourceCustomData {
         return array(); 
     }
 
-
-    
+    /**
+     * The resource uri
+     * 
+     * @return type
+     */
     public function getUri(){
         return $this->uri;
     }
     
+    /**
+     * resource title
+     * 
+     * @return type
+     */
     public function getTitle(){
         return $this->title;
     }
     
+    /**
+     * Resource type. f.e.: Collection
+     * 
+     * @return type
+     */
     public function getType(){
         return $this->type;
     }
     
+    /**
+     * Resource PID
+     * @return type
+     */
     public function getPid(){
         return $this->pid;
     }
     
+    /**
+     * Resource identifiers array
+     * @return type
+     */
     public function getIdentifiers(){
         return $this->identifiers;
     }
@@ -188,22 +231,42 @@ class OeawResourceCustomData {
         return $result;
     }
     
+    /**
+     * ARCHE supported inside url for the detail view display
+     * @return type
+     */
     public function getInsideUri(){
         return $this->insideUri;
     }
     
+    /**
+     * Resource type URL
+     * @return type
+     */
     public function getTypeUri(){
         return $this->typeUri;
     }
     
+    /**
+     * Resource Basic properties array for the special views
+     * @return type
+     */
     public function getBasicProperties(){
         return $this->basicProperties;
     }
     
+    /**
+     * Resource Extended properties array for the special views
+     * @return type
+     */
     public function getExtendedProperties(){
         return $this->extendedProperties;
     }
     
+    /**
+     * Resource access restrictions
+     * @return string
+     */
     public function getAccessRestriction(){
         if( (strtolower($this->getType()) == "collection") || 
             (strtolower($this->getType()) == "resource") || 
@@ -213,7 +276,11 @@ class OeawResourceCustomData {
         return '';
     }
     
-     public function getAcdhIdentifier(): string{
+    /**
+     * Get the ACDH identifiers
+     * @return string
+     */
+    public function getAcdhIdentifier(): string{
         if (count($this->identifiers) > 0){
             $uuid = "";
             foreach($this->identifiers as $id){

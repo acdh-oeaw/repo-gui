@@ -5,7 +5,10 @@ namespace Drupal\oeaw;
 use acdhOeaw\util\RepoConfig as RC;
 
 abstract class ConfigConstants {
-    
+    /**
+     * sparql prefixes
+     * @var type 
+     */
     public static $prefixes = ''
             . 'PREFIX dct: <http://purl.org/dc/terms/> '
             . 'PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> '
@@ -16,10 +19,19 @@ abstract class ConfigConstants {
             . 'PREFIX owl: <http://www.w3.org/2002/07/owl#>';
     
   
+    /**
+     * Special prefixes for blazegrpah init
+     * @var type 
+     */
     public static $prefixesToBlazegraph = array(
         "dct" => "http://purl.org/dc/terms/"        
     );
     
+    /**
+     *
+     * Prefixes to shortcur conversion
+     * @var type 
+     */
     public static $prefixesToChange = array(        
         "http://fedora.info/definitions/v4/repository#" => "fedora",
         "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#" => "ebucore",
@@ -41,13 +53,27 @@ abstract class ConfigConstants {
         //"http://xmlns.com/foaf/spec/" => "foaf"
     );
     
-    //propertys
+    /**
+     * ACDH User query property
+     * @var type 
+     */
     public static $acdhQueryType = "https://vocabs.acdh.oeaw.ac.at/schema#querytype";
     
+    /**
+     *
+     * Detail view special custom view types
+     * @var type 
+     */
     public static $availableCustomViews = array(
         "person", "project", "organisation", "publication", "place"
     );
     
+    /**
+     * Special view properties
+     * 
+     * @param string $property
+     * @return array
+     */
     static function getCustomDetailViewTemplateDataProperties(string $property): array {
         $result = array();
         

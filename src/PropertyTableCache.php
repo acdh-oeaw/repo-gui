@@ -49,11 +49,10 @@ class PropertyTableCache {
         return $result;
     }
     
-    
     /**
-     * 
      * Set the DRUPAL cache based on the acdh ontology
      * 
+     * @return boolean
      */
     public function setCacheData(){
         $OS = new OeawStorage();
