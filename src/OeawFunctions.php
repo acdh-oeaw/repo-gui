@@ -88,16 +88,19 @@ class OeawFunctions {
             foreach($idArr as $id){
                 //the id contains the acdh uuid
                 if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
-                    $uuid = $id;
-                    //if the identifier is the normal acdh identifier then return it
-                }else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
                     return $id;
+                    //$uuid = $id;
+                    //if the identifier is the normal acdh identifier then return it
                 }
+                /*else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
+                    return $id;
+                }*/
             }
-            
+            /*
             if(!empty($uuid)){
                 return $uuid;
             }
+             */
         }
         
         return "";
@@ -118,23 +121,28 @@ class OeawFunctions {
         }
         
         if($code == 0){
-            $uri = str_replace(" ", "/", rawurldecode($uri));
+            $uri = str_replace("+", "/", rawurldecode($uri));
             if (strpos($uri, 'hdl.handle.net') !== false) {
                 $uri = "http://".$uri;
             }else {
-                $uri = "https://".$uri;
+                if (strpos($uri, 'uuid') !== false) {
+                    $uri = RC::get('fedoraIdNamespace').$uri;
+                }
             }
         }
         
         if($code == 1){
             if (strpos($uri, 'hdl.handle.net') !== false) {
                 $uri = str_replace("http://", "", $uri);
-                $uri = str_replace("/", " ", $uri);
+                $uri = str_replace("/", "+", $uri);
                 $uri = rawurlencode($uri);
             }else {
-                $uri = str_replace("https://", "", $uri);
-                $uri = str_replace("/", " ", $uri);
-                $uri = rawurlencode($uri);
+                if (strpos($uri, RC::get('fedoraUuidNamespace')) !== false) {
+                    $uri = str_replace(RC::get('fedoraIdNamespace'), "", $uri);
+                    $uri = str_replace("/", "+", $uri);
+                    //we need to use the double urlencode, otherwise the + will be a space...
+                    $uri = rawurlencode(rawurlencode($uri));
+                }
             }
         }
         return $uri;
