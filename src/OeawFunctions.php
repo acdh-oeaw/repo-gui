@@ -121,6 +121,8 @@ class OeawFunctions {
         }
         
         if($code == 0){
+            //browser changing the + to space in url...
+            $uri = str_replace(" ", "+", rawurldecode($uri));
             $uri = str_replace("+", "/", rawurldecode($uri));
             if (strpos($uri, 'hdl.handle.net') !== false) {
                 $uri = "http://".$uri;
