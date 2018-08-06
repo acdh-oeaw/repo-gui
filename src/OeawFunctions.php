@@ -88,15 +88,8 @@ class OeawFunctions {
             foreach($idArr as $id){
                 //the id contains the acdh uuid
                 if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
-                    $uuid = $id;
-                    //if the identifier is the normal acdh identifier then return it
-                }else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
                     return $id;
                 }
-            }
-            
-            if(!empty($uuid)){
-                return $uuid;
             }
         }
         
