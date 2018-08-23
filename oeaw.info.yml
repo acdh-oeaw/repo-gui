@@ -8,3 +8,4 @@ dependencies:
 type: module
 libraries:
     - oeaw/mylibrary
+    - oeaw/oeaw-styles
