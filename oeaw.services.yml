@@ -3,3 +3,7 @@ services:
         class: '\Drupal\oeaw\EventSubscriber\MyEventSubscriber'
         tags:
             - { name: 'event_subscriber' }
+    oeaw.path_processor:
+        class: Drupal\oeaw\PathProcessor\OeawPathProcessor
+        tags:
+            - { name: path_processor_inbound, priority: 350 }            
