@@ -1883,6 +1883,7 @@ class OeawFunctions {
             }
         }
         
+        $result["mainResourceType"] = $type;
         $result["currentPage"] = $page;
         $result["currentLimit"] = $limit;
         $result["specialType"] = $specialType;

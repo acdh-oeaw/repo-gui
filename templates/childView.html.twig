@@ -23,6 +23,7 @@
             overflow: hidden;
             padding: 5px;
         }
+        
 
 
     </style>
@@ -352,13 +353,22 @@
     <div id="ajax-pagination">
         <div class="res-el res-info res-child-info col-block col-lg-12">
             <div class="result-basic-info">
-                <span class="results-info-bar"><h3>{{ childTitle }}</h3></span>
-                {{ include('/modules/oeaw/templates/paging.html.twig', {'childResult': childResult, 'result': result } ) }}
+                <span class="results-info-bar">
+                    <h3>{{ childTitle }}</h3>
+                </span>
+            </div>
+        </div>
+                
+        <div class="res-el res-info res-child-info col-block col-lg-12">
+            {% if result['mainResourceType']|lower == "collection" %}
                 <div class="res-act-button res-act-button-reverse res-act-button-treeview basic">
                     <i class="material-icons">&#xE335;</i>
                     <span>Switch to Tree-View</span>
                 </div>
-            </div>
+            {% endif %}
+                
+            {{ include('/modules/oeaw/templates/paging.html.twig', {'data': result['maxPage'] } ) }}
+            
         </div>
     </div>
 

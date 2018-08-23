@@ -49,7 +49,10 @@ jq2(function( $ ) {
         /***  PAGINATION START  ****/
         
         var insideUri = jq2('#insideUri').val();
-        insideUri = insideUri.replace('id.acdh.oeaw.ac.at/uuid/', '');
+        if(insideUri){
+            insideUri = insideUri.replace('id.acdh.oeaw.ac.at/uuid/', '');
+        }
+        
         
         //check that we have already submitted pagination info
         let searchParams = new URLSearchParams(window.location.href);
