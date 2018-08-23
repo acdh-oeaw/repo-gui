@@ -104,9 +104,7 @@ class OeawFunctions {
      * @return array
      */
     public function getLimitAndPageFromUrl(string $data): array {
-        if(count($data) == 0){
-            return array();
-        }
+        if(empty($data)){ return array(); }
         
         $data = explode("&", $data);
         $page = 0;

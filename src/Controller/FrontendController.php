@@ -658,55 +658,59 @@ class FrontendController extends ControllerBase
             if(count($res) > 0){
                 
                 foreach($res as $r){
-                    $tblArray = array();
-                    
-                    $arrayObject = new \ArrayObject();
-                    $arrayObject->offsetSet('title', $r['title']);
-                    $resourceIdentifier = $this->oeawFunctions->createDetailViewUrl($r);
-                    $arrayObject->offsetSet('uri', $resourceIdentifier);
-                    $arrayObject->offsetSet('fedoraUri', $r['uri']);
-                    $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 1));
-                    $arrayObject->offsetSet('identifiers', $r['identifier']);
-                    $arrayObject->offsetSet('pid', $r['pid']);
-                    $arrayObject->offsetSet('type', str_replace(RC::get('fedoraVocabsNamespace'), '', $r['acdhType']) );
-                    $arrayObject->offsetSet('typeUri', $r['acdhType'] );
-                    
-                    if(isset($r['availableDate']) && !empty($r['availableDate'])){
-                        $arrayObject->offsetSet('availableDate', $r['availableDate'] );
+                    if( (isset($r['title']) && !empty($r['title']) ) 
+                            && ( isset($r['uri']) && !empty($r['uri']) ) 
+                            && ( isset($r['identifier']) && !empty($r['identifier']) ) 
+                            && ( isset($r['acdhType']) && !empty($r['acdhType']) ) ) {
+                        $tblArray = array();
+
+                        $arrayObject = new \ArrayObject();
+                        $arrayObject->offsetSet('title', $r['title']);
+                        $resourceIdentifier = $this->oeawFunctions->createDetailViewUrl($r);
+                        $arrayObject->offsetSet('uri', $resourceIdentifier);
+                        $arrayObject->offsetSet('fedoraUri', $r['uri']);
+                        $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 1));
+                        $arrayObject->offsetSet('identifiers', $r['identifier']);
+                        $arrayObject->offsetSet('pid', $r['pid']);
+                        $arrayObject->offsetSet('type', str_replace(RC::get('fedoraVocabsNamespace'), '', $r['acdhType']) );
+                        $arrayObject->offsetSet('typeUri', $r['acdhType'] );
+
+                        if(isset($r['availableDate']) && !empty($r['availableDate'])){
+                            $arrayObject->offsetSet('availableDate', $r['availableDate'] );
+                        }
+                        if(isset($r['accessRestriction']) && !empty($r['accessRestriction'])){
+                            $arrayObject->offsetSet('accessRestriction', $r['accessRestriction'] );
+                        }
+
+                        if(isset($r['authors']) && !empty($r['authors'])){
+                            $authArr = explode(',', $r['authors']);
+                            $tblArray['authors'] = $this->oeawFunctions->createContribAuthorData($authArr);
+                        }
+
+                        if(isset($r['contribs']) && !empty($r['contribs'])){
+                            $contrArr = explode(',', $r['contribs']);
+                            $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
+                        }
+
+                        if(count($tblArray) == 0){
+                            $tblArray['title'] = $r['title']; 
+                        }
+                        $arrayObject->offsetSet('table', $tblArray);
+
+                        if(isset($r['image']) && !empty($r['image'])){
+                            $arrayObject->offsetSet('imageUrl', $r['image']);
+                        }
+                        else if(isset($r['hasTitleImage']) && !empty($r['hasTitleImage']) ){
+                            $imageUrl = $this->oeawStorage->getImageByIdentifier($r['hasTitleImage']);
+                            if($imageUrl){ $arrayObject->offsetSet('imageUrl', $imageUrl); }
+                        }
+                        try {
+                            $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
+                            $result[] = $obj;
+                        } catch (ErrorException $ex) {
+                            throw new \ErrorException("Problem during the root list data generating!");
+                        }
                     }
-                    if(isset($r['accessRestriction']) && !empty($r['accessRestriction'])){
-                        $arrayObject->offsetSet('accessRestriction', $r['accessRestriction'] );
-                    }
-                    
-                    if(isset($r['authors']) && !empty($r['authors'])){
-                        $authArr = explode(',', $r['authors']);
-                        $tblArray['authors'] = $this->oeawFunctions->createContribAuthorData($authArr);
-                    }
-                    
-                    if(isset($r['contribs']) && !empty($r['contribs'])){
-                        $contrArr = explode(',', $r['contribs']);
-                        $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
-                    }
-                    
-                    if(count($tblArray) == 0){
-                        $tblArray['title'] = $r['title']; 
-                    }
-                    $arrayObject->offsetSet('table', $tblArray);
-                
-                    if(isset($r['image']) && !empty($r['image'])){
-                        $arrayObject->offsetSet('imageUrl', $r['image']);
-                    }
-                    else if(isset($r['hasTitleImage']) && !empty($r['hasTitleImage']) ){
-                        $imageUrl = $this->oeawStorage->getImageByIdentifier($r['hasTitleImage']);
-                        if($imageUrl){ $arrayObject->offsetSet('imageUrl', $imageUrl); }
-                    }
-                    try {
-                        $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
-                        $result[] = $obj;
-                    } catch (ErrorException $ex) {
-                        throw new \ErrorException("Problem during the root list data generating!");
-                    }
-                    
                 }
             }
             if (count($result) == 0){
@@ -738,8 +742,6 @@ class FrontendController extends ControllerBase
         }
     }
    
-    
-    
     
     /**
      * cache the acdh ontology 
