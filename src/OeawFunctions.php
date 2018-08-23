@@ -10,6 +10,7 @@ use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Entity\Exception;
 use Drupal\Core\Ajax\InvokeCommand;
 use Drupal\Component\Render\MarkupInterface;
+use Drupal\Core\Cache\CacheBackendInterface;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -97,6 +98,33 @@ class OeawFunctions {
     }
     
     /**
+     * Get the actual child page and limit from the actual url
+     * 
+     * @param string $data
+     * @return array
+     */
+    public function getLimitAndPageFromUrl(string $data): array {
+        if(count($data) == 0){
+            return array();
+        }
+        
+        $data = explode("&", $data);
+        $page = 0;
+        $limit = 10;
+        foreach($data as $d) {
+            if (strpos($d, 'page') !== false) {
+                $page = str_replace("page=", "", $d);
+            }
+            if (strpos($d, 'limit') !== false) {
+                $limit = str_replace("limit=", "", $d);
+            }
+        }
+        
+        return array("page" => $page, "limit" => $limit);
+        
+    }
+    
+    /**
      * 
      * Encode or decode the detail view url
      * 
@@ -104,33 +132,51 @@ class OeawFunctions {
      * @param bool $code : 0 - decode / 1 -encode
      * @return string
     */
-    public function detailViewUrlDecodeEncode(string $uri, int $code = 0): string {
+    public function detailViewUrlDecodeEncode(string $data, int $code = 0): string {
         
-        if(empty($uri)){
-            return $uri;
-        }
+        if(empty($data)){ return ""; }
         
-        if($code == 0){
-            $uri = str_replace(" ", "/", rawurldecode($uri));
-            if (strpos($uri, 'hdl.handle.net') !== false) {
-                $uri = "http://".$uri;
-            }else {
-                $uri = "https://".$uri;
+        if($code == 0) {
+            $data = explode(":", $data);
+            $page = 0;
+            $limit = 0;
+            $identifier = "";
+
+            foreach($data as $ra) {
+                if (strpos($ra, '&') !== false) {
+                    $pos = strpos($ra, '&');
+                    $ra = substr($ra, 0, $pos);
+                    //$page = str_replace("page=", "", $ra);
+                    $identifier .= $ra."/";
+                }else {
+                    $identifier .= $ra."/";
+                }
             }
+            
+            if (strpos($identifier, 'hdl.handle.net') !== false) {
+                $identifier = "http://".$identifier;
+            }else {
+                $identifier = "https://".$identifier;
+            }
+            
+            if(substr($identifier, -1) == "/") { 
+                $identifier = substr_replace($identifier, "", -1); 
+            }
+            return $identifier;
         }
         
         if($code == 1){
-            if (strpos($uri, 'hdl.handle.net') !== false) {
-                $uri = str_replace("http://", "", $uri);
-                $uri = str_replace("/", " ", $uri);
-                $uri = rawurlencode($uri);
+            if (strpos($data, 'hdl.handle.net') !== false) {
+                $data = str_replace("http://", "", $data);
+            }else if(strpos($data, 'https') !== false) {
+                $data = str_replace("https://", "", $data);
             }else {
-                $uri = str_replace("https://", "", $uri);
-                $uri = str_replace("/", " ", $uri);
-                $uri = rawurlencode($uri);
+                $data = str_replace("http://", "", $data);
             }
+            return $data;
+            //return array($data['identifier']);
         }
-        return $uri;
+        
     }
     
     /**
@@ -1236,8 +1282,12 @@ class OeawFunctions {
         $resourceIdentifier = Helper::getAcdhIdentifier($resourceIdentifiers);
         
         $rsId = array();
+        $uuid = "";
         if(count($resourceIdentifiers) > 0){
             foreach ($resourceIdentifiers as $ids){
+                if (strpos($ids->getUri(), RC::get('fedoraUuidNamespace')) !== false) {
+                   $uuid =  $ids->getUri();
+                }
                 $rsId[] = $ids->getUri();
             }
         }
@@ -1358,11 +1408,12 @@ class OeawFunctions {
                                 $decodId = "";
                                 if(isset($t['pid']) && !empty($t['pid'])){
                                     $decodId = $t['pid'];
-                                }else if(isset($t['identifier']) && !empty($t['identifier'])){
-                                    $decodId = $t['identifier'];
                                 }else if(isset($t['uuid']) && !empty($t['uuid'])){
                                     $decodId = $t['uuid'];
+                                }else if(isset($t['identifier']) && !empty($t['identifier'])){
+                                    $decodId = $t['identifier'];
                                 }
+                                
                                 if(!empty($decodId)){
                                     $result['table'][$k][$key]['insideUri'] = $this->detailViewUrlDecodeEncode($decodId, 1);
                                 }
@@ -1382,7 +1433,7 @@ class OeawFunctions {
         
         $arrayObject->offsetSet('table', $result['table']);
         $arrayObject->offsetSet('title', $resourceTitle->__toString());
-        $arrayObject->offsetSet('uri', $this->detailViewUrlDecodeEncode($resourceIdentifier, 0));
+        $arrayObject->offsetSet('uri', $this->detailViewUrlDecodeEncode( $resourceIdentifier, 0));
         $arrayObject->offsetSet('type', $result['acdh_rdf:type']['title'] );
         $arrayObject->offsetSet('typeUri', $result['acdh_rdf:type']['uri'] );
         $arrayObject->offsetSet('acdh_rdf:type', array("title" => $result['acdh_rdf:type']['title'], "insideUri" => $result['acdh_rdf:type']['insideUri']));
@@ -1391,7 +1442,7 @@ class OeawFunctions {
         if(isset($result['table']['acdh:hasAccessRestriction']) && !empty($result['table']['acdh:hasAccessRestriction'][0]) ){
             $arrayObject->offsetSet('accessRestriction', $result['table']['acdh:hasAccessRestriction'][0]);
         }
-        $arrayObject->offsetSet('insideUri', $this->detailViewUrlDecodeEncode($resourceIdentifier, 1));
+        $arrayObject->offsetSet('insideUri', $this->detailViewUrlDecodeEncode( $uuid, 1));
         if(isset($result['image'])){
             $arrayObject->offsetSet('imageUrl', $result['image']);
         }
@@ -1713,6 +1764,7 @@ class OeawFunctions {
         $oeawStorage = new OeawStorage();
         $specialType = "child";
         $currentPage = $this->getCurrentPageForPagination();
+        
         //we checks if the acdh:Person is available then we will get the Person Detail view data
         if(!empty($data->getType()) && !empty($data->getTypeUri())){
             if(in_array(strtolower($data->getType()), CC::$availableCustomViews)){
@@ -1753,6 +1805,88 @@ class OeawFunctions {
             }
         }
         $result["currentPage"] = $currentPage;
+        $result["specialType"] = $specialType;
+        
+        return $result;
+    }
+    
+    
+    public function generateChildAPIData(string $identifier, int $limit, int $page, string $order): array {
+        
+        $result = array();
+        $countData = array();
+        $typeProperties = array();
+        $oeawStorage = new OeawStorage();
+        $specialType = "child";
+        //get the main resource data
+        $resType = $oeawStorage->getTypeByIdentifier($identifier);
+        
+        if(count($resType) == 0) { return array(); }
+        
+        $typeUri = $resType[0]['type'];
+        $type = str_replace(RC::get('fedoraVocabsNamespace'), '', $resType[0]['type']);
+        
+        //we checks if the acdh:Person is available then we will get the Person Detail view data
+        if(!empty($type) && !empty($typeUri)){
+            if(in_array(strtolower($type), CC::$availableCustomViews)){
+                $specialType = $type;
+                $typeProperties = CC::getDetailChildViewProperties($typeUri);
+                if(count($typeProperties) > 0){
+                    $countData = $oeawStorage->getSpecialDetailViewData($identifier, 0, $page, true, $typeProperties);
+                    $result["maxPage"] = count($countData);
+                }
+            }else{
+                if(count($countData) == 0) {
+                    $countData = $oeawStorage->getChildrenViewData(array($identifier), 0, $page, true);   
+                    $result["maxPage"] = count($countData);
+                }
+            }
+        }
+       
+        $total = (int)count($countData);
+        if($limit == "0") { $limit = "10"; }
+        if($page != "0" && $page != "1") {  $offset = ($page - 1)  * $limit; } else { $offset = 0; }
+        
+        if(in_array(strtolower($specialType), CC::$availableCustomViews)) {
+            //$childrenData = $oeawStorage->getSpecialDetailViewData($identifier, $limit, $offset, false, $typeProperties);
+            $childrenData = $oeawStorage->getSpecialDetailViewData($identifier, $limit, $offset, false, $typeProperties, "en", $order);
+        }else {
+            //there is no special children view, so we are using the the default children table
+            //$childrenData = $oeawStorage->getChildrenViewData(array($identifier), $limit, $offset);
+            $childrenData = $oeawStorage->getChildrenViewData(array($identifier), $limit, $offset, false, "en", $order);
+        }
+        
+        //we have children data so we will generate the view for it
+        /*if(count($childrenData) > 0){
+            try {
+               // $result["childResult"] = $this->createChildrenViewData($childrenData);
+            } catch (Exception $ex) {
+                throw new \ErrorException($ex->getMessage());
+            }
+        }
+        */
+        
+        $cacheId = str_replace(RC::get('fedoraUuidNamespace'), '', $identifier);
+        $maxPageCh = \Drupal::cache()->get('oeaw.dV'.$cacheId.'.maxPage');
+        
+        if($maxPageCh === false) {
+            \Drupal::cache()->set('oeaw.dV'.$cacheId.'.maxPage', $countData, CacheBackendInterface::CACHE_PERMANENT);
+            $maxPage = \Drupal::cache()->get('oeaw.dV'.$cacheId.'.maxPage');
+            $result["maxPage"] = $maxPage->data;
+        }
+        
+        
+         //we have children data so we will generate the view for it
+        if(count($childrenData) > 0){
+            try {
+                $result["childResult"] = $this->createChildrenViewData($childrenData);
+            } catch (Exception $ex) {
+                throw new \ErrorException($ex->getMessage());
+            }
+        }
+        
+        $result["currentPage"] = $page;
+        $result["currentLimit"] = $limit;
         $result["specialType"] = $specialType;
         
         return $result;

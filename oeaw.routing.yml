@@ -1,11 +1,18 @@
 oeaw_detail_list:
-  path: '/oeaw_detail/{uri}/{limit}/{page}'
+  path: '/oeaw_detail/{res_data}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_detail'
-    uri: .+
-    limit: "0"
-    page: "0"
   requirements:
+    res_data: '^[^\?]*$'
+    _permission: 'access content'
+    _access: 'TRUE'
+
+oeaw_detail_list:
+  path: '/api/checkIdentifier/{identifier}'
+  defaults:
+    _controller: '\Drupal\oeaw\Plugin\rest\resource\ApiCheckACDHIdentifierResource::get'
+  requirements:
+    identifier: '^[^\?]*$'
     _permission: 'access content'
     _access: 'TRUE'
 
@@ -93,27 +100,39 @@ oeaw_depagree_three:
     _access: 'TRUE'
 
 oeaw_depagree_four:
-  path: '/deposition-agreement-four/{formid}'
-  defaults:
-    _form: '\Drupal\oeaw\Form\DepAgreeFourForm'
-    _title: 'Deposition agreement, Step 4'
-    formid: 'new'
-  requirements:
-    _permission: 'access content'
-    _access: 'TRUE'
+    path: '/deposition-agreement-four/{formid}'
+    defaults:
+        _form: '\Drupal\oeaw\Form\DepAgreeFourForm'
+        _title: 'Deposition agreement, Step 4'
+        formid: 'new'
+    requirements:
+        _permission: 'access content'
+        _access: 'TRUE'
 
 oeaw_inverse_result:    
     path: '/oeaw_inverse_result/{data}'
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_inverse_result'
     requirements:
+        data: '^[^\?]*$'
+        _permission: 'access content'
         _access: 'TRUE'
+
+oeaw_child_api:    
+    path: '/oeaw_child_api/{identifier}/{limit}/{page}/{order}'
+    defaults:
+        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_child_api'
+    requirements:
+        _access: 'TRUE'
+
         
 oeaw_ismember_result:
     path: '/oeaw_ismember_result/{data}'
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_ismember_result'
     requirements:
+        data: '^[^\?]*$'
+        _permission: 'access content'
         _access: 'TRUE'
 
 oeaw_cache_ontology:    
@@ -128,7 +147,9 @@ oeaw_get_collection_data:
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_get_collection_data'
     requirements:
+        uri: '^[^\?]*$'
         _permission: 'access content'
+        _access: 'TRUE'
         
 oeaw_3d_viewer:
     path: '/oeaw_3d_viewer/{data}'
@@ -142,6 +163,8 @@ oeaw_dl_collection:
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_dl_collection_view'
     requirements:
+        uri: '^[^\?]*$'
+        _permission: 'access content'
         _access: 'TRUE'
 
 oeaw_dlc:

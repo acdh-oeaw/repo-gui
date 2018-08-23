@@ -245,6 +245,32 @@ class OeawStorage implements OeawStorageInterface {
             throw new Exception($ex->getMessage());
         }
     }
+    
+    public function getTypeByIdentifier(string $identifier, string $lang = "en" ): array {
+        $getResult = array();
+        $lang = strtolower($lang);
+        
+        try {
+            $select = " SELECT ?uri ?type WHERE { ";
+            
+            $where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";
+            $where .= "?uri <".RC::get('drupalRdfType')."> ?type . ";
+            $where .= ' FILTER (regex(str(?type),"vocabs.acdh.oeaw.ac.at","i")) .';
+            $where .= " } ";
+            
+            $query = $select.$where;
+            
+            $result = $this->fedora->runSparql($query);
+            $fields = $result->getFields();             
+            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
+            
+            return $getResult;
+        }  catch (\Exception $ex) {
+            return array();
+        } catch (\InvalidArgumentException $ex){
+            return array();
+        }
+    }
    
     /**
      * Get the reource title by its acdh:hasIdentifier property
@@ -1037,7 +1063,7 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $lang
      * @return array
      */
-    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "en"): array {
+    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "en", string $order = "asc"): array {
         
         if (count($ids) < 0) { return array(); }
         if($offset < 0) { $offset = 0; }
@@ -1081,7 +1107,8 @@ class OeawStorage implements OeawStorageInterface {
             }
         }
         $where .= ')';
-        $groupBy = ' }  GROUP BY ?uri ?title ?pid ?accessRestriction ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' }  GROUP BY ?uri ?title ?pid ?accessRestriction '; 
+        $groupBy .= ' ORDER BY '.$order.' ( fn:lower-case(?title)) ';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
         
@@ -1645,7 +1672,7 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $lang
      * @return array
      */
-    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en"): array 
+    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en", string $orderby = 'asc'): array 
     {
         if($offset < 0) { $offset = 0; }
         $lang = strtolower($lang);
@@ -1688,7 +1715,8 @@ class OeawStorage implements OeawStorageInterface {
             }
             ';
         
-        $groupBy = ' GROUP BY ?uri ?title ?pid ?accessRestriction ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' GROUP BY ?uri ?title ?pid ?accessRestriction ';
+        $groupBy .= ' ORDER BY '.$orderby.' ( fn:lower-case(?title))';
         
         $queryStr = $prefix.$select.$where.$groupBy.$limitStr;
         
