@@ -297,7 +297,7 @@ class FrontendController extends ControllerBase
         
         $identifier = "";
         //transform the url from the browser to readable uri
-        $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);        
+        $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);
         if (empty($identifier)) {
             drupal_set_message(t('Resource does not exist!'), 'error');
             return array();
@@ -365,6 +365,21 @@ class FrontendController extends ControllerBase
                 return array();
             }
             
+            //check the acdh:hasIdentifier data to the child view
+            if(count($resultsObj->getIdentifiers()) > 0){
+                $customDetailView = array();
+                //if we have a type and this type can found in the available custom views array
+                try{
+                    $customDetailView = $this->oeawFunctions->createCustomDetailViewTemplateData($resultsObj, $resultsObj->getType());
+                } catch (\ErrorException $ex) {
+                    drupal_set_message(t("Error ARCHE cant generate the Resource Custom Table View! ".$ex->getMessage()), 'error');
+                    return array();
+                }
+                
+                if(count((array)$customDetailView) > 0){
+                    $extras['specialType'][strtolower($resultsObj->getType())] = $customDetailView;
+                }
+            }
         } else {
             drupal_set_message(t("The resource has no metadata!"), 'error');
             return array();
