@@ -116,13 +116,13 @@ class OeawStorage implements OeawStorageInterface {
                 $order = "DESC( fn:lower-case(str(?title)))";
                 break;
             case "dateasc":
-                $order = "ASC(?availableDate)";
+                $order = "ASC(?avDate)";
                 break;
             case "datedesc":
-                $order = "DESC(?availableDate)";
+                $order = "DESC(?avDate)";
                 break;
             default:
-                $order = "DESC(?availableDate)";
+                $order = "DESC(?avDate)";
         }
 
         if($offset < 0) { $offset = 0; }
@@ -149,7 +149,7 @@ class OeawStorage implements OeawStorageInterface {
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasContributor')."> ?contributors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasAuthor')."> ?authors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
-            $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?avDate . }";
                             //. " BIND( (CONCAT(STR(substr(?avDate, 0, 10)))) as ?availableDate) . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationStartDate')."> ?hasCreationStartDate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationEndDate')."> ?hasCreationEndDate . } ";
@@ -176,8 +176,8 @@ class OeawStorage implements OeawStorageInterface {
 
             if($count == false){
                     $select = 'SELECT ?uri ?title ?pid '; 
-                    $select .= $this->modelFunctions->convertFieldDate("availableDate", "availableDate", 0); 
-                    $select .= ' ?isPartOf ?image ?hasTitleImage ';
+                    $select .= $this->modelFunctions->convertFieldDate("avDate", "availableDate", 0); 
+                    $select .= ' ?isPartOf ?image ?hasTitleImage ?avDate';
                     $select .= $this->modelFunctions->convertFieldDate("hasCreationStartDate", "hasCreationStartDate", 0);
                     $select .= $this->modelFunctions->convertFieldDate("hasCreationEndDate", "hasCreationEndDate", 0);
                     $select .= ' ?accessRestriction ?acdhType '
@@ -185,7 +185,7 @@ class OeawStorage implements OeawStorageInterface {
                                     . ' (GROUP_CONCAT(DISTINCT ?authors;separator=",") AS ?author) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)'
                                     . '(GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)';
 
-                    $groupby = " GROUP BY ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ?accessRestriction ?acdhType ";
+                    $groupby = " GROUP BY ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ?accessRestriction ?acdhType ?avDate ";
                     $orderby = " ORDER BY ".$order." ";
                     $limitOffset = "LIMIT ".$limit." OFFSET ".$offset." ";
             }else {
