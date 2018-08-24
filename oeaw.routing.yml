@@ -156,6 +156,8 @@ oeaw_3d_viewer:
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_3d_viewer'
     requirements:
+        data: '^[^\?]*$'
+        _permission: 'access content'
         _access: 'TRUE'
         
 oeaw_dl_collection:
@@ -180,6 +182,8 @@ oeaw_iiif_viewer:
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_iiif_viewer'
     requirements:
+        uri: '^[^\?]*$'
+        _permission: 'access content'
         _access: 'TRUE'
 
 oeaw_shibboleth_login:

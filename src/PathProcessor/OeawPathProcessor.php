@@ -51,6 +51,18 @@ class OeawPathProcessor implements InboundPathProcessorInterface
             return "/oeaw_ismember_result/$names";
         }
         
+        if (strpos($path, '/oeaw_3d_viewer/') === 0) {
+            $names = preg_replace('|^\/oeaw_3d_viewer\/|', '', $path);
+            $names = str_replace('/',':', $names);
+            return "/oeaw_3d_viewer/$names";
+        }
+        
+        if (strpos($path, '/iiif_viewer/') === 0) {
+            $names = preg_replace('|^\/iiif_viewer\/|', '', $path);
+            $names = str_replace('/',':', $names);
+            return "/iiif_viewer/$names";
+        }
+        
         return $path;
     }
 }
