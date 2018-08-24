@@ -26,11 +26,11 @@
             -webkit-appearance:none; /* Safari and Chrome */
         }
     </style>
-    {% if data %}
+    {% if data is empty %}
+        <span> <a href="#" id="first-btn" >First</a></span>
+    {% else %}
         <span> {{ data }} Page(s)</span>
         <span class="results-info-bar"> <a href="#" id="first-btn" >First</a></span>
-    {% else %}
-        <span> <a href="#" id="first-btn" >First</a></span>
     {% endif %}
     
     <span><a href="#" id="prev-btn" >Prev</a> </span>

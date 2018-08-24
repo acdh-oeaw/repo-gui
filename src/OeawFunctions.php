@@ -1854,26 +1854,6 @@ class OeawFunctions {
             $childrenData = $oeawStorage->getChildrenViewData(array($identifier), $limit, $offset, false, "en", $order);
         }
         
-        //we have children data so we will generate the view for it
-        /*if(count($childrenData) > 0){
-            try {
-               // $result["childResult"] = $this->createChildrenViewData($childrenData);
-            } catch (Exception $ex) {
-                throw new \ErrorException($ex->getMessage());
-            }
-        }
-        */
-        
-        $cacheId = str_replace(RC::get('fedoraUuidNamespace'), '', $identifier);
-        $maxPageCh = \Drupal::cache()->get('oeaw.dV'.$cacheId.'.maxPage');
-        
-        if($maxPageCh === false) {
-            \Drupal::cache()->set('oeaw.dV'.$cacheId.'.maxPage', $countData, CacheBackendInterface::CACHE_PERMANENT);
-            $maxPage = \Drupal::cache()->get('oeaw.dV'.$cacheId.'.maxPage');
-            $result["maxPage"] = $maxPage->data;
-        }
-        
-        
          //we have children data so we will generate the view for it
         if(count($childrenData) > 0){
             try {
@@ -1886,6 +1866,9 @@ class OeawFunctions {
         $result["mainResourceType"] = $type;
         $result["currentPage"] = $page;
         $result["currentLimit"] = $limit;
+        if(isset($result["maxPage"]) && !empty($result["maxPage"])) {
+            $result["maxPageLimit"] = ceil((int)$result["maxPage"]/(int)$limit);
+        }
         $result["specialType"] = $specialType;
         
         return $result;

@@ -360,15 +360,19 @@
         </div>
                 
         <div class="res-el res-info res-child-info col-block col-lg-12">
-            {% if result['mainResourceType']|lower == "collection" %}
-                <div class="res-act-button res-act-button-reverse res-act-button-treeview basic">
-                    <i class="material-icons">&#xE335;</i>
-                    <span>Switch to Tree-View</span>
-                </div>
-            {% endif %}
-                
-            {{ include('/modules/oeaw/templates/paging.html.twig', {'data': result['maxPage'] } ) }}
             
+            <div class="result-basic-info" style="float:left;">
+            {% if result['mainResourceType']|lower == "collection" %}
+                    <div class="res-act-button res-act-button-reverse res-act-button-treeview basic" style="text-align:left">
+                        <i class="material-icons">&#xE335;</i>
+                        <span>Switch to Tree-View</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="result-basic-info">
+                {{ include('/modules/oeaw/templates/paging.html.twig', {'data': result['maxPageLimit'] } ) }}
+            </div>    
         </div>
     </div>
 

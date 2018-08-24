@@ -276,26 +276,17 @@ class FrontendController extends ControllerBase
         return $datatable;
     }
    
-    
     /**
+     * The detail view of the Resource
      * 
-     * The detail view of the Resource with the existing children resources
-     * 
-     * @param string $uri
-     * @param Request $request
-     * @param string $limit
-     * @param string $page
+     * @param string $res_data
      * @return array
      */
-    //public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "1"): array {
     public function oeaw_detail(string $res_data): array {
         drupal_get_messages('error', TRUE);
         
-        $inverseData = array();
-        $childResult = array();
         $rules = array();
         $ACL = array();
-        $childrenData = array();
         $fedoraRes = array();
         
         //we have the url and limit page data in the string
@@ -306,8 +297,11 @@ class FrontendController extends ControllerBase
         
         $identifier = "";
         //transform the url from the browser to readable uri
-        $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);
-//        $cacheId = str_replace(RC::get('fedoraUuidNamespace'), '', $identifier);
+        $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);        
+        if (empty($identifier)) {
+            drupal_set_message(t('Resource does not exist!'), 'error');
+            return array();
+        }
         
         $limitAndPage = $this->oeawFunctions->getLimitAndPageFromUrl($res_data);
         
@@ -323,32 +317,10 @@ class FrontendController extends ControllerBase
             }
         }
         
-        /*
-        $pageCh = \Drupal::cache()->get('oeaw.dV'.$cacheId.'.page');
-        
-        if($pageCh === false) {
-            \Drupal::cache()->set('oeaw.dV'.$cacheId.'.page', 1, CacheBackendInterface::CACHE_PERMANENT);
-            $pageObj = \Drupal::cache()->get('oeaw.dV'.$cacheId.'.page');
-            $page = $pageObj->data;
-        }else {
-            $page = $pageCh->data;
-        }*/
-        
-
-        //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
-        if ($page > 0) { $page = $page-1; }
-        
         //if the browser url contains handle url then we need to get the acdh:hasIdentifier
         if (strpos($identifier, 'hdl.handle.net') !== false) {
             $identifier = $this->oeawFunctions->pidToAcdhIdentifier($identifier);
         }
-        
-        if (empty($identifier)) {
-            drupal_set_message(t('Resource does not exist!'), 'error');
-            return array();
-        }
-        
-        if($limit == "0"){ $limit = "10"; }
         
         $fedora = $this->oeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
@@ -378,8 +350,6 @@ class FrontendController extends ControllerBase
         //check the rules array!!!!
        
         if(count((array)$rootMeta)){
-            $results = array();
-            
             //create the OEAW resource Object for the GUI data
             try {
                 $resultsObj = $this->oeawFunctions->createDetailViewTable($rootMeta);
@@ -395,45 +365,6 @@ class FrontendController extends ControllerBase
                 return array();
             }
             
-            //check the acdh:hasIdentifier data to the child view
-            if(count($resultsObj->getIdentifiers()) > 0){
-                //set up the necessary properties for the child data generation
-                $properties = array();
-                $limit = 200;
-                $properties = array("limit" => $limit, "page" => $page, "identifier" => $resultsObj->getIdentifiers());
-                //get the child view data
-                /*
-                $childArray = array();
-                $childArray = $this->oeawFunctions->generateChildViewData($resultsObj->getIdentifiers(), $resultsObj, $properties);
-
-                if(count($childArray) > 0){
-                    //pass the specialtype info to the template
-                    if(isset($childArray['specialType'])){
-                        $extras["childType"] = $childArray['specialType'];
-                    }
-                    //child table data
-                    if(isset($childArray['childResult']) && count($childArray['childResult']) > 0){
-                        $childResult = $childArray['childResult'];
-                    }
-                    //setup pagination infos
-                    if(isset($childArray['pagination'])){
-                        $extras["pagination"] = $childArray['pagination'];
-                    }
-                }
-                */
-                $customDetailView = array();
-                //if we have a type and this type can found in the available custom views array
-                try{
-                    $customDetailView = $this->oeawFunctions->createCustomDetailViewTemplateData($resultsObj, $resultsObj->getType());
-                } catch (\ErrorException $ex) {
-                    drupal_set_message(t("Error ARCHE cant generate the Resource Custom Table View! ".$ex->getMessage()), 'error');
-                    return array();
-                }
-                
-                if(count((array)$customDetailView) > 0){
-                    $extras['specialType'][strtolower($resultsObj->getType())] = $customDetailView;
-                }
-            }
         } else {
             drupal_set_message(t("The resource has no metadata!"), 'error');
             return array();
@@ -477,10 +408,6 @@ class FrontendController extends ControllerBase
         
         // Pass fedora uri so it can be linked in the template
         $extras["fedoraURI"] = $rootMeta->getUri();
-        
-        if(count($inverseData) > 0){
-            $extras['inverseData'] = $inverseData;
-        }
         
         //format the hasavailable date
         if(!empty($resultsObj->getTableData("acdh:hasAvailableDate"))){
@@ -536,8 +463,6 @@ class FrontendController extends ControllerBase
             '#result' => $resultsObj,
             '#extras' => $extras,
             '#userid' => $uid,
-            #'#query' => $query,            
-            //'#childResult' => $childResult,
             '#attached' => [
                 'library' => [
                 'oeaw/oeaw-styles', //include our custom library for this response
