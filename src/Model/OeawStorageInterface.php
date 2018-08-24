@@ -34,7 +34,7 @@ interface OeawStorageInterface {
     
     //API sql
     public function getClassMetaForApi(string $classURI, string $lang = "en"): array;
-    
+    public function getTypeByIdentifier(string $identifier, string $lang = "en" ): array;
     
     //detail view sql
     public function getInverseViewDataByIdentifier(array $data): array;

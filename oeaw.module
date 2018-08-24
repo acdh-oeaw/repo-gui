@@ -6,6 +6,11 @@ function oeaw_theme() {
     'template' => 'resDetail',
   ];  
   
+  $theme['oeaw_child_view'] = [
+    'variables' => ['result' => NULL, 'pagination' => NULL],
+    'template' => 'childView',
+  ];  
+  
   $theme['oeaw_3d_viewer'] = [
     'variables' => ['ObjectUrl' => NULL, 'errorMSG' => null, 'templateData' => null],
     'template' => 'viewer_3d',
@@ -103,7 +108,25 @@ function oeaw_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     $roles = \Drupal::currentUser()->getRoles();
     if(count($roles) > 0){ $roles = implode(",", $roles); }
     $form['#attached']['drupalSettings']['oeaw']['users']['roles'] = $roles;
-
+    
+    $current_path = \Drupal::service('path.current')->getPath();
+    
+    //if we are on the detail view then we need to cache the page settings.
+    if (strpos($current_path, '/oeaw_detail/') !== false) {
+        $cacheId = str_replace('/oeaw_detail/id.acdh.oeaw.ac.at:uuid:', '', $current_path);
+        $pageCh = \Drupal::cache()->get('oeaw.dV'.$cacheId.'.page');
+        $page = "";
+        if($pageCh === false) {
+            \Drupal::cache()->set('oeaw.dV'.$cacheId.'.page', 1, \Drupal\Core\Cache\CacheBackendInterface::CACHE_PERMANENT);
+            $pageObj = \Drupal::cache()->get('oeaw.dV'.$cacheId.'.page');
+            $page = $pageObj->data;
+        }else {
+            $page = $pageCh->data;
+        }
+        
+        if(!$page) { $detailPage = 1; }
+        $form['#attached']['drupalSettings']['oeaw']['dV'.$cacheId]['page'] = $page;
+    }
     return $form;
 }
 

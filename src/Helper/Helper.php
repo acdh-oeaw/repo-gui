@@ -27,18 +27,16 @@ class Helper {
     
     public static function getAcdhIdentifier(array $identifiers): string{
         if (count($identifiers) > 0){
-            $uuid = "";
             foreach($identifiers as $id){
                 if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
-                    $uuid = $id;
+                    return $id;
                     //if the identifier is the normal acdh identifier then return it
                 }else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
                     return $id;
                 }
             }
         }
-         return $uuid;
-        
+        return "";
     }
     
     /**

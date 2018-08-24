@@ -116,13 +116,13 @@ class OeawStorage implements OeawStorageInterface {
                 $order = "DESC( fn:lower-case(str(?title)))";
                 break;
             case "dateasc":
-                $order = "ASC(?availableDate)";
+                $order = "ASC(?avDate)";
                 break;
             case "datedesc":
-                $order = "DESC(?availableDate)";
+                $order = "DESC(?avDate)";
                 break;
             default:
-                $order = "DESC(?availableDate)";
+                $order = "DESC(?avDate)";
         }
 
         if($offset < 0) { $offset = 0; }
@@ -149,7 +149,7 @@ class OeawStorage implements OeawStorageInterface {
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasContributor')."> ?contributors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasAuthor')."> ?authors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
-            $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?avDate . }";
                             //. " BIND( (CONCAT(STR(substr(?avDate, 0, 10)))) as ?availableDate) . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationStartDate')."> ?hasCreationStartDate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationEndDate')."> ?hasCreationEndDate . } ";
@@ -176,8 +176,8 @@ class OeawStorage implements OeawStorageInterface {
 
             if($count == false){
                     $select = 'SELECT ?uri ?title ?pid '; 
-                    $select .= $this->modelFunctions->convertFieldDate("availableDate", "availableDate", 0); 
-                    $select .= ' ?isPartOf ?image ?hasTitleImage ';
+                    $select .= $this->modelFunctions->convertFieldDate("avDate", "availableDate", 0); 
+                    $select .= ' ?isPartOf ?image ?hasTitleImage ?avDate';
                     $select .= $this->modelFunctions->convertFieldDate("hasCreationStartDate", "hasCreationStartDate", 0);
                     $select .= $this->modelFunctions->convertFieldDate("hasCreationEndDate", "hasCreationEndDate", 0);
                     $select .= ' ?accessRestriction ?acdhType '
@@ -185,7 +185,7 @@ class OeawStorage implements OeawStorageInterface {
                                     . ' (GROUP_CONCAT(DISTINCT ?authors;separator=",") AS ?author) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)'
                                     . '(GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)';
 
-                    $groupby = " GROUP BY ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ?accessRestriction ?acdhType ";
+                    $groupby = " GROUP BY ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ?accessRestriction ?acdhType ?avDate ";
                     $orderby = " ORDER BY ".$order." ";
                     $limitOffset = "LIMIT ".$limit." OFFSET ".$offset." ";
             }else {
@@ -243,6 +243,32 @@ class OeawStorage implements OeawStorageInterface {
             throw new \InvalidArgumentException($ex->getMessage());
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             throw new Exception($ex->getMessage());
+        }
+    }
+    
+    public function getTypeByIdentifier(string $identifier, string $lang = "en" ): array {
+        $getResult = array();
+        $lang = strtolower($lang);
+        
+        try {
+            $select = " SELECT ?uri ?type WHERE { ";
+            
+            $where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";
+            $where .= "?uri <".RC::get('drupalRdfType')."> ?type . ";
+            $where .= ' FILTER (regex(str(?type),"vocabs.acdh.oeaw.ac.at","i")) .';
+            $where .= " } ";
+            
+            $query = $select.$where;
+            
+            $result = $this->fedora->runSparql($query);
+            $fields = $result->getFields();             
+            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
+            
+            return $getResult;
+        }  catch (\Exception $ex) {
+            return array();
+        } catch (\InvalidArgumentException $ex){
+            return array();
         }
     }
    
@@ -1037,7 +1063,7 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $lang
      * @return array
      */
-    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "en"): array {
+    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "en", string $order = "asc"): array {
         
         if (count($ids) < 0) { return array(); }
         if($offset < 0) { $offset = 0; }
@@ -1081,7 +1107,8 @@ class OeawStorage implements OeawStorageInterface {
             }
         }
         $where .= ')';
-        $groupBy = ' }  GROUP BY ?uri ?title ?pid ?accessRestriction ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' }  GROUP BY ?uri ?title ?pid ?accessRestriction '; 
+        $groupBy .= ' ORDER BY '.$order.' ( fn:lower-case(?title)) ';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
         
@@ -1645,7 +1672,7 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $lang
      * @return array
      */
-    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en"): array 
+    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en", string $orderby = 'asc'): array 
     {
         if($offset < 0) { $offset = 0; }
         $lang = strtolower($lang);
@@ -1688,7 +1715,8 @@ class OeawStorage implements OeawStorageInterface {
             }
             ';
         
-        $groupBy = ' GROUP BY ?uri ?title ?pid ?accessRestriction ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' GROUP BY ?uri ?title ?pid ?accessRestriction ';
+        $groupBy .= ' ORDER BY '.$orderby.' ( fn:lower-case(?title))';
         
         $queryStr = $prefix.$select.$where.$groupBy.$limitStr;
         

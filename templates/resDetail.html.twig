@@ -92,9 +92,11 @@
                 {% endfor %}
             </tbody>
         </table>
+            
         <div class="res-act-button">
             <a href="#" id="showInverse" data-tableuri="{{result.insideUri}}">Show Inverse Table</a>
         </div>
+        
         <div id="inverseTableDiv" style="display: none;">
             <h3>Inverse Data</h3>
             <table class="inverseTable table table-striped" cellspacing="0" width="100%">
@@ -224,92 +226,12 @@
 
     {% endif%}
     
-    {% if extras['childType']|lower == "concept" %}
-        {% set childTitle = "Narrower(s)"%}
-    {% elseif  extras['childType']|lower == "person" %}
-        {% set childTitle = "Contributed to"%}
-    {% elseif  extras['childType']|lower == "project" %}
-        {% set childTitle = "Related collection(s)"%}
-    {% elseif  extras['childType']|lower == "organisation" %}
-        {% set childTitle = "Involved in"%}
-    {% elseif  extras['childType']|lower == "place" %}
-        {% set childTitle = "Spatial coverage in"%}
-    {% elseif  extras['childType']|lower == "publication" %}
-        {% set childTitle = "Related resource(s)"%}
-    {% else %}
-        {% set childTitle = "Child Resource(s)"%}
-    {% endif %}
-    
-    
-    {% if childResult %}
-        <div class="res-el res-info res-child-info col-block col-lg-12">
-            <div class="result-basic-info">
-                <span class="results-info-bar"><h3>{{ childTitle }}</h3></span>
-                <div class="res-act-button res-act-button-reverse res-act-button-treeview basic">
-                    <i class="material-icons">&#xE335;</i>
-                    <span>Switch to Tree-View</span>
-                </div>
-                {% if extras['pagination'] %}
-                    <span class="results-info-bar pagination-span">{{ extras['pagination']|raw }}</span>
-                {% endif%}
-            </div>
+    <div class="res-actions" style="padding: 20px;">
+        <div class="res-act-button" style="display: table; margin: 0 auto;">
+            <a href="#" id="getChildView"><b>Get child list</b></a>
         </div>
-            
-        {% if result.type == "Collection" %}
-            <div class="children-overview children-overview-tree">
-                <!-- Here comes the tree-view -->
-                {{ include('/modules/oeaw/templates/resDetail_treeView.html.twig', {'resourceData': result } ) }}
-            </div>
-        {% endif %}    
-
-        <div class="children-overview children-overview-basic">
-            {% for cItem in childResult %}
-                <div class="child-res">
-
-                    <div class="res-property">
-                        <span class="res-title">
-                            {%  if cItem.getAccessRestriction() %}
-                                {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': cItem.getAccessRestriction()|lower } ) }}
-                            {% endif%}
-                            <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">                                         
-                                {{ cItem.title }}
-                            </a>
-                        </span>		
-                    </div>
-
-                    <div class="res-property">
-                        <i class="material-icons">&#xE54E;</i>
-                        <span class="res-rdftype">
-                            <a href="{{url('<front>') }}discover/&type={{ cItem.typeName }}/10">
-                                {{ cItem.typeName }}
-                            </a>
-                        </span>
-                    </div>
-
-                    {% if cItem.description %}
-                        <div class="res-property res-property-desc">
-                            <i class="material-icons">&#xE88F;</i>	
-                            <span class="res-description">{{ cItem.description }}</span>
-                        </div>
-                    {% endif%}
-
-                    <div class="res-actions">
-                        {% if cItem.description %}
-                            <div class="res-act-button res-act-button-summary closed">
-                                <i class="material-icons">&#xE145;</i>
-                                <span>Show Summary</span>
-                            </div>
-                        {% endif%}
-
-                        <div class="res-act-button">
-                            <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">
-                                <i class="material-icons">&#xE873;</i>
-                                <span>Detailed View</span>
-                            </a>	
-                        </div>          	
-                    </div>
-                </div>
-            {% endfor %}
-        </div><!-- .children-overview-basic -->
-    {% endif%}                                  
+    </div>
+   
+   <div id="child-div-content"></div>
+                                   
 {% endif%}

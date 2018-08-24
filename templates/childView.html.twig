@@ -1,0 +1,448 @@
+<link rel="stylesheet" type="text/css" href="/browser/core/themes/classy/css/components/messages.css">
+
+{% if result['errorMSG'] %} 
+    <div class="messages messages--error" role="contentinfo" aria-label="Error message">
+        <div role="alert">
+            <h2 class="visually-hidden"> Error message</h2>
+            {{ result['errorMSG'] }}
+        </div>
+    </div>
+{% else %}
+    
+    <!-- if we include a twig view, then it sometimes cant load the 3rd party js files.. so with this we need to check if it is loaded or not -->
+    <script src="/browser/modules/oeaw/js/jstree.min.js"></script>
+    <script>!window.jQuery && document.write('<script src="/browser/modules/oeaw/js/jstree.min.js"><\/script>')</script>
+
+    <style type="text/css">
+        .collectionBrowser_css {
+            width: auto;
+            max-width: 750px;
+            height: auto;
+            border: solid 1px #BBB;
+            background: #FFF;
+            overflow: hidden;
+            padding: 5px;
+        }
+        
+
+
+    </style>
+    <script>
+
+        var jq2 = jQuery;
+        jq2(function( $ ) {
+
+            /***  PAGINATION START  ****/
+            //get the identifier from the url
+            var insideUri = jq2('#insideUri').val();
+            insideUri = insideUri.replace('id.acdh.oeaw.ac.at/uuid/', '');
+
+            //check that we have already submitted pagination info
+            let searchParams = new URLSearchParams(window.location.href);
+            var urlPage = searchParams.get('page');
+            var urlLimit = searchParams.get('limit');
+            var urlOrder = searchParams.get('order');
+            //remove the # sign from the url
+            urlPage = removeSpecialChar(urlPage);
+            urlLimit = removeSpecialChar(urlLimit);
+            urlOrder = removeSpecialChar(urlOrder);
+
+            //check the checkbox values
+            var limitSel = jq2('#limit-sel').val();
+            if(!limitSel){ limitSel = 10; }
+            var orderbySel = jq2('#orderby').val();
+            if(!orderbySel){ orderbySel = 'asc'; }
+
+            var maxPage = 0;
+            maxPage = jq2('#maxPage').val();
+            var maxPageLimit = 0;
+
+            var limit = 0;
+            var page = 0;
+            var orderBy = "asc";
+
+            // if we have already submitted page and/or limit infos then
+            if(urlPage && urlLimit){
+                //display the child view
+                jq2('#ajax-pagination').show();
+                if(!urlOrder){ urlOrder = orderbySel; }
+
+                limit = urlLimit;
+                page = urlPage;
+                orderBy = urlOrder;
+                // we check the maxPage and if the actual page is bigger
+                // then we change the page
+                if( maxPage > 0) {
+                    maxPageLimit = Math.ceil(maxPage / limit);
+                    if( page > maxPageLimit) {
+                        page = maxPageLimit;
+                    }
+                }
+                //change the select values
+                jq2('#limit-sel').val(limit);
+                jq2('#orderby').val(orderBy);
+
+
+            }else{
+                page = 1;
+                limit = limitSel;
+                orderBy = orderbySel;
+                //we dont have page and limit passed in the url
+               // getData(insideUri, limitSel, 1, orderbySel);
+                jq2('#limit-sel').val(limit);
+                jq2('#orderby').val(orderBy);
+            }
+
+            if(page >= maxPageLimit){
+                jq2( "#next-btn" ).attr('disabled', true);
+                jq2( "#next-btn" ).removeAttr("href");
+                jq2( "#last-btn" ).attr('disabled', true);
+                jq2( "#last-btn" ).removeAttr("href");
+                
+            }else{
+                jq2( "#next-btn" ).attr('disabled', false);
+                jq2( "#next-btn" ).attr("href");
+                jq2( "#last-btn" ).attr('disabled', false);
+                jq2( "#last-btn" ).attr("href");
+            }
+            
+            if(page === 1){
+                jq2( "#prev-btn" ).attr('disabled', true);
+                jq2( "#prev-btn" ).removeAttr("href");
+                jq2( "#first-btn" ).attr('disabled', true);
+                jq2( "#first-btn" ).removeAttr("href");
+            }else{
+                jq2( "#prev-btn" ).attr('disabled', false);
+                jq2( "#prev-btn" ).attr("href");
+                jq2( "#first-btn" ).attr('disabled', false);
+                jq2( "#first-btn" ).attr("href");
+            }
+
+
+
+            /**
+             * Do the API request to get the actual child data
+             * 
+             * @param {type} insideUri
+             * @param {type} limit
+             * @param {type} page
+             * @param {type} orderby
+             * @returns {undefined}
+             */
+            function getData(insideUri, limit, page, orderby) {
+                $.ajax({
+                    url: '/browser/oeaw_child_api/'+insideUri+'/'+limit+'/'+page+'/'+orderby,
+                    data: {'ajaxCall':true},
+                    async: true,
+                    success: function(result){
+                        //empty the data div, to display the new informations
+                        jq2('#child-div-content').html(result);
+                        return false;
+                    },
+                    error: function(error){
+                        jq2('#child-div-content').html('<div>There is no data</div>');
+                        return false;
+                    }
+                });
+            }
+
+            /**
+             * Remove the # sign from the url
+             * 
+             * @param {type} str
+             * @returns string
+             */
+            function removeSpecialChar(str){
+                if (str.indexOf('#') > -1) {
+                    str = str.replace('#', '');
+                }
+                return str;
+            }
+
+            /**
+             * create and change the new URL after click events
+             * 
+             * @type Arguments
+             */
+            function createNewUrl(){
+                if (history.pushState) {
+                    var path = window.location.pathname;
+                    var newUrlLimit = "&limit="+limit;
+                    var newUrlPage = "&page="+page;
+                    var newUrlOrder = "&order="+orderBy;
+                    var cleanPath = "";
+                    if(path.indexOf('&') != -1){
+                        cleanPath = path.substring(0, path.indexOf('&'));
+                    }else {
+                        cleanPath = path;
+                    }
+                    var newurl = window.location.protocol + "//" + window.location.host + cleanPath + newUrlPage + newUrlLimit + newUrlOrder;
+                    window.history.pushState({path:newurl},'',newurl);
+                }
+            }
+
+
+            jq2( "#getChildView" ).click(function(e) {
+                //drupalSettings.oeaw.detailView.insideUri.page = 1;
+                e.preventDefault();            
+                if(urlPage) { page = urlPage; }
+                if(urlLimit) { limit = urlLimit; }
+                if(page > maxPageLimit) {
+                    page = maxPageLimit;
+                }
+                jq2('#ajax-pagination').show();
+                getData(insideUri, limit, page, orderBy);
+                createNewUrl();
+                //to skip the jump to top function
+                return false;
+            });
+
+            jq2('#limit-sel').on('change', function(e) {
+                e.preventDefault();
+                limit = this.value;
+
+                if( maxPage > 0) {
+                    maxPageLimit = Math.ceil(maxPage / limit);
+                    if( page > maxPageLimit) {
+                        page = maxPageLimit;
+                    }
+                }
+                getData(insideUri, limit, page, orderBy);
+                createNewUrl();
+                return false;
+            });
+
+            jq2('#orderby').on('change', function(e) {
+                e.preventDefault();
+                orderBy = this.value;
+                if(page > maxPageLimit) {
+                    page = maxPageLimit;
+                }
+                getData(insideUri, limit, page, orderBy);
+                createNewUrl();
+                return false;
+            });
+
+            jq2( "#prev-btn" ).click(function(e) {
+                e.preventDefault();
+
+                if(page == 1){
+                    return false;
+                }
+
+                page = page - 1;
+                if(page < 1){ page = 1; }
+                getData(insideUri, limit, page, orderBy);
+                createNewUrl();
+                //to skip the jump to top function
+                return false;
+            });
+
+            jq2( "#last-btn" ).click(function(e) {
+                e.preventDefault();
+                page = maxPageLimit;
+                getData(insideUri, limit, page, orderBy);
+                createNewUrl();
+                //to skip the jump to top function
+                return false;
+            });
+
+            jq2( "#first-btn" ).click(function(e) {
+                e.preventDefault();
+                page = 1;
+                getData(insideUri, limit, page, orderBy);
+                createNewUrl();
+                //to skip the jump to top function
+                return false;
+            });
+
+            jq2( "#next-btn" ).click(function(e) {
+                e.preventDefault();
+
+                if ($(this).hasClass('disabled')){
+                    return false;
+                }
+
+                if(maxPageLimit == parseInt(page) + 1){
+                    page = parseInt(page) + 1;
+                    jq2( "#next-btn" ).addClass('disabled');
+                    getData(insideUri, limit, page, orderBy);
+                }else if (maxPageLimit == page) {
+                    jq2( "#next-btn" ).addClass('disabled');
+                    return false;
+                }else {
+                    jq2( "#next-btn" ).removeClass('disabled');                
+                    page = parseInt(page) + 1;
+                    getData(insideUri, limit, page, orderBy);
+                }
+                createNewUrl();
+
+                //to skip the jump to top function
+                return false;
+            });
+
+            /*  PAGINATION END  */
+
+
+            /* SWITCH LIST OR TREE START */
+
+            jq2('.res-act-button-treeview').click(function() {
+
+                if ($(this).hasClass('basic')) {
+                    jq2('.children-overview-basic').hide();
+                    jq2('.children-overview-tree').fadeIn(200);
+                    jq2(this).removeClass('basic');
+                    jq2(this).addClass('tree');
+                    jq2(this).children('span').text('Switch to List-View');
+                    //get the data
+                    var url = jq2('#insideUri').val();
+                    if(url){
+                        jq2('#collectionBrowser')
+                        .jstree({
+                            core : {
+                                data : {
+                                    "url" : '/browser/get_collection_data/'+url,
+                                    "dataType" : "json" 
+                                }
+                            }
+                        })
+                        //handle the node clicking to download the file
+                        .on("changed.jstree", function (node, data) {
+                            if(data.instance.get_node(data.selected[0]).original.encodedUri) {
+                                window.location.href = "/browser/oeaw_detail/"+data.instance.get_node(data.selected[0]).original.encodedUri;
+                            }
+                        });
+                    }
+                } else {
+                    jq2('.children-overview-tree').hide();
+                    jq2('.children-overview-basic').fadeIn(200);
+                    jq2(this).removeClass('tree');
+                    jq2(this).addClass('basic');
+                    jq2(this).children('span').text('Switch to Tree-View');		
+                }
+
+
+            });
+
+
+            /* SWITCH LIST OR TREE END */
+
+        });
+    </script>
+
+    {% if result['specialType']|lower == "concept" %}
+            {% set childTitle = "Narrower(s)"%}
+        {% elseif  result['specialType']|lower == "person" %}
+            {% set childTitle = "Contributed to"%}
+        {% elseif  result['specialType']|lower == "project" %}
+            {% set childTitle = "Related collection(s)"%}
+        {% elseif  result['specialType']|lower == "organisation" %}
+            {% set childTitle = "Involved in"%}
+        {% elseif  result['specialType']|lower == "place" %}
+            {% set childTitle = "Spatial coverage in"%}
+        {% elseif  result['specialType']|lower == "publication" %}
+            {% set childTitle = "Related resource(s)"%}
+        {% else %}
+            {% set childTitle = "Child Resource(s)"%}
+        {% endif %}
+
+    
+    <input type="hidden" id="limit" name="limit" value="10">
+    <input type="hidden" id="maxPage" name="maxPage" value="{{ result['maxPage'] }}">
+
+    <div id="ajax-pagination">
+        <div class="res-el res-info res-child-info col-block col-lg-12">
+            <div class="result-basic-info">
+                <span class="results-info-bar">
+                    <h3>{{ childTitle }}</h3>
+                </span>
+            </div>
+        </div>
+                
+        <div class="res-el res-info res-child-info col-block col-lg-12">
+            
+            <div class="result-basic-info" style="float:left;">
+            {% if result['mainResourceType']|lower == "collection" %}
+                    <div class="res-act-button res-act-button-reverse res-act-button-treeview basic" style="text-align:left">
+                        <i class="material-icons">&#xE335;</i>
+                        <span>Switch to Tree-View</span>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="result-basic-info">
+                {{ include('/modules/oeaw/templates/paging.html.twig', {'data': result['maxPageLimit'] } ) }}
+            </div>    
+        </div>
+    </div>
+
+    <div id="child-data-content">
+
+        <div class="children-overview children-overview-basic" id="children-overview-basic">
+            {% for cItem in result['childResult'] %}
+                <div class="child-res">
+
+                    <div class="res-property">
+                        <span class="res-title">
+                            {%  if cItem.getAccessRestriction() %}
+                                {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': cItem.getAccessRestriction()|lower } ) }}
+                            {% endif%}
+                            <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">                                         
+                                {{ cItem.title }}
+                            </a>
+                        </span>		
+                    </div>
+
+                    <div class="res-property">
+                        <i class="material-icons">&#xE54E;</i>
+                        <span class="res-rdftype">
+                            <a href="{{url('<front>') }}discover/&type={{ cItem.typeName }}/10">
+                                {{ cItem.typeName }}
+                            </a>
+                        </span>
+                    </div>
+
+                    {% if cItem.description %}
+                        <div class="res-property res-property-desc">
+                            <i class="material-icons">&#xE88F;</i>	
+                            <span class="res-description">{{ cItem.description }}</span>
+                        </div>
+                    {% endif%}
+
+                    <div class="res-actions">
+                        {% if cItem.description %}
+                            <div class="res-act-button res-act-button-summary closed">
+                                <i class="material-icons">&#xE145;</i>
+                                <span>Show Summary</span>
+                            </div>
+                        {% endif%}
+
+                        <div class="res-act-button">
+                            <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">
+                                <i class="material-icons">&#xE873;</i>
+                                <span>Detailed View</span>
+                            </a>	
+                        </div>          	
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+
+        <div class="children-overview children-overview-tree">
+            <div id="content_collection">
+                <div id="collectionBrowser" class="collectionBrowser_css"></div>
+            </div>            
+        </div>
+
+    </div>
+    <!-- .children-overview-basic -->
+{% endif %}    
+        
+    
+
+
+
+
+    
+    
