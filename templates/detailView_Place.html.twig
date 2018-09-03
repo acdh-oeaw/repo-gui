@@ -1,13 +1,13 @@
 <!-- START : ACDH PERSON template: detailView_Project  -->
 {% if result['image'] %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
     
-    {%  if result.basicProperties['acdh:hasTitle'] %}
+    {%  if result.getTitle() %}
         <div class="res-property">
             <span class="res-title">
                 {%  if result.getAccessRestriction() %}
                     {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
                 {% endif%}
-                {{ result.basicProperties['acdh:hasTitle'][0] }}
+                {{ result.getTitle() }}
             </span>
         </div>
     {% endif%} 
@@ -16,7 +16,7 @@
         <div class="res-property">
             <i class="material-icons">&#xE264;</i>
             <span class="res-prop-label">Alternative Title:</span> 
-            <span class="res-title">{{ result.basicProperties['acdh:hasAlternativeTitle'][0] }}</span>
+            <span class="res-title">{{ result.basicProperties['acdh:hasAlternativeTitle'] }}</span>
         </div>
     {% endif%}
     
