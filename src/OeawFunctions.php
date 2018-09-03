@@ -1317,8 +1317,11 @@ class OeawFunctions {
                 if(get_class($val) == "EasyRdf\Resource" ){
                     $classUri = $val->getUri();
                     
-                    if($p == RC::get("drupalRdfType"));{
-                        if (strpos($val->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false) {
+                    if($p == RC::get("drupalRdfType")){
+                        if ( (strpos($val->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false) 
+                                &&
+                                $val->localName()) 
+                        {
                             $result['acdh_rdf:type']['title'] = $val->localName();
                             $result['acdh_rdf:type']['insideUri'] = $this->detailViewUrlDecodeEncode($val->__toString(), 1);   
                             $result['acdh_rdf:type']['uri'] = $val->__toString();
