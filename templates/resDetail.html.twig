@@ -182,7 +182,7 @@
             <div class="res-property">
                 <i class="material-icons">info_outline</i>
                 <span class="res-prop-label">Spatial Coverage:&nbsp;&nbsp;</span>
-                {% if result.table['acdh:hasSpatialCoverage'] is iterable %}
+                {% if result.table['acdh:hasSpatialCoverage'] is iterable and result.table['acdh:hasSpatialCoverage']|length > 1 %}
                     <ul>
                     {% for spatial in result.table['acdh:hasSpatialCoverage'] %}
                         {% if spatial['insideUri'] and spatial['title'] %}
@@ -202,7 +202,7 @@
             <div class="res-property">
                 <i class="material-icons">info_outline</i>
                 <span class="res-prop-label">Description:&nbsp;&nbsp;</span>
-                <span class="res-prop-value">{{ result.table['acdh:hasDescription'][0] }}</span>
+                <span class="res-prop-value">{{ result.table['acdh:hasDescription'][0]|nl2br }}</span>
             </div>
         {% endif %}
         
