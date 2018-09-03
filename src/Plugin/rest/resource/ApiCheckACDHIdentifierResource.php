@@ -76,22 +76,21 @@ class ApiCheckACDHIdentifierResource extends ResourceBase {
             return new JsonResponse(array($ex->getMessage()), 404, ['Content-Type'=> 'application/json']);
         }
         if(count($classMeta) > 0){
-            
             $result = array();
             if(isset($classMeta[0]['title'])){
                 $result['title'] = $classMeta[0]['title'];
             }
             if(isset($classMeta[0]['rdfTypes'])){
-                $result["rdfTypes"] = $classMeta[0]['rdfTypes'];
+                $result["rdfTypes"] = explode(",", $classMeta[0]['rdfTypes']);
             }
-            if(isset($classMeta[0]['creationdate'])){
-                $result["creationDate"] = $classMeta[0]['creationdate'];
+            if(isset($classMeta[0]['creationdate']) && !empty($classMeta[0]['creationdate'])){
+                $result["creationDate"] = date("Y-m-d", strtotime($classMeta[0]['creationdate']));
             }
-            if(isset($classMeta[0]['fdCreated'])){
-                $result["fedoraCreateDate"] = $classMeta[0]['fdCreated'];
+            if(isset($classMeta[0]['fdCreated']) && !empty($classMeta[0]['fdCreated'])){
+                $result["fedoraCreateDate"] = date("Y-m-d", strtotime($classMeta[0]['fdCreated']));
             }
             return new JsonResponse($result, 200, ['Content-Type'=> 'application/json']);
-        }        
+        }
         return new JsonResponse(array("The identifier is free"), 200, ['Content-Type'=> 'application/json']);
     }
 }
