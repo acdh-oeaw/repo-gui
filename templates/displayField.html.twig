@@ -14,31 +14,31 @@
             {% if data is iterable %}
                 {% if data.title is defined or data.uri is defined %}
                     {% if (data.insideUri) and (data.title)  %}
-                        <a href="{{ url('<front>') }}oeaw_detail/{{ data.insideUri }}">{{ data.title }}</a>
+                        <a href="{{ url('<front>') }}oeaw_detail/{{ data.insideUri }}">{{ data.title|nl2br }}</a>
                     {% elseif data.title %}
-                        <a href="{{ data.uri }}">{{ data.title }}</a>
+                        <a href="{{ data.uri }}">{{ data.title|nl2br }}</a>
                     {% elseif data.uri %}
                         <a href="{{ data.uri }}">{{ data.uri }}</a>
                     {% else %}
                         {% if 'http' in data %}
                             <a href="{{ data }}">{{ data }}</a>
                         {% else %}
-                            {{ data}}
+                            {{ data|nl2br }}
                         {% endif%}
                     {% endif%}
                 {% else %}
                     {% for value in data %}
                         {% if (value['insideUri']) and (value['title'])  %}
-                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title'] }}</a>
+                            <a href="{{ url('<front>') }}oeaw_detail/{{ value['insideUri'] }}">{{ value['title']|nl2br }}</a>
                         {% elseif value['title'] %}
-                            <a href="{{ value['uri'] }}">{{ value['title'] }}</a>
+                            <a href="{{ value['uri'] }}">{{ value['title']|nl2br }}</a>
                         {% elseif value['uri'] %}
                             <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                         {% else %}
                             {% if 'http' in value %}
                                 <a href="{{ value }}">{{ value }}</a>
                             {% else %}
-                                {{ value}}
+                                {{ value|nl2br }}
                             {% endif%}
                         {% endif%}
                         <span class="res-prop-delimiter">,</span>

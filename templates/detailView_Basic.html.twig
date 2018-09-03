@@ -76,7 +76,7 @@
     
     <!---- EXTENT --->
     {% if result.table['acdh:hasExtent'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasExtent']|nl2br, 'icon': "dehaze", 'label': "Extent" } ) }}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasExtent'], 'icon': "dehaze", 'label': "Extent" } ) }}
     {% endif%}    
     
     <!---- NUMBER OF ITEMS --->
