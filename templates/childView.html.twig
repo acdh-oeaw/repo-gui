@@ -283,6 +283,25 @@
 
             /*  PAGINATION END  */
 
+            /* CHILD VIEW SHOW SUMMARY START */
+
+            jq2('.res-act-button-summary').click(function() {
+                if (jq2(this).hasClass('closed')) {
+                    jq2(this).parent().siblings('.res-property-desc').fadeIn(200);
+                    jq2(this).removeClass('closed');
+                    jq2(this).addClass('open');
+                    jq2(this).children('i').text('remove');
+                    jq2(this).children('span').text('Hide Summary');
+                } else {
+                    jq2(this).parent().siblings('.res-property-desc').fadeOut(200);
+                    jq2(this).removeClass('open');
+                    jq2(this).addClass('closed');
+                    jq2(this).children('i').text('add');
+                    jq2(this).children('span').text('Show Summary');		
+                }
+            });
+            /* CHILD VIEW SHOW SUMMARY END */
+
 
             /* SWITCH LIST OR TREE START */
 
@@ -320,11 +339,7 @@
                     jq2(this).addClass('basic');
                     jq2(this).children('span').text('Switch to Tree-View');		
                 }
-
-
             });
-
-
             /* SWITCH LIST OR TREE END */
 
         });
