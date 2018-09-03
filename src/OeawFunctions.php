@@ -797,7 +797,10 @@ class OeawFunctions {
                 foreach ($data->getTableData($property) as $key => $val) {
                     if (count($data->getTableData($property)) > 1) {
                         if(isset($val["title"])){
-                            $result .= ", " . $val["title"];
+                            $result .= $val["title"]; 
+                            if($key + 1 != count($data->getTableData($property))) {
+                                $result .= ", ";
+                            }
                         }else{
                             $result .= ", " . $val;
                         }
@@ -851,7 +854,7 @@ class OeawFunctions {
         //Get contributor(s) 
         $contributors = "";
         $contributors = $this->getCiteWidgetData($resourceData, "acdh:hasContributor");
-        if(!empty($creators) ){
+        if(!empty($contributors) ){
             $widget["MLA"]["contributors"] = $contributors;
         }
 
@@ -918,9 +921,13 @@ class OeawFunctions {
 
         $widget["MLA"]["string"] = "";
         //AUTHORS
-        if ($widget["MLA"]["authors"]) { $widget["MLA"]["string"] .= $widget["MLA"]["authors"].'. '; }
-        else if ($widget["MLA"]["creators"]) { $widget["MLA"]["string"] .= $widget["MLA"]["creators"].'. '; }
-        else if ($widget["MLA"]["contributors"]) { $widget["MLA"]["string"] .= $widget["MLA"]["contributors"].'. '; }
+        if ( isset($widget["MLA"]["authors"]) && !empty($widget["MLA"]["authors"]) ) { 
+            $widget["MLA"]["string"] .= $widget["MLA"]["authors"].'. '; 
+        } else if ( isset($widget["MLA"]["creators"]) && !empty($widget["MLA"]["creators"]) ) { 
+            $widget["MLA"]["string"] .= $widget["MLA"]["creators"].'. ';
+        } else if ( isset($widget["MLA"]["contributors"]) && !empty($widget["MLA"]["contributors"]) ) { 
+            $widget["MLA"]["string"] .= $widget["MLA"]["contributors"].'. '; 
+        }
 
         //TITLE
         if ($widget["MLA"]["title"]) { $widget["MLA"]["string"] .= '<em>'.$widget["MLA"]["title"].'.</em> '; }
