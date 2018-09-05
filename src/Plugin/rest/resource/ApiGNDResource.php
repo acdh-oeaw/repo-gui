@@ -72,20 +72,19 @@ class ApiGNDResource extends ResourceBase {
         $sparql = $OeawCustomSparql->createGNDPersonsApiSparql($order, $limit);
         $spRes = $OeawStorage->runUserSparql($sparql);
         $host = \Drupal::request()->getSchemeAndHttpHost().'/browser/oeaw_detail/';
+        $fileLocation = \Drupal::request()->getSchemeAndHttpHost().'/browser/sites/default/files/beacon.txt';
         $result = array();
         if(count($spRes) > 0){
-                
+                $resTxt = "";
             foreach($spRes as $key => $val) {
-                $result[$key]['name'] = $val['lname']." ".$val['fname'];
-                $result[$key]['lname'] = $val['lname'];
-                $result[$key]['fname'] = $val['fname'];
-                $result[$key]['type'] = 'Person';
-                $result[$key]['dnb'] = $val['dnb'];
-                $result[$key]['arche_url'] = $host.str_replace('https://', '', $val['identifier']);
+                $resTxt .= $val['dnb']."|".$host.str_replace('https://', '', $val['identifier'])." \n";
             }
 
-            if(count($result) > 0){
-                $response->setContent(json_encode($result));
+            if(!empty($resTxt)){
+                $resTxt = "#FORMAT: BEACON \n".$resTxt;
+                file_save_data($resTxt, "public://beacon.txt", FILE_EXISTS_REPLACE);
+                
+                $response->setContent(json_encode("File created: ".$fileLocation));
                 $response->headers->set('Content-Type', 'application/json');
                 return $response;
             }else{
