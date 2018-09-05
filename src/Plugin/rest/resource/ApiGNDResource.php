@@ -64,17 +64,16 @@ class ApiGNDResource extends ResourceBase {
             if(!empty($resTxt)){
                 $resTxt = "#FORMAT: BEACON \n".$resTxt;
                 file_save_data($resTxt, "public://beacon.txt", FILE_EXISTS_REPLACE);
-                
-                $response->setContent(json_encode("File created: ".$fileLocation));
+                $response->setContent(json_encode(array("status" => "File created", "url" => $fileLocation)));
                 $response->headers->set('Content-Type', 'application/json');
                 return $response;
             }else{
-                return new JsonResponse(array("There is no data"), 404, ['Content-Type'=> 'application/json']);
+                return new JsonResponse(array("status" => "There is no data"), 404, ['Content-Type'=> 'application/json']);
             }
         }else {
-            return new JsonResponse(array("There is no data"), 404, ['Content-Type'=> 'application/json']);
+            return new JsonResponse(array("status" => "There is no data"), 404, ['Content-Type'=> 'application/json']);
         }
-        return new JsonResponse(array("There is no data"), 404, ['Content-Type'=> 'application/json']);
+        return new JsonResponse(array("status" => "There is no data"), 404, ['Content-Type'=> 'application/json']);
     }
     
     /**
