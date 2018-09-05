@@ -69,6 +69,38 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         
     }
     
+    
+    /**
+     * This function creates a sparql query for the GND Persons API call
+     * 
+     * @param string $order
+     * @param string $limit
+     * @return string
+     */
+    public function createGNDPersonsApiSparql(string $order = "asc", string $limit = "10"): string {
+        
+        $query = "";
+        $lang = strtolower($lang);
+        
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        $select = ' SELECT ?lname ?fname ?dnb ?identifier ';
+        $where = " WHERE {"
+                . " ?uri <".RC::get('drupalRdfType')."> <".RC::get('drupalPerson')."> . "
+                . " ?uri <".RC::get('fedoraIdProp')."> ?dnb . "
+                . " FILTER (contains(lcase(str(?dnb)), lcase('d-nb.info/gnd/' ))) . "
+                . " ?uri <".RC::get('fedoraIdProp')."> ?identifier .  "
+                . " FILTER (contains(lcase(str(?identifier)), lcase('id.acdh.oeaw.ac.at/uuid/' ))) . "
+                . " ?uri <".RC::get('drupalHasLastName')."> ?lname . "
+                . " ?uri <".RC::get('drupalHasFirstName')."> ?fname . "
+                . " } ";
+        
+        $groupby = ' GROUP BY ?lname ?fname ?dnb ?identifier ';
+        $orderby = ' ORDER BY '.$order.' ( fn:lower-case(?lname)) LIMIT '.$limit;
+        $query = $prefix.$select.$where.$groupby.$orderby;
+       
+        return $query;
+    }
+    
     /**
      * This function creates a sparql query for the Publication API call
      * @param string $str : query string
