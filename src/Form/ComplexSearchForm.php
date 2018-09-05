@@ -10,6 +10,8 @@ use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\oeaw\SearchBoxCache;
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
 use acdhOeaw\util\RepoConfig as RC;
@@ -45,58 +47,68 @@ class ComplexSearchForm extends FormBase
      */
     public function buildForm(array $form, FormStateInterface $form_state) 
     {   
+        /****  THE Search Input field  *****/
         $this->createSearchInput($form);
         
-        $resData["title"] = "Type of Entity";
-        $resData["type"] = "searchbox_types";
-        $resFields = $this->oeawStorage->getACDHTypes(true, true);
+        $cache = new SearchBoxCache();
         
-        $rs = array();
-        //create the resource type data
-        if(count($resFields) > 0){
-            foreach($resFields as $val){
-                $type = str_replace(RC::get('fedoraVocabsNamespace'), '', $val['type']);
-                $count = str_replace(RC::get('fedoraVocabsNamespace'), '', $val['type'])." (".$val['typeCount'].")";
-                $rs[$type] = $count;
+        /****  Type of Entity Box  *****/
+        $typeCache = array();
+        if($cache->getCachedData('acdhTypes')){
+            $typeCache = $cache->getCachedData('acdhTypes');
+        }else{
+            $typeCache = $cache->setCacheData('acdhTypes');
+        }
+     
+        if(count($typeCache) > 0){
+            $resData["title"] = "Type of Entity";
+            $resData["type"] = "searchbox_types";
+            $resData["fields"] = $typeCache;
+            if(count($resData["fields"]) > 0){
+                $this->createBox($form, $resData);
             }
-        }else {
-            drupal_set_message(t('You have no ACDH resource types!'), 'error', FALSE);
-            return array();
+        }
+        
+        /****  Entitites by Year  BOX *****/
+        $entitiesCache = array();
+        if($cache->getCachedData('entities')){
+            $entitiesCache = $cache->getCachedData('entities');
+        }else{
+            $entitiesCache = $cache->setCacheData('entities');
+        }
+        
+        if(count($entitiesCache) > 0 ){
+            $dateData["title"] = "Entities by Year";
+            $dateData["type"] = "datebox_years";
+            $dateData["fields"] = $entitiesCache;
+            
+            if(count($dateData["fields"]) > 0){
+                $this->createBox($form, $dateData);
+            }
+        }
+        
+        /****  Format  BOX *****/
+        
+        $formatCache = array();
+        if($cache->getCachedData('formats')){
+            $formatCache = $cache->getCachedData('formats');
+        }else{
+            $formatCache = $cache->setCacheData('formats');
+        }
+        
+        if(count($formatCache) > 0){
+            $formatData["title"] = "Format";
+            $formatData["type"] = "searchbox_format";
+            
+            $formatData["fields"] = $frm;
+
+            if(count($formatData["fields"]) > 0){
+                $this->createBox($form, $formatData);
+            }
         }
         
         
-        $resData["fields"] = $rs;
-        if(count($resData["fields"]) > 0){
-            $this->createBox($form, $resData);
-        }
-        
-        $dateData["title"] = "Entities by Year";
-        $dateData["type"] = "datebox_years";
-        $dateFields = $this->oeawStorage->getDateForSearch();
-        $ds = array();
-        
-        foreach ($dateFields as $df){
-            $ds[$df['year']] = $df['year']." (".$df['yearCount'].")";
-        }        
-        $dateData["fields"] = $ds;
-        if(count($dateData["fields"]) > 0){
-            $this->createBox($form, $dateData);
-        }
-        
-        $formatData["title"] = "Format";
-        $formatData["type"] = "searchbox_format";
-        $formatFields = $this->oeawStorage->getMimeTypes();
-        $frm = array();
-        foreach($formatFields as $val){            
-            $type = $val['mime'];
-            $count = $val['mime']." (".$val['mimeCount'].")";
-            $frm[$type] = $count;
-        }
-        $formatData["fields"] = $frm;
-        
-        if(count($formatData["fields"]) > 0){
-            $this->createBox($form, $formatData);
-        }
+        /****  Entities By date *****/
         
         $form['datebox']['title'] = [
             '#markup' => '<h3 class="extra-filter-heading date-filter-heading closed">Entities by Date</h3>'
@@ -150,61 +162,23 @@ class ComplexSearchForm extends FormBase
      */
     private function createSearchInput(array &$form)
     {
-        $propertys = array();
-        $searchTerms = array();
-        $basePath = base_path();
-        try {
-            $propertys = $this->oeawStorage->getAllPropertyForSearch();
-        } catch (Exception $ex) {
-            drupal_set_message($ex->getMessage(), 'error');
-            return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            drupal_set_message($ex->getMessage(), 'error');
-            return array();
-        }
-
-        if(empty($propertys)){
-             drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> CustomSearchForm '), 'error');
-             return $form;
-        }else {
-            $fields = array();
-            // get the fields from the sparql query 
-            $fields = array_keys($propertys[0]);        
-            $searchTerms = $this->oeawFunctions->createPrefixesFromArray($propertys, $fields);
-
-            $searchTerms = $searchTerms["p"];
-            asort($searchTerms);
-
-            if(count($searchTerms) > 0) {
-
-                foreach($searchTerms as $terms){
-                    $select[$terms] = t($terms);
-                }
-                
-                $form['metavalue'] = array(
-                    '#type' => 'textfield',
-                    '#attributes' => array(             
-                        'class' => array('form-control')
-                    ),                            
-                    #'#required' => TRUE,
-                );
-
-                $form['actions']['#type'] = 'actions';
-                $form['actions']['submit'] = array(
-                    '#type' => 'submit',
-                    '#value' => $this->t('Apply the selected search filters'),
-                    '#attributes' => array(
-                        'class' => array('complexsearch-btn')
-                    ),                   
-                    '#button_type' => 'primary',
-                );
-
-                
-            } else {            
-                drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> CustomSearchForm'), 'error');
-                
-            }
-        }
+        $form['metavalue'] = array(
+            '#type' => 'textfield',
+            '#attributes' => array(             
+                'class' => array('form-control')
+            ),                            
+            #'#required' => TRUE,
+        );
+        
+        $form['actions']['#type'] = 'actions';
+        $form['actions']['submit'] = array(
+            '#type' => 'submit',
+            '#value' => $this->t('Apply the selected search filters'),
+            '#attributes' => array(
+                'class' => array('complexsearch-btn')
+            ),                   
+            '#button_type' => 'primary',
+        );
     }
     
     /**
