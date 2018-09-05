@@ -80,7 +80,6 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
     public function createGNDPersonsApiSparql(string $order = "asc", string $limit = "10"): string {
         
         $query = "";
-        $lang = strtolower($lang);
         
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         $select = ' SELECT ?lname ?fname ?dnb ?identifier ';
