@@ -77,7 +77,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
      * @param string $limit
      * @return string
      */
-    public function createGNDPersonsApiSparql(string $order = "asc", string $limit = "10"): string {
+    public function createGNDPersonsApiSparql(): string {
         
         $query = "";
         
@@ -94,7 +94,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                 . " } ";
         
         $groupby = ' GROUP BY ?lname ?fname ?dnb ?identifier ';
-        $orderby = ' ORDER BY '.$order.' ( fn:lower-case(?lname)) LIMIT '.$limit;
+        $orderby = ' ORDER BY asc ( fn:lower-case(?lname)) ';
         $query = $prefix.$select.$where.$groupby.$orderby;
        
         return $query;

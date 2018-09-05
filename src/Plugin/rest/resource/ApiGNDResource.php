@@ -22,7 +22,7 @@ use acdhOeaw\util\RepoConfig as RC;
  *   id = "api_gnddata",
  *   label = @Translation("ARCHE GND Data"),
  *   uri_paths = {
- *     "canonical" = "/api/gnd/{order}/{limit}"
+ *     "canonical" = "/api/gnd"
  *   }
  * )
  */
@@ -30,7 +30,7 @@ class ApiGNDResource extends ResourceBase {
     
     /*
      * Usage:
-     *  https://domain.com/browser/api/gnd/{order}/{limit}?_format=json
+     *  https://domain.com/browser/api/gnd?_format=json
      */
         
     /**
@@ -40,36 +40,17 @@ class ApiGNDResource extends ResourceBase {
      * @param string $searchStr
      * @return Response|JsonResponse
      */
-    public function get(string $order = "asc", string $limit = "10") {
+    public function get() {
         
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
 
-        if(empty($order) || empty($limit)){
-            return new JsonResponse(array("Order or limit is missing"), 404, ['Content-Type'=> 'application/json']);
-        }
         
-        switch ($order) {
-            case 'asc':
-                $order = 'asc';
-                break;
-            case 'desc':
-                $order = 'desc';
-                break;
-            default:
-                $order = 'asc';
-                break;
-        }
-        
-        $limit = (int)$limit;
-        
-        if($limit < 1) { $limit = 10; } 
-        elseif ($limit === 0) { $limit = 10; }
 
         $response = new Response();
         $OeawCustomSparql = new OeawCustomSparql();
         $OeawStorage = new OeawStorage();
         
-        $sparql = $OeawCustomSparql->createGNDPersonsApiSparql($order, $limit);
+        $sparql = $OeawCustomSparql->createGNDPersonsApiSparql();
         $spRes = $OeawStorage->runUserSparql($sparql);
         $host = \Drupal::request()->getSchemeAndHttpHost().'/browser/oeaw_detail/';
         $fileLocation = \Drupal::request()->getSchemeAndHttpHost().'/browser/sites/default/files/beacon.txt';

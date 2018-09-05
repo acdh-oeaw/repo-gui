@@ -9,6 +9,6 @@ interface OeawCustomSparqlInterface {
     public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "datedesc"): string;
     public function createPublicationsApiSparql(string $str): string;
     public function getCollectionBinaries(string $url): string;
-    public function createGNDPersonsApiSparql(string $order = "asc", string $limit = "10"): string;
+    public function createGNDPersonsApiSparql(): string;
 }
 
