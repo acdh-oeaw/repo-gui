@@ -62,14 +62,8 @@ class ApiGNDResource extends ResourceBase {
         
         $limit = (int)$limit;
         
-        switch ($limit) {
-            case $limit < 1:
-                $limit = 10;
-                break;
-            default:
-                $limit = 10;
-                break;
-        }
+        if($limit < 1) { $limit = 10; } 
+        elseif ($limit === 0) { $limit = 10; }
 
         $response = new Response();
         $OeawCustomSparql = new OeawCustomSparql();
