@@ -33,6 +33,13 @@ class OeawPathProcessor implements InboundPathProcessorInterface
             return "/oeaw_dl_collection/$names";
         }
         
+        
+        if (strpos($path, '/oeaw_dlc/') === 0) {
+            $names = preg_replace('|^\/oeaw_dlc\/|', '', $path);
+            $names = str_replace('/',':', $names);
+            return "/oeaw_dlc/$names";
+        }
+        
         if (strpos($path, '/oeaw_inverse_result/') === 0) {
             $names = preg_replace('|^\/oeaw_inverse_result\/|', '', $path);
             $names = str_replace('/',':', $names);

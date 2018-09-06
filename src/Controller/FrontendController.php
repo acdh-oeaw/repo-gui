@@ -1103,7 +1103,6 @@ class FrontendController extends ControllerBase
      */
     public function oeaw_dl_collection(string $uri){
 
-        var_dump("iii");
         $result = array();
         $errorMSG = "";
         $GLOBALS['resTmpDir'] = "";
