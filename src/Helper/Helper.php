@@ -55,10 +55,14 @@ class Helper {
             || 
             (strpos(strtolower($data['ebucore:filename'][0]), '.ply') !== false) ) 
             &&
-            ( isset($data['acdh:hasCategory'][0]) && $data['acdh:hasCategory'][0] =="3dData")    
+            ( isset($data['acdh:hasCategory'][0]) && $data['acdh:hasCategory'][0] =="3dData")
+            && (isset($data['premis:hasSize'][0]) )
         )
         {
-            $return = true;
+            //check the size of the binary, because our 3d viewer can shows only files till 125MB
+            if( ((int)$data['premis:hasSize'][0] > 0) && ((int)$data['premis:hasSize'][0] < 125829120) ) {
+                $return = true;
+            }
         }
         return $return;
     }

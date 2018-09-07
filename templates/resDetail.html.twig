@@ -193,7 +193,16 @@
                     {% endfor %}
                     </ul>
                 {% else %}
-                    <span class="res-prop-value"><a href="/browser/oeaw_detail/{{ result.table['acdh:hasSpatialCoverage'][0]['insideUri'] }}">{{ result.table['acdh:hasSpatialCoverage'][0]['title'] }}</a></span>
+                    {% if result.table['acdh:hasSpatialCoverage'][0]['insideUri'] %}
+                        <span class="res-prop-value"><a href="/browser/oeaw_detail/{{ result.table['acdh:hasSpatialCoverage'][0]['insideUri'] }}">{{ result.table['acdh:hasSpatialCoverage'][0]['title'] }}</a></span>
+                    {% else %}
+                        {% if result.table['acdh:hasSpatialCoverage'][0]['uri']  %}
+                            <span class="res-prop-value"><a href="{{ result.table['acdh:hasSpatialCoverage'][0]['uri'] }}">{{ result.table['acdh:hasSpatialCoverage'][0]['uri'] }}</a></span>
+                        {% else %}
+                            <span class="res-prop-value">{{ result.table['acdh:hasSpatialCoverage'][0] }}</span>
+                        {% endif %}
+                    {% endif %}
+                    
                 {% endif %}
             </div>
         {% endif %}

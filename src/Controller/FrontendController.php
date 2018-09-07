@@ -470,6 +470,13 @@ class FrontendController extends ControllerBase
         if($resultsObj->getType() == "Resource"  ){
             if(Helper::check3dData($resultsObj->getTable()) === true){
                 $extras['3dData'] = true;
+            }else{
+                //but if we have resource and the diss-serv contains the 3d viewer, but our viewer cant show it, then we need to remove
+                // the 3d viewer from the dissemination services.
+                if(array_search('https://id.acdh.oeaw.ac.at/dissemination/3DObject', array_column($dissServices, 'identifier')) !== false) {
+                    $key = array_search('https://id.acdh.oeaw.ac.at/dissemination/3DObject', array_column($dissServices, 'identifier'));
+                    unset($dissServices[$key]);
+                }
             }
         }
         
