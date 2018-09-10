@@ -262,6 +262,7 @@
                 e.preventDefault();
                 jq2("#loader-div").show();
                 if(page == 1){
+                    jq2("#loader-div").hide();
                     return false;
                 }
 
@@ -301,6 +302,7 @@
                 e.preventDefault();
 
                 if ($(this).hasClass('disabled')){
+                    jq2("#loader-div").hide();
                     return false;
                 }
 
@@ -310,6 +312,7 @@
                     getData(insideUri, limit, page, orderBy);
                 }else if (maxPageLimit == page) {
                     jq2( "#next-btn" ).addClass('disabled');
+                    jq2("#loader-div").hide();
                     return false;
                 }else {
                     jq2( "#next-btn" ).removeClass('disabled');                
@@ -501,11 +504,3 @@
     </div>
     <!-- .children-overview-basic -->
 {% endif %}    
-        
-    
-
-
-
-
-    
-    
