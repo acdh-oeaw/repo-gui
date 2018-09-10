@@ -6,6 +6,12 @@ jq2(function( $ ) {
            "lengthMenu": [[20, 35, 50, -1], [20, 35, 50, "All"]]
         });
         
+        jq2("#loader-div").hide();
+        
+        jq2( "#dissServAhref" ).click(function(e) {
+            alert('disserv clicked');
+            e.preventDefault();
+        });
         
         //the JS for the inverse table
         jq2( "#showInverse" ).click(function() {
@@ -142,6 +148,7 @@ jq2(function( $ ) {
         }
         
         jq2( "#getChildView" ).click(function(e) {
+            jq2("#loader-div").show();
             //drupalSettings.oeaw.detailView.insideUri.page = 1;
             e.preventDefault();            
             jq2('#ajax-pagination').show();
@@ -152,7 +159,7 @@ jq2(function( $ ) {
             //to skip the jump to top function
             jq2( "#getChildView" ).hide();
             createNewUrl();
-            
+            jq2("#loader-div").hide();
             return false;
         });
         

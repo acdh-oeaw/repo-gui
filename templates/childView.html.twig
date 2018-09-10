@@ -24,6 +24,36 @@
             padding: 5px;
         }
         
+        
+        .loader-bg{
+            position:fixed;
+            padding:0;
+            margin:0;
+            top:0;
+            left:0;
+            width: 100%;
+            height: 100%;
+            background:rgba(255,255,255,0.7);
+        }
+        .loader {
+            border: 11px solid #f3f3f3; /* Light grey */
+            border-top: 11px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 2s linear infinite;
+            position:absolute;
+            left:50%; 
+            top:50%;
+            margin-left:-30px; /*image width/2 */
+            margin-top:-30px; /*image height/2 */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
 
 
     </style>
@@ -31,7 +61,8 @@
 
         var jq2 = jQuery;
         jq2(function( $ ) {
-
+            jq2("#loader-div").hide();
+            
             /***  PAGINATION START  ****/
             //get the identifier from the url
             var insideUri = jq2('#insideUri').val();
@@ -193,6 +224,7 @@
                 jq2('#ajax-pagination').show();
                 getData(insideUri, limit, page, orderBy);
                 createNewUrl();
+                jq2("#loader-div").hide();
                 //to skip the jump to top function
                 return false;
             });
@@ -200,7 +232,7 @@
             jq2('#limit-sel').on('change', function(e) {
                 e.preventDefault();
                 limit = this.value;
-
+                jq2("#loader-div").show();
                 if( maxPage > 0) {
                     maxPageLimit = Math.ceil(maxPage / limit);
                     if( page > maxPageLimit) {
@@ -209,23 +241,26 @@
                 }
                 getData(insideUri, limit, page, orderBy);
                 createNewUrl();
+                jq2("#loader-div").hide();
                 return false;
             });
 
             jq2('#orderby').on('change', function(e) {
                 e.preventDefault();
+                jq2("#loader-div").show();
                 orderBy = this.value;
                 if(page > maxPageLimit) {
                     page = maxPageLimit;
                 }
                 getData(insideUri, limit, page, orderBy);
                 createNewUrl();
+                jq2("#loader-div").hide();
                 return false;
             });
 
             jq2( "#prev-btn" ).click(function(e) {
                 e.preventDefault();
-
+                jq2("#loader-div").show();
                 if(page == 1){
                     return false;
                 }
@@ -234,29 +269,35 @@
                 if(page < 1){ page = 1; }
                 getData(insideUri, limit, page, orderBy);
                 createNewUrl();
+                jq2("#loader-div").hide();
                 //to skip the jump to top function
                 return false;
             });
 
             jq2( "#last-btn" ).click(function(e) {
                 e.preventDefault();
+                jq2("#loader-div").show();
                 page = maxPageLimit;
                 getData(insideUri, limit, page, orderBy);
                 createNewUrl();
+                jq2("#loader-div").hide();
                 //to skip the jump to top function
                 return false;
             });
 
             jq2( "#first-btn" ).click(function(e) {
                 e.preventDefault();
+                jq2("#loader-div").show();
                 page = 1;
                 getData(insideUri, limit, page, orderBy);
                 createNewUrl();
+                jq2("#loader-div").hide();
                 //to skip the jump to top function
                 return false;
             });
 
             jq2( "#next-btn" ).click(function(e) {
+                jq2("#loader-div").show();
                 e.preventDefault();
 
                 if ($(this).hasClass('disabled')){
@@ -276,7 +317,8 @@
                     getData(insideUri, limit, page, orderBy);
                 }
                 createNewUrl();
-
+                jq2("#loader-div").delay(2000).fadeOut("fast");
+                jq2("#loader-div").hide();
                 //to skip the jump to top function
                 return false;
             });
@@ -361,6 +403,12 @@
             {% set childTitle = "Child Resource(s)"%}
         {% endif %}
 
+    <div id="loader-div">
+        <div class="loader-bg">
+            <div class="loader"></div>
+        </div>
+    </div>
+   
     
     <input type="hidden" id="limit" name="limit" value="10">
     <input type="hidden" id="maxPage" name="maxPage" value="{{ result['maxPage'] }}">
