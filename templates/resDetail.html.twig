@@ -162,11 +162,11 @@
             {% for value in extras['dissServ']['services'] %}
                 <div class="res-act-button">
                     {% if value['returnType'] and value['title'] and value['description'] %}
-                        <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" title="{{ value['description'] }}" >
+                        <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" title="{{ value['description'] }}" id="dissServAhref" >
                             <span>{{ value['title'] }}</span>
                         </a>
                     {% elseif value['returnType'] and value['title'] %}
-                        <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" >
+                        <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" id="dissServAhref" >
                             <span>{{ value['title'] }}</span>
                         </a>        
                     {% endif %}    
