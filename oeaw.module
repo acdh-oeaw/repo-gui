@@ -35,12 +35,7 @@ function oeaw_theme() {
     'variables' => ['url' => NULL, 'errorMSG' => null, 'templateData' => null],
     'template' => 'viewer_iiif',
   ];
-  
-  $theme['oeaw_root_dt'] = [
-    'variables' => ['result' => NULL, 'header' => NULL, 'userid' => NULL, 'errorMSG' => null],
-    'template' => 'dtRoot',
-  ];
-  
+    
   $theme['oeaw_success'] = [
     'variables' => ['result' => NULL, 'userid' => NULL, 'errorMSG' => null],
     'template' => 'success',
@@ -50,11 +45,6 @@ function oeaw_theme() {
     'variables' => ['result' => NULL, 'userid' => NULL, 'errorMSG' => null],
     'template' => 'success_res',
   ];
-  
-  $theme['oeaw_keyword_search_res'] = [
-    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null, 'search' => NULL, 'pagination' => NULL],
-    'template' => 'keyword_search_res',
-  ]; 
   
   $theme['oeaw_complex_search_res'] = [
     'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null, 'search' => NULL, 'pagination' => NULL, 'totalResultAmount' => NULL, 'currentPage' => NULL, 'totalPages' => NULL,],
@@ -75,22 +65,8 @@ function oeaw_theme() {
     'variables' => ['result' => NULL, 'userid' => NULL, 'errorMSG' => null],
     'template' => 'form_res',
   ];
-  
-  $theme['oeaw_search_res_dt'] = [
-    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null],
-    'template' => 'search_res',
-  ];
-  
-  $theme['oeaw_search_class_res_dt'] = [
-    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null],
-    'template' => 'search_class_res',
-  ];
-  
-  $theme['oeaw_errorPage'] = [
-    'variables' => ['errorMSG' => null],
-    'template' => 'errorPage',
-  ];
-  
+ 
+
 
   return $theme;
 }
