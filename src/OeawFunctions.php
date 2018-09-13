@@ -27,6 +27,7 @@ use Drupal\oeaw\ConfigConstants as CC;
 use Drupal\oeaw\Helper\Helper;
 use Drupal\oeaw\Model\OeawCustomSparql;
 
+use acdhOeaw\fedora\dissemination\Service;
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
 use acdhOeaw\fedora\acl\WebAclRule as WAR;
@@ -226,18 +227,40 @@ class OeawFunctions {
     public function getResourceDissServ(\acdhOeaw\fedora\FedoraResource $fedoraRes): array {
         
         $result = array();
+        
         if($fedoraRes){
             try{
                 $id = $fedoraRes->getId();
+                                
                 $dissServ = $fedoraRes->getDissServices();
-
+                
                 if(count($dissServ) > 0){
                     $processed = array();
-                
+                    $guiUrls = array();
+                    $i = 0;
                     foreach ($dissServ as $service) {
                         //get the acdh identifiers for the dissemination services
                         if(!in_array($id, $processed)) {
-                            $processed[] = $service->getId();
+                            $processed[$i] = $service->getId();
+                            $fedora = $this->initFedora();
+                            //get the final url of the dissemination service
+                            $srv = new Service($fedora, $service->getUri());
+                            $servUri = "";
+                            if($srv->getRequest($fedoraRes)->getUri()->__toString()){
+                                $servUri = urldecode($srv->getRequest($fedoraRes)->getUri()->__toString());
+                                //remove the identifier http/https tags from the url
+                                if (strpos($servUri, '/https') !== false) {
+                                    $servUri = str_replace('/https://', '/', $servUri);
+                                }else if (strpos($servUri, '/http') !== false) {
+                                    $servUri = str_replace('/http://', '/', $servUri);
+                                }
+                                if (strpos($servUri, '/fcr:metadata') !== false) {
+                                    $servUri = str_replace('/fcr:metadata', '', $servUri);
+                                }
+                                //add to the guiurl array
+                                $guiUrls[$i]['guiUrl'] = $servUri;
+                            }
+                            $i++;
                         }
                     }
                     
@@ -249,7 +272,11 @@ class OeawFunctions {
                         
                         if(count($titles) > 0){
                             $titles = Helper::removeDuplicateValuesFromMultiArrayByKey($titles, "title");
-                            $result = $titles;
+                            //merge the available diss.serv and the guiUrls
+                            foreach($titles as $key=>$val){ // Loop though one array
+                                $val2 = $guiUrls[$key]; // Get the values from the other array
+                                $result[$key] = $val + $val2; // combine 'em
+                            }
                         }
                     }
                 }
@@ -1314,7 +1341,7 @@ class OeawFunctions {
         //reorder the array because have missing keys
         $properties = array_values($properties);
         $searchTitle = array();
-
+        
         foreach ($properties as $p){
             
             $propertyShortcut = $this->createPrefixesFromString($p);
@@ -1405,10 +1432,19 @@ class OeawFunctions {
         
         if(count($searchTitle) > 0){
             //get the not literal propertys TITLE
+            
             $existinTitles = array();
-            $existinTitles = $OeawStorage->getTitleByIdentifierArray($searchTitle);
+            $existinTitles2 = array();
+            
+            foreach ($searchTitle as $sTitle) {
+                $val = $OeawStorage->getTitleAndBasicInfoByIdentifier($sTitle);
+                if(count($val) > 0){
+                    $existinTitles[] = $val[0];
+                }
+            }
+            
             $resKeys = array_keys($result['table']);
-
+        
             //change the titles
             foreach($resKeys as $k){
                 foreach($result['table'][$k] as $key => $val){
@@ -1436,6 +1472,7 @@ class OeawFunctions {
                 }
             }
         }
+        
         if(empty($result['acdh_rdf:type']['title']) || !isset($result['acdh_rdf:type']['title'])){
             throw new \ErrorException("There is no acdh rdf type!", 0);
         }
@@ -1464,7 +1501,6 @@ class OeawFunctions {
         } catch (ErrorException $ex) {
             throw new \ErrorException("The resource object initialization failed!", 0);
         }
-        
         return $obj;
     }
     

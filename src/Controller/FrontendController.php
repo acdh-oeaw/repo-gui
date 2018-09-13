@@ -24,6 +24,7 @@ use Drupal\Core\Ajax\CssCommand;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\InvokeCommand;
 
+use acdhOeaw\fedora\dissemination\Service as Service;
 use acdhOeaw\util\RepoConfig as RC;
 use Drupal\oeaw\ConfigConstants as CC;
 use acdhOeaw\fedora\Fedora;
@@ -283,6 +284,7 @@ class FrontendController extends ControllerBase
      * @return array
      */
     public function oeaw_detail(string $res_data): array {
+        
         drupal_get_messages('error', TRUE);
         
         $rules = array();
@@ -336,6 +338,7 @@ class FrontendController extends ControllerBase
             drupal_set_message(t($ex->getMessage()), 'error');
             return array();
         }
+        
         
         //get the actual resource rules
         try{
@@ -405,7 +408,7 @@ class FrontendController extends ControllerBase
             drupal_set_message($ex->getMessage(), 'error');
             return array();
         }
-
+        
         if(count($dissServices) > 0 && $fedoraRes->getId()){
             //we need to remove the raw from the list if it is a collection
             if($resultsObj->getType() == "Collection"){
@@ -479,7 +482,6 @@ class FrontendController extends ControllerBase
                 }
             }
         }
-        
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $resultsObj,

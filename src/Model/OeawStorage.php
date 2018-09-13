@@ -1662,6 +1662,77 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
+     * Get title and some basic info about the resource by identifier
+     * 
+     * @param string $data
+     * @param bool $dissemination
+     * @param string $lang
+     * @return array
+     */
+    public function getTitleAndBasicInfoByIdentifier(string $data, bool $dissemination = false, string $lang = "en"): array
+    {
+        $result = array();
+        $lang = strtolower($lang);
+        $where = "";
+        $select = "";
+
+        $where .= " { ";
+        $where .= "?uri <".RC::get('fedoraIdProp')."> <".$data."> . ";
+        //$where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
+        //$where .= "?uri <".RC::titleProp()."> ?title . ";
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+        $where .=" OPTIONAL {"
+                . " ?uri <".RC::get('fedoraIdProp')."> ?identifier . "
+                . " FILTER (regex(str(?identifier),'id.acdh.oeaw.ac.at/','i')) . "
+                . " FILTER (!regex(str(?identifier),'.at/uuid/','i')) . "
+                . "}"
+                . "OPTIONAL { "
+                . " ?uri <".RC::get('fedoraIdProp')."> ?uuid .  "
+                . " FILTER (regex(str(?uuid),'id.acdh.oeaw.ac.at/uuid/','i')) . "
+                . " } "
+                . " OPTIONAL {"
+                . " ?uri <".RC::get('fedoraIdProp')."> ?vocabs . "
+                . " FILTER (regex(str(?vocabs),'vocabs.acdh.oeaw.ac.at/','i')) . "
+                . " } "
+                . " OPTIONAL { "
+                . " ?uri <".RC::get('epicPidProp')."> ?pid . "
+                . " } ";
+
+        if($dissemination == true){
+            $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
+            //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
+            $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
+        }
+
+        $where .= " } ";
+                
+        if($dissemination == true){
+            $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs ?returnType ?description WHERE { ';
+        }else{
+            $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs WHERE { ';
+        }
+
+        $queryStr = $select.$where." } ORDER BY ?title";
+
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            $fields = $res->getFields();
+            $result = $this->oeawFunctions->createSparqlResult($res, $fields);
+            return $result;
+         } catch (\Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+        
+        
+        return $result;
+    }
+    
+    /**
      * Create the Sparql Query for the special ACDH rdf:type "children views"
      * 
      * @param string $uri

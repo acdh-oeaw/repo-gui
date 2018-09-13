@@ -12,6 +12,7 @@ interface OeawStorageInterface {
     public function getParentTitle(string $id): array;
     public function getResourceTitle(string $uri): array;
     public function getTitleByIdentifier(string $string): array;
+    public function getTitleAndBasicInfoByIdentifier(string $data, bool $dissemination = false): array;
     public function getTitleByIdentifierArray(array $data, bool $dissemination = false): array;
     public function getValueByUriProperty(string $uri, string $property): array;
     public function runUserSparql(string $string): array;
