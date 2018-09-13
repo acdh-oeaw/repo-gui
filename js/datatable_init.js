@@ -8,11 +8,6 @@ jq2(function( $ ) {
         
         jq2("#loader-div").hide();
         
-        jq2( "#dissServAhref" ).click(function(e) {
-            alert('disserv clicked');
-            e.preventDefault();
-        });
-        
         //the JS for the inverse table
         jq2( "#showInverse" ).click(function() {
             //show the table
