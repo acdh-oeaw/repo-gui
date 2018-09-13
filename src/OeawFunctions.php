@@ -1406,7 +1406,12 @@ class OeawFunctions {
         if(count($searchTitle) > 0){
             //get the not literal propertys TITLE
             $existinTitles = array();
-            $existinTitles = $OeawStorage->getTitleByIdentifierArray($searchTitle);
+            foreach ($searchTitle as $sTitle) {
+                $val = $OeawStorage->getTitleAndBasicInfoByIdentifier($sTitle);
+                if(count($val) > 0){
+                    $existinTitles[] = $val[0];
+                }
+            }
             $resKeys = array_keys($result['table']);
 
             //change the titles
