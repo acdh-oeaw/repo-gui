@@ -125,6 +125,15 @@
                     {% endif %}
                 </span>
             </div>
+            {% if resourceData['estDLTime'] %}                
+            <div class="res-property">
+                <i class="material-icons">&#xE54E;</i>
+                <span class="res-prop-label">Estimated <br>Download Time:</span> 
+                <span class="res-prop-value">
+                    {{ resourceData['estDLTime'] }} Second(s) <small>with you current download speed.</small>
+                </span>
+            </div>    
+            {% endif %}
             <!-- ZIP DL fields -->
             <!--
             <div class="res-property">
@@ -141,6 +150,24 @@
                 <span class="res-prop-value" id="zip_dl_time">
                 </span>
             </div>-->
+            
+            
+            <div>
+                <br>
+                In this view, you can download one or more files from the collection.<br> <br> 
+                <ul>
+                    <li>
+                        If you want to download just 1-1 specified file, then please click on the file name.
+                    </li> 
+                    <li>
+                        If you want to download more than 1 file or the whole collection, then please use the checkboxes. <br>
+                    </li>
+                </ul>
+                After the selection please press the "Prepare Collection To Download" button.<br>
+                On the Estimeated Download Time section you can see the estimated time for the whole collection download, based on your actual internet speed.
+                <br>
+                <br>
+            </div>
             
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
