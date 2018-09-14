@@ -231,7 +231,6 @@ class OeawFunctions {
         if($fedoraRes){
             try{
                 $id = $fedoraRes->getId();
-                                
                 $dissServ = $fedoraRes->getDissServices();
                 
                 if(count($dissServ) > 0){
@@ -243,9 +242,18 @@ class OeawFunctions {
                         if(!in_array($id, $processed)) {
                             $processed[$i] = $service->getId();
                             $fedora = $this->initFedora();
+                            
                             //get the final url of the dissemination service
                             $srv = new Service($fedora, $service->getUri());
+                            
+                            //the url dissemination return shortname (raw/gui), to we can identify them
+                            $sUri = $service->getUri();
+                            $key = explode('/', $sUri);
+                            $key = end($key);
+                            
                             $servUri = "";
+                            //make a nice url to remove the https:// tags from the url
+                            //because of the acdh identifier should appears there
                             if($srv->getRequest($fedoraRes)->getUri()->__toString()){
                                 $servUri = urldecode($srv->getRequest($fedoraRes)->getUri()->__toString());
                                 //remove the identifier http/https tags from the url
@@ -258,7 +266,7 @@ class OeawFunctions {
                                     $servUri = str_replace('/fcr:metadata', '', $servUri);
                                 }
                                 //add to the guiurl array
-                                $guiUrls[$i]['guiUrl'] = $servUri;
+                                $guiUrls[$key] = $servUri;
                             }
                             $i++;
                         }
@@ -268,14 +276,18 @@ class OeawFunctions {
                         $oeawStorage = new OeawStorage();
                         //get the titles
                         $titles = array();
+                        //get the titles fro the diss services.
                         $titles = $oeawStorage->getTitleByIdentifierArray($processed, true);
+                        //remove the duplicates
+                        $titles = Helper::removeDuplicateValuesFromMultiArrayByKey($titles, "title");
                         
                         if(count($titles) > 0){
-                            $titles = Helper::removeDuplicateValuesFromMultiArrayByKey($titles, "title");
                             //merge the available diss.serv and the guiUrls
-                            foreach($titles as $key=>$val){ // Loop though one array
-                                $val2 = $guiUrls[$key]; // Get the values from the other array
-                                $result[$key] = $val + $val2; // combine 'em
+                            foreach($titles as $key => $val){ 
+                                if($guiUrls[$val['returnType']]){
+                                    $result[$key] = $val;
+                                    $result[$key]['guiUrl'] = $guiUrls[$val['returnType']];
+                                }
                             }
                         }
                     }
