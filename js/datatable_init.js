@@ -7,11 +7,80 @@ jq2(function( $ ) {
         });
         
         jq2("#loader-div").hide();
+        hidepopup();
         
-        jq2( "#dissServAhref" ).click(function(e) {
-            alert('disserv clicked');
-            e.preventDefault();
+        /** check the restriction for the dissemination services  START */
+        
+        jq2("#cancelLogin").click(function(){
+            hidepopup();
         });
+    
+        function showpopup()
+        {
+            $("#dissServLoginform").fadeIn();
+            $("#dissServLoginform").css({"visibility":"visible","display":"block"});
+        }
+
+        function hidepopup()
+        {
+            $("#dissServLoginform").fadeOut();
+            $("#dissServLoginform").css({"visibility":"hidden","display":"none"});
+        }
+            
+        var accessRestriction = jq2('#accessRestriction').val();
+        if(accessRestriction){
+            if(accessRestriction != "public"){
+                jq2( ".dissServAhref" ).click(function(e) {
+                    
+                    let urlValue = jq2(this).attr("href");
+                    let webUrl = window.location.origin + '/browser/';
+                    
+                    if(urlValue.indexOf(webUrl) > -1) {
+                        window.location.replace(urlValue);
+                    }
+                    
+                    showpopup();
+                    jq2( "#dologin" ).click(function(ed) {
+                        var username = $("input#username").val();
+                        var password = $("input#password").val();
+                        
+                        if( username && password) {
+                            ed.preventDefault();
+                            var xhr = new XMLHttpRequest();
+
+                            $.ajax
+                            ({
+                                type: "GET",
+                                url: urlValue,
+                                username: username,
+                                password: password,
+                                xhr: function() {
+                                    return xhr;
+                                },
+                                success: function (){
+                                    if(xhr.responseURL) {
+                                        hidepopup();
+                                        window.location.replace(xhr.responseURL);
+                                    }else{
+                                        jq2( "#loginErrorDiv" ).html("Login Failed!");
+                                    }
+                                },
+                                error( xhr,status,error) {
+                                    jq2( "#loginErrorDiv" ).html("Login Failed!");
+                                }
+                            });
+                        }else{
+                            jq2( "#loginErrorDiv" ).html("Please provide username/password!");
+                        }
+
+                        ed.preventDefault();
+                    });  
+                    e.preventDefault();
+                });  
+            }
+        }
+        
+        /** check the restriction for the dissemination services END */
         
         //the JS for the inverse table
         jq2( "#showInverse" ).click(function() {

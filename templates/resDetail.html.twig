@@ -3,6 +3,7 @@
 {% else %}
     
     <input type="hidden" id="insideUri" name="insideUri" value="{{ result.insideUri }}">
+    <input type="hidden" id="accessRestriction" name="accessRestriction" value="{{ result.accessRestriction }}">
     
     <h3 class="single-res-heading">
             Overview
@@ -161,18 +162,34 @@
             <i class="material-icons">&#xE89F;</i>
             {% for value in extras['dissServ']['services'] %}
                 <div class="res-act-button">
-                    {% if value['returnType'] and value['title'] and value['description'] %}
-                        <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" title="{{ value['description'] }}" id="dissServAhref" >
+                    {% if value['guiUrl'] and value['title'] and value['description']  %}
+                        <a href="{{ value['guiUrl'] }}" title="{{ value['description'] }}" class="dissServAhref" >
+                            <span>{{ value['title'] }}</span>
+                        </a>
+                    {% elseif value['returnType'] and value['title'] and value['description']  %}
+                        <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" title="{{ value['description'] }}" class="dissServAhref" >
                             <span>{{ value['title'] }}</span>
                         </a>
                     {% elseif value['returnType'] and value['title'] %}
-                        <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" id="dissServAhref" >
+                        <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" class="dissServAhref" >
                             <span>{{ value['title'] }}</span>
                         </a>        
                     {% endif %}    
                 </div>
             {% endfor %} 
         </div>
+        <!-- DISS LOGIN FORM START  -->
+        <div id="dissServLoginform">
+            <div id="loginInfo">Please provide your login credentials</div>
+            <div id="loginErrorDiv"></div>
+            <input type="text" id="username" placeholder="username" name="username">
+            <input type="password" id="password" name="password" placeholder="password">
+            <div>
+                <input type = "submit" id = "dologin" value = "Login">
+                <input type = "submit" id = "cancelLogin" value = "Cancel">
+            </div>
+        </div>
+        <!-- DISS LOGIN FORM END  -->
     {% endif %}    	
     
     {% if (result.table['acdh:hasDescription'] or result.table['acdh:hasSpatialCoverage'] or result.table['acdh:hasNote']) %}

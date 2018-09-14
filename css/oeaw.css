@@ -57,3 +57,80 @@
 }
 
 /** Download collection css end **/
+
+
+/***  DISSERV LOGIN FORM START  ***/ 
+
+#dissServLoginform
+{
+    width:200px;
+    height:auto;
+    margin-top:10px;
+    background-color:#88DBDF;
+    border-radius:3px;
+    box-shadow:0px 0px 10px 0px #424242;
+    padding:10px;
+    box-sizing:border-box;
+    font-family:helvetica;
+    visibility:hidden;
+    display:none;
+}
+
+#dissServLoginform p
+{
+    font-size:14px;
+    color:#E6E6E6;
+}
+#dissServLoginform #username
+{
+    margin-top:5px;
+    width:100%;
+    height:20px;
+    border-radius:3px;
+    padding:5px;
+}
+#dissServLoginform #password
+{
+    
+    margin-top:5px;
+    width:100%;
+    height:20px;
+    border-radius:3px;
+    padding:5px;
+}
+#dissServLoginform #dologin
+{
+    margin-top:10px;
+    width:47%;
+    height:20px;
+    border: 1px solid white;
+    border-radius:3px;
+    color:white;
+    background-color:#88DBDF;
+    font-size:14px;
+}
+#dissServLoginform #cancelLogin
+{
+    margin-top:10px;
+    width:47%;
+    height:20px;
+    border:none;
+    border-radius:3px;
+    border: 1px solid white;
+    color:white;
+    background-color:#88DBDF;
+    font-size:14px;
+}
+#dissServLoginform #loginInfo
+{
+    color:white;
+    font-size:14px;
+    text-align: center;
+}
+#dissServLoginform #loginErrorDiv
+{
+    color:red;
+    font-size:14px;
+    text-align: center;
+}
+/***  DISSERV LOGIN FORM END  ***/ 

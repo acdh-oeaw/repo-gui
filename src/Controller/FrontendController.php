@@ -1188,8 +1188,6 @@ class FrontendController extends ControllerBase
             $archiveFile = $tmpDirDate.'/collection.zip';
             
             $ziph = new \ZipArchive();
-            
-            
             if(file_exists($archiveFile))
             {
                 try{
