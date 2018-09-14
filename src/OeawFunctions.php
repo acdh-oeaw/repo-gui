@@ -240,21 +240,20 @@ class OeawFunctions {
                     foreach ($dissServ as $service) {
                         //get the acdh identifiers for the dissemination services
                         if(!in_array($id, $processed)) {
+                            $key = "";
                             $processed[$i] = $service->getId();
                             $fedora = $this->initFedora();
-                            
                             //get the final url of the dissemination service
                             $srv = new Service($fedora, $service->getUri());
-                            
+                            $service->getId();
                             //the url dissemination return shortname (raw/gui), to we can identify them
-                            $sUri = $service->getUri();
-                            $key = explode('/', $sUri);
-                            $key = end($key);
+                            $sUri = $service->getFormats();
+                            $key = $sUri[0]->format;
                             
                             $servUri = "";
                             //make a nice url to remove the https:// tags from the url
                             //because of the acdh identifier should appears there
-                            if($srv->getRequest($fedoraRes)->getUri()->__toString()){
+                            if($srv->getRequest($fedoraRes)->getUri()->__toString() && !empty($key)){
                                 $servUri = urldecode($srv->getRequest($fedoraRes)->getUri()->__toString());
                                 //remove the identifier http/https tags from the url
                                 if (strpos($servUri, '/https') !== false) {

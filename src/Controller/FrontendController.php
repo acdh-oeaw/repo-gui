@@ -1169,7 +1169,6 @@ class FrontendController extends ControllerBase
                     }
 
                 } catch (\GuzzleHttp\Exception\ClientException $ex) {
-
                     $errorMSG = "there was a problem during the file downloads";
                 }
             }
@@ -1181,46 +1180,31 @@ class FrontendController extends ControllerBase
         
         if(count($dirFiles) > 0){
             chmod($GLOBALS['resTmpDir'], 0777);
-            
-            fopen($GLOBALS['resTmpDir'].'/collection.zip', "w");
-            fclose($GLOBALS['resTmpDir'].'/collection.zip');
-            
-            $archiveFile = $tmpDirDate.'/collection.zip';
-            
-            $ziph = new \ZipArchive();
-            if(file_exists($archiveFile))
-            {
-                try{
-                    if($ziph->open($archiveFile, \ZIPARCHIVE::CHECKCONS) !== TRUE)
-                    {
-                        $errMsg = "Unable to Open $archiveFile";
-                    }else{
-                        foreach($dirFiles as $d){
-                            if($d == "." || $d == ".."){
-                                continue;
-                            }else {
-                                //we will add the files into the zip, 
-                                //with a localname to skip the server directory structure
-                                if(!$ziph->addFile($tmpDirDate.'/'.$d, $d))
-                                {
-                                    $errMsg = "error archiving $file in $d";
-                                }
-                            }
-                        }
+            $archiveFile = $tmpDirDate.'/collection.tar.gz';
+            $tar = new \PharData($archiveFile);
+            try {
+                
+                foreach($dirFiles as $d){                
+                    if($d == "." || $d == ".." || $d == 'collection.tar'){
+                        continue;
+                    }else {
+                        //we will add the files into the tar, 
+                        //with a localname to skip the server directory structure
+                        $tar->addFile($tmpDirDate.'/'.$d, $d);
                     }
-                } catch (Exception $ex) {
-                    $errorMSG = $ex->getMessage();
-                }    
-            }
-            
-            $ziph->close();
-            
+                }
+                $tar->compress(\Phar::NONE);
+                unlink($archiveFile);
+            } 
+            catch (Exception $e) {
+                echo "Exception : " . $e;
+            }   
             //check the new dir that it is still generating the zip file or not
             $newDir = scandir($tmpDirDate);
                     
             $checkDir = true;
             do {
-                $checkDir = Helper::checkArrayForValue($newDir, "collection.zip."); 
+                $checkDir = Helper::checkArrayForValue($newDir, "collection.tar."); 
                 //delete the files and keep the zip only
                 foreach($dirFiles as $file){ 
                     if(is_file($tmpDir.$dateID.'/'.$file)){ 
@@ -1230,12 +1214,12 @@ class FrontendController extends ControllerBase
                 sleep(3);
             } while (false);
             
-            $hasZip = RC::get('guiBaseUrl').'/sites/default/files/collections/'.$dateID.'/collection.zip';
+            $hasTar = RC::get('guiBaseUrl').'/sites/default/files/collections/'.$dateID.'/collection.tar';
         }
         
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
-        $response->setContent(json_encode($hasZip ));
+        $response->setContent(json_encode($hasTar ));
         return $response;
     }
     
