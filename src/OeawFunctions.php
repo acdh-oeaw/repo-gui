@@ -286,7 +286,11 @@ class OeawFunctions {
                             foreach($titles as $key => $val){ 
                                 if($guiUrls[$val['returnType']]){
                                     $result[$key] = $val;
-                                    $result[$key]['guiUrl'] = $guiUrls[$val['returnType']];
+                                    if($val['returnType'] == "rdf"){
+                                        $result[$key]['guiUrl'] = $guiUrls[$val['returnType']].'/fcr:metadata';
+                                    }else{
+                                        $result[$key]['guiUrl'] = $guiUrls[$val['returnType']];
+                                    }
                                 }
                             }
                         }
