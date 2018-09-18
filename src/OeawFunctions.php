@@ -837,14 +837,21 @@ class OeawFunctions {
         if(count((array)$data) > 0){
             if (!empty($data->getTableData($property))) {
                 foreach ($data->getTableData($property) as $key => $val) {
-                    if (count($data->getTableData($property)) > 1) {
+                    if (count($data->getTableData($property)) > 0) {
                         if(isset($val["title"])){
                             $result .= $val["title"]; 
                             if($key + 1 != count($data->getTableData($property))) {
                                 $result .= ", ";
                             }
-                        }else{
-                            $result .= ", " . $val;
+                        } else if(isset($val["uri"])){
+                            $result .= $val["uri"]; 
+                            if($key + 1 != count($data->getTableData($property))) {
+                                $result .= ", ";
+                            }
+                        }else {
+                            if(!is_array($val)){
+                                $result .= ", " . $val;
+                            }
                         }
                     } else {
                         if(isset($val["title"])){
