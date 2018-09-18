@@ -285,7 +285,7 @@ class Helper {
      */
     public static function estDLTime(int $binarySize): string{
         
-        $result = "";
+        $result = "10";
         if($binarySize < 1){ return $result; }
         
         $kb=1024;
