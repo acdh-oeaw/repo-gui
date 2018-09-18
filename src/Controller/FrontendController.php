@@ -154,7 +154,6 @@ class FrontendController extends ControllerBase
                 $arrayObject->offsetSet('availableDate', $value['availableDate'] );
                 $arrayObject->offsetSet('accessRestriction', $value['accessRestriction'] );
                 
-                
                 if(isset($value['contributor']) && !empty($value['contributor'])){
                     $contrArr = explode(',', $value['contributor']);
                     $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
@@ -170,6 +169,10 @@ class FrontendController extends ControllerBase
                 else if(isset($value['hasTitleImage']) && !empty($value['hasTitleImage']) ){
                     $imageUrl = $this->oeawStorage->getImageByIdentifier($value['hasTitleImage']);
                     if($imageUrl){ $arrayObject->offsetSet('imageUrl', $imageUrl); }
+                }
+                
+                if(isset($value['description']) && !empty($value['description'])){
+                    $tblArray['description'] = $value['description'];
                 }
                 
                 if(count($tblArray) == 0){
@@ -579,7 +582,6 @@ class FrontendController extends ControllerBase
                 drupal_set_message("Search String is not valid!", 'error');
                 return array();
             }
-
             
             try{
                 $countSparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, 0, 0, true);
@@ -604,13 +606,14 @@ class FrontendController extends ControllerBase
                 return array();
             }
             
-            if(count($res) > 0){
-                
+            if(count($res) > 0) {
                 foreach($res as $r){
                     if( (isset($r['title']) && !empty($r['title']) ) 
                             && ( isset($r['uri']) && !empty($r['uri']) ) 
                             && ( isset($r['identifier']) && !empty($r['identifier']) ) 
-                            && ( isset($r['acdhType']) && !empty($r['acdhType']) ) ) {
+                            && ( isset($r['acdhType']) && !empty($r['acdhType']) ) ) 
+                        {
+                        
                         $tblArray = array();
 
                         $arrayObject = new \ArrayObject();
@@ -630,22 +633,17 @@ class FrontendController extends ControllerBase
                         if(isset($r['accessRestriction']) && !empty($r['accessRestriction'])){
                             $arrayObject->offsetSet('accessRestriction', $r['accessRestriction'] );
                         }
-
                         if(isset($r['authors']) && !empty($r['authors'])){
                             $authArr = explode(',', $r['authors']);
                             $tblArray['authors'] = $this->oeawFunctions->createContribAuthorData($authArr);
                         }
-
                         if(isset($r['contribs']) && !empty($r['contribs'])){
                             $contrArr = explode(',', $r['contribs']);
                             $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
                         }
-
                         if(count($tblArray) == 0){
                             $tblArray['title'] = $r['title']; 
                         }
-                        $arrayObject->offsetSet('table', $tblArray);
-
                         if(isset($r['image']) && !empty($r['image'])){
                             $arrayObject->offsetSet('imageUrl', $r['image']);
                         }
@@ -653,6 +651,11 @@ class FrontendController extends ControllerBase
                             $imageUrl = $this->oeawStorage->getImageByIdentifier($r['hasTitleImage']);
                             if($imageUrl){ $arrayObject->offsetSet('imageUrl', $imageUrl); }
                         }
+                        
+                        if(isset($r['description']) && !empty($r['description'])){
+                            $tblArray['description'] = $r['description'];
+                        }
+                        $arrayObject->offsetSet('table', $tblArray);
                         try {
                             $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
                             $result[] = $obj;

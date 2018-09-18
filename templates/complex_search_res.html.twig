@@ -106,21 +106,14 @@
                 </div>
             {% endif%}
             -->
-            {% if item.description %}
+            {% if item.table['description'] %}
                 <div class="res-property res-property-desc">
                     <i class="material-icons">&#xE88F;</i>	
-                    <span class="res-description">{{ item.description|nl2br }}</span>
+                    <span class="res-description">{{ item.table['description']|nl2br }}</span>
                 </div>
             {% endif%}
 
             <div class="res-actions">
-
-                {% if item.description %}
-                    <div class="res-act-button res-act-button-summary closed">
-                            <i class="material-icons">&#xE145;</i>
-                            <span>Show Summary</span>
-                    </div>
-                {% endif%}
 
                 <div class="res-act-button">
                     <a href="{{ url('<front>') }}/oeaw_detail/{{ item.insideUri }}">
@@ -128,6 +121,14 @@
                         <span>Detailed View</span>
                     </a>	
                 </div>          	
+                        
+                {% if item.table['description'] %}
+                    <div class="res-act-button res-act-button-summary closed">
+                            <i class="material-icons">&#xE145;</i>
+                            <span>Show Summary</span>
+                    </div>
+                {% endif%}
+                
             </div>	
 
             {% if item.imageUrl %}</div>{% endif%}

@@ -145,7 +145,7 @@ class OeawStorage implements OeawStorageInterface {
             
             $where .= "?uri <". RC::idProp()."> ?identifiers . ";
             $where .= "OPTIONAL { ?uri <".RC::get('epicPidProp')."> ?pid .  } ";
-            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasContributor')."> ?contributors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasAuthor')."> ?authors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
@@ -194,7 +194,7 @@ class OeawStorage implements OeawStorageInterface {
             }
 
             $query = $prefix.$select.$where.$groupby.$orderby.$limitOffset;
-           
+          
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
                 $fields = $result->getFields();             
