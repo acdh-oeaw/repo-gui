@@ -56,6 +56,19 @@
   box-shadow: 0 14px 28px rgba(225,55,55,0.25), 0 10px 10px rgba(225,55,55,0.22);
 }
 
+.collection-input-format {
+    background: #fff;
+    border-color: #88DBDF;
+    border-radius: 5px;
+    margin-left: 15px;
+    margin-right: 15px;
+    height: 25px;
+    padding: 10px;
+    width: 200px;
+    box-sizing:border-box;
+    text-align:center;
+}
+
 /** Download collection css end **/
 
 

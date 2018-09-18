@@ -151,55 +151,65 @@
                 </span>
             </div>-->
             
-            
-            <div>
+            <div class="col-xs-12 text-center">
+                <button id="collection_dl_info_button" class="res-act-button">Show usage information</button>
+            </div>
+            <div id="collection_dl_info">
                 <br>
-                In this view, you can download one or more files from the collection.<br> <br> 
+                In this view, you can download one or more files from the collection.
                 <ul>
                     <li>
-                        If you want to download just 1-1 specified file, then please click on the file name.
+                        If you want to download just 1-1 specified file, then please click on the filename.
                     </li> 
                     <li>
                         If you want to download more than 1 file or the whole collection, then please use the checkboxes. <br>
                     </li>
                 </ul>
                 After the selection please press the "Prepare Collection To Download" button.<br>
-                On the Estimeated Download Time section you can see the estimated time for the whole collection download, based on your actual internet speed.
-                <br>
+                If you find Resource(s) with red font color, then this collection contains file(s) which needed higher rights to download.
                 <br>
             </div>
             
-            <div class="res-property">
+            <div class="res-property" id="selected_files_size_div">
                 <i class="material-icons">&#xE54E;</i>
                 <span class="res-prop-label">Sel. files size:</span> 
                 <span class="res-prop-value" id="selected_files_size">
                 </span>
             </div>    
             
-            <div style="display:none; width: 50%;margin: 0 auto;" id="getCollectionDiv" >
+            <div class="col-xs-12 text-center" id="not_enough_permission" style="display:none">
+                <span class="res-prop-value" style="color:red;"><b><center>You do not have enough rights to download the whole collection!</center></b></span>
+            </div>
+            
+            <div class="col-xs-12 text-center" style="display:none;" id="getCollectionDiv" >
                 <div class="res-act-button" style="">
                     <a href="#" id="getCollectionData" data-tableuri="{{url}}">Prepare Collection To Download</a>
                 </div>
             </div>
                 
-            <div style="display:none; width: 50%;margin: 0 auto;" id="dl_link_txt">
+            <div class="col-xs-12 text-center" style="display:none;" id="dl_link_txt">
                 <b>You can download your selected files:</b>
             </div>
-            <div style="display:none; width: 50%;margin: 0 auto;" id="dl_link">
+                
+            <div class="col-xs-12 text-center" style="display:none;" id="dl_link">
                  <div class="res-act-button" >
                     <span class="res-prop-value">
-                        <div id="dl_link_a">Download the Collection TAR
-                        </div>
-                    </span>    
+                        <div id="dl_link_a">Download the Collection TAR</div>
+                    </span>
                 </div>
             </div>
-                    
             
             <!-- ZIP DL fields  end -->
             
             <br>
-            
-          <div id="collectionBrowser" class="collectionBrowser_css"></div>
+            <div style="margin-top: 15px;">
+                <div class="res-property">
+                    <i class="material-icons">search</i>
+                    <span class="res-prop-label">Search inside the collection: </span> 
+                    <input id="search-input" class="collection-input-format" />
+                </div>    
+            </div>
+            <div id="collectionBrowser" class="collectionBrowser_css"></div>
             
         </div>
             
