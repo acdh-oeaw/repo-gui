@@ -12,6 +12,15 @@ jq2(function( $ ) {
         i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     };
+    
+    function secondsTimeSpanToHMS(s) {
+        var h = Math.floor(s/3600); //Get whole hours
+        s -= h*3600;
+        var m = Math.floor(s/60); //Get remaining minutes
+        s -= m*60;
+        return h+" hour(s) "+(m < 10 ? '0'+m : m)+" min(s)"+(s < 10 ? '0'+s : s)+" second(s)"; //zero padding on minutes and seconds
+    }
+    
         /*
     var tableCollection = jq2('table.collTable').DataTable({
        "lengthMenu": [[20, 35, 50, -1], [20, 35, 50, "All"]]
@@ -21,6 +30,10 @@ jq2(function( $ ) {
 			
         jq2('#selected_files_size_div').hide();
         jq2('#collection_dl_info').hide();
+        
+        let dlTime = jq2('#estDLTime').val();
+        let formattedDlTime = secondsTimeSpanToHMS(dlTime);
+        jq2('#dl_time').html(formattedDlTime);
         
         //var uid = Drupal.settings.currentUser;
         var roles = drupalSettings.oeaw.users.roles;
@@ -157,7 +170,10 @@ jq2(function( $ ) {
                     var uri = value.original.uri;
                     var uri_dl = value.original.encodedUri;
                     var filename = value.original.filename;
-                    var resourceRestriction = value.original.accessRestriction;
+                    var resourceRestriction = "public";
+                    if(value.original.hasOwnProperty("accessRestriction")){
+                        resourceRestriction = value.original.accessRestriction;
+                    }
                     
                     //check the rights
                     if( ((resourceRestriction != 'public') &&  resourceRestriction != actualUserRestriction) && actualUserRestriction != 'admin' ){
