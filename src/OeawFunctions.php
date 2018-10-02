@@ -831,7 +831,7 @@ class OeawFunctions {
      * @param string $property - shortcur property - f.e.: acdh:hasCreator
      * @return string - a string with the available data
      */
-    private function getCiteWidgetData(\Drupal\oeaw\Model\OeawResource $data, string $property): string{
+    private function getCiteWidgetData(\Drupal\oeaw\Model\OeawResource $data, string $property): string {
         $result = "";
         
         if(count((array)$data) > 0){
@@ -1738,12 +1738,24 @@ class OeawFunctions {
             
             if(count($cacheData) > 0){
                 foreach($cacheData as $k => $v){
+                    $cacheData[$k]['userAllowedToDL'] = true;
                     if($v['binarySize']){
                         $cacheData[$k]['formSize'] = Helper::formatSizeUnits((string)$v['binarySize']);
                     }
                     if(isset($v['accessRestriction'])){
                         if(empty($v['accessRestriction'])){ $v['accessRestriction'] = "public"; }
                         $cacheData[$k]['accessRestriction'] = $v['accessRestriction'];
+                        //we need to check amybe the user already logged with his/her account and then we need to
+                        //allow them to reach the restricted resources in his/her permission level
+                        if($v['accessRestriction'] != "public"){
+                            //check the user is already logged in and allowed to dl the file.
+                            $fdrBinaryRes = $fedora->getResourceByUri($v['uri']);
+                            if( ($fdrBinaryRes) && (\acdhOeaw\fedora\acl\CheckAcess::check($fdrBinaryRes) == true) ){
+                                $cacheData[$k]['userAllowedToDL'] = true;
+                            }else{
+                                $cacheData[$k]['userAllowedToDL'] = false;
+                            }
+                        }
                     }
 
                     if($v['identifier']){

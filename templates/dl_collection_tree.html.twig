@@ -134,39 +134,30 @@
                 </span>
             </div>    
             {% endif %}
-            <!-- ZIP DL fields -->
-            <!--
-            <div class="res-property">
-                <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Selected files:</span> 
-                <span class="res-prop-value" id="selected_files">
-                </span>
-            </div>    
             
-            
-            <div class="res-property">
-                <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Zip est. dl time:</span> 
-                <span class="res-prop-value" id="zip_dl_time">
-                </span>
-            </div>-->
-            
-            <div class="col-xs-12 text-center">
-                <button id="collection_dl_info_button" class="res-act-button">Show usage information</button>
+            <div>
+                <br>
+                By downloading you agree to the <a href="https://arche.acdh.oeaw.ac.at/browser/terms-of-use">Terms of Use</a>, which includes compliance with the licenses accompanying every Resource and adhering to the <a href="http://www.allea.org/wp-content/uploads/2017/03/ALLEA-European-Code-of-Conduct-for-Research-Integrity-2017-1.pdf">European Code of Conduct for Research Integrity</a> .
             </div>
+            
             <div id="collection_dl_info">
                 <br>
-                In this view, you can download one or more files from the collection.
+                <h3>How to Download</h3>
                 <ul>
                     <li>
-                        If you want to download just 1-1 specified file, then please click on the filename.
+                        For a single file just click on the according file name.
                     </li> 
                     <li>
-                        If you want to download more than 1 file or the whole collection, then please use the checkboxes. <br>
+                        For more files or the whole collection click on the corresponding checkboxes in the tree view (click on the triangle to expand it).
+                    </li>
+                    <li>
+                        Use the search box to find specific resources by their title.
+                    </li>
+                    <li>
+                        Resources marked in red require appropriate access rights and might not be available to you despite being logged in.
                     </li>
                 </ul>
-                After the selection please press the "Prepare Collection To Download" button.<br>
-                If you find Resource(s) with red font color, then this collection contains file(s) which needed higher rights to download.
+                After selecting the resources please press "Prepare Collection for Download". Depending on the collection size this may take a while. You will then be presented with a new button "Download Collection as .tar", with which the actual download can be started.
                 <br>
             </div>
             
@@ -178,12 +169,32 @@
             </div>    
             
             <div class="col-xs-12 text-center" id="not_enough_permission" style="display:none">
-                <span class="res-prop-value" style="color:red;"><b><center>You do not have enough rights to download the whole collection!</center></b></span>
+                <span class="res-prop-value" style="color:red;"><b><center>You do not have enough rights to download the whole collection! Please try to login with the button below:</center></b></span>
+                <div class="res-act-button">
+                    <a href="#" id="loginToRestrictedResources">Login to download/reach the restricted content</a>
+                </div>
+                <br>
             </div>
+            
+            <!-- DISS LOGIN FORM START  -->
+            <div id="col-xs-12 text-center">
+                <div id="dissServLoginform" style="margin: 10px auto;">
+                    <div id="loginInfo">Please provide your login credentials</div>
+                    <div id="loginErrorDiv"></div>
+                    <input type="text" id="username" placeholder="username" name="username">
+                    <input type="password" id="password" name="password" placeholder="password">
+                    <div>
+                        <input type = "submit" id = "dologin" value = "Login">
+                        <input type = "submit" id = "cancelLogin" value = "Cancel">
+                    </div>
+                </div>
+            </div>
+            <!-- DISS LOGIN FORM END  -->
+            
             
             <div class="col-xs-12 text-center" style="display:none;" id="getCollectionDiv" >
                 <div class="res-act-button" style="">
-                    <a href="#" id="getCollectionData" data-tableuri="{{url}}">Prepare Collection To Download</a>
+                    <a href="#" id="getCollectionData" data-tableuri="{{url}}">Prepare Collection for Download</a>
                 </div>
             </div>
                 
@@ -192,9 +203,11 @@
             </div>
                 
             <div class="col-xs-12 text-center" style="display:none;" id="dl_link">
+                The selected files are ready for downloading:
+                <br>
                  <div class="res-act-button" >
                     <span class="res-prop-value">
-                        <div id="dl_link_a">Download the Collection TAR</div>
+                        <div id="dl_link_a">Download Collection as .tar</div>
                     </span>
                 </div>
             </div>
