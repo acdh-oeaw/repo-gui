@@ -32,7 +32,8 @@ jq2(function( $ ) {
     jq2(document).ready(function() {
 			
         jq2('#selected_files_size_div').hide();
-        
+        jq2('#success_login_msg').hide();
+        jq2('#error_login_msg').hide();
         let dlTime = jq2('#estDLTime').val();
         let formattedDlTime = secondsTimeSpanToHMS(dlTime);
         jq2('#dl_time').html(formattedDlTime);
@@ -108,7 +109,6 @@ jq2(function( $ ) {
                                 if( userAllowedToDL === false){
                                     disableChkArray.push(key+'_anchor');
                                     disableChkUrlArray.push(value.original.uri);
-                                    //disableChkIDArray[value.id] = value.original.uri;
                                     var obj = {};
                                     obj = {"id": value.id, "url": value.original.uri};
                                     disableChkIDArray.push(obj);
@@ -159,6 +159,7 @@ jq2(function( $ ) {
                     jq2("#collectionBrowser").jstree("uncheck_node", value);
                     jq2("#collectionBrowser").jstree().disable_node(value);
                 });
+                jq2('#not_enough_permission').show();
             }
         })
         //handle the checkboxes to download the selected files as a zip
@@ -170,7 +171,6 @@ jq2(function( $ ) {
             jq2('#not_enough_permission').hide();
             if (disableChkArray.length > 0) {
                 jq2.each( disableChkArray, function( key, value ) {
-                    jq2("#"+value.replace('_anchor', '')).css('color','red');
                     jq2("#collectionBrowser").jstree("uncheck_node", value.replace('_anchor', ''));
                     jq2("#collectionBrowser").jstree().disable_node(value.replace('_anchor', ''));
                 });
@@ -223,11 +223,10 @@ jq2(function( $ ) {
             jq2('#dl_link').hide();
             jq2('#dl_link_txt').hide();
             jq2('#getCollectionData').prop('disabled', false);
-            
             jq2('#not_enough_permission').hide();
             if (disableChkArray.length > 0) {
                 jq2.each( disableChkArray, function( key, value ) {
-                    jq2("#"+value.replace('_anchor', '')).css('color','red');
+                    //jq2("#"+value.replace('_anchor', '')).css('color','red');
                     jq2("#collectionBrowser").jstree("uncheck_node", value.replace('_anchor', ''));
                     jq2("#collectionBrowser").jstree().disable_node(value.replace('_anchor', ''));
                 });
@@ -279,16 +278,18 @@ jq2(function( $ ) {
             let length = urls.length;
             var counter = 0;
             
-            $.each(urls, function(i,u){ 
-                
+            $.each(urls, function(i,u){
                 $.when(
                     $.ajax(u.url, 
                     { 
                         type: 'HEAD',
                         username: username,
                         password: password
-                    }
-                    ).then(
+                    })
+                    .error(function() {
+                        callback(false);   
+                    })
+                    .then(
                         function (data, textStatus, jqXHR) {
                             if (jqXHR.status == 200) {
                                 //if the user/pwd was okay then we will remove this id 
@@ -306,6 +307,7 @@ jq2(function( $ ) {
                     )
                 );
             });
+            
         }
         
         jq2( "#loginToRestrictedResources" ).click(function(e) {
@@ -313,8 +315,18 @@ jq2(function( $ ) {
             jq2( "#dologin" ).click(function(ed) {
                 var username = $("input#username").val();
                 var password = $("input#password").val();
-                
+                var counter = 0;
                 checkResourceAccess(disableChkIDArray, username, password, function(newData) {
+                    
+                    if(newData === false){
+                        counter++;
+                        if(counter > 1){
+                            return false;
+                        }else {
+                            jq2('#error_login_msg').show(0).delay(4000).fadeOut(1000).hide(0);
+                            return false;
+                        }
+                    }
                     var newArray = [];
                     unchecked_ids = [];
                     //if we have resources which are still not available for us
@@ -330,6 +342,7 @@ jq2(function( $ ) {
                     $.each(checkedObj,function(k,v){
                         if(v.state.checked === true){
                             checked_ids.push(this.id);
+                            jq2("#"+this.id).css('color','black');
                             //remove the unchecked elements, because the jstree unchecked func not 
                             //working always as we expect.
                             checked_ids = checked_ids.filter(function(val) {
@@ -337,6 +350,7 @@ jq2(function( $ ) {
                                 return unchecked_ids.indexOf(val) == -1;
                             });
                         }
+                        jq2("#"+v.id).css('color','black');
                     });
                     
                     $.each(unchecked_ids,function(k,v){
@@ -347,6 +361,7 @@ jq2(function( $ ) {
                         jq2("#collectionBrowser").jstree().disable_node(v);
                     });
                     disableChkArray = newArray;
+                    jq2('#success_login_msg').show(0).delay(2000).fadeOut(1000).hide(0);
                 });
                 ed.preventDefault();
                 hidepopup();

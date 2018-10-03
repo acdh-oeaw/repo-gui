@@ -147,3 +147,38 @@
     text-align: center;
 }
 /***  DISSERV LOGIN FORM END  ***/ 
+
+.success_box_oeaw
+{
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    background-color: #88DBDF;
+    border: solid 1px white;
+    border-radius: 6px;
+    overflow: hidden;
+    color: white;
+    font-weight: bold;
+    margin:0 auto;
+    text-align: center;
+    display: inline-block;
+    padding: 5px;
+    max-width: 400px;
+    display: none;
+}
+.error_box_oeaw
+{
+    -moz-border-radius: 6px;
+    -webkit-border-radius: 6px;
+    background-color: #ff6348;
+    border: solid 1px white;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    margin:0 auto;
+    text-align: center;
+    display: inline-block;
+    padding: 5px;
+    max-width: 400px;
+    display: none;
+}
+
