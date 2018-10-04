@@ -52,6 +52,18 @@
 	
     <div class="single-res-overview single-res-overview-expert">
 		
+        {%  if result.title %}
+            <div class="res-property">
+                <span class="res-title">
+                    {%  if result.getAccessRestriction() %}
+                        {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
+                    {% endif%}
+                    {{ result.title }}
+                </span>
+            </div>
+            <br>
+        {% endif%} 
+    
         <table class="display table table-striped" cellspacing="0" width="100%">
             <thead>
                 <tr>
