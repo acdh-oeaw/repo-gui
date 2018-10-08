@@ -23,6 +23,7 @@ class OeawResource {
     private $typeUri;
     private $imageUrl;
     private $availableDate;
+    private $highlighting;
     private $accessRestriction = 'public';
     private $table = array();
     public $errors = array();
@@ -57,6 +58,7 @@ class OeawResource {
                 ($objIterator->key() == "imageUrl") ? $this->imageUrl = $objIterator->current() : NULL ;
                 ($objIterator->key() == "availableDate") ? $this->availableDate = $objIterator->current() : NULL ;
                 ($objIterator->key() == "accessRestriction") ? $this->accessRestriction = $objIterator->current() : 'public' ;
+                ($objIterator->key() == "highlighting") ? $this->highlighting = $objIterator->current() : NULL ;
                 ($objIterator->key() == "table") ? $this->table = $objIterator->current() : NULL ;
                 
                 $objIterator->next();
@@ -191,6 +193,10 @@ class OeawResource {
         }else{
             return false;
         }
+    }
+    
+    public function getHighlighting(){
+        return $this->highlighting;
     }
     
 }

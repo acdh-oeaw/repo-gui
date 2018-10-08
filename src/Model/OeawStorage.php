@@ -1858,7 +1858,7 @@ class OeawStorage implements OeawStorageInterface {
                 FILTER regex(str(?type),"vocabs.acdh","i") . ';
         $groupBy = ' }  GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';
         
-        echo $queryStr = $select.$where.$groupBy.$limitStr;
+        $queryStr = $select.$where.$groupBy.$limitStr;
         
         try {
             $q = new SimpleQuery($queryStr);

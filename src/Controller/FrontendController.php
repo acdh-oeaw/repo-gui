@@ -569,6 +569,7 @@ class FrontendController extends ControllerBase
             $page = (int)$page - 1;
             $limit = (int)$limit;
             $result = array();
+            $solrData = array();
             $pagination = "";        
             //get the current page for the pagination        
             $currentPage = $this->oeawFunctions->getCurrentPageForPagination();
@@ -583,15 +584,20 @@ class FrontendController extends ControllerBase
                 return array();
             }
             
+            if(isset($searchStr['words'])){
+                $solrData = $this->oeawFunctions->getDataFromSolar($searchStr['words']);
+            }
+            
             try{
                 $countSparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, 0, 0, true);
             } catch (\ErrorException $ex) {
                 drupal_set_message($ex->getMessage(), 'error');
                 return array();
             }
-            
+            $solrCount = count($solrData);
             $count = $this->oeawStorage->runUserSparql($countSparql);
-            $total = (int)count($count);
+            $total = (int)count($count) + $solrCount;
+            if ($total < 1) { drupal_set_message("There is no data!", 'error'); }
             //create data for the pagination
             $pageData = $this->oeawFunctions->createPaginationData($limit, $page, $total);
 
@@ -604,6 +610,9 @@ class FrontendController extends ControllerBase
             } catch (\ErrorException $ex) {
                 drupal_set_message($ex->getMessage(), 'error');
                 return array();
+            }
+            if($solrCount > 0) {
+                $res = array_merge($res, $solrData);
             }
             
             if(count($res) > 0) {
@@ -623,7 +632,7 @@ class FrontendController extends ControllerBase
                         $arrayObject->offsetSet('fedoraUri', $r['uri']);
                         $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 1));
                         $arrayObject->offsetSet('identifiers', $r['identifier']);
-                        $arrayObject->offsetSet('pid', $r['pid']);
+                        $arrayObject->offsetSet('pid', (isset($r['pid'])) ? $r['pid'] : "" );
                         $arrayObject->offsetSet('type', str_replace(RC::get('fedoraVocabsNamespace'), '', $r['acdhType']) );
                         $arrayObject->offsetSet('typeUri', $r['acdhType'] );
 
@@ -641,6 +650,11 @@ class FrontendController extends ControllerBase
                             $contrArr = explode(',', $r['contribs']);
                             $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
                         }
+                        
+                        if(isset($r['highlighting']) && !empty($r['highlighting'])){
+                            $arrayObject->offsetSet('highlighting', $r['highlighting'] );
+                        }
+                        
                         if(count($tblArray) == 0){
                             $tblArray['title'] = $r['title']; 
                         }

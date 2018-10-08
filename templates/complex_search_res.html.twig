@@ -95,6 +95,14 @@
                 </div>
             {% endif%}
 
+            {% if item.getHighlighting() %}
+                <div class="res-property highlighting">
+                    <i class="material-icons">highlight</i>	
+                    <span class="res-prop-label">File content highlight: </span>
+                    <span class="res-highlighting" > {{ item.getHighlighting()[0]|raw  }}</span>
+                </div>
+            {% endif%}
+            
             <!--
             {% if item.table['contributors'] %}
                 <div class="res-property">
@@ -109,7 +117,7 @@
             {% if item.table['description'] %}
                 <div class="res-property res-property-desc">
                     <i class="material-icons">&#xE88F;</i>	
-                    <span class="res-description">{{ item.table['description']|nl2br }}</span>
+                    <span class="res-description">{{ item.table['description'] }}</span>
                 </div>
             {% endif%}
 

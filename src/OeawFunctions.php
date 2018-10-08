@@ -1955,4 +1955,58 @@ class OeawFunctions {
         
         return $result;
     }
+    
+    
+    public function getDataFromSolar(string $text) : array {
+        if(!$text){ return array(); }
+        
+        $result = array();
+        $client = new \GuzzleHttp\Client();
+        try{
+            $request = $client->request('GET',  RC::get('solrUrl').'/arche/select?hl.fl=_text_&hl=on&q=*'.$text);
+            if($request->getStatusCode() == 200) {
+                $data = json_decode($request->getBody()->getContents());
+                $docs = $data->response->docs;
+                $highlighting = $data->highlighting;
+                
+                $docsCount = count((array)$docs);
+                if( $docsCount > 0) {
+                    foreach ($docs as $d) {
+                        $docsData = array();
+                        if(isset($d->meta_title) && isset($d->meta_rdfType)) {
+                            $docsData['title'] = $d->meta_title[0];
+                            $docsData['uri'] = $d->id;
+                            if($d->meta_rdfType){
+                                foreach($d->meta_rdfType as $type) {
+                                    if (strpos($type, RC::get('fedoraVocabsNamespace')) !== false) {
+                                        $docsData['acdhType'] = str_replace(RC::get('fedoraVocabsNamespace'), '', $type);
+                                    }
+                                }
+                            }
+                            if($d->meta_identifier){
+                                foreach($d->meta_identifier as $identifiers) {
+                                    if (strpos($identifiers, RC::get('fedoraUuidNamespace')) !== false) {
+                                        $docsData['identifier'] = $identifiers;
+                                    }
+                                }
+                            }
+                            if(isset($d->meta_description)){ $docsData['description'] = $d->meta_description[0]; }
+                            $id = $d->id;
+                            if($highlighting->$id && isset($highlighting->$id->_text_[0])) {
+                                $docsData['highlighting'][] = html_entity_decode($highlighting->$id->_text_[0]);
+                            }
+                            $result[] = $docsData;
+                        }
+                    }
+                }
+            }
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return array();
+        }
+        
+        return $result;
+    }
+    
+    
+    
 }
