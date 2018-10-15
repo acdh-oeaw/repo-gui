@@ -83,25 +83,6 @@
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasLanguage'], 'icon': "", 'label': "Language" } ) }}
     {% endif%}
     
-    <div>
-        <div class="res-act-button">
-            <a href="#" id="showIsMember" data-tableurl="{{ result.getInsideUri() }}">Get Member(s) </a>
-        </div>
-        <div id="isMemberTableDiv" style="display: none;">
-            <h3 class="single-res-heading">Related Resource(s)</h3>
-            <table class="isMemberTable table table-striped" cellspacing="0" width="100%">
-                <thead>
-                    <tr>
-                        <th>Value(s)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>    
-    </div>
-        
-    
     {% if result.extendedProperties %}
         <h3 class="single-res-heading">Involved In:</h3>
         
