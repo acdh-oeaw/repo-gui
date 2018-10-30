@@ -23,6 +23,7 @@ class OeawResource {
     private $typeUri;
     private $imageUrl;
     private $availableDate;
+    private $highlighting;
     private $accessRestriction = 'public';
     private $table = array();
     public $errors = array();
@@ -57,18 +58,20 @@ class OeawResource {
                 ($objIterator->key() == "imageUrl") ? $this->imageUrl = $objIterator->current() : NULL ;
                 ($objIterator->key() == "availableDate") ? $this->availableDate = $objIterator->current() : NULL ;
                 ($objIterator->key() == "accessRestriction") ? $this->accessRestriction = $objIterator->current() : 'public' ;
+                ($objIterator->key() == "highlighting") ? $this->highlighting = $objIterator->current() : NULL ;
                 ($objIterator->key() == "table") ? $this->table = $objIterator->current() : NULL ;
                 
                 $objIterator->next();
             }
         }else {
-            throw new \ErrorException("ArrayObject is not an object!");
+            throw new \ErrorException(t('ArrayObject').' '.t('Error').' -> OeawResource construct');
         }
         
         $this->checkEmptyVariables();
-        
         if(count($this->errors) > 0){
-            throw new \ErrorException("You have errors during the OeawResource Object initilaizing! Following data are missing: ".print_r($this->errors, true));
+            throw new \ErrorException(
+                t('Init').' '.t('Error').' : OeawResource.'.' '.t(' Empty').' '.t('Data').': '.print_r($this->errors, true)
+            );
         }
     }
     
@@ -191,6 +194,10 @@ class OeawResource {
         }else{
             return false;
         }
+    }
+    
+    public function getHighlighting(){
+        return $this->highlighting;
     }
     
 }

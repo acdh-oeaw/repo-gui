@@ -15,10 +15,6 @@ namespace Drupal\oeaw;
  */
 class DepAgreeConstants {
     
-    /**
-     * The deposition header text
-     * @var type 
-     */
      public static $depTXT = "This agreement is between the organisation or person(s) authorised to transfer and deposit digital resources 
         (hereinafter ‘the Depositor’) and ACDH-repo (hereinafter ‘the Repository’), which is run and represented by the Austrian Centre for 
         Digital Humanities of the Austrian Academy of Sciences. The agreement concerns transfer, curation, archival, and dissemination of 
@@ -32,11 +28,7 @@ class DepAgreeConstants {
             
         ";
         
-    /**
-     *
-     * The deposition agreement description text
-     * @var type 
-     */
+    
     public static $descTXT = "The resources being agreed upon are described below and comprise the Submission Information Package (SIP). "
             . "A change in the extent of the resources after signing this agreement is only possible by mutual agreement between the Depositor "
             . "and the Repository. File formats included should adhere to the preferred and accepted formats specified in XXX."
@@ -66,11 +58,7 @@ class DepAgreeConstants {
         </ul>
         <br />
         Furthermore the Repository will provide the Depositor with a processing plan in due time.";
-    
-    /**
-     * The deposition agreement transfer text
-     * @var type 
-     */
+        
     public static $transferTXT = 'The Depositor will present data for transfer to the Repository in the formats described above, 
             within a single folder named as below. If possible the Depositor will present data in BagIt format with the filename stated below. 
             Furthermore the Depositor will supply metadata as described in XXX, in the format and to the specifications described there. 
@@ -96,11 +84,6 @@ class DepAgreeConstants {
             Where the transfer medium is supplied by the Depositor, the Repository will ensure to return it to the Depositor when it isn’t needed anymore.
             ';
     
-    /**
-     *
-     * The deposition agreement text
-     * @var type 
-     */
     public static $lastTXT = ""
             . "For presentation and dissemination the information provided in ‘Description of Material’ might be used.<br /><br /> 
             The Depositor and the Repository agree on following procedures to check for data completeness and integrity (please tick as appropriate):
@@ -228,15 +211,8 @@ class DepAgreeConstants {
             The provisions of Austrian law apply to this agreement. Place of jurisdiction is Vienna.
             ";    
     
-    /**
-     * 
-     * Deposition agreement pdf language variables
-     * 
-     * @param string $lng
-     * @return string
-     */
+    
     public static function getPDFLng(string $lng): string {
-        
         $lngData = array(
             'title' => 'Title',
             'l_name' => 'Last Name',
@@ -306,10 +282,7 @@ class DepAgreeConstants {
         return false;        
     }
     
-    /**
-     *  Deposition agreement Material Licences
-     * @return type
-     */
+    
     public static function getMaterialLicences(){
         $licenes = array( 
             'Public Domain Mark' => t('Public Domain Mark'),
@@ -330,12 +303,6 @@ class DepAgreeConstants {
         return $licenes;
     }
     
-    /**
-     * 
-     *  Deposition agreement file types
-     * 
-     * @return string
-     */
     public static function getFileTypes(){        
         $fileTypes = array();
         $fileTypes["3DVirtual"] = "3D Data and Virtual Reality";
@@ -352,11 +319,6 @@ class DepAgreeConstants {
         return $fileTypes;             
     }
     
-    
-    /**
-     *  Deposition agreement File formats
-     * @return string
-     */
     public static function getFileFormats(){
         $fileFormats = array();
         $fileFormats["AAC_MP4"]="AAC/MP4";
@@ -437,24 +399,24 @@ class DepAgreeConstants {
         return $fileFormats;
     }
     
-    /**
-     *  Deposition agreement transfer medium
-     * @return type
-     */
     public static function getTransferMedium(){
+        /*$transferMeth = array();
+        $transferMeth["UPLOAD"] = "Upload (max. 100MB)";
+        $transferMeth["OEAWCLOUD"] = "oeawCloud please provide the URL";
+        $transferMeth["LINK"] = "Link to file storage: please provide the URL";
+        $transferMeth["PHYSICAL"] = "With physical storage medium: we will contact you to clarify details";
+        */
+        
         $transferMeth = array( 
             'UPLOAD' => t('Upload (max. 100MB)'),
             'OEAWCLOUD' => t('oeawCloud please provide the URL'),
             'LINK' => t('Link to file storage: please provide the URL'),
             'PHYSICAL' => t('With physical storage medium: we will contact you to clarify details')            
         );
+        
         return $transferMeth;
     }
     
-    /**
-     *  Deposition agreement validation text
-     * @return string
-     */
     public static function getDataValidation(){
         $data = array();
         $data[0] = "The donor/depository has provided a tab-delimited text file providing full object paths and filenames for the all objects being submitted, with an MD5 checksum for each object.  The repository will perform automated validation.";
@@ -463,10 +425,6 @@ class DepAgreeConstants {
         return $data;
     }
     
-    /**
-     *  Deposition agreement integrity checks
-     * @return string
-     */
     public static function getIntegrityChecks(){
         $data = array();
         $data[0] = "The Depositor has provided a file listing full object paths and filenames for the all objects being submitted, with an MD5 checksum for each object.  The Repository will perform automated validation.";
@@ -475,10 +433,6 @@ class DepAgreeConstants {
         return $data;
     }
     
-    /**
-     *  Deposition agreement Access Mode
-     * @return string
-     */
     public static function getAccessMode(){
         $data = array();
         $data['PUB'] = "Public content (PUB): free access to the general public without any restriction. The classification of a resource as public content does not mean that the resources may be used for any purpose. The permissible types of use are further detailed by the licence accompanying every resource.";

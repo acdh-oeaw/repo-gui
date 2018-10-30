@@ -7,6 +7,8 @@ use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Core\Archiver\Zip;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Language\LanguageInterface;
 
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawResource;
@@ -16,6 +18,7 @@ use Drupal\oeaw\Model\OeawCustomSparql;
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\Helper\Helper;
 use Drupal\oeaw\PropertyTableCache;
+use Drupal\Core\Cache\CacheBackendInterface;
 
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ChangedCommand;
@@ -23,6 +26,7 @@ use Drupal\Core\Ajax\CssCommand;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\InvokeCommand;
 
+use acdhOeaw\fedora\dissemination\Service as Service;
 use acdhOeaw\util\RepoConfig as RC;
 use Drupal\oeaw\ConfigConstants as CC;
 use acdhOeaw\fedora\Fedora;
@@ -47,12 +51,13 @@ use GuzzleHttp\Client;
  */
 class FrontendController extends ControllerBase 
 {
-    
+    use StringTranslationTrait; 
     private $oeawStorage;
     private $oeawFunctions;
     private $oeawCustomSparql;
     private $propertyTableCache;
     private $uriFor3DObj;
+    private $langConf;
     
     /**
      * Set up the necessary properties and config
@@ -63,6 +68,7 @@ class FrontendController extends ControllerBase
         $this->oeawCustomSparql = new OeawCustomSparql();
         $this->propertyTableCache = new PropertyTableCache();
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        $this->langConf = $this->config('oeaw.settings');
     }
 
     /**
@@ -83,8 +89,7 @@ class FrontendController extends ControllerBase
         $result = array();
         $datatable = array();
         $res = array();
-        $errorMSG = array();
-        
+        $uid = \Drupal::currentUser()->id();
         $limit = (int)$limit;
         $page = (int)$page;
         $page = $page-1;
@@ -102,7 +107,9 @@ class FrontendController extends ControllerBase
         
         $countRes = $countRes[0]["count"];
         if($countRes == 0){
-            drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
+            drupal_set_message( 
+                    $this->langConf->get('errmsg_no_root_resources') ? $this->langConf->get('errmsg_no_root_resources') : 'You have no Root resources', 
+                    'error', FALSE);
             return array();
         }
         $search = array();
@@ -130,8 +137,6 @@ class FrontendController extends ControllerBase
             return array();
         }
         
-        $uid = \Drupal::currentUser()->id();
-
         if(count($result) > 0){
             
             foreach($result as $value){
@@ -152,7 +157,6 @@ class FrontendController extends ControllerBase
                 $arrayObject->offsetSet('availableDate', $value['availableDate'] );
                 $arrayObject->offsetSet('accessRestriction', $value['accessRestriction'] );
                 
-                
                 if(isset($value['contributor']) && !empty($value['contributor'])){
                     $contrArr = explode(',', $value['contributor']);
                     $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
@@ -170,6 +174,10 @@ class FrontendController extends ControllerBase
                     if($imageUrl){ $arrayObject->offsetSet('imageUrl', $imageUrl); }
                 }
                 
+                if(isset($value['description']) && !empty($value['description'])){
+                    $tblArray['description'] = $value['description'];
+                }
+                
                 if(count($tblArray) == 0){
                     $tblArray['title'] = $value['title'];
                 }
@@ -179,19 +187,20 @@ class FrontendController extends ControllerBase
                 try {
                     $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
                     $res[] = $obj;
-                } catch (ErrorException $ex) {
-                    throw new \ErrorException("Problem during the root list data generating!");
+                } catch (\ErrorException $ex) {
+                    throw new \ErrorException(t('Error message').':  FrontendController -> OeawResource Exception ');
                 }
             }
         } else {
-            drupal_set_message(t('Problem during the root listing'), 'error', FALSE);
+            drupal_set_message(
+                    $this->langConf->get('errmsg_no_root_resources') ? $this->langConf->get('errmsg_no_root_resources') : 'You have no Root resources', 
+                    'error', FALSE);
             return array();
         }
         
         //create the datatable values and pass the twig template name what we want to use
         $datatable = array(
             '#userid' => $uid,
-            '#errorMSG' => $errorMSG,
             '#attached' => [
                 'library' => [
                 'oeaw/oeaw-styles', 
@@ -233,7 +242,9 @@ class FrontendController extends ControllerBase
     public function oeaw_query(string $uri){
         
         if (empty($uri)) {
-           return drupal_set_message(t('Resource does not exist!'), 'error');
+           return drupal_set_message(
+                   $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!', 
+                   'error');
         }
         
         $uri = base64_decode($uri);
@@ -274,48 +285,53 @@ class FrontendController extends ControllerBase
         
         return $datatable;
     }
-    
-    
-    
-    
+   
     /**
+     * The detail view of the Resource
      * 
-     * The detail view of the Resource with the existing children resources
-     * 
-     * @param string $uri
-     * @param Request $request
-     * @param string $limit
-     * @param string $page
+     * @param string $res_data
      * @return array
      */
-    public function oeaw_detail(string $uri, Request $request, string $limit = "10", string $page = "1"): array {
-     
+    public function oeaw_detail(string $res_data): array {
         drupal_get_messages('error', TRUE);
-                
-        $inverseData = array();
-        $childResult = array();
         $rules = array();
         $ACL = array();
-        $childrenData = array();
         $fedoraRes = array();
         
-        //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
-        if ($page > 0) { $page = $page-1; }
+        //we have the url and limit page data in the string
+        if(empty($res_data)) {
+            drupal_set_message(
+                    $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist', 
+                    'error');
+            return array();
+        }
+        
         $identifier = "";
         //transform the url from the browser to readable uri
-        $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
+        $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);
+        if (empty($identifier)) {
+            drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist',  'error');
+            return array();
+        }
+        
+        $limitAndPage = $this->oeawFunctions->getLimitAndPageFromUrl($res_data);
+        
+        $page = 1;
+        $limit = 10;
+        
+        if(count($limitAndPage) > 0) {
+            if(isset($limitAndPage['page'])){
+                $page = $limitAndPage['page'];
+            }
+            if(isset($limitAndPage['limit'])){
+                $limit = $limitAndPage['limit'];
+            }
+        }
         
         //if the browser url contains handle url then we need to get the acdh:hasIdentifier
         if (strpos($identifier, 'hdl.handle.net') !== false) {
             $identifier = $this->oeawFunctions->pidToAcdhIdentifier($identifier);
         }
-        
-        if (empty($identifier)) {
-            drupal_set_message(t('Resource does not exist!'), 'error');
-            return array();
-        }
-        
-        if($limit == "0"){ $limit = "10"; }
         
         $fedora = $this->oeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
@@ -325,16 +341,19 @@ class FrontendController extends ControllerBase
             $fedoraRes = $fedora->getResourceById($identifier);
             $rootMeta = $fedoraRes->getMetadata();
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            drupal_set_message(t('Fedora Exception during the getMetadata function!'), 'error');
+            drupal_set_message(
+                    $this->langConf->get('errmsg_fedora_exception') ? $this->langConf->get('errmsg_fedora_exception').' :getMetadata function' : 'Fedora Exception : getMetadata function', 
+                    'error');
             return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             drupal_set_message(t($ex->getMessage()), 'error');
             return array();
         }
         
+        
         //get the actual resource rules
         try{
-            $rules = $this->oeawFunctions->getRules($uri, $fedoraRes);
+            $rules = $this->oeawFunctions->getRules($identifier, $fedoraRes);
         } catch (Exception $ex) {
             drupal_set_message(t($ex->getMessage()), 'error');
             return array();
@@ -342,19 +361,16 @@ class FrontendController extends ControllerBase
             drupal_set_message(t($ex->getMessage()), 'error');
             return array();
         }
-        //check the rules array!!!!
-       
+        
         if(count((array)$rootMeta)){
-            $results = array();
-            
             //create the OEAW resource Object for the GUI data
             try {
                 $resultsObj = $this->oeawFunctions->createDetailViewTable($rootMeta);
             } catch (\ErrorException $ex) {
-                drupal_set_message(t("Error ARCHE cant generate the Resource Table View! ".$ex->getMessage()), 'error');
+                drupal_set_message(t("Error").' : '.$ex->getMessage(), 'error');
                 return array();
             }
-           
+            
             try {
                 //$results['ACL'] = $this->oeawFunctions->checkRules($rules);
             } catch (Exception $ex) {
@@ -364,34 +380,12 @@ class FrontendController extends ControllerBase
             
             //check the acdh:hasIdentifier data to the child view
             if(count($resultsObj->getIdentifiers()) > 0){
-                //set up the necessary properties for the child data generation
-                $properties = array();
-                $properties = array("limit" => $limit, "page" => $page, "identifier" => $resultsObj->getIdentifiers());
-                //get the child view data
-                $childArray = array();
-                $childArray = $this->oeawFunctions->generateChildViewData($resultsObj->getIdentifiers(), $resultsObj, $properties);
-
-                if(count($childArray) > 0){
-                    //pass the specialtype info to the template
-                    if(isset($childArray['specialType'])){
-                        $extras["childType"] = $childArray['specialType'];
-                    }
-                    //child table data
-                    if(isset($childArray['childResult']) && count($childArray['childResult']) > 0){
-                        $childResult = $childArray['childResult'];
-                    }
-                    //setup pagination infos
-                    if(isset($childArray['pagination'])){
-                        $extras["pagination"] = $childArray['pagination'];
-                    }
-                }
-                
                 $customDetailView = array();
                 //if we have a type and this type can found in the available custom views array
                 try{
                     $customDetailView = $this->oeawFunctions->createCustomDetailViewTemplateData($resultsObj, $resultsObj->getType());
                 } catch (\ErrorException $ex) {
-                    drupal_set_message(t("Error ARCHE cant generate the Resource Custom Table View! ".$ex->getMessage()), 'error');
+                    drupal_set_message(t("Error message").' : Resource Custom Table View. '.$ex->getMessage(), 'error');
                     return array();
                 }
                 
@@ -400,7 +394,9 @@ class FrontendController extends ControllerBase
                 }
             }
         } else {
-            drupal_set_message(t("The resource has no metadata!"), 'error');
+            drupal_set_message(
+                    $this->langConf->get('errmsg_resource_no_metadata') ? $this->langConf->get('errmsg_resource_no_metadata') : 'The resource has no metadata!', 
+                    'error');
             return array();
         }
         
@@ -424,7 +420,7 @@ class FrontendController extends ControllerBase
             drupal_set_message($ex->getMessage(), 'error');
             return array();
         }
-
+        
         if(count($dissServices) > 0 && $fedoraRes->getId()){
             //we need to remove the raw from the list if it is a collection
             if($resultsObj->getType() == "Collection"){
@@ -441,11 +437,7 @@ class FrontendController extends ControllerBase
         }
         
         // Pass fedora uri so it can be linked in the template
-        $extras["fedoraURI"] = $uri;
-        
-        if(count($inverseData) > 0){
-            $extras['inverseData'] = $inverseData;
-        }
+        $extras["fedoraURI"] = $rootMeta->getUri();
         
         //format the hasavailable date
         if(!empty($resultsObj->getTableData("acdh:hasAvailableDate"))){
@@ -455,7 +447,7 @@ class FrontendController extends ControllerBase
                 $time = strtotime($avDate);
                 $newTime = date('Y-m-d', $time);
                 if($resultsObj->setTableData("acdh:hasAvailableDate", array($newTime)) == false || empty($newTime)){
-                    drupal_set_message('Available date modification error!', 'error');
+                    drupal_set_message(t('Error').' : Available date format', 'error');
                     return array();
                 }
             }
@@ -463,7 +455,7 @@ class FrontendController extends ControllerBase
             if (\DateTime::createFromFormat('Y', $avDate) !== FALSE) {
                 $year = \DateTime::createFromFormat('Y', $avDate);
                 if($resultsObj->setTableData("acdh:hasAvailableDate", array($year->format('Y')) ) == false || empty($year->format('Y'))){
-                    drupal_set_message('Available date modification error!', 'error');
+                    drupal_set_message(t('Error').' : Available date format', 'error');
                     return array();
                 }
             }
@@ -493,16 +485,20 @@ class FrontendController extends ControllerBase
         if($resultsObj->getType() == "Resource"  ){
             if(Helper::check3dData($resultsObj->getTable()) === true){
                 $extras['3dData'] = true;
+            }else{
+                //but if we have resource and the diss-serv contains the 3d viewer, but our viewer cant show it, then we need to remove
+                // the 3d viewer from the dissemination services.
+                if(array_search('https://id.acdh.oeaw.ac.at/dissemination/3DObject', array_column($dissServices, 'identifier')) !== false) {
+                    $key = array_search('https://id.acdh.oeaw.ac.at/dissemination/3DObject', array_column($dissServices, 'identifier'));
+                    unset($dissServices[$key]);
+                }
             }
         }
-
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => $resultsObj,
             '#extras' => $extras,
             '#userid' => $uid,
-            #'#query' => $query,            
-            '#childResult' => $childResult,
             '#attached' => [
                 'library' => [
                 'oeaw/oeaw-styles', //include our custom library for this response
@@ -512,7 +508,54 @@ class FrontendController extends ControllerBase
         
         return $datatable;
     }
+   
+    /**
+     * Change language session variable API
+     * Because of the special path handling, the basic language selector is not working
+     * 
+     * @param string $lng
+     * @return Response
+    */ 
+    public function oeaw_change_lng(string $lng = 'en'): Response {
+        $_SESSION['language'] = strtolower($lng);
+        $response = new Response();
+        $response->setContent(json_encode("language changed to: ".$lng));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
     
+   
+    /**
+     * This API will generate the child html view.
+     * The data generated by the identifier/resource type (person, organization, etc...)
+     * 
+     * @param string $identifier - the UUID 
+     * @param string $page
+     * @param string $limit
+     */
+    public function oeaw_child_api(string $identifier, string $limit, string $page, string $order): Response {
+        $identifier = RC::get('fedoraUuidNamespace').$identifier;
+        $childArray = $this->oeawFunctions->generateChildAPIData($identifier, (int)$limit, (int)$page, $order);
+         
+        if(count($childArray['childResult']) == 0) { 
+            $childArray['errorMSG'] =  
+                $this->langConf->get('errmsg_no_child_resources') ? $this->langConf->get('errmsg_no_child_resources') : 'There are no Child resources';
+        }
+        
+        $childArray['language'] = \Drupal::languageManager()->getCurrentLanguage()->getId();
+        
+        $build = [
+            '#theme' => 'oeaw_child_view',
+            '#result' => $childArray,
+            '#attached' => [
+                'library' => [
+                    'oeaw/oeaw-styles', //include our custom library for this response
+                ]
+            ]
+        ];
+        
+        return new Response(render($build));
+    }
    
     /**
      * 
@@ -554,6 +597,7 @@ class FrontendController extends ControllerBase
             $page = (int)$page - 1;
             $limit = (int)$limit;
             $result = array();
+            $solrData = array();
             $pagination = "";        
             //get the current page for the pagination        
             $currentPage = $this->oeawFunctions->getCurrentPageForPagination();
@@ -564,10 +608,13 @@ class FrontendController extends ControllerBase
             $searchStr = $this->oeawFunctions->explodeSearchString($metavalue);
             
             if(!in_array("", $searchStr) === false){
-                drupal_set_message("Search String is not valid!", 'error');
+                drupal_set_message(t("Your search yielded no results."), 'error');
                 return array();
             }
-
+            
+            if(isset($searchStr['words'])){
+                $solrData = $this->oeawFunctions->getDataFromSolar($searchStr['words']);
+            }
             
             try{
                 $countSparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, 0, 0, true);
@@ -575,9 +622,11 @@ class FrontendController extends ControllerBase
                 drupal_set_message($ex->getMessage(), 'error');
                 return array();
             }
-            
+            $solrCount = count($solrData);
             $count = $this->oeawStorage->runUserSparql($countSparql);
-            $total = (int)count($count);
+
+            $total = (int)count($count) + $solrCount;
+            if ($total < 1) { drupal_set_message(t("Your search yielded no results."), 'error'); }
             //create data for the pagination
             $pageData = $this->oeawFunctions->createPaginationData($limit, $page, $total);
 
@@ -591,65 +640,75 @@ class FrontendController extends ControllerBase
                 drupal_set_message($ex->getMessage(), 'error');
                 return array();
             }
+            if($solrCount > 0) {
+                $res = array_merge($res, $solrData);
+            }
             
-            if(count($res) > 0){
-                
+            if(count($res) > 0) {
                 foreach($res as $r){
-                    $tblArray = array();
-                    
-                    $arrayObject = new \ArrayObject();
-                    $arrayObject->offsetSet('title', $r['title']);
-                    $resourceIdentifier = $this->oeawFunctions->createDetailViewUrl($r);
-                    $arrayObject->offsetSet('uri', $resourceIdentifier);
-                    $arrayObject->offsetSet('fedoraUri', $r['uri']);
-                    $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 1));
-                    $arrayObject->offsetSet('identifiers', $r['identifier']);
-                    $arrayObject->offsetSet('pid', $r['pid']);
-                    $arrayObject->offsetSet('type', str_replace(RC::get('fedoraVocabsNamespace'), '', $r['acdhType']) );
-                    $arrayObject->offsetSet('typeUri', $r['acdhType'] );
-                    
-                    if(isset($r['availableDate']) && !empty($r['availableDate'])){
-                        $arrayObject->offsetSet('availableDate', $r['availableDate'] );
+                    if( (isset($r['title']) && !empty($r['title']) ) 
+                            && ( isset($r['uri']) && !empty($r['uri']) ) 
+                            && ( isset($r['identifier']) && !empty($r['identifier']) ) 
+                            && ( isset($r['acdhType']) && !empty($r['acdhType']) ) ) 
+                        {
+                        
+                        $tblArray = array();
+
+                        $arrayObject = new \ArrayObject();
+                        $arrayObject->offsetSet('title', $r['title']);
+                        $resourceIdentifier = $this->oeawFunctions->createDetailViewUrl($r);
+                        $arrayObject->offsetSet('uri', $resourceIdentifier);
+                        $arrayObject->offsetSet('fedoraUri', $r['uri']);
+                        $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 1));
+                        $arrayObject->offsetSet('identifiers', $r['identifier']);
+                        $arrayObject->offsetSet('pid', (isset($r['pid'])) ? $r['pid'] : "" );
+                        $arrayObject->offsetSet('type', str_replace(RC::get('fedoraVocabsNamespace'), '', $r['acdhType']) );
+                        $arrayObject->offsetSet('typeUri', $r['acdhType'] );
+
+                        if(isset($r['availableDate']) && !empty($r['availableDate'])){
+                            $arrayObject->offsetSet('availableDate', $r['availableDate'] );
+                        }
+                        if(isset($r['accessRestriction']) && !empty($r['accessRestriction'])){
+                            $arrayObject->offsetSet('accessRestriction', $r['accessRestriction'] );
+                        }
+                        if(isset($r['authors']) && !empty($r['authors'])){
+                            $authArr = explode(',', $r['authors']);
+                            $tblArray['authors'] = $this->oeawFunctions->createContribAuthorData($authArr);
+                        }
+                        if(isset($r['contribs']) && !empty($r['contribs'])){
+                            $contrArr = explode(',', $r['contribs']);
+                            $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
+                        }
+                        
+                        if(isset($r['highlighting']) && !empty($r['highlighting'])){
+                            $arrayObject->offsetSet('highlighting', $r['highlighting'] );
+                        }
+                        
+                        if(count($tblArray) == 0){
+                            $tblArray['title'] = $r['title']; 
+                        }
+                        if(isset($r['image']) && !empty($r['image'])){
+                            $arrayObject->offsetSet('imageUrl', $r['image']);
+                        }
+                        else if(isset($r['hasTitleImage']) && !empty($r['hasTitleImage']) ){
+                            $imageUrl = $this->oeawStorage->getImageByIdentifier($r['hasTitleImage']);
+                            if($imageUrl){ $arrayObject->offsetSet('imageUrl', $imageUrl); }
+                        }
+                        
+                        if(isset($r['description']) && !empty($r['description'])){
+                            $tblArray['description'] = $r['description'];
+                        }
+                        $arrayObject->offsetSet('table', $tblArray);
+                        try {
+                            $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
+                            $result[] = $obj;
+                        } catch (ErrorException $ex) {
+                            throw new \ErrorException(t('Error').':'.__FUNCTION__, 'error');
+                        }
                     }
-                    if(isset($r['accessRestriction']) && !empty($r['accessRestriction'])){
-                        $arrayObject->offsetSet('accessRestriction', $r['accessRestriction'] );
-                    }
-                    
-                    if(isset($r['authors']) && !empty($r['authors'])){
-                        $authArr = explode(',', $r['authors']);
-                        $tblArray['authors'] = $this->oeawFunctions->createContribAuthorData($authArr);
-                    }
-                    
-                    if(isset($r['contribs']) && !empty($r['contribs'])){
-                        $contrArr = explode(',', $r['contribs']);
-                        $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
-                    }
-                    
-                    if(count($tblArray) == 0){
-                        $tblArray['title'] = $r['title']; 
-                    }
-                    $arrayObject->offsetSet('table', $tblArray);
-                
-                    if(isset($r['image']) && !empty($r['image'])){
-                        $arrayObject->offsetSet('imageUrl', $r['image']);
-                    }
-                    else if(isset($r['hasTitleImage']) && !empty($r['hasTitleImage']) ){
-                        $imageUrl = $this->oeawStorage->getImageByIdentifier($r['hasTitleImage']);
-                        if($imageUrl){ $arrayObject->offsetSet('imageUrl', $imageUrl); }
-                    }
-                    try {
-                        $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
-                        $result[] = $obj;
-                    } catch (ErrorException $ex) {
-                        throw new \ErrorException("Problem during the root list data generating!");
-                    }
-                    
                 }
             }
-            if (count($result) == 0){
-                drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
-                return array();
-            }
+            if (count($result) == 0){ return array(); }
             
             $uid = \Drupal::currentUser()->id();
 
@@ -676,12 +735,10 @@ class FrontendController extends ControllerBase
     }
    
     
-    
-    
     /**
      * cache the acdh ontology 
      */
-    public function oeaw_cache_ontology(): Response{
+    public function oeaw_cache_ontology(): Response {
         $result = array();
         if($this->propertyTableCache->setCacheData() == true){
             $result = "cache updated succesfully!";
@@ -740,7 +797,6 @@ class FrontendController extends ControllerBase
                 }
             }
         }
-        
         $response = new Response();
         $response->setContent(json_encode($invData));
         $response->headers->set('Content-Type', 'application/json');
@@ -813,7 +869,7 @@ class FrontendController extends ControllerBase
     public function oeaw_3d_viewer(string $data): array{
         
         if(empty($data)){
-             drupal_set_message(t('Please add a resources!'), 'error', FALSE);
+             drupal_set_message(t('No').' '.t('Data'), 'error', FALSE);
              return array();
         }
         $templateData["insideUri"] = $data;
@@ -831,11 +887,11 @@ class FrontendController extends ControllerBase
             if( isset($fdUrlArr[0]) && isset($fdUrlArr[0]['uri']) ){
                 $fdUrl = $fdUrlArr[0]['uri'];
             }else{
-                drupal_set_message(t('There is no valid fedora url!'), 'error', FALSE);
+                drupal_set_message(t('The URL %url is not valid.', $fdUrl), 'error', FALSE);
                 return array();
             }
         }else{
-            drupal_set_message(t('There is no valid fedora url!'), 'error', FALSE);
+            drupal_set_message(t('No').' '.t('Data'), 'error', FALSE);
             return array();
         }
         
@@ -860,7 +916,7 @@ class FrontendController extends ControllerBase
                 return $result;
             }
         }else {
-            drupal_set_message(t('There resource file informations are missing!'), 'error', FALSE);
+            drupal_set_message(t('Missing').':'.t('File information'), 'error', FALSE);
             return array();
         }
         
@@ -915,12 +971,12 @@ class FrontendController extends ControllerBase
                                 $this->uriFor3DObj['error'] = "";
                             }
                         }else {
-                            $this->uriFor3DObj['error'] = "Wrong file format, it is not NXS or PLY!";
+                            $this->uriFor3DObj['error'] = t('File extension').' '.t('Error');
                             $this->uriFor3DObj['result'] = "";
                         }
                     }
                 }else{
-                    $this->uriFor3DObj['error'] = "There is no file";
+                    $this->uriFor3DObj['error'] = t('No files available.');
                     $this->uriFor3DObj['result'] = "";
                 }
 
@@ -972,7 +1028,9 @@ class FrontendController extends ControllerBase
             $resData = $this->oeawFunctions->generateCollectionData($uri);
            
             if(count($resData) == 0){
-                drupal_set_message(t('The collection doesnt exists!'), 'error', FALSE);   
+                drupal_set_message(
+                    $this->langConf->get('errmsg_collection_not_exists') ? $this->langConf->get('errmsg_collection_not_exists') : 'The Collection does not exist!', 
+                    'error', FALSE);   
                 return array();
             }
         }
@@ -1032,20 +1090,21 @@ class FrontendController extends ControllerBase
         $resData = array();
         $identifier = "";
         if(empty($uri)){
-            drupal_set_message(t('The URL is not valid!'), 'error');
+            drupal_set_message(
+                    $this->langConf->get('errmsg_url_not_valid') ? $this->langConf->get('errmsg_url_not_valid') : 'The URL is not valid!', 
+                    'error');
             return array();
         }else{
             $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
-            
             if($identifier){
                 $fdUrl = $this->oeawStorage->getFedoraUrlByIdentifierOrPid($identifier);
-                
                 //loris url generating fucntion
                 $resData = Helper::generateLorisUrl($fdUrl);
             }
-            
             if( count($resData) == 0){
-                drupal_set_message(t('There is no valid Image!'), 'error');
+                drupal_set_message(
+                    $this->langConf->get('errmsg_image_not_valid') ? $this->langConf->get('errmsg_image_not_valid') : 'The Image is not valid!',
+                    'error');
                 return array();
             }
         }
@@ -1065,11 +1124,11 @@ class FrontendController extends ControllerBase
      * 
      * @param string $uri
      * @return Response
-     */
-    public function oeaw_get_collection_data(string $uri){
+    */
+    public function oeaw_get_collection_data(string $uri) : Response {
         
         if(empty($uri)){
-            $errorMSG = "There is no valid URL";
+            $errorMSG = t('Missing').': Identifier';
         }else {
             $resData['insideUri'] = $uri;
             $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
@@ -1081,7 +1140,7 @@ class FrontendController extends ControllerBase
         //add the main Root element
         $resData['binaries'][] = array("uri" => $uri, "uri_dl" => $resData['fedoraUri'], "title" => $resData['title'], "text" => $resData['title'], "filename" => str_replace(" ", "_", $resData['filename']), "rootTitle" => "");
         $result = $this->oeawFunctions->convertToTree($resData['binaries'], "text", "rootTitle");
-
+        
         $response = new Response();
         $response->setContent(json_encode($result));
         $response->headers->set('Content-Type', 'application/json');
@@ -1156,8 +1215,7 @@ class FrontendController extends ControllerBase
                     }
 
                 } catch (\GuzzleHttp\Exception\ClientException $ex) {
-
-                    $errorMSG = "there was a problem during the file downloads";
+                    $errorMSG = t('File').' '.t('Download').' '.t('Error');
                 }
             }
         }
@@ -1168,48 +1226,31 @@ class FrontendController extends ControllerBase
         
         if(count($dirFiles) > 0){
             chmod($GLOBALS['resTmpDir'], 0777);
-            
-            fopen($GLOBALS['resTmpDir'].'/collection.zip', "w");
-            fclose($GLOBALS['resTmpDir'].'/collection.zip');
-            
-            $archiveFile = $tmpDirDate.'/collection.zip';
-            
-            $ziph = new \ZipArchive();
-            
-            
-            if(file_exists($archiveFile))
-            {
-                try{
-                    if($ziph->open($archiveFile, \ZIPARCHIVE::CHECKCONS) !== TRUE)
-                    {
-                        $errMsg = "Unable to Open $archiveFile";
-                    }else{
-                        foreach($dirFiles as $d){
-                            if($d == "." || $d == ".."){
-                                continue;
-                            }else {
-                                //we will add the files into the zip, 
-                                //with a localname to skip the server directory structure
-                                if(!$ziph->addFile($tmpDirDate.'/'.$d, $d))
-                                {
-                                    $errMsg = "error archiving $file in $d";
-                                }
-                            }
-                        }
+            $archiveFile = $tmpDirDate.'/collection.tar.gz';
+            $tar = new \PharData($archiveFile);
+            try {
+                
+                foreach($dirFiles as $d){                
+                    if($d == "." || $d == ".." || $d == 'collection.tar'){
+                        continue;
+                    }else {
+                        //we will add the files into the tar, 
+                        //with a localname to skip the server directory structure
+                        $tar->addFile($tmpDirDate.'/'.$d, $d);
                     }
-                } catch (Exception $ex) {
-                    $errorMSG = $ex->getMessage();
-                }    
-            }
-            
-            $ziph->close();
-            
+                }
+                $tar->compress(\Phar::NONE);
+                unlink($archiveFile);
+            } 
+            catch (Exception $e) {
+                echo "Exception : " . $e;
+            }   
             //check the new dir that it is still generating the zip file or not
             $newDir = scandir($tmpDirDate);
                     
             $checkDir = true;
             do {
-                $checkDir = Helper::checkArrayForValue($newDir, "collection.zip."); 
+                $checkDir = Helper::checkArrayForValue($newDir, "collection.tar."); 
                 //delete the files and keep the zip only
                 foreach($dirFiles as $file){ 
                     if(is_file($tmpDir.$dateID.'/'.$file)){ 
@@ -1219,12 +1260,12 @@ class FrontendController extends ControllerBase
                 sleep(3);
             } while (false);
             
-            $hasZip = RC::get('guiBaseUrl').'/sites/default/files/collections/'.$dateID.'/collection.zip';
+            $hasTar = RC::get('guiBaseUrl').'/sites/default/files/collections/'.$dateID.'/collection.tar';
         }
         
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
-        $response->setContent(json_encode($hasZip ));
+        $response->setContent(json_encode($hasTar ));
         return $response;
     }
     
@@ -1242,7 +1283,9 @@ class FrontendController extends ControllerBase
     public function oeaw_form_success(string $url){
         
         if (empty($url)) {
-           drupal_set_message(t('The $url is missing!'), 'error');
+           drupal_set_message(
+                   $this->langConf->get('errmsg_url_not_valid') ? $this->langConf->get('errmsg_url_not_valid') : 'The URL is not valid!', 
+                   'error');
            return array();
         }
         $uid = \Drupal::currentUser()->id();

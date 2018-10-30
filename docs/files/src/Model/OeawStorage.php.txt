@@ -116,13 +116,13 @@ class OeawStorage implements OeawStorageInterface {
                 $order = "DESC( fn:lower-case(str(?title)))";
                 break;
             case "dateasc":
-                $order = "ASC(?availableDate)";
+                $order = "ASC(?avDate)";
                 break;
             case "datedesc":
-                $order = "DESC(?availableDate)";
+                $order = "DESC(?avDate)";
                 break;
             default:
-                $order = "DESC(?availableDate)";
+                $order = "DESC(?avDate)";
         }
 
         if($offset < 0) { $offset = 0; }
@@ -145,11 +145,11 @@ class OeawStorage implements OeawStorageInterface {
             
             $where .= "?uri <". RC::idProp()."> ?identifiers . ";
             $where .= "OPTIONAL { ?uri <".RC::get('epicPidProp')."> ?pid .  } ";
-            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasContributor')."> ?contributors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasAuthor')."> ?authors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
-            $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
+            $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?avDate . }";
                             //. " BIND( (CONCAT(STR(substr(?avDate, 0, 10)))) as ?availableDate) . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationStartDate')."> ?hasCreationStartDate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationEndDate')."> ?hasCreationEndDate . } ";
@@ -176,8 +176,8 @@ class OeawStorage implements OeawStorageInterface {
 
             if($count == false){
                     $select = 'SELECT ?uri ?title ?pid '; 
-                    $select .= $this->modelFunctions->convertFieldDate("availableDate", "availableDate", 0); 
-                    $select .= ' ?isPartOf ?image ?hasTitleImage ';
+                    $select .= $this->modelFunctions->convertFieldDate("avDate", "availableDate", 0); 
+                    $select .= ' ?isPartOf ?image ?hasTitleImage ?avDate';
                     $select .= $this->modelFunctions->convertFieldDate("hasCreationStartDate", "hasCreationStartDate", 0);
                     $select .= $this->modelFunctions->convertFieldDate("hasCreationEndDate", "hasCreationEndDate", 0);
                     $select .= ' ?accessRestriction ?acdhType '
@@ -185,7 +185,7 @@ class OeawStorage implements OeawStorageInterface {
                                     . ' (GROUP_CONCAT(DISTINCT ?authors;separator=",") AS ?author) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)'
                                     . '(GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)';
 
-                    $groupby = " GROUP BY ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ?accessRestriction ?acdhType ";
+                    $groupby = " GROUP BY ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ?accessRestriction ?acdhType ?avDate ";
                     $orderby = " ORDER BY ".$order." ";
                     $limitOffset = "LIMIT ".$limit." OFFSET ".$offset." ";
             }else {
@@ -194,7 +194,7 @@ class OeawStorage implements OeawStorageInterface {
             }
 
             $query = $prefix.$select.$where.$groupby.$orderby.$limitOffset;
-           
+          
             $result = $this->fedora->runSparql($query);
             if(count($result) > 0){
                 $fields = $result->getFields();             
@@ -243,6 +243,32 @@ class OeawStorage implements OeawStorageInterface {
             throw new \InvalidArgumentException($ex->getMessage());
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             throw new Exception($ex->getMessage());
+        }
+    }
+    
+    public function getTypeByIdentifier(string $identifier, string $lang = "en" ): array {
+        $getResult = array();
+        $lang = strtolower($lang);
+        
+        try {
+            $select = " SELECT ?uri ?type WHERE { ";
+            
+            $where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";
+            $where .= "?uri <".RC::get('drupalRdfType')."> ?type . ";
+            $where .= ' FILTER (regex(str(?type),"vocabs.acdh.oeaw.ac.at","i")) .';
+            $where .= " } ";
+            
+            $query = $select.$where;
+            
+            $result = $this->fedora->runSparql($query);
+            $fields = $result->getFields();             
+            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
+            
+            return $getResult;
+        }  catch (\Exception $ex) {
+            return array();
+        } catch (\InvalidArgumentException $ex){
+            return array();
         }
     }
    
@@ -399,7 +425,10 @@ class OeawStorage implements OeawStorageInterface {
     public function getValueByUriProperty(string $uri, string $property): array
     {
         if (empty($uri) || empty($property)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error'
+                );
         }
         
         $getResult = array();
@@ -437,7 +466,10 @@ class OeawStorage implements OeawStorageInterface {
     public function getPropertyValueByUri(string $uri, string $property): string
     {
         if (empty($uri) || empty($property)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error'
+            );
         }
         
         $getResult = array();
@@ -482,7 +514,10 @@ class OeawStorage implements OeawStorageInterface {
     public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false, $lang = "en"): array {
         
         if (empty($value) || empty($property)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error'
+            );
         }
         $lanf = strtolower($lang);
        if($offset < 0) { $offset = 0; }
@@ -490,7 +525,9 @@ class OeawStorage implements OeawStorageInterface {
         if(!filter_var($property, FILTER_VALIDATE_URL)){
             $property = Helper::createUriFromPrefix($property);
             if($property === false){
-                return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error'); 
+                return drupal_set_message(
+                    t('Error').':'.__FUNCTION__, 'error'
+                ); 
             }           
         }else if(filter_var($property, FILTER_VALIDATE_URL)){            
             $property = '<'. $property .'>';
@@ -499,7 +536,7 @@ class OeawStorage implements OeawStorageInterface {
         if(!filter_var($value, FILTER_VALIDATE_URL)){
             $value = Helper::createUriFromPrefix($value);
             if($value === false){
-                return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error'); 
+                return drupal_set_message(t('Error').':'.__FUNCTION__, 'error'); 
             }
            
         }else if(filter_var($value, FILTER_VALIDATE_URL)){            
@@ -622,7 +659,7 @@ class OeawStorage implements OeawStorageInterface {
     public function getClassMetaForApi(string $classString, string $lang = "en"): array{
         
         if (empty($classString)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message( t('Empty').' '.t('Values').' -->'.__FUNCTION__, 'error');
         }
         
         $lang = strtolower($lang);
@@ -748,7 +785,9 @@ class OeawStorage implements OeawStorageInterface {
     public function getClassMeta(string $classURI, string $lang = "en"): array{
        
         if (empty($classURI)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                     t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                    'error');
         }
         $lang = strtolower($lang);
         
@@ -830,7 +869,8 @@ class OeawStorage implements OeawStorageInterface {
         
         $return = "";
         if (empty($string)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,  'error');
         }
        
         try{            
@@ -864,7 +904,9 @@ class OeawStorage implements OeawStorageInterface {
     {         
         
         if (empty($value)) {
-            drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            drupal_set_message(
+                 t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error');
             return "";
         }
         
@@ -903,7 +945,9 @@ class OeawStorage implements OeawStorageInterface {
     public function getIsMembers(string $uri, string $lang = "en"): array {
         
         if (empty($uri)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error');
         }
         $lang = strtolower($lang);
         
@@ -976,7 +1020,9 @@ class OeawStorage implements OeawStorageInterface {
     public function getChildResourcesByProperty(string $uri, string $limit, string $offset, bool $count, array $property, string $lang = "en"): array{
         
         if (empty($uri)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error');
         }
         $lang = strtolower($lang);
         if($offset < 0) { $offset = 0; }
@@ -1037,7 +1083,7 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $lang
      * @return array
      */
-    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "en"): array {
+    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "en", string $order = "asc"): array {
         
         if (count($ids) < 0) { return array(); }
         if($offset < 0) { $offset = 0; }
@@ -1081,7 +1127,8 @@ class OeawStorage implements OeawStorageInterface {
             }
         }
         $where .= ')';
-        $groupBy = ' }  GROUP BY ?uri ?title ?pid ?accessRestriction ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' }  GROUP BY ?uri ?title ?pid ?accessRestriction '; 
+        $groupBy .= ' ORDER BY '.$order.' ( fn:lower-case(?title)) ';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
         
@@ -1332,7 +1379,8 @@ class OeawStorage implements OeawStorageInterface {
     public function checkValueToAutocomplete(string $string, string $property): array{
         
         if (empty($string) || empty($property)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 'error');
         }
                 
         $rdfsLabel = self::$sparqlPref["rdfsLabel"];
@@ -1635,6 +1683,77 @@ class OeawStorage implements OeawStorageInterface {
     }
     
     /**
+     * Get title and some basic info about the resource by identifier
+     * 
+     * @param string $data
+     * @param bool $dissemination
+     * @param string $lang
+     * @return array
+     */
+    public function getTitleAndBasicInfoByIdentifier(string $data, bool $dissemination = false, string $lang = "en"): array
+    {
+        $result = array();
+        $lang = strtolower($lang);
+        $where = "";
+        $select = "";
+
+        $where .= " { ";
+        $where .= "?uri <".RC::get('fedoraIdProp')."> <".$data."> . ";
+        //$where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
+        //$where .= "?uri <".RC::titleProp()."> ?title . ";
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+        $where .=" OPTIONAL {"
+                . " ?uri <".RC::get('fedoraIdProp')."> ?identifier . "
+                . " FILTER (regex(str(?identifier),'id.acdh.oeaw.ac.at/','i')) . "
+                . " FILTER (!regex(str(?identifier),'.at/uuid/','i')) . "
+                . "}"
+                . "OPTIONAL { "
+                . " ?uri <".RC::get('fedoraIdProp')."> ?uuid .  "
+                . " FILTER (regex(str(?uuid),'id.acdh.oeaw.ac.at/uuid/','i')) . "
+                . " } "
+                . " OPTIONAL {"
+                . " ?uri <".RC::get('fedoraIdProp')."> ?vocabs . "
+                . " FILTER (regex(str(?vocabs),'vocabs.acdh.oeaw.ac.at/','i')) . "
+                . " } "
+                . " OPTIONAL { "
+                . " ?uri <".RC::get('epicPidProp')."> ?pid . "
+                . " } ";
+
+        if($dissemination == true){
+            $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
+            //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
+            $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
+        }
+
+        $where .= " } ";
+                
+        if($dissemination == true){
+            $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs ?returnType ?description WHERE { ';
+        }else{
+            $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs WHERE { ';
+        }
+
+        $queryStr = $select.$where." } ORDER BY ?title";
+
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            $fields = $res->getFields();
+            $result = $this->oeawFunctions->createSparqlResult($res, $fields);
+            return $result;
+         } catch (\Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+        
+        
+        return $result;
+    }
+    
+    /**
      * Create the Sparql Query for the special ACDH rdf:type "children views"
      * 
      * @param string $uri
@@ -1645,7 +1764,7 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $lang
      * @return array
      */
-    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en"): array 
+    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en", string $orderby = 'asc'): array 
     {
         if($offset < 0) { $offset = 0; }
         $lang = strtolower($lang);
@@ -1688,7 +1807,8 @@ class OeawStorage implements OeawStorageInterface {
             }
             ';
         
-        $groupBy = ' GROUP BY ?uri ?title ?pid ?accessRestriction ORDER BY ASC( fn:lower-case(?title))';
+        $groupBy = ' GROUP BY ?uri ?title ?pid ?accessRestriction ';
+        $groupBy .= ' ORDER BY '.$orderby.' ( fn:lower-case(?title))';
         
         $queryStr = $prefix.$select.$where.$groupBy.$limitStr;
         
@@ -1759,7 +1879,7 @@ class OeawStorage implements OeawStorageInterface {
                 FILTER regex(str(?type),"vocabs.acdh","i") . ';
         $groupBy = ' }  GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';
         
-        echo $queryStr = $select.$where.$groupBy.$limitStr;
+        $queryStr = $select.$where.$groupBy.$limitStr;
         
         try {
             $q = new SimpleQuery($queryStr);
