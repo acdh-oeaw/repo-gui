@@ -1,7 +1,6 @@
 var jq2 = jQuery;
 jQuery.noConflict(true);
 jq2(function( $ ) {
-        
         var table = jq2('table.display').DataTable({
            "lengthMenu": [[20, 35, 50, -1], [20, 35, 50, "All"]]
         });
@@ -62,15 +61,15 @@ jq2(function( $ ) {
                                         hidepopup();
                                         window.location.replace(xhr.responseURL);
                                     }else{
-                                        jq2( "#loginErrorDiv" ).html("Login Failed!");
+                                        jq2( "#loginErrorDiv" ).html(Drupal.t('Login error'));
                                     }
                                 },
                                 error( xhr,status,error) {
-                                    jq2( "#loginErrorDiv" ).html("Login Failed!");
+                                    jq2( "#loginErrorDiv" ).html(Drupal.t('Login error'));
                                 }
                             });
                         }else{
-                            jq2( "#loginErrorDiv" ).html("Please provide username/password!");
+                            jq2( "#loginErrorDiv" ).html(Drupal.t('Please provide your login credentials'));
                         }
 
                         ed.preventDefault();
@@ -209,8 +208,8 @@ jq2(function( $ ) {
                     jq2('#child-div-content').html(result);
                     return false;
                 },
-                error: function(error){
-                    jq2('#child-div-content').html('<div>There is no data</div>');
+                error: function(error) {
+                    jq2('#child-div-content').html('<div class="messages messages--error" role="contentinfo" aria-label="Error message">'+Drupal.t('There is no data!')+'</div>');
                     return false;
                 }
             });
@@ -255,88 +254,4 @@ jq2(function( $ ) {
         }
         
         /***  PAGINATION END  ****/
-        
-        
-        
-        jq2('a#delete').click(function(e){ //on add input button click
-            
-            e.preventDefault();
-            var deleteVal = jq2(this).data('resourceid');
-            var trParent = jq2(this).parent().parent();
-            
-            var confirmation = confirm("Are you sure?");
-            
-            if (confirmation == true) {
-                jq2.ajax({
-                    url: '/oeaw_delete/'+deleteVal,
-                    data: deleteVal,
-                    success: function(data, status) {
-                        if(data.result == true){
-                            trParent.hide();
-                        }                    
-                        if(data.result == false){
-                            alert(data.error_msg);
-                        }
-                    }
-                });
-            }else {
-                alert("Delete cancelled");
-            }
-        });
-        
-        
-        jq2('a#delete-root').click(function(e){ //on add input button click
-            
-            e.preventDefault();
-            var deleteVal = jq2(this).data('resourceid');
-            
-            var confirmation = confirm("Are you sure?");
-            
-            if (confirmation == true) {
-                jq2.ajax({
-                    url: '/oeaw_delete/'+deleteVal,
-                    data: deleteVal,
-                    success: function(data) {
-                        if(data.result == true){
-                            alert("Delete done!")
-                            window.location = "/";
-                        }                    
-                        if(data.result == false){
-                            alert(data.error_msg);
-                        }
-                    }
-                });
-            }else {
-                alert("Delete cancelled");
-            }
-        });
-        
-        jq2('a#delete-rule').click(function(e){ //on add input button click
-            
-            e.preventDefault();
-            var confirmation = confirm("Are you sure you want to Revoke the user rights?");
-            
-            var deleteVal = jq2(this).data('resourceid');
-            var userVal = jq2(this).data('user');
-            
-            if (confirmation == true) {                
-                jq2.ajax({                    
-                    url: '/oeaw_revoke/'+deleteVal+'/'+userVal,
-                    data: deleteVal,
-                    success: function(data) {
-                        
-                        if(data.result == true){
-                            alert("Revoke done!")
-                            window.location = "/";
-                        }                    
-                        if(data.result == false){
-                            alert(data.error_msg);
-                        }
-                    }
-                });
-            }else {
-                alert("Revoke cancelled");
-            }
-        });
-        
 });

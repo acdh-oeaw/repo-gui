@@ -14,6 +14,9 @@ oeaw-styles:
         js/dataTables.bootstrap4.min.js: {}
         js/datatable_init.js: {}
         js/lightbox.js: {}
+    dependencies:
+        - core/drupal
+        - core/drupal.form        
 
 oeaw-3D_styles:  
     version: 1.0.0
@@ -33,6 +36,9 @@ oeaw-3D_styles:
         js/3d/trackball_sphere.js: {}
         js/3d/trackball_turntable.js: {}
         js/3d/trackball_turntable_pan.js: {}
+    dependencies:
+        - core/drupal
+        - core/drupal.form                
         
 oeaw-DL_collection:  
     version: 1.0.2
@@ -44,3 +50,6 @@ oeaw-DL_collection:
         js/jquery-1.12.3.min.js: {}        
         js/jstree.min.js: {}
         js/dl_collection.js: {}
+    dependencies:
+        - core/drupal
+        - core/drupal.form                

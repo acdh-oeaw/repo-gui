@@ -1,15 +1,13 @@
-{% if errorMSG %}
-    {{ errorMSG }}
-{% else %}
-    
+<link rel="stylesheet" type="text/css" href="/browser/core/themes/classy/css/components/messages.css">
+<!--   MAIN DETAIL VIEW -->
     <input type="hidden" id="insideUri" name="insideUri" value="{{ result.insideUri }}">
     <input type="hidden" id="accessRestriction" name="accessRestriction" value="{{ result.accessRestriction }}">
     
     <h3 class="single-res-heading">
-            Overview
+            {{ "Overview"|trans }}
         <div class="res-act-button res-act-button-expertview basic">
             <i class="material-icons">&#xE896;</i>
-            <span>Switch to Expert-View</span>
+            <span>{{ "Switch to Expert-View"|trans }}</span>
         </div>
         {% if extras.niceURI %}
         <div class="res-act-button res-act-button-copy-url" id="res-act-button-copy-url" data-copyuri="{{ extras.niceURI }}">
@@ -21,7 +19,7 @@
             -->
             <span id="copy-url-button">
                 <i class="material-icons">&#xE157;</i>
-                Copy Resource Link
+                {{ "Copy Resource Link"|trans }}
             </span>
             <span id="copyLinkTextfield-wrapper">
                 <span type="text" name="copyLinkInputBtn" id="copyLinkInputBtn" data-copyuri="{{ extras.niceURI }}">
@@ -107,11 +105,11 @@
         </table>
             
         <div class="res-act-button">
-            <a href="#" id="showInverse" data-tableuri="{{result.insideUri}}">Show Inverse Table</a>
+            <a href="#" id="showInverse" data-tableuri="{{result.insideUri}}">{{ "Show Inverse Table"|trans }}</a>
         </div>
         
         <div id="inverseTableDiv" style="display: none;">
-            <h3>Inverse Data</h3>
+            <h3>{{ "Inverse Data"|trans }}</h3>
             <table class="inverseTable table table-striped" cellspacing="0" width="100%">
                 <thead>
                     <tr>                        
@@ -176,15 +174,15 @@
                 <div class="res-act-button">
                     {% if value['guiUrl'] and value['title'] and value['description']  %}
                         <a href="{{ value['guiUrl'] }}" title="{{ value['description'] }}" class="dissServAhref" >
-                            <span>{{ value['title'] }}</span>
+                            <span>{{ value['title']|trans }}</span>
                         </a>
                     {% elseif value['returnType'] and value['title'] and value['description']  %}
                         <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" title="{{ value['description'] }}" class="dissServAhref" >
-                            <span>{{ value['title'] }}</span>
+                            <span>{{ value['title']|trans }}</span>
                         </a>
                     {% elseif value['returnType'] and value['title'] %}
                         <a href="{{ extras['dissServ']['identifier'] }}?format={{ value['returnType']|url_encode }}" class="dissServAhref" >
-                            <span>{{ value['title'] }}</span>
+                            <span>{{ value['title']|trans }}</span>
                         </a>        
                     {% endif %}    
                 </div>
@@ -192,7 +190,7 @@
         </div>
         <!-- DISS LOGIN FORM START  -->
         <div id="dissServLoginform">
-            <div id="loginInfo">Please provide your login credentials</div>
+            <div id="loginInfo">{{ "Please provide your login credentials"|trans }}</div>
             <div id="loginErrorDiv"></div>
             <input type="text" id="username" placeholder="username" name="username">
             <input type="password" id="password" name="password" placeholder="password">
@@ -205,12 +203,12 @@
     {% endif %}    	
     
     {% if (result.table['acdh:hasDescription'] or result.table['acdh:hasSpatialCoverage'] or result.table['acdh:hasNote']) %}
-        <h3 class="single-res-heading">Summary</h3>
+        <h3 class="single-res-heading">{{ "Summary"|trans }}</h3>
         
         {% if result.table['acdh:hasSpatialCoverage'] %}
             <div class="res-property">
                 <i class="material-icons">info_outline</i>
-                <span class="res-prop-label">Spatial Coverage:&nbsp;&nbsp;</span>
+                <span class="res-prop-label">{{ "Spatial Coverage"|trans }}:&nbsp;&nbsp;</span>
                 {% if result.table['acdh:hasSpatialCoverage'] is iterable and result.table['acdh:hasSpatialCoverage']|length > 1 %}
                     <ul>
                     {% for spatial in result.table['acdh:hasSpatialCoverage'] %}
@@ -239,7 +237,7 @@
         {% if result.table['acdh:hasDescription'][0] %}
             <div class="res-property">
                 <i class="material-icons">info_outline</i>
-                <span class="res-prop-label">Description:&nbsp;&nbsp;</span>
+                <span class="res-prop-label">{{ "Description"|trans }}:&nbsp;&nbsp;</span>
                 <span class="res-prop-value">{{ result.table['acdh:hasDescription'][0]|nl2br }}</span>
             </div>
         {% endif %}
@@ -247,14 +245,14 @@
         {% if result.table['acdh:hasNote'][0] %}
             <div class="res-property">
                 <i class="material-icons">info_outline</i>
-                <span class="res-prop-label">Note:&nbsp;&nbsp;</span>
+                <span class="res-prop-label">{{ "Note"|trans }}:&nbsp;&nbsp;</span>
                 <span class="res-prop-value">{{ result.table['acdh:hasNote'][0] }}</span>
             </div>
         {% endif %}
     {% endif%}
 
     {% if extras.CiteThisWidget %}
-    <h3 class="single-res-heading">Cite Resource</h3>
+    <h3 class="single-res-heading">{{ "Cite Resource"|trans }}</h3>
         <div class="cite-selector">
             <div class="cite-style selected">
                 MLA
@@ -267,7 +265,7 @@
 
         <div class="bd-clipboard">
             <span id="copy-cite-btn" class="btn-clipboard" title="" data-original-title="Copy to clipboard">Copy</span>
-            <span id="copy-cite-btn-confirmation">Citation information copied!</span>
+            <span id="copy-cite-btn-confirmation">{{ "Citation information copied"|trans }}!</span>
         </div>
         <figure class="highlight">
             <span class="cite-content active">{{ extras.CiteThisWidget.MLA.string | raw }}</span>
@@ -279,10 +277,9 @@
     
     <div class="res-actions" style="padding: 20px;">
         <div class="res-act-button" style="display: table; margin: 0 auto;">
-            <a href="#" id="getChildView"><i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;<b>Show More</b>&nbsp; <i class="fa fa-angle-down" aria-hidden="true"></i></a>
+            <a href="#" id="getChildView"><i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;<b>{{ "Show More"|trans }}</b>&nbsp; <i class="fa fa-angle-down" aria-hidden="true"></i></a>
         </div>
     </div>
    
    <div id="child-div-content"></div>
-                                   
-{% endif%}
+

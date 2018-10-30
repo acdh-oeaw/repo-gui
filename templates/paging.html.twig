@@ -26,35 +26,36 @@
             -webkit-appearance:none; /* Safari and Chrome */
         }
     </style>
-    {% if data is empty %}
-        <span> <a href="#" id="first-btn" >First</a></span>
-    {% else %}
-        <span> {{ data }} Page(s)</span>
-        <span class="results-info-bar"> <a href="#" id="first-btn" >First</a></span>
-    {% endif %}
-    
-    <span><a href="#" id="prev-btn" >Prev</a> </span>
-    <span><a href="#" id="next-btn" >Next</a></span>
-    <span><a href="#" id="last-btn" >Last</a></span>
+    <div>
+        {% if data is empty %}
+            <span> <a href="#" id="first-btn" >{{ "First"|trans }}</a></span>
+        {% else %}
+            <span> {{ data }} {{ "Pages"|trans }}</span>
+            <span class="results-info-bar"> <a href="#" id="first-btn" >{{ "First"|trans }}</a></span>
+        {% endif %}
 
-    <span class="results-info-bar">Items: 
-        <select id="limit-sel">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="15">15</option>
-            <option value="20">20</option>
-            <option value="25">25</option>
-            <option value="50">50</option>
-        </select> 
-    </span>
-    
-    <span class="results-info-bar">Sort By:  
-        <select id="orderby">
-            <option value="asc">ASC (title)</option>
-            <option value="desc">DESC (title)</option>
-        </select> 
-    </span>
-    
+        <span><a href="#" id="prev-btn" >{{ "Previous"|trans }}</a> </span>
+        <span><a href="#" id="next-btn"> {{ "Next"|trans }}</a></span>
+        <span><a href="#" id="last-btn" >{{ "Last"|trans }}</a></span>
+
+        <span class="results-info-bar">{{ "Items"|trans }} : 
+            <select id="limit-sel">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+                <option value="20">20</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+            </select> 
+        </span>
+
+        <span class="results-info-bar">{{ "Sort by"|trans }}:  
+            <select id="orderby">
+                <option value="asc">ASC (title)</option>
+                <option value="desc">DESC (title)</option>
+            </select> 
+        </span>
+    </div>    
   
     
     

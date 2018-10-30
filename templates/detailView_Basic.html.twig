@@ -16,9 +16,9 @@
     {% if result.type %}
         <div class="res-property">
             <i class="material-icons">&#xE54E;</i>
-            <span class="res-prop-label">Type:</span> 
+            <span class="res-prop-label">{{ "Type"|trans }}:</span> 
             <span class="res-prop-value">
-                <a href="{{ url('<front>') }}discover/&type={{ result.type }}/10">{{ result.type }}</a>
+                <a href="/browser/discover/&type={{ result.type }}/10">{{ result.type }}</a>
             </span>
         </div>
     {% endif%}		

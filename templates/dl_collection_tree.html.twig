@@ -53,7 +53,7 @@
     <div>
         {%  if resourceData['insideUri'] %}
             <div>
-                <a href="/browser/oeaw_detail/{{ resourceData['insideUri'] }}"><span>Back to the resource</span></a>
+                <a href="/browser/oeaw_detail/{{ resourceData['insideUri'] }}"><span>{{ "Back to the resource"|trans }}</span></a>
                 <br/><br/>
             </div>
         {% endif %}    
@@ -70,12 +70,12 @@
         <div class="single-res-overview single-res-overview-basic">
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Name:</span> 
+                <span class="res-prop-label">{{ "Name"|trans }}:</span> 
                 <span class="res-prop-value">
                     {% if resourceData['title'] %}
                         {{ resourceData['title'] }}
                     {% else %}    
-                        There is no title
+                        {{ "Empty"|trans }}
                     {% endif %}
                 </span>
             </div>
@@ -84,7 +84,7 @@
             {% if resourceData['isPartOf'] %}     
             <div class="res-property">
                 <i class="material-icons">device_hub</i>
-                <span class="res-prop-label">Part Of:</span> 
+                <span class="res-prop-label">{{ "Part of"|trans }}:</span> 
                 <span class="res-prop-value">
                     {{ resourceData['isPartOf'] }}
                 </span>
@@ -94,7 +94,7 @@
             {% if resourceData['license'] %} 
                 <div class="res-property">
                     <i class="material-icons">copyright</i>
-                    <span class="res-prop-label">License:</span> 
+                    <span class="res-prop-label">{{ "License"|trans }}:</span> 
                     <span class="res-prop-value">
                         {{ resourceData['license'] }}
                     </span>
@@ -103,12 +103,12 @@
                     
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Number of files:</span> 
+                <span class="res-prop-label">{{ "Number of files"|trans }}:</span> 
                 <span class="res-prop-value">
                      {% if resourceData['filesNum'] %}
                         {{ resourceData['filesNum'] }}
                     {% else %}    
-                       Unknown
+                       {{ "Empty"|trans }}
                     {% endif %}
                 </span>
             </div>
@@ -116,62 +116,63 @@
             
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Sum. Size:</span> 
+                <span class="res-prop-label">{{ " Summary"|trans }} {{ "Size"|trans }}:</span> 
                 <span class="res-prop-value">
                     {% if resourceData['formattedSize'] %}
                         {{ resourceData['formattedSize'] }}
                     {% else %}    
-                        Unknown
+                        {{ "Empty"|trans }}
                     {% endif %}
                 </span>
             </div>
             {% if resourceData['estDLTime'] %}                
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Estimated <br>Download Time:</span> 
+                <span class="res-prop-label">{{ "Est. Download Time"|trans }}:</span> 
                 <span class="res-prop-value" >
-                    <span id="dl_time"> </span> <small>with you current download speed.</small>
+                    <span id="dl_time"> </span> <small>{{"with you current download speed"|trans}}.</small>
                 </span>
             </div>    
             {% endif %}
             
             <div>
                 <br>
-                By downloading you agree to the <a href="https://arche.acdh.oeaw.ac.at/browser/terms-of-use">Terms of Use</a>, which includes compliance with the licenses accompanying every Resource and adhering to the <a href="http://www.allea.org/wp-content/uploads/2017/03/ALLEA-European-Code-of-Conduct-for-Research-Integrity-2017-1.pdf">European Code of Conduct for Research Integrity</a> .
+                {{ "By downloading you agree to the"|trans }} <a href='https://arche.acdh.oeaw.ac.at/browser/terms-of-use'>Terms of Use</a>, 
+                {{ "which includes compliance with the licenses accompanying every Resource and adhering to the"|trans }} <a href='http://www.allea.org/wp-content/uploads/2017/03/ALLEA-European-Code-of-Conduct-for-Research-Integrity-2017-1.pdf'>European Code of Conduct for Research Integrity</a>.
             </div>
             
             <div id="collection_dl_info">
                 <br>
-                <h3>How to Download</h3>
+                <h3>{{ "How to Download"|trans }}</h3>
                 <ul>
                     <li>
-                        For a single file just click on the according file name.
+                        {{ "For a single file just click on the according file name."|trans }}
                     </li> 
                     <li>
-                        For more files or the whole collection click on the corresponding checkboxes in the tree view (click on the triangle to expand it).
+                        {{ "For more files or the whole collection click on the corresponding checkboxes in the tree view (click on the triangle to expand it)."|trans }}
                     </li>
                     <li>
-                        Use the search box to find specific resources by their title.
+                        {{ "Use the search box to find specific resources by their title."|trans }}
                     </li>
                     <li>
-                        Resources marked in red require appropriate access rights and might not be available to you despite being logged in.
+                        {{ "Resources marked in red require appropriate access rights and might not be available to you despite being logged in."|trans }}
                     </li>
                 </ul>
-                After selecting the resources please press "Prepare Collection for Download". Depending on the collection size this may take a while. You will then be presented with a new button "Download Collection as .tar", with which the actual download can be started.
+                {{ "After selecting the resources please press 'Prepare Collection for Download'. Depending on the collection size this may take a while. You will then be presented with a new button 'Download Collection as .tar', with which the actual download can be started."|trans }}
                 <br>
             </div>
             
             <div class="res-property" id="selected_files_size_div">
                 <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Sel. files size:</span> 
+                <span class="res-prop-label">{{ "Sel. files size"|trans }}:</span> 
                 <span class="res-prop-value" id="selected_files_size">
                 </span>
             </div>    
             
             <div class="col-xs-12 text-center" id="not_enough_permission" style="display:none">
-                <span class="res-prop-value" style="color:red;"><b><center>You do not have enough rights to download the whole collection! Please try to login with the button below:</center></b></span>
+                <span class="res-prop-value" style="color:red;"><b><center>{{ "You do not have enough rights to download the whole collection! Please try to login with the button below"|trans }}:</center></b></span>
                 <div class="res-act-button">
-                    <a href="#" id="loginToRestrictedResources">Login to download/reach the restricted content</a>
+                    <a href="#" id="loginToRestrictedResources">{{ "Login to download/reach the restricted content"|trans }}</a>
                 </div>
                 <br>
             </div>
@@ -179,7 +180,7 @@
             <!-- DISS LOGIN FORM START  -->
             <div id="col-xs-12 text-center">
                 <div id="dissServLoginform" style="margin: 10px auto;">
-                    <div id="loginInfo">Please provide your login credentials</div>
+                    <div id="loginInfo">{{ "Please provide your login credentials"|trans }}</div>
                     <div id="loginErrorDiv"></div>
                     <input type="text" id="username" placeholder="username" name="username">
                     <input type="password" id="password" name="password" placeholder="password">
@@ -193,32 +194,32 @@
             
             <div class="col-xs-12 text-center" style="display:none;" id="getCollectionDiv" >
                 <div class="res-act-button" style="">
-                    <a href="#" id="getCollectionData" data-tableuri="{{url}}">Prepare Collection for Download</a>
+                    <a href="#" id="getCollectionData" data-tableuri="{{url}}">{{ "Prepare Collection for Download"|trans }}</a>
                 </div>
             </div>
                 
             <div class="col-xs-12 text-center" style="display:none;" id="dl_link_txt">
-                <b>The selected files are ready for downloading:</b>
+                <b>{{ "The selected files are ready for downloading"|trans }}:</b>
             </div>
                 
             <div class="col-xs-12 text-center" style="display:none;" id="dl_link">
                 <br>
                  <div class="res-act-button" >
                     <span class="res-prop-value">
-                        <div id="dl_link_a">Download Collection as .tar</div>
+                        <div id="dl_link_a">{{ "Download Collection"|trans }} .tar</div>
                     </span>
                 </div>
             </div>
             
             <!-- Collection DL request info div start -->
             <div id="success_login_msg" class="success_box_oeaw text-center justify-content-center align-items-center" >
-                Login was successful! <br>
-                Please check the updated tree!
+                {{ "Login was successful"|trans }}! <br>
+                {{ "Please check the updated tree"|trans }}!
             </div>
                 
             <div id="error_login_msg" class="error_box_oeaw text-center justify-content-center align-items-center">
-                Login error! <br>
-                Please re-enter your login credentials
+                {{ "Login error"|trans }}! <br>
+                {{ "Please re-enter your login credentials"|trans }}
             </div>
             <!-- Collection DL request info div end -->
  
@@ -228,7 +229,7 @@
             <div style="margin-top: 15px;">
                 <div class="res-property">
                     <i class="material-icons">search</i>
-                    <span class="res-prop-label">Search inside the collection: </span> 
+                    <span class="res-prop-label">{{"Search"|trans }}: </span> 
                     <input id="search-input" class="collection-input-format" />
                 </div>    
             </div>

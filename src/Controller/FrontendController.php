@@ -7,6 +7,8 @@ use Drupal\Core\Url;
 use Drupal\Core\Link;
 use Drupal\Core\Archiver\Zip;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\Language\LanguageInterface;
 
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawResource;
@@ -49,12 +51,13 @@ use GuzzleHttp\Client;
  */
 class FrontendController extends ControllerBase 
 {
-    
+    use StringTranslationTrait; 
     private $oeawStorage;
     private $oeawFunctions;
     private $oeawCustomSparql;
     private $propertyTableCache;
     private $uriFor3DObj;
+    private $langConf;
     
     /**
      * Set up the necessary properties and config
@@ -65,6 +68,7 @@ class FrontendController extends ControllerBase
         $this->oeawCustomSparql = new OeawCustomSparql();
         $this->propertyTableCache = new PropertyTableCache();
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        $this->langConf = $this->config('oeaw.settings');
     }
 
     /**
@@ -85,8 +89,7 @@ class FrontendController extends ControllerBase
         $result = array();
         $datatable = array();
         $res = array();
-        $errorMSG = array();
-        
+        $uid = \Drupal::currentUser()->id();
         $limit = (int)$limit;
         $page = (int)$page;
         $page = $page-1;
@@ -104,7 +107,9 @@ class FrontendController extends ControllerBase
         
         $countRes = $countRes[0]["count"];
         if($countRes == 0){
-            drupal_set_message(t('You have no Root resources!'), 'error', FALSE);
+            drupal_set_message( 
+                    $this->langConf->get('errmsg_no_root_resources') ? $this->langConf->get('errmsg_no_root_resources') : 'You have no Root resources', 
+                    'error', FALSE);
             return array();
         }
         $search = array();
@@ -132,8 +137,6 @@ class FrontendController extends ControllerBase
             return array();
         }
         
-        $uid = \Drupal::currentUser()->id();
-
         if(count($result) > 0){
             
             foreach($result as $value){
@@ -184,19 +187,20 @@ class FrontendController extends ControllerBase
                 try {
                     $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
                     $res[] = $obj;
-                } catch (ErrorException $ex) {
-                    throw new \ErrorException("Problem during the root list data generating!");
+                } catch (\ErrorException $ex) {
+                    throw new \ErrorException(t('Error message').':  FrontendController -> OeawResource Exception ');
                 }
             }
         } else {
-            drupal_set_message(t('Problem during the root listing'), 'error', FALSE);
+            drupal_set_message(
+                    $this->langConf->get('errmsg_no_root_resources') ? $this->langConf->get('errmsg_no_root_resources') : 'You have no Root resources', 
+                    'error', FALSE);
             return array();
         }
         
         //create the datatable values and pass the twig template name what we want to use
         $datatable = array(
             '#userid' => $uid,
-            '#errorMSG' => $errorMSG,
             '#attached' => [
                 'library' => [
                 'oeaw/oeaw-styles', 
@@ -238,7 +242,9 @@ class FrontendController extends ControllerBase
     public function oeaw_query(string $uri){
         
         if (empty($uri)) {
-           return drupal_set_message(t('Resource does not exist!'), 'error');
+           return drupal_set_message(
+                   $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!', 
+                   'error');
         }
         
         $uri = base64_decode($uri);
@@ -287,16 +293,16 @@ class FrontendController extends ControllerBase
      * @return array
      */
     public function oeaw_detail(string $res_data): array {
-        
         drupal_get_messages('error', TRUE);
-        
         $rules = array();
         $ACL = array();
         $fedoraRes = array();
         
         //we have the url and limit page data in the string
         if(empty($res_data)) {
-            drupal_set_message(t('Resource does not exist!'), 'error');
+            drupal_set_message(
+                    $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist', 
+                    'error');
             return array();
         }
         
@@ -304,7 +310,7 @@ class FrontendController extends ControllerBase
         //transform the url from the browser to readable uri
         $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);
         if (empty($identifier)) {
-            drupal_set_message(t('Resource does not exist!'), 'error');
+            drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist',  'error');
             return array();
         }
         
@@ -335,7 +341,9 @@ class FrontendController extends ControllerBase
             $fedoraRes = $fedora->getResourceById($identifier);
             $rootMeta = $fedoraRes->getMetadata();
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            drupal_set_message(t('Fedora Exception during the getMetadata function!'), 'error');
+            drupal_set_message(
+                    $this->langConf->get('errmsg_fedora_exception') ? $this->langConf->get('errmsg_fedora_exception').' :getMetadata function' : 'Fedora Exception : getMetadata function', 
+                    'error');
             return array();
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             drupal_set_message(t($ex->getMessage()), 'error');
@@ -353,14 +361,13 @@ class FrontendController extends ControllerBase
             drupal_set_message(t($ex->getMessage()), 'error');
             return array();
         }
-        //check the rules array!!!!
-       
+        
         if(count((array)$rootMeta)){
             //create the OEAW resource Object for the GUI data
             try {
                 $resultsObj = $this->oeawFunctions->createDetailViewTable($rootMeta);
             } catch (\ErrorException $ex) {
-                drupal_set_message(t("Error ARCHE cant generate the Resource Table View! ".$ex->getMessage()), 'error');
+                drupal_set_message(t("Error").' : '.$ex->getMessage(), 'error');
                 return array();
             }
             
@@ -378,7 +385,7 @@ class FrontendController extends ControllerBase
                 try{
                     $customDetailView = $this->oeawFunctions->createCustomDetailViewTemplateData($resultsObj, $resultsObj->getType());
                 } catch (\ErrorException $ex) {
-                    drupal_set_message(t("Error ARCHE cant generate the Resource Custom Table View! ".$ex->getMessage()), 'error');
+                    drupal_set_message(t("Error message").' : Resource Custom Table View. '.$ex->getMessage(), 'error');
                     return array();
                 }
                 
@@ -387,7 +394,9 @@ class FrontendController extends ControllerBase
                 }
             }
         } else {
-            drupal_set_message(t("The resource has no metadata!"), 'error');
+            drupal_set_message(
+                    $this->langConf->get('errmsg_resource_no_metadata') ? $this->langConf->get('errmsg_resource_no_metadata') : 'The resource has no metadata!', 
+                    'error');
             return array();
         }
         
@@ -438,7 +447,7 @@ class FrontendController extends ControllerBase
                 $time = strtotime($avDate);
                 $newTime = date('Y-m-d', $time);
                 if($resultsObj->setTableData("acdh:hasAvailableDate", array($newTime)) == false || empty($newTime)){
-                    drupal_set_message('Available date modification error!', 'error');
+                    drupal_set_message(t('Error').' : Available date format', 'error');
                     return array();
                 }
             }
@@ -446,7 +455,7 @@ class FrontendController extends ControllerBase
             if (\DateTime::createFromFormat('Y', $avDate) !== FALSE) {
                 $year = \DateTime::createFromFormat('Y', $avDate);
                 if($resultsObj->setTableData("acdh:hasAvailableDate", array($year->format('Y')) ) == false || empty($year->format('Y'))){
-                    drupal_set_message('Available date modification error!', 'error');
+                    drupal_set_message(t('Error').' : Available date format', 'error');
                     return array();
                 }
             }
@@ -500,6 +509,21 @@ class FrontendController extends ControllerBase
         return $datatable;
     }
    
+    /**
+     * Change language session variable API
+     * Because of the special path handling, the basic language selector is not working
+     * 
+     * @param string $lng
+     * @return Response
+    */ 
+    public function oeaw_change_lng(string $lng = 'en'): Response {
+        $_SESSION['language'] = strtolower($lng);
+        $response = new Response();
+        $response->setContent(json_encode("language changed to: ".$lng));
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+    }
+    
    
     /**
      * This API will generate the child html view.
@@ -510,11 +534,15 @@ class FrontendController extends ControllerBase
      * @param string $limit
      */
     public function oeaw_child_api(string $identifier, string $limit, string $page, string $order): Response {
-        
         $identifier = RC::get('fedoraUuidNamespace').$identifier;
         $childArray = $this->oeawFunctions->generateChildAPIData($identifier, (int)$limit, (int)$page, $order);
+         
+        if(count($childArray['childResult']) == 0) { 
+            $childArray['errorMSG'] =  
+                $this->langConf->get('errmsg_no_child_resources') ? $this->langConf->get('errmsg_no_child_resources') : 'There are no Child resources';
+        }
         
-        if(count($childArray['childResult']) == 0) { $childArray['errorMSG'] = "There is no child data for this resource!"; }
+        $childArray['language'] = \Drupal::languageManager()->getCurrentLanguage()->getId();
         
         $build = [
             '#theme' => 'oeaw_child_view',
@@ -580,7 +608,7 @@ class FrontendController extends ControllerBase
             $searchStr = $this->oeawFunctions->explodeSearchString($metavalue);
             
             if(!in_array("", $searchStr) === false){
-                drupal_set_message("Search String is not valid!", 'error');
+                drupal_set_message(t("Your search yielded no results."), 'error');
                 return array();
             }
             
@@ -596,8 +624,9 @@ class FrontendController extends ControllerBase
             }
             $solrCount = count($solrData);
             $count = $this->oeawStorage->runUserSparql($countSparql);
+
             $total = (int)count($count) + $solrCount;
-            if ($total < 1) { drupal_set_message("There is no data!", 'error'); }
+            if ($total < 1) { drupal_set_message(t("Your search yielded no results."), 'error'); }
             //create data for the pagination
             $pageData = $this->oeawFunctions->createPaginationData($limit, $page, $total);
 
@@ -674,15 +703,12 @@ class FrontendController extends ControllerBase
                             $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
                             $result[] = $obj;
                         } catch (ErrorException $ex) {
-                            throw new \ErrorException("Problem during the root list data generating!");
+                            throw new \ErrorException(t('Error').':'.__FUNCTION__, 'error');
                         }
                     }
                 }
             }
-            if (count($result) == 0){
-                drupal_set_message(t('Sorry, we could not find any data matching your searched filters.'), 'error');
-                return array();
-            }
+            if (count($result) == 0){ return array(); }
             
             $uid = \Drupal::currentUser()->id();
 
@@ -843,7 +869,7 @@ class FrontendController extends ControllerBase
     public function oeaw_3d_viewer(string $data): array{
         
         if(empty($data)){
-             drupal_set_message(t('Please add a resources!'), 'error', FALSE);
+             drupal_set_message(t('No').' '.t('Data'), 'error', FALSE);
              return array();
         }
         $templateData["insideUri"] = $data;
@@ -861,11 +887,11 @@ class FrontendController extends ControllerBase
             if( isset($fdUrlArr[0]) && isset($fdUrlArr[0]['uri']) ){
                 $fdUrl = $fdUrlArr[0]['uri'];
             }else{
-                drupal_set_message(t('There is no valid fedora url!'), 'error', FALSE);
+                drupal_set_message(t('The URL %url is not valid.', $fdUrl), 'error', FALSE);
                 return array();
             }
         }else{
-            drupal_set_message(t('There is no valid fedora url!'), 'error', FALSE);
+            drupal_set_message(t('No').' '.t('Data'), 'error', FALSE);
             return array();
         }
         
@@ -890,7 +916,7 @@ class FrontendController extends ControllerBase
                 return $result;
             }
         }else {
-            drupal_set_message(t('There resource file informations are missing!'), 'error', FALSE);
+            drupal_set_message(t('Missing').':'.t('File information'), 'error', FALSE);
             return array();
         }
         
@@ -945,12 +971,12 @@ class FrontendController extends ControllerBase
                                 $this->uriFor3DObj['error'] = "";
                             }
                         }else {
-                            $this->uriFor3DObj['error'] = "Wrong file format, it is not NXS or PLY!";
+                            $this->uriFor3DObj['error'] = t('File extension').' '.t('Error');
                             $this->uriFor3DObj['result'] = "";
                         }
                     }
                 }else{
-                    $this->uriFor3DObj['error'] = "There is no file";
+                    $this->uriFor3DObj['error'] = t('No files available.');
                     $this->uriFor3DObj['result'] = "";
                 }
 
@@ -1002,7 +1028,9 @@ class FrontendController extends ControllerBase
             $resData = $this->oeawFunctions->generateCollectionData($uri);
            
             if(count($resData) == 0){
-                drupal_set_message(t('The collection doesnt exists!'), 'error', FALSE);   
+                drupal_set_message(
+                    $this->langConf->get('errmsg_collection_not_exists') ? $this->langConf->get('errmsg_collection_not_exists') : 'The Collection does not exist!', 
+                    'error', FALSE);   
                 return array();
             }
         }
@@ -1062,20 +1090,21 @@ class FrontendController extends ControllerBase
         $resData = array();
         $identifier = "";
         if(empty($uri)){
-            drupal_set_message(t('The URL is not valid!'), 'error');
+            drupal_set_message(
+                    $this->langConf->get('errmsg_url_not_valid') ? $this->langConf->get('errmsg_url_not_valid') : 'The URL is not valid!', 
+                    'error');
             return array();
         }else{
             $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
-            
             if($identifier){
                 $fdUrl = $this->oeawStorage->getFedoraUrlByIdentifierOrPid($identifier);
-                
                 //loris url generating fucntion
                 $resData = Helper::generateLorisUrl($fdUrl);
             }
-            
             if( count($resData) == 0){
-                drupal_set_message(t('There is no valid Image!'), 'error');
+                drupal_set_message(
+                    $this->langConf->get('errmsg_image_not_valid') ? $this->langConf->get('errmsg_image_not_valid') : 'The Image is not valid!',
+                    'error');
                 return array();
             }
         }
@@ -1095,11 +1124,11 @@ class FrontendController extends ControllerBase
      * 
      * @param string $uri
      * @return Response
-     */
+    */
     public function oeaw_get_collection_data(string $uri) : Response {
         
         if(empty($uri)){
-            $errorMSG = "There is no valid Identifier";
+            $errorMSG = t('Missing').': Identifier';
         }else {
             $resData['insideUri'] = $uri;
             $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
@@ -1186,7 +1215,7 @@ class FrontendController extends ControllerBase
                     }
 
                 } catch (\GuzzleHttp\Exception\ClientException $ex) {
-                    $errorMSG = "there was a problem during the file downloads";
+                    $errorMSG = t('File').' '.t('Download').' '.t('Error');
                 }
             }
         }
@@ -1254,7 +1283,9 @@ class FrontendController extends ControllerBase
     public function oeaw_form_success(string $url){
         
         if (empty($url)) {
-           drupal_set_message(t('The $url is missing!'), 'error');
+           drupal_set_message(
+                   $this->langConf->get('errmsg_url_not_valid') ? $this->langConf->get('errmsg_url_not_valid') : 'The URL is not valid!', 
+                   'error');
            return array();
         }
         $uid = \Drupal::currentUser()->id();

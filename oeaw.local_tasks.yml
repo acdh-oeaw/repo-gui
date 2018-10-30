@@ -1,0 +1,4 @@
+oeaw.settings_form_tab:
+  route_name: oeaw.settings_form
+  title: Settings
+  base_route: oeaw.settings_form

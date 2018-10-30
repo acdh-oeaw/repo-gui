@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Request;
 class OeawPathProcessor implements InboundPathProcessorInterface 
 {
     public function processInbound($path, Request $request) {
+     
         if (strpos($path, '/oeaw_detail/') === 0) {
             $names = preg_replace('|^\/oeaw_detail\/|', '', $path);
             $names = str_replace('/',':', $names);

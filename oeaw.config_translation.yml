@@ -1,0 +1,6 @@
+oeaw:
+  title: 'OEAW Translate settings'
+  base_route_name: oeaw.settings_form
+  names:
+    - 'oeaw.settings'
+

@@ -1,5 +1,5 @@
 <div>
-    <h3>Please login with your federated account!</h3>
+    <h3>{{ "Please login with your federated account"|trans }}!</h3>
     {% set myUrl = url('<front>')|raw %}
     {% set myBaseUrl = myUrl["#markup"]|replace({"/browser/": ""}) %}
     <span class="res-title">Federated Login: </span>

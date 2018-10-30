@@ -425,7 +425,10 @@ class OeawStorage implements OeawStorageInterface {
     public function getValueByUriProperty(string $uri, string $property): array
     {
         if (empty($uri) || empty($property)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error'
+                );
         }
         
         $getResult = array();
@@ -463,7 +466,10 @@ class OeawStorage implements OeawStorageInterface {
     public function getPropertyValueByUri(string $uri, string $property): string
     {
         if (empty($uri) || empty($property)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error'
+            );
         }
         
         $getResult = array();
@@ -508,7 +514,10 @@ class OeawStorage implements OeawStorageInterface {
     public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false, $lang = "en"): array {
         
         if (empty($value) || empty($property)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error'
+            );
         }
         $lanf = strtolower($lang);
        if($offset < 0) { $offset = 0; }
@@ -516,7 +525,9 @@ class OeawStorage implements OeawStorageInterface {
         if(!filter_var($property, FILTER_VALIDATE_URL)){
             $property = Helper::createUriFromPrefix($property);
             if($property === false){
-                return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error'); 
+                return drupal_set_message(
+                    t('Error').':'.__FUNCTION__, 'error'
+                ); 
             }           
         }else if(filter_var($property, FILTER_VALIDATE_URL)){            
             $property = '<'. $property .'>';
@@ -525,7 +536,7 @@ class OeawStorage implements OeawStorageInterface {
         if(!filter_var($value, FILTER_VALIDATE_URL)){
             $value = Helper::createUriFromPrefix($value);
             if($value === false){
-                return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error'); 
+                return drupal_set_message(t('Error').':'.__FUNCTION__, 'error'); 
             }
            
         }else if(filter_var($value, FILTER_VALIDATE_URL)){            
@@ -648,7 +659,7 @@ class OeawStorage implements OeawStorageInterface {
     public function getClassMetaForApi(string $classString, string $lang = "en"): array{
         
         if (empty($classString)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message( t('Empty').' '.t('Values').' -->'.__FUNCTION__, 'error');
         }
         
         $lang = strtolower($lang);
@@ -774,7 +785,9 @@ class OeawStorage implements OeawStorageInterface {
     public function getClassMeta(string $classURI, string $lang = "en"): array{
        
         if (empty($classURI)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                     t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                    'error');
         }
         $lang = strtolower($lang);
         
@@ -856,7 +869,8 @@ class OeawStorage implements OeawStorageInterface {
         
         $return = "";
         if (empty($string)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,  'error');
         }
        
         try{            
@@ -890,7 +904,9 @@ class OeawStorage implements OeawStorageInterface {
     {         
         
         if (empty($value)) {
-            drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            drupal_set_message(
+                 t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error');
             return "";
         }
         
@@ -929,7 +945,9 @@ class OeawStorage implements OeawStorageInterface {
     public function getIsMembers(string $uri, string $lang = "en"): array {
         
         if (empty($uri)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error');
         }
         $lang = strtolower($lang);
         
@@ -1002,7 +1020,9 @@ class OeawStorage implements OeawStorageInterface {
     public function getChildResourcesByProperty(string $uri, string $limit, string $offset, bool $count, array $property, string $lang = "en"): array{
         
         if (empty($uri)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                'error');
         }
         $lang = strtolower($lang);
         if($offset < 0) { $offset = 0; }
@@ -1359,7 +1379,8 @@ class OeawStorage implements OeawStorageInterface {
     public function checkValueToAutocomplete(string $string, string $property): array{
         
         if (empty($string) || empty($property)) {
-            return drupal_set_message(t('Empty values! -->'.__FUNCTION__), 'error');
+            return drupal_set_message(
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 'error');
         }
                 
         $rdfsLabel = self::$sparqlPref["rdfsLabel"];

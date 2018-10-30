@@ -21,6 +21,7 @@ class ComplexSearchForm extends FormBase
     
     private $oeawStorage;
     private $oeawFunctions;
+    private $langConf;
     
     /**
      * Set up necessary properties
@@ -28,6 +29,8 @@ class ComplexSearchForm extends FormBase
     public function __construct() {    
         $this->oeawStorage = new OeawStorage();
         $this->oeawFunctions = new OeawFunctions();
+        $this->langConf = $this->config('oeaw.settings');
+        
     }
     
     /**
@@ -47,6 +50,7 @@ class ComplexSearchForm extends FormBase
      */
     public function buildForm(array $form, FormStateInterface $form_state) 
     {   
+        $this->langConf->get('my_arche_message');
         /****  THE Search Input field  *****/
         $this->createSearchInput($form);
         
@@ -59,9 +63,10 @@ class ComplexSearchForm extends FormBase
         }else{
             $typeCache = $cache->setCacheData('acdhTypes');
         }
-     
+        
+        
         if(count($typeCache) > 0){
-            $resData["title"] = "Type of Entity";
+            $resData["title"] = $this->langConf->get('gui_type_of_entity') ? $this->langConf->get('gui_type_of_entity') : 'Type of Entity' ;
             $resData["type"] = "searchbox_types";
             $resData["fields"] = $typeCache;
             if(count($resData["fields"]) > 0){
@@ -78,7 +83,7 @@ class ComplexSearchForm extends FormBase
         }
         
         if(count($entitiesCache) > 0 ){
-            $dateData["title"] = "Entities by Year";
+            $dateData["title"] = $this->langConf->get('gui_entities_by_year') ? $this->langConf->get('gui_entities_by_year') :  'Entities by Year';
             $dateData["type"] = "datebox_years";
             $dateData["fields"] = $entitiesCache;
             
@@ -97,7 +102,7 @@ class ComplexSearchForm extends FormBase
         }
         
         if(count($formatCache) > 0){
-            $formatData["title"] = "Format";
+            $formatData["title"] = $this->t('Format');
             $formatData["type"] = "searchbox_format";
             
             $formatData["fields"] = $frm;
@@ -110,8 +115,9 @@ class ComplexSearchForm extends FormBase
         
         /****  Entities By date *****/
         
+        $entititesTitle = $this->langConf->get('gui_entities_by_date') ? $this->langConf->get('gui_entities_by_date') :  'Entities by Date';
         $form['datebox']['title'] = [
-            '#markup' => '<h3 class="extra-filter-heading date-filter-heading closed">Entities by Date</h3>'
+            '#markup' => '<h3 class="extra-filter-heading date-filter-heading closed">'.$entititesTitle.'</h3>'
         ];
         
         $form['datebox']['date_start_date'] = [
@@ -173,7 +179,7 @@ class ComplexSearchForm extends FormBase
         $form['actions']['#type'] = 'actions';
         $form['actions']['submit'] = array(
             '#type' => 'submit',
-            '#value' => $this->t('Apply the selected search filters'),
+            '#value' => $this->langConf->get('gui_apply_selected_filters') ? $this->langConf->get('gui_apply_selected_filters') : 'Apply the selected search filters',
             '#attributes' => array(
                 'class' => array('complexsearch-btn')
             ),                   
@@ -203,7 +209,7 @@ class ComplexSearchForm extends FormBase
         if( (empty($metavalue)) && (count($types) <= 0) 
                 &&  (count($formats) <= 0)  && empty($form_state->getValue('date_start_date'))
                 && empty($form_state->getValue('date_end_date')) ){            
-            $form_state->setErrorByName('metavalue', $this->t('Please add a keyword or select a type'));
+            $form_state->setErrorByName('metavalue', $this->t('Missing').': '.t('Keyword').' '.t('or').' '.t('Type'));
         }
     }
     

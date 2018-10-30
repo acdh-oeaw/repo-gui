@@ -1,0 +1,406 @@
+# Schema for the configuration files of the oeaw module.
+
+oeaw.settings:
+  type: mapping
+  label: 'Hello World settings'
+  mapping:
+    # Left side plugins translate start 
+    gui_type_of_entity:
+        type: text
+        label: 'Type of Entity'
+    gui_apply_selected_filters:
+        type: text
+        label: 'Apply the selected search filters'  
+    gui_entities_by_year: 
+        type: text
+        label: 'Entities by Year'
+    gui_entities_by_date: 
+        type: text
+        label: 'Entities by Date'
+    
+    
+    # Left side plugins translate end 
+    
+    # Error msg start #
+    
+    errmsg_srv_overload_dl_coll : 
+        type: text
+        label: 'The server is overloaded you cant download this collection!<br>Please try to download a smaller collection!'
+    errmsg_resource_not_exists: 
+        type: text
+        label: 'Resource does not exist!'
+    errmsg_resource_no_metadata : 
+        type: text
+        label: 'The resource has no metadata!'
+    errmsg_fedora_exception : 
+        type: text
+        label : 'Fedora Exception'
+    errmsg_dl_coll_not_enough_rights : 
+        type: text
+        label: 'errmsg_dl_coll_not_enough_rights'
+    errmsg_err_in_func : 
+        type: text
+        label: 'Error in function'        
+    errmsg_no_root_resources : 
+        type: text
+        label: 'There is no Root resources'        
+    errmsg_no_child_resources : 
+        type: text
+        label: 'There is no Child resources'       
+    errmsg_dont_have_permission: 
+        type: text
+        label: 'You do not have enough permission!'        
+    errmsg_collection_not_exists: 
+        type: text
+        label: 'The Collection does not exist!'  
+    errmsg_url_not_valid: 
+        type: text
+        label: 'The URL is not valid!'        
+    errmsg_image_not_valid: 
+        type: text
+        label: 'The Image is not valid!'       
+    errmsg_no_data: 
+        type: text
+        label: 'There is no data!'        
+    # Error msg end #
+    
+    # Search result page translates start
+    gui_authors : 
+        type: text'
+        label : 'Author(s)'
+    gui_file_content_highlight : 
+        type: text
+        label: 'File content highlight'
+    gui_detailed_view: 
+        type: text
+        label : 'Detailed View'
+    gui_show_summary: 
+        type: text
+        label : 'Show Summary'
+
+
+    # Search result page translates end
+
+
+
+    # Ontology properties translation start
+
+    ont_available_date : 
+        type: text
+        label : 'Available Date'
+    ont_ispart_of : 
+        type: text
+        label: 'Part of'
+    ont_is_member_of : 
+        type: text
+        label : 'is Member Of'
+    ont_principal_investigator : 
+        type: text
+        label: 'Principal Investigator'
+    ont_life_cycle_status : 
+        type: text
+        label : 'Life Cycle Status'        
+    ont_related_discipline : 
+        type: text
+        label : 'Related Discipline'
+    ont_actor : 
+        type: text
+        label : 'Actor'                
+    ont_spatial_coverage: 
+        type: text
+        label: 'Spatial Coverage'        
+    ont_temporal_coverage : 
+        type: text
+        label : 'Temporal Coverage'    
+    ont_coverage_s_date: 
+        type: text
+        label: 'Coverage Start Date'        
+    ont_coverage_e_date: 
+        type: text
+        label: 'Coverage End Date'                
+    ont_applied_method : 
+        type: text
+        label: 'Applied Method'
+    ont_applied_method_description : 
+        type: text
+        label: 'Applied Method Description'        
+    ont_technical_info : 
+        type: text
+        label: 'Technical Info'        
+    ont_editorial_practice : 
+        type: text
+        label: 'Editorial Practice' 
+    ont_series_information: 
+        type: text
+        label: 'Series information'
+    ont_publisher: 
+        type: text
+        label: 'Publisher'        
+    ont_non_linked_identifier: 
+        type: text
+        label: 'Non Linked Identifier'        
+    ont_editorial_practice: 
+        type: text
+        label: 'Editorial Practice'        
+    # Ontology properties translation end
+    
+    # shibboleth start #
+    gui_shibboleth_text : 
+        type: text
+        label: 'Please login with your federated account'
+    #shibboleth end #
+    
+    # main left side block start #
+    gui_creation_start: 
+        type: text
+        label: 'Creation start'
+    gui_creation_end: 
+        type: text 
+        label: 'Creation end'
+    # main left side block end #
+    
+    # main page translation start #
+    gui_switch_tree_view : 
+        type: text
+        label : 'Switch to Tree-View'
+    gui_switch_expert_view: 
+        type: text
+        label: 'Switch to Expert-View'        
+    gui_copy_resource_link: 
+        type: text
+        label: 'Copy Resource Link'        
+    gui_show_inv_table: 
+        type: text
+        label: 'Show Inverse Table'        
+    gui_cite : 
+        type: text
+        label: 'Cite Resource'        
+    gui_show_more: 
+        type: text
+        label: 'Show More'        
+    gui_cite_info_cpy: 
+        type: text
+        label: 'Citation information copied'        
+    gui_inv_data: 
+        type: text
+        label: 'Inverse Data'        
+    gui_contacts : 
+        type: text
+        label: 'Contact(s)'
+    gui_creators : 
+        type: text
+        label: 'Creator(s)'    
+    gui_curators : 
+        type: text
+        label: 'Curator(s)'
+    gui_contributors : 
+        type: text
+        label: 'Contributor(s)'
+    gui_creation_start_date : 
+        type: text
+        label: 'Creation Start Date'        
+    gui_creation_end_date : 
+        type: text
+        label: 'Creation End Date'        
+    gui_schema : 
+        type: text
+        label: 'Schema'    
+    gui_metadata : 
+        type: text
+        label: 'Metadata'
+    gui_derived_from : 
+        type: text
+        label: 'Derived from'
+    gui_see_also: 
+        type: text
+        label: 'See Also'
+    gui_identifiers : 
+        type: text
+        label: 'Identifier(s)'        
+    gui_postcode: 
+        type: text
+        label: 'Postcode'        
+    gui_get_members: 
+        type: text
+        label: 'Get Member(s)'        
+    gui_members: 
+        type: text
+        label: 'Member(s)'    
+    gui_involved_in: 
+        type: text
+        label: 'Involved In'
+    gui_contact_details : 
+        type: text
+        label : 'Contact Details'    
+    gui_alt_title : 
+        type: text
+        label: 'Alternative Title'        
+    gui_identical_to : 
+        type: text
+        label : 'Identical To'
+    gui_spatial_info : 
+        type: text
+        label : 'Spatial information'    
+    gui_latitude: 
+        type: text
+        label: 'Latitude'
+    gui_longitude : 
+        type: text
+        label: 'Longitude'    
+    gui_funder : 
+        type: text
+        label: 'Funder'        
+    gui_further_information : 
+        type: text
+        label: 'Further Information'  
+    gui_note: 
+        type: text
+        label: 'Note'    
+     
+    # main page translation end #
+
+    
+    # dl collection view start #
+
+    gui_selected_collection_info : 
+        type: text
+        label: 'gui_selected_collection_info'
+    gui_number_of_files : 
+        type: text
+        label: 'gui_number_of_files'
+    gui_est_dl_time : 
+        type: text
+        label: 'gui_est_dl_time'        
+    gui_prep_coll_dl: 
+        type: text
+        label: 'gui_prep_coll_dl'        
+    gui_add_tar_dl: 
+        type: text
+        label: 'gui_add_tar_dl'        
+    gui_back_to_resource: 
+        type: text
+        label: 'gui_back_to_resource'
+    gui_with_curr_dl_speed : 
+        type: text
+        label: 'gui_with_curr_dl_speed'
+    gui_agree_download_text_1 : 
+        type: text
+        label: 'gui_agree_download_text_1'
+    gui_agree_download_text_2 : 
+        type: text
+        label: 'gui_agree_download_text_2'
+    gui_how_to_download: 
+        type: text
+        label: 'gui_how_to_download'        
+    gui_how_to_dl_text_1 : 
+        type: text
+        label: 'gui_how_to_dl_text_1'
+    gui_how_to_dl_text_2 : 
+        type: text
+        label: 'gui_how_to_dl_text_2'
+    gui_how_to_dl_text_3 : 
+        type: text
+        label: 'gui_how_to_dl_text_3'
+    gui_how_to_dl_text_4 : 
+        type: text
+        label: 'gui_how_to_dl_text_4'
+    gui_how_to_dl_text_5 : 
+        type: text
+        label: 'gui_how_to_dl_text_5'
+    gui_sel_files_size: 
+        type: text
+        label: 'Sel. files size'        
+    gui_dl_coll_login_text: 
+        type: text
+        label: 'Login to download/reach the restricted content'        
+    gui_provide_login_data : 
+        type: text
+        label: 'Please provide your login credentials'        
+    gui_prepare_cl_to_dl : 
+        type: text
+        label: 'Prepare Collection for Download'        
+    gui_sel_files_ready_dl : 
+        type: text
+        label: 'The selected files are ready for downloading'        
+    gui_dl_collection : 
+        type: text
+        label: 'Download Collection'   
+    gui_login_ok : 
+        type: text
+        label: 'Login was successful'    
+    gui_login_not_ok : 
+        type: text
+        label: 'Login error'
+    gui_check_updated_tree : 
+        type: text
+        label: 'Please check the updated tree'    
+    gui_reenter_login_data : 
+        type: text
+        label: 'Please re-enter your login credentials'        
+    gui_hours: 
+        type: text
+        label: 'hour(s)'
+    gui_mins: 
+        type: text
+        label: 'min(s)'
+    gui_secs: 
+        type: text
+        label: 'sec(s)'        
+    gui_dont_have_enough_rights: 
+        type: text
+        label: 'You do not have access rights to get all of the resources!'        
+    gui_max_tar_dl_limit: 
+        type: text
+        label: 'Max tar download limit is'        
+    # dl collection view end #
+
+    # theme translation start #
+    theme_discover_resources: 
+        type: text
+        label: 'Discover resources'
+    theme_latest_additions : 
+        type: text
+        label: 'Latest Additions'        
+    theme_see_all_resources: 
+        type: text
+        label: 'See All Resources'        
+    theme_list_root_collections: 
+        type: text
+        label: 'List Root Collections'
+    theme_helpdesk_info: 
+        type: text
+        label: 'ACDH runs a helpdesk offering advice for questions related to various digital humanities topics.'        
+    theme_ask_us: 
+        type: text
+        label: 'ASK US!'
+    theme_refine_search: 
+        type: text
+        label: 'Refine your search using filters:'      
+    theme_deposit_resources: 
+        type: text
+        label: 'Deposit Resources'  
+    theme_login: 
+        type: text
+        label: 'Login'
+    theme_logout: 
+        type: text
+        label: 'Logout'       
+    theme_narrowers: 
+        type: text
+        label: 'Narrower(s)'
+    theme_contributed_to: 
+        type: text
+        label: 'Contributed to'
+    theme_related_collections: 
+        type: text
+        label: 'Related collection(s)'
+    theme_spatial_coverage_in: 
+        type: text
+        label: 'Spatial coverage in'
+    theme_related_resources: 
+        type: text
+        label: 'Related resource(s)'
+    theme_child_resources: 
+        type: text
+        label: 'Child Resource(s)'        
+    # theme translation end #

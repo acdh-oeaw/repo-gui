@@ -42,6 +42,8 @@ use EasyRdf\Resource;
  */
 class OeawFunctions {
     
+    private $langConf;
+    
     /**
      * Set up the config file
      * @param type $cfg
@@ -52,7 +54,7 @@ class OeawFunctions {
         }else {
             \acdhOeaw\util\RepoConfig::init($cfg);
         }
-        
+        $this->langConf = \Drupal::config('oeaw.settings');
     }
         
     /**
@@ -297,9 +299,13 @@ class OeawFunctions {
                 }
                 return $result;
             } catch (Exception $ex) {
-                throw new \Exception('Error in function: '.__FUNCTION__.' Error msg: '.$ex->getMessage());
+                throw new \Exception(
+                    t('Error').':'.__FUNCTION__.t('Message').':'.$ex->getMessage()
+                );
             } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-                throw new \acdhOeaw\fedora\exceptions\NotFound('Error in function: '.__FUNCTION__.' Error msg: '.$ex->getMessage());
+                throw new \acdhOeaw\fedora\exceptions\NotFound(
+                    t('Error').':'.__FUNCTION__.t('Message').':'.$ex->getMessage()
+                );
             }
         }
         return $result;
@@ -614,7 +620,8 @@ class OeawFunctions {
         }
         
         if(count($rights) == 0 || $this->checkMultiDimArrayForValue('NONE', $rights) == true){
-            throw new \Exception("You have no rights to check the Resource!");
+            throw new \Exception(
+                $this->langConf->get('errmsg_dont_have_permission') ? $this->langConf->get('errmsg_dont_have_permission') : 'You do not have enough permission');
         }
         return $rights;
     }
@@ -634,9 +641,13 @@ class OeawFunctions {
         try{
             $aclObj = $fedoraRes->getAcl()->getRules();
         }catch (Exception $ex) {
-            throw new \Exception('Error in function: '.__FUNCTION__.' Error: '.$ex->getMessage());
+            throw new \Exception(
+                t('Error').':'.__FUNCTION__.t('Message').':'.$ex->getMessage()
+            );
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            throw new \acdhOeaw\fedora\exceptions\NotFound('Error in function: '.__FUNCTION__.' Error: '.$ex->getMessage());
+            throw new \acdhOeaw\fedora\exceptions\NotFound(
+                t('Error').':'.__FUNCTION__.t('Message').':'.$ex->getMessage()
+            );
         }
         return $result;
     }
@@ -1013,7 +1024,10 @@ class OeawFunctions {
     public function makeMetaData(string $uri): \EasyRdf\Resource {
         
         if(empty($uri)){
-            return drupal_set_message(t('Resource does not exist!'), 'error');
+            return drupal_set_message(
+                    $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!', 
+                    'error'
+                );
         }
         
         $meta = array();
@@ -1023,7 +1037,9 @@ class OeawFunctions {
             $meta = $fedora->getResourceByUri($uri);
             $meta = $meta->getMetadata();
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
-            throw new \acdhOeaw\fedora\exceptions\NotFound("Resource does not exist!");
+            throw new \acdhOeaw\fedora\exceptions\NotFound(
+                    $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!'
+                );
         } catch (\GuzzleHttp\Exception\ClientException $ex){
             throw new \GuzzleHttp\Exception\ClientException($ex->getMessage());
         }
@@ -1142,7 +1158,7 @@ class OeawFunctions {
     public function createSparqlResult(\EasyRdf\Sparql\Result $result, array $fields): array {
         
         if(empty($result) && empty($fields)){
-            drupal_set_message(t('Error in function: '.__FUNCTION__), 'error');
+            drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
             return array();
         }
         $res = array();
@@ -1239,7 +1255,7 @@ class OeawFunctions {
     public function createPrefixesFromArray(array $array, array $header): array {
         
         if (empty($array) && empty($header)) {
-            return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error');
+            return drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
         }
         
         $result = array();        
@@ -1284,7 +1300,10 @@ class OeawFunctions {
         $result = array();
         
         if(count($data) == 0) {   
-            throw new \ErrorException("There is no any children data");
+            throw new \ErrorException(
+                $this->langConf->get('errmsg_no_child_resources') ? $this->langConf->get('errmsg_no_child_resources') : 'There is no any children data'
+                );
+                    
         }
         
         foreach($data as $d){
@@ -1331,7 +1350,7 @@ class OeawFunctions {
         $OeawStorage = new OeawStorage();
 
         if(empty($data)){
-            return drupal_set_message(t('Error in function: '.__FUNCTION__), 'error');
+            return drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
         }
         
         //get the resource Title
@@ -1493,7 +1512,7 @@ class OeawFunctions {
         }
         
         if(empty($result['acdh_rdf:type']['title']) || !isset($result['acdh_rdf:type']['title'])){
-            throw new \ErrorException("There is no acdh rdf type!", 0);
+            throw new \ErrorException(t("Empty").': ACDH RDF TYPE', 0);
         }
       
         $result['resourceTitle'] = $resourceTitle;
@@ -1515,10 +1534,11 @@ class OeawFunctions {
         if(isset($result['image'])){
             $arrayObject->offsetSet('imageUrl', $result['image']);
         }
+        
         try {
             $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
         } catch (ErrorException $ex) {
-            throw new \ErrorException("The resource object initialization failed!", 0);
+            throw new \ErrorException( t('Init').' '.t('Error').' : OeawResource', 0);
         }
         return $obj;
     }
@@ -1966,12 +1986,10 @@ class OeawFunctions {
             $request = $client->request('GET',  RC::get('solrUrl').'/arche/select?hl.fl=_text_&hl=on&q=*'.$text);
             if($request->getStatusCode() == 200) {
                 $data = json_decode($request->getBody()->getContents());
-                if(!isset($data->response)){ return array(); }
-                
                 $docs = $data->response->docs;
                 $highlighting = $data->highlighting;
-                $docsCount = count((array)$docs);
                 
+                $docsCount = count((array)$docs);
                 if( $docsCount > 0) {
                     foreach ($docs as $d) {
                         $docsData = array();

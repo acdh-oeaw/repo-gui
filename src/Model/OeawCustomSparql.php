@@ -350,12 +350,12 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                     if( (bool)strtotime($data["mindate"])  ){
                         $mindate = new \DateTime($data["mindate"]);
                     }else  {
-                        throw new \ErrorException("The Minimum date is wrong!");
+                        throw new \ErrorException(t("Error").':'.t("Minimum").' '.t("Date"));
                     }
                     if( (bool)strtotime($data["maxdate"]) ){
                         $maxdate = new \DateTime($data["maxdate"]);
                     }else  {
-                        throw new \ErrorException("The Maximum date is wrong!");
+                        throw new \ErrorException(t("Error").':'.t("Maximum").' '.t("Date"));
                     }
                     if(isset($mindate) && isset($maxdate)){
                         $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
@@ -363,7 +363,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                     }
                 
                 }else{
-                    throw new \ErrorException("Minimum or maximum date is empty!");
+                    throw new \ErrorException(t("Empty").':'.t("Minimum").' '.t("or").' '.t("Maximum").' '.t("Date"));
                 }
             }
         }

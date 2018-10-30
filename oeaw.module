@@ -25,6 +25,10 @@ function oeaw_theme() {
     'variables' => ['url' => NULL, 'errorMSG' => null, 'resourceData' => null],
     'template' => 'dl_collection_tree',
   ];
+  $theme['oeaw_lng_switcher'] = [
+    'variables' => ['result' => NULL, 'language' => NULL],
+    'template' => 'lng_switcher',
+  ];
   
   $theme['oeaw_shibboleth_login'] = [
     'variables' => [],
@@ -99,9 +103,11 @@ function oeaw_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
         }else {
             $page = $pageCh->data;
         }
-        
         if(!$page) { $detailPage = 1; }
         $form['#attached']['drupalSettings']['oeaw']['dV'.$cacheId]['page'] = $page;
+        $lang = 'en';
+        if(isset($_SESSION['language']) && !empty($_SESSION['language'])) { $lang = $_SESSION['language']; }
+        $form['#attached']['drupalSettings']['oeaw']['language'] = $lang;
     }
     return $form;
 }

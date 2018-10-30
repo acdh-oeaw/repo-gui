@@ -184,3 +184,10 @@
     display: none;
 }
 
+.lng-switcher.active a span {
+    color: #88DBDF;
+}
+.lng-switcher.active a:hover span {
+    color: #444;
+}
+

@@ -21,7 +21,7 @@ jq2(function( $ ) {
         s -= h*3600;
         var m = Math.floor(s/60); //Get remaining minutes
         s -= m*60;
-        return h+" hour(s) "+(m < 10 ? '0'+m : m)+" min(s)"+(s < 10 ? '0'+s : s)+" second(s)"; //zero padding on minutes and seconds
+        return ' '+h+' '+Drupal.t('hour(s)')+' '+(m < 10 ? '0'+m : m)+' '+Drupal.t('min(s)')+(s < 10 ? '0'+s : s)+' '+Drupal.t('sec(s)'); //zero padding on minutes and seconds
     }
     
         /*
@@ -144,7 +144,7 @@ jq2(function( $ ) {
                         jq2('#not_enough_permission').hide();
                         window.location.href = data.instance.get_node(data.selected[0]).original.uri;
                     }else {
-                        alert("You do not have access rights to all of the resources!");
+                        alert(Drupal.t('You do not have access rights to get all of the resources'));
                     }
                 }
             }
@@ -205,10 +205,10 @@ jq2(function( $ ) {
                             selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
                             sumSize += Number(size);
                             if(sumSize > 1599999999){
-                                jq2("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " (Max tar download limit is 1.5GB)</p> ");
+                                jq2("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 1.5GB)</p> ");
                                 jq2("#getCollectionDiv").hide();
                             }else {
-                                jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" (Max tar download limit is 1.5GB) </p> ");   
+                                jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" ("+Drupal.t('Max tar download limit is') + " 1.5GB) </p> ");   
                                 jq2("#getCollectionDiv").show();
                             }
                         //}
@@ -239,7 +239,7 @@ jq2(function( $ ) {
                 var formData = data.instance.get_checked(true);
                 
                 if(formData.length == 0){
-                    jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize) + " (Max tar download limit is 1.5GB)</p> ");
+                    jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 1.5GB)</p> ");
                     jq2("#getCollectionDiv").hide();
                 }else {
                     $.each( formData, function( index, value ){
@@ -256,10 +256,10 @@ jq2(function( $ ) {
                                 selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
                                 sumSize += Number(size);
                                 if(sumSize > 1599999999){
-                                    jq2("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " (Max tar download limit is 1.5GB)</p> ");
+                                    jq2("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 1.5GB)</p> ");
                                     jq2("#getCollectionDiv").hide();
                                 }else {
-                                    jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" (Max tar download limit is 1.5GB) </p> ");   
+                                    jq2("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" ("+Drupal.t('Max tar download limit is') + " 1.5GB) </p> ");   
                                     jq2("#getCollectionDiv").show();
                                 }
                             //}
@@ -420,7 +420,7 @@ jq2(function( $ ) {
             data: {jsonData : JSON.stringify(myObj)},
             tiemout: 1800,
             success: function(data, status) {
-                jq2('#dl_link_a').html('<a href="'+data+'" target="_blank">Download Collection as .tar</a>');
+                jq2('#dl_link_a').html('<a href="'+data+'" target="_blank">'+Drupal.t("Download Collection")+'</a>');
                 jq2('#dl_link').show();
                 jq2('#dl_link_txt').show();
                 jq2("#loader-div").delay(2000).fadeOut("fast");

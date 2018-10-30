@@ -3,3 +3,9 @@ oeaw_admin_form:
     parent: system.admin_config_development
     route_name: oeaw_admin_form
     weight: 10
+oeaw.settings_form:
+    title: 'OEAW Translate Form'
+    parent: system.admin_config_development
+    route_name: oeaw.settings_form
+    weight: 10    
+    

@@ -3,7 +3,7 @@
 {% if result['errorMSG'] %} 
     <div class="messages messages--error" role="contentinfo" aria-label="Error message">
         <div role="alert">
-            <h2 class="visually-hidden"> Error message</h2>
+            <h2 class="visually-hidden"> {{ "Error message"|trans }}</h2>
             {{ result['errorMSG'] }}
         </div>
     </div>
@@ -389,21 +389,20 @@
 
         });
     </script>
-
     {% if result['specialType']|lower == "concept" %}
-            {% set childTitle = "Narrower(s)"%}
+            {% set childTitle =  "Narrower(s)" %}
         {% elseif  result['specialType']|lower == "person" %}
-            {% set childTitle = "Contributed to"%}
+            {% set childTitle = "Contributed to" %}
         {% elseif  result['specialType']|lower == "project" %}
-            {% set childTitle = "Related collection(s)"%}
+            {% set childTitle =  "Related collection(s)" %}
         {% elseif  result['specialType']|lower == "organisation" %}
-            {% set childTitle = "Involved in"%}
+            {% set childTitle =  "Involved in" %}
         {% elseif  result['specialType']|lower == "place" %}
-            {% set childTitle = "Spatial coverage in"%}
+            {% set childTitle =  "Spatial coverage in" %}
         {% elseif  result['specialType']|lower == "publication" %}
-            {% set childTitle = "Related resource(s)"%}
+            {% set childTitle =  "Related resource(s)" %}
         {% else %}
-            {% set childTitle = "Child Resource(s)"%}
+            {% set childTitle =  "Child Resource(s)" %}
         {% endif %}
 
     <div id="loader-div">
@@ -420,18 +419,18 @@
         <div class="res-el res-info res-child-info col-block col-lg-12">
             <div class="result-basic-info">
                 <span class="results-info-bar">
-                    <h3>{{ childTitle }}</h3>
+                    <h3>{{ childTitle|trans }}</h3>
                 </span>
             </div>
         </div>
                 
-        <div class="res-el res-info res-child-info col-block col-lg-12">
+        <div class="res-el col-block col-lg-12">
             
-            <div class="result-basic-info" style="float:left;">
+            <div class="result-basic-info" style="">
             {% if result['mainResourceType']|lower == "collection" %}
-                    <div class="res-act-button res-act-button-reverse res-act-button-treeview basic" style="text-align:left">
+                    <div class="res-act-button res-act-button-reverse res-act-button-treeview basic" style="text-align:left; margin-bottom:5px;">
                         <i class="material-icons">&#xE335;</i>
-                        <span>Switch to Tree-View</span>
+                        <span>{{ "Switch to Tree-View"|trans }}</span>
                     </div>
                 {% endif %}
             </div>
@@ -479,14 +478,14 @@
                         {% if cItem.description %}
                             <div class="res-act-button res-act-button-summary closed">
                                 <i class="material-icons">&#xE145;</i>
-                                <span>Show Summary</span>
+                                <span>{{ "Show Summary"|trans }}</span>
                             </div>
                         {% endif%}
 
                         <div class="res-act-button">
                             <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">
                                 <i class="material-icons">&#xE873;</i>
-                                <span>Detailed View</span>
+                                <span>{{ "Detailed View"|trans }}</span>
                             </a>	
                         </div>          	
                     </div>

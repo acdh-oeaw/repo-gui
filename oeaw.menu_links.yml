@@ -1,0 +1,5 @@
+oeaw.admin:
+  title: Oeaw Translate settings
+  description: 'Translate form for OEAW module.'
+  parent: system.admin_config
+  route_name: oeaw.settings_form

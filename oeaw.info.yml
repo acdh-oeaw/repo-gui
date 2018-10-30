@@ -2,6 +2,7 @@ name: oeaw
 description: 'oeaw Fedora module.'
 core: 8.x
 package: oeaw
+configure: oeaw.settings_form
 dependencies:
 - node
 - block

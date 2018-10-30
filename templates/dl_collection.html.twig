@@ -8,10 +8,10 @@
     
     <div id="content">
         <div class="single-res-overview single-res-overview-basic">
-            <h2>The selected Collection Information</h2>
+            <h2>{{ "The selected collection information"|trans }}</h2>
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Name:</span> 
+                <span class="res-prop-label">{{ "Name"|trans }}:</span> 
                 <span class="res-prop-value">
                     {% if resourceData['title'] %}
                         {{ resourceData['title'] }}
@@ -22,7 +22,7 @@
             </div>
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Number of files:</span> 
+                <span class="res-prop-label">{{ "Number of files"|trans }}:</span> 
                 <span class="res-prop-value">
                      {% if resourceData['filesNum'] %}
                         {{ resourceData['filesNum'] }}
@@ -33,7 +33,7 @@
             </div>
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Sum. Size:</span> 
+                <span class="res-prop-label">{{ "Summary"|trans }} {{ "Size"|trans }}:</span> 
                 <span class="res-prop-value">
                     {% if resourceData['formattedSize'] %}
                         {{ resourceData['formattedSize'] }}
@@ -45,7 +45,7 @@
             {% if resourceData['estDLTime'] %}                
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
-                <span class="res-prop-label">Est. Download Time:</span> 
+                <span class="res-prop-label">{{"Est. Download Time"|trans }}:</span> 
                 <span class="res-prop-value">
                     {{ resourceData['estDLTime'] }} Sec
                 </span>
@@ -63,13 +63,12 @@
                             <div style="display:none" id="getCollectionDiv">
                                 <div class="res-act-button">
                                     <span class="res-prop-value">
-                                        <a href="#" id="getCollectionData" data-tableuri="{{url}}">Prepare Collection To Download</a>
+                                        <a href="#" id="getCollectionData" data-tableuri="{{url}}">{{ "Prepare Collection To Download"|trans }}</a>
                                     </span>    
                                 </div>
                             </div>
                         {% else %}
-                            <h3>The server is overloaded you cant download this collection!<br>
-                                Please try to download a smaller collection!</h3>
+                            <h3>{{ "The server is overloaded you cant download this collection!<br>Please try to download a smaller collection!"|trans }}</h3>
                         {% endif %}
                     {% endif %}
                     
@@ -82,10 +81,10 @@
                     <table class="collTable table table-striped" cellspacing="0" width="100%">
                     <thead>
                         <tr>
-                            <th>Filename</th>
-                            <th>File Size</th>
-                            <th>Download</th>
-                            <th>Add To Tar Download</th>
+                            <th>{{ "Filename"|trans }}</th>
+                            <th>{{ "File size"|trans }}</th>
+                            <th>{{ "Download"|trans }}</th>
+                            <th>{{ "Add To Tar Download"|trans }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -99,7 +98,7 @@
                                     {{ binary['formSize'] }}
                                 </td>
                                 <td width='10%'>
-                                    <a href="{{ binary['uri'] }}">Download</a>
+                                    <a href="{{ binary['uri'] }}">{{ "Download"|trans }}</a>
                                 </td>
                                 <td width='10%'>
                                     <input type="checkbox" name="collCheckBox[]" class="collCheckBox" value="{{ binary['encodedUri'] }}/binary={{ binary['binarySize'] }}">

@@ -69,10 +69,10 @@
     
     <div>
         <div class="res-act-button">
-            <a href="#" id="showIsMember" data-tableurl="{{ result.getInsideUri() }}">Get Member(s) </a>
+            <a href="#" id="showIsMember" data-tableurl="{{ result.getInsideUri() }}">{{ "Get Member(s)"|trans }} </a>
         </div>
         <div id="isMemberTableDiv" style="display: none;">
-            <h3 class="single-res-heading">Member(s)</h3>
+            <h3 class="single-res-heading">{{ "Member(s)"|trans }}</h3>
             <table class="isMemberTable table table-striped" cellspacing="0" width="100%">
                 <thead>
                     <tr>
@@ -87,7 +87,7 @@
         
     
     {% if result.extendedProperties %}
-        <h3 class="single-res-heading">Involved In:</h3>
+        <h3 class="single-res-heading">{{"Involved In"|trans }}:</h3>
         
     {% endif%}        
         

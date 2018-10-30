@@ -15,7 +15,7 @@
     {% if result.getType() %}
         <div class="res-property">
             <i class="material-icons">&#xE54E;</i>
-            <span class="res-prop-label">Type:</span> 
+            <span class="res-prop-label">{{ "Type"|trans }}:</span> 
             <span class="res-prop-value">
                 <a href="{{ url('<front>') }}discover/&type={{ result.getType() }}/10">{{ result.getType() }}</a>
             </span>
@@ -31,7 +31,7 @@
     {% endif%}
     
     {% if result.extendedProperties %}
-        <h3 class="single-res-heading">Contact Details</h3>
+        <h3 class="single-res-heading">{{ "Contact Details"|trans }}</h3>
         
         {% if result.extendedProperties['acdh:hasCountry'] %}
             {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCountry'], 'icon': "subtitles", 'label': "Country"} ) }}

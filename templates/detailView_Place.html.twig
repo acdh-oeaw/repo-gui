@@ -15,7 +15,7 @@
     {%  if result.basicProperties['acdh:hasAlternativeTitle'] %}
         <div class="res-property">
             <i class="material-icons">&#xE264;</i>
-            <span class="res-prop-label">Alternative Title:</span> 
+            <span class="res-prop-label">{{ "Alternative Title"|trans }}:</span> 
             <span class="res-title">{{ result.basicProperties['acdh:hasAlternativeTitle'] }}</span>
         </div>
     {% endif%}
@@ -23,7 +23,7 @@
     {% if result.getType() %}
         <div class="res-property">
             <i class="material-icons">&#xE54E;</i>
-            <span class="res-prop-label">Type:</span> 
+            <span class="res-prop-label">{{ "Type"|trans }}:</span> 
             <span class="res-prop-value">
                 <a href="{{ url('<front>') }}discover/&type={{ result.getType() }}/10">{{ result.getType() }}</a>
             </span>
@@ -72,7 +72,7 @@
     
     {% if result.extendedProperties %}        
         
-        <h3 class="single-res-heading">Spatial information</h3>
+        <h3 class="single-res-heading">{{ "Spatial information"|trans }}</h3>
     
         {%  if result.extendedProperties['acdh:hasLatitude'] %}
             {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasLatitude'], 'icon': "", 'label': "Latitude" } ) }}
@@ -88,7 +88,7 @@
         
         {% if result.extendedProperties['acdh:hasLongitude'] and  result.extendedProperties['acdh:hasLatitude'] %}
             <div class="res-property">
-                <span class="res-prop-label">MAP: </span>
+                <span class="res-prop-label">{{"Map"|trans }}: </span>
                  <span class="res-prop-value">
                     <iframe 
                         width="425" height="350" frameborder="0" 

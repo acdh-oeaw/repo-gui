@@ -44,7 +44,6 @@ class ClassForm extends FormBase
      */
     public function buildForm(array $form, FormStateInterface $form_state) 
     {
-        echo "ssssssssssssssss";
         try{
             $data = $this->oeawStorage->getClassesForSideBar();
         } catch (\ErrorException $ex) {

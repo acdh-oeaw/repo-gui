@@ -3,9 +3,9 @@
 {% else %}
     <div class="res-el res-info col-block col-lg-12">
         <div class="result-basic-info">
-            <span class="results-info-bar">{{ totalResultAmount }} Result(s)</span>
-            <span class="results-info-bar">Page {{ currentPage }} of {{ totalPages }}</span>
-            <span class="results-info-bar results-info-bar-items">Items
+            <span class="results-info-bar">{{ totalResultAmount }} {{ "Result"|trans }}</span>
+            <span class="results-info-bar">{{ "Page"|trans }} {{ currentPage }} {{ "of"|trans }} {{ totalPages }}</span>
+            <span class="results-info-bar results-info-bar-items">{{ "Items"|trans }}
                 <div class="pagination-dropdown dropdown">
                   <button class="btn btn-secondary dropdown-toggle" type="button" id="resPerPageButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     10
@@ -17,16 +17,16 @@
                   </div>
                 </div>
             </span>
-            <span class="results-info-bar results-info-bar-sort">Sort by
+            <span class="results-info-bar results-info-bar-sort"> {{ "Sort by"|trans }}
                 <div class="pagination-dropdown dropdown">
                   <button class="btn btn-secondary dropdown-toggle" type="button" id="sortByButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Title (ASC)
+                    {{ "Title"|trans }} (ASC)
                   </button>
                   <div class="dropdown-menu" aria-labelledby="sortByButton" id="sortByDropdown">
-                    <a class="dropdown-item" data-value="titleasc" href="#">Title (ASC)</a>
-                    <a class="dropdown-item" data-value="titledesc" href="#">Title (DESC)</a>
-                    <a class="dropdown-item" data-value="dateasc" href="#">Date (ASC)</a>
-                    <a class="dropdown-item" data-value="datedesc" href="#">Date (DESC)</a>
+                    <a class="dropdown-item" data-value="titleasc" href="#">{{ "Title"|trans }} (ASC)</a>
+                    <a class="dropdown-item" data-value="titledesc" href="#">{{ "Title"|trans }} (DESC)</a>
+                    <a class="dropdown-item" data-value="dateasc" href="#">{{ "Date"|trans }} (ASC)</a>
+                    <a class="dropdown-item" data-value="datedesc" href="#">{{ "Date"|trans }} (DESC)</a>
                     <!--
                     <a class="dropdown-item" data-value="typeasc" href="#">Type (ASC)</a>
                     <a class="dropdown-item" data-value="typedesc" href="#">Type (DESC)</a>
@@ -53,7 +53,7 @@
                         {%  if item.accessRestriction %}
                             {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': item.accessRestriction|lower } ) }}
                         {% endif%}
-                        <a href="{{ url('<front>') }}oeaw_detail/{{ item.insideUri }}">{{ item.title }}</a>
+                        <a href="/browser/oeaw_detail/{{ item.insideUri }}">{{ item.title }}</a>
                     </span>
                 </div>
             {% endif%}    
@@ -62,15 +62,15 @@
             {% if item.type %}
                 <div class="res-property">
                     <i class="material-icons">&#xE54E;</i>
-                    <span class="res-prop-label">Type: </span>
-                    <span class="res-rdfType"><a href="{{ url('<front>') }}discover/&type={{ item.type }}/10">{{ item.type }}</a></span>
+                    <span class="res-prop-label">{{ "Type"|trans }}: </span>
+                    <span class="res-rdfType"><a href="/browser/discover/&type={{ item.type }}/10">{{ item.type }}</a></span>
                 </div>
             {% endif%}
 
             {% if item.availableDate %}
                 <div class="res-property">
                     <i class="material-icons">&#xE8DF;</i>
-                    <span class="res-prop-label">Available Date: </span>
+                    <span class="res-prop-label">{{ "Available Date"|trans }}: </span>
                     <span class="res-creationdate">{{ item.availableDate|date("d M Y") }}   </span>
                 </div>
             {% endif%}
@@ -79,8 +79,8 @@
                 <div class="res-property">
                     <i class="material-icons">&#xE335;</i>	
                     <span class="res-ispartof">
-                    <span class="res-prop-label">Part of: </span>
-                    <a href="{{ url('<front>') }}oeaw_detail/{{ item.isPartOfUri }}">{{ item.isPartOfTitle }}</a>
+                    <span class="res-prop-label">{{ "Part of"|trans }}: </span>
+                    <a href="/browser/oeaw_detail/{{ item.isPartOfUri }}">{{ item.isPartOfTitle }}</a>
                     </span>
                 </div>
             {% endif%}            
@@ -88,9 +88,9 @@
             {% if item.table['authors'] %}
                 <div class="res-property">
                     <i class="material-icons">&#xE7FB;</i>
-                    <span class="res-prop-label">Author(s): </span>
+                    <span class="res-prop-label">{{ "Author(s)"|trans }}: </span>
                     {% for author in item.table['authors'] %}  	
-                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ author.insideUri }}">{{ author.title }}</a></span>
+                    	<span class="res-contributor"><a href="/browser/oeaw_detail/{{ author.insideUri }}">{{ author.title }}</a></span>
                     {% endfor %}	
                 </div>
             {% endif%}
@@ -98,22 +98,11 @@
             {% if item.getHighlighting() %}
                 <div class="res-property highlighting">
                     <i class="material-icons">highlight</i>	
-                    <span class="res-prop-label">File content highlight: </span>
+                    <span class="res-prop-label">{{ "File content highlight"|trans }}: </span>
                     <span class="res-highlighting" > {{ item.getHighlighting()[0]|raw  }}</span>
                 </div>
             {% endif%}
             
-            <!--
-            {% if item.table['contributors'] %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE7FE;</i>
-                    <span class="res-prop-label">Contributor(s): </span>
-                    {% for contributor in item.table['contributors']%}  	
-                    	<span class="res-contributor"><a href="{{ url('<front>') }}oeaw_detail/{{ contributor.insideUri }}">{{ contributor.title }}</a></span>
-                    {% endfor %}	
-                </div>
-            {% endif%}
-            -->
             {% if item.table['description'] %}
                 <div class="res-property res-property-desc">
                     <i class="material-icons">&#xE88F;</i>	
@@ -124,16 +113,16 @@
             <div class="res-actions">
 
                 <div class="res-act-button">
-                    <a href="{{ url('<front>') }}/oeaw_detail/{{ item.insideUri }}">
+                    <a href="/browser/oeaw_detail/{{ item.insideUri }}">
                         <i class="material-icons">&#xE873;</i>
-                        <span>Detailed View</span>
+                        <span>{{ "Detailed View"|trans }}</span>
                     </a>	
                 </div>          	
                         
                 {% if item.table['description'] %}
                     <div class="res-act-button res-act-button-summary closed">
                             <i class="material-icons">&#xE145;</i>
-                            <span>Show Summary</span>
+                            <span>{{ "Show Summary"|trans }}</span>
                     </div>
                 {% endif%}
                 
@@ -144,7 +133,7 @@
             {% if item.imageUrl %}	
                 <div class="res-inside-wrap col-lg-6 ">	
                     <div class="single-res-thumb">
-                        <a href="{{ url('<front>') }}/oeaw_detail/{{ item.insideUri }}"><img src="{{ item.imageUrl }}"></a>
+                        <a href="/browser/oeaw_detail/{{ item.insideUri }}"><img src="{{ item.imageUrl }}"></a>
                     </div>
                 </div>
             {% endif%}            

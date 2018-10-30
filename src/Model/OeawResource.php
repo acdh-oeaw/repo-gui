@@ -64,13 +64,14 @@ class OeawResource {
                 $objIterator->next();
             }
         }else {
-            throw new \ErrorException("ArrayObject is not an object!");
+            throw new \ErrorException(t('ArrayObject').' '.t('Error').' -> OeawResource construct');
         }
         
         $this->checkEmptyVariables();
-        
         if(count($this->errors) > 0){
-            throw new \ErrorException("You have errors during the OeawResource Object initilaizing! Following data are missing: ".print_r($this->errors, true));
+            throw new \ErrorException(
+                t('Init').' '.t('Error').' : OeawResource.'.' '.t(' Empty').' '.t('Data').': '.print_r($this->errors, true)
+            );
         }
     }
     

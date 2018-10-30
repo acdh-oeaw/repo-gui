@@ -1,0 +1,155 @@
+# Left side plugins translate start 
+gui_type_of_entity: 'Type of Entity'
+gui_entities_by_year: 'Entities by Year'
+gui_entities_by_date: 'Entities by Date'
+gui_apply_selected_filters: 'Apply the selected search filters'
+
+# Left side plugins translate end 
+
+# error messages start #
+
+errmsg_srv_overload_dl_coll : 'The server is overloaded you cant download this collection!<br>Please try to download a smaller collection!'
+errmsg_resource_not_exists: 'Resource does not exist!'
+errmsg_collection_not_exists: 'The Collection does not exist!'
+errmsg_fedora_exception : 'Fedora Exception'
+errmsg_resource_no_metadata : 'The resource has no metadata!'
+errmsg_dl_coll_not_enough_rights : 'You do not have enough rights to download the whole collection! Please try to login with the button below'
+errmsg_err_in_func : 'Error in function'
+errmsg_no_root_resources : 'There are no Root resources'
+errmsg_no_child_resources : 'There are no Child resources'
+errmsg_dont_have_permission: 'You do not have enough permission!'
+errmsg_url_not_valid: 'The URL is not valid!'
+errmsg_no_data: 'There is no data!'
+errmsg_image_not_valid: 'The Image is not valid!'
+# error messages end #
+
+# Search result page translates start
+gui_authors : 'Author(s)'
+gui_file_content_highlight : 'File content highlight'
+gui_detailed_view: 'Detailed View'
+gui_show_summary: 'Show Summary'
+# Search result page translates end
+
+# Ontology properties translation start
+ont_available_date : 'Available Date'
+ont_ispart_of : 'Part of'
+ont_is_member_of : 'is Member Of'
+ont_principal_investigator : 'Principal Investigator'
+ont_life_cycle_status : 'Life Cycle Status'
+ont_related_discipline : 'Related Discipline'
+ont_actor : 'Actor'
+ont_spatial_coverage: 'Spatial Coverage'
+ont_temporal_coverage : 'Temporal Coverage'
+ont_coverage_s_date: 'Coverage Start Date'
+ont_coverage_e_date: 'Coverage End Date'                
+ont_applied_method : 'Applied Method'
+ont_applied_method_description : 'Applied Method Description'
+ont_technical_info : 'Technical Info'
+ont_editorial_practice : 'Editorial Practice'
+ont_series_information: 'Series information'
+ont_publisher: 'Publisher'
+ont_non_linked_identifier: 'Non Linked Identifier'
+ont_editorial_practice: 'Editorial Practice'
+# Ontology properties translation end
+
+# shibboleth  start #
+gui_shibboleth_text : 'Please login with your federated account'
+# shibboleth end #
+
+# main left side block start #
+gui_creation_start: 'Creation start'
+gui_creation_end: 'Creation end'
+# main left side block end #
+
+# main page translation start 
+gui_switch_tree_view : 'Switch to Tree-View'
+gui_switch_expert_view: 'Switch to Expert-View'
+gui_copy_resource_link: 'Copy Resource Link'
+gui_show_inv_table: 'Show Inverse Table'
+gui_cite : 'Cite Resource'
+gui_cite_info_cpy: 'Citation information copied'
+gui_show_more: 'Show More'
+gui_inv_data: 'Inverse Data'
+gui_contacts : 'Contact(s)'
+gui_creators : 'Creator(s)'
+gui_curators : 'Curator(s)'  
+gui_contributors : 'Contributor(s)'
+gui_creation_start_date : 'Creation Start Date'
+gui_creation_end_date : 'Creation End Date'
+gui_schema : 'Schema'
+gui_metadata : 'Metadata'
+gui_derived_from : 'Derived from'
+gui_see_also: 'See Also'
+gui_identifiers : 'Identifier(s)'
+gui_postcode: 'Postcode'
+gui_get_members: 'Get Member(s)'
+gui_members: 'Member(s)'
+gui_involved_in: 'Involved In'
+gui_contact_details : 'Contact Details'
+gui_alt_title : 'Alternative Title'
+gui_identical_to : 'Identical To'
+gui_spatial_info : 'Spatial information'
+gui_latitude: 'Latitude'
+gui_longitude : 'Longitude'
+gui_funder : 'Funder'
+gui_further_information : 'Further Information'
+gui_note: 'Note'
+
+
+# main page translation end 
+
+# dl collection view start #
+gui_selected_collection_info : 'The selected collection information'
+gui_number_of_files : 'Number of files'
+gui_est_dl_time : 'Est. Download Time'
+gui_prep_coll_dl: 'Prepare Collection To Download'
+gui_add_tar_dl: 'Add To Tar Download'
+gui_back_to_resource: 'Back to the resource'
+gui_with_curr_dl_speed : 'with you current download speed'
+gui_agree_download_text_1 : 'By downloading you agree to the' 
+gui_agree_download_text_2 : 'which includes compliance with the licenses accompanying every Resource and adhering to the'
+gui_how_to_download: 'How to Download'
+gui_how_to_dl_text_1 : 'For a single file just click on the according file name.'
+gui_how_to_dl_text_2 : 'For more files or the whole collection click on the corresponding checkboxes in the tree view (click on the triangle to expand it).'
+gui_how_to_dl_text_3 : 'Use the search box to find specific resources by their title.'
+gui_how_to_dl_text_4 : 'Resources marked in red require appropriate access rights and might not be available to you despite being logged in.'
+gui_how_to_dl_text_5 : 'After selecting the resources please press "Prepare Collection for Download". Depending on the collection size this may take a while. You will then be presented with a new button "Download Collection as .tar", with which the actual download can be started.'
+gui_sel_files_size: 'Sel. files size'
+gui_dl_coll_login_text: 'Login to download/reach the restricted content'
+gui_provide_login_data : 'Please provide your login credentials'
+gui_prepare_cl_to_dl : 'Prepare Collection for Download'
+gui_sel_files_ready_dl : 'The selected files are ready for downloading'
+gui_dl_collection : 'Download Collection'
+gui_login_ok : 'Login was successful'
+gui_login_not_ok : 'Login error'
+gui_check_updated_tree : 'Please check the updated tree'
+gui_reenter_login_data : 'Please re-enter your login credentials'
+gui_hours: 'hour(s)'
+gui_mins: 'min(s)'
+gui_secs: 'sec(s)'
+gui_dont_have_enough_rights: 'You do not have access rights to get all of the resources!'
+gui_max_tar_dl_limit: 'Max tar download limit is'
+
+# dl collection view end #
+
+# theme translation start #
+
+theme_discover_resources: 'Discover resources'
+theme_latest_additions : 'Latest Additions'
+theme_see_all_resources: 'See All Resources'
+theme_list_root_collections: 'List Root Collections'
+theme_helpdesk_info: 'ACDH runs a helpdesk offering advice for questions related to various digital humanities topics.'
+theme_ask_us: 'ASK US!'
+theme_refine_search: 'Refine your search using filters:'
+theme_deposit_resources: 'Deposit Resources'
+theme_login: 'Login'
+theme_logout: 'Logout'
+theme_narrowers: 'Narrower(s)'
+theme_contributed_to: 'Contributed to'
+theme_related_collections: 'Related collection(s)'
+theme_spatial_coverage_in: 'Spatial coverage in'
+theme_related_resources: 'Related resource(s)'
+theme_child_resources: 'Child Resource(s)'
+
+
+# theme translation start #

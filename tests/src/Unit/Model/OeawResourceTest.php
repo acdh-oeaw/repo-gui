@@ -1,0 +1,87 @@
+<?php
+
+namespace Drupal\Tests\oeaw\Unit\Model;
+
+require_once $_SERVER['HOME'].'/drupal/vendor/autoload.php';
+include($_SERVER['HOME'].'/drupal/modules/oeaw/src/Model/OeawResource.php');
+
+use PHPUnit\Framework\TestCase;
+use acdhOeaw\util\RepoConfig as RC;
+
+/**
+ * @coversDefaultClass \Drupal\oeaw\Model\OeawResource
+ * @group oeaw
+ */
+
+class OeawResourceTest extends \PHPUnit\Framework\TestCase {
+    
+    static private $arrayObject;
+    private $cfgDir = '/home/vagrant/drupal/modules/oeaw/config.ini';
+    
+    static private $types = array('collection', '');
+    
+    static public function setUpBeforeClass() 
+    {
+        self::$arrayObject = new \ArrayObject();
+        self::$arrayObject->offsetSet('uri', 'http://localhost');
+        self::$arrayObject->offsetSet('insideUri', 'id.acdh.oeaw.ac.at%20dictgate');
+        self::$arrayObject->offsetSet('fedoraUri', 'http://fedora.localhost');
+        self::$arrayObject->offsetSet('identifiers', array('https://id.acdh.oeaw.ac.at/uuid/12313-223-11', 'https://id.acdh.oeaw.ac.at/myId'));
+        self::$arrayObject->offsetSet('title', 'title');
+        self::$arrayObject->offsetSet('type', 'Collection');
+        self::$arrayObject->offsetSet('typeUri', 'http://type.com');
+        self::$arrayObject->offsetSet('table', array("acdh:identifier" => array("www.identifier.com"), "acdh:hasTitle" => array("My Test Title")));
+        
+    }
+    
+    public function testInitialization() : \Drupal\oeaw\Model\OeawResource
+    {
+        $obj = new \Drupal\oeaw\Model\OeawResource(self::$arrayObject, $this->cfgDir);
+        $this->assertInstanceOf(\Drupal\oeaw\Model\OeawResource::class, $obj);
+        return $obj;
+    }
+    
+    /**
+     * @depends testInitialization
+     */
+    public function testTableDataModify($obj)
+    {
+        //$obj = new \Drupal\oeaw\Model\OeawResource(self::$arrayObject, $this->cfgDir);
+        $this->assertEquals(false, $obj->setTableData("acdh:hasTitle1", array("title")));
+        $this->assertEquals(true, $obj->setTableData("acdh:hasTitle", array("title")));
+    }
+    
+    public function testFalseInitialization()
+    {
+        self::$arrayObject->offsetUnset('table');
+        $this->expectException(\ErrorException::class);
+        $obj = new \Drupal\oeaw\Model\OeawResource(self::$arrayObject, $this->cfgDir);
+    }
+    
+    
+    /**
+     * @depends testInitialization
+     */
+    public function testMethods($obj)
+    {
+        $uri = $obj->getUri();
+        $this->assertNotEmpty($uri);
+        $this->assertRegExp('/http/i',$uri);
+        
+        $insideUri = $obj->getInsideUri();
+        $this->assertNotEmpty($insideUri);
+        $this->assertRegExp('/id.acdh.oeaw.ac.at/i',$insideUri);
+        
+        $ids = $obj->getIdentifiers();
+        //we have values
+        $this->assertNotEmpty($ids);
+        //the result is an array with the ids
+        $this->assertInternalType('array',$ids);
+        
+        foreach ($ids as $id){
+            //check that we have acdh identifier
+            $this->assertRegExp('/id.acdh.oeaw.ac.at/i',$id);
+        }
+        
+    }
+}
