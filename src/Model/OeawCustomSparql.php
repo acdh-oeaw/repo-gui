@@ -367,10 +367,11 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                 }
             }
         }
+        
         $query .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
         //$query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?descriptions .} ";
-        $query .= 'OPTIONAL { ?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
-                   . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") . } ';
+        $query .= ' ?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
+                   . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") .  ';
     	$query .= "OPTIONAL{ ?uri <".RC::get('drupalHasAuthor')."> ?author .}	    	
         OPTIONAL{ ?uri <".RC::get('drupalHasContributor')."> ?contrib .}	
     	OPTIONAL{ ?uri <".RC::get('drupalRdfType')."> ?rdfType . }
@@ -385,6 +386,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                 $query .= " OFFSET ".$page." ";
             }
         }
+        
         return $query;
     }
     
