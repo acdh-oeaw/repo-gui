@@ -69,6 +69,37 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         
     }
     
+    
+    /**
+     * This function creates a sparql query for the GND Persons API call
+     * 
+     * @param string $order
+     * @param string $limit
+     * @return string
+     */
+    public function createGNDPersonsApiSparql(): string {
+        
+        $query = "";
+        
+        $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
+        $select = ' SELECT ?lname ?fname ?dnb ?identifier ';
+        $where = " WHERE {"
+                . " ?uri <".RC::get('drupalRdfType')."> <".RC::get('drupalPerson')."> . "
+                . " ?uri <".RC::get('fedoraIdProp')."> ?dnb . "
+                . " FILTER (contains(lcase(str(?dnb)), lcase('d-nb.info/gnd/' ))) . "
+                . " ?uri <".RC::get('fedoraIdProp')."> ?identifier .  "
+                . " FILTER (contains(lcase(str(?identifier)), lcase('id.acdh.oeaw.ac.at/uuid/' ))) . "
+                . " ?uri <".RC::get('drupalHasLastName')."> ?lname . "
+                . " ?uri <".RC::get('drupalHasFirstName')."> ?fname . "
+                . " } ";
+        
+        $groupby = ' GROUP BY ?lname ?fname ?dnb ?identifier ';
+        $orderby = ' ORDER BY asc ( fn:lower-case(?lname)) ';
+        $query = $prefix.$select.$where.$groupby.$orderby;
+       
+        return $query;
+    }
+    
     /**
      * This function creates a sparql query for the Publication API call
      * @param string $str : query string
@@ -319,12 +350,12 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                     if( (bool)strtotime($data["mindate"])  ){
                         $mindate = new \DateTime($data["mindate"]);
                     }else  {
-                        throw new \ErrorException("The Minimum date is wrong!");
+                        throw new \ErrorException(t("Error").':'.t("Minimum").' '.t("Date"));
                     }
                     if( (bool)strtotime($data["maxdate"]) ){
                         $maxdate = new \DateTime($data["maxdate"]);
                     }else  {
-                        throw new \ErrorException("The Maximum date is wrong!");
+                        throw new \ErrorException(t("Error").':'.t("Maximum").' '.t("Date"));
                     }
                     if(isset($mindate) && isset($maxdate)){
                         $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
@@ -332,7 +363,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                     }
                 
                 }else{
-                    throw new \ErrorException("Minimum or maximum date is empty!");
+                    throw new \ErrorException(t("Empty").':'.t("Minimum").' '.t("or").' '.t("Maximum").' '.t("Date"));
                 }
             }
         }

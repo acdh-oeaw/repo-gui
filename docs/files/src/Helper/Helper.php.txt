@@ -17,39 +17,26 @@ use acdhOeaw\util\RepoConfig as RC;
 use EasyRdf\Graph;
 use EasyRdf\Resource;
 
-/**
- * 
- *  Helper class for some specific helper methods
- */
+
 class Helper {
     
-    /**
-     * Load the necessary RC config.ini 
-     */
     public function __construct(){
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
     }
     
-    /**
-     * Return the acdh identifier from the array data
-     * 
-     * @param array $identifiers
-     * @return string
-     */
+    
     public static function getAcdhIdentifier(array $identifiers): string{
         if (count($identifiers) > 0){
-            $uuid = "";
             foreach($identifiers as $id){
                 if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
-                    $uuid = $id;
+                    return $id;
                     //if the identifier is the normal acdh identifier then return it
                 }else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
                     return $id;
                 }
             }
         }
-         return $uuid;
-        
+        return "";
     }
     
     /**
@@ -68,10 +55,14 @@ class Helper {
             || 
             (strpos(strtolower($data['ebucore:filename'][0]), '.ply') !== false) ) 
             &&
-            ( isset($data['acdh:hasCategory'][0]) && $data['acdh:hasCategory'][0] =="3dData")    
+            ( isset($data['acdh:hasCategory'][0]) && $data['acdh:hasCategory'][0] =="3dData")
+            && (isset($data['premis:hasSize'][0]) )
         )
         {
-            $return = true;
+            //check the size of the binary, because our 3d viewer can shows only files till 125MB
+            if( ((int)$data['premis:hasSize'][0] > 0) && ((int)$data['premis:hasSize'][0] < 125829120) ) {
+                $return = true;
+            }
         }
         return $return;
     }
@@ -87,7 +78,9 @@ class Helper {
     public static function generateLorisUrl(string $uri, bool $image = false): array{
         
         $result = array();
-        if(!$uri){ return $result; }
+        if(!$uri){
+            return $result; 
+        }
         
         $url = "";
         $lorisUrl = RC::get('drupalLorisUrl');
@@ -98,7 +91,7 @@ class Helper {
         }else if(strpos(RC::get('fedoraApiUrl'), 'minerva') !== false ) {
             $domain = "minerva:/rest/";
         }else{
-            $domain = "apollo:/rest/";   
+         $domain = "apollo:/rest/";   
         }
         
         $resource = explode("/rest/", $uri);
@@ -121,12 +114,14 @@ class Helper {
 
     }
     
-    /**
+     /**
+     * 
      * Get hasPid & create copy link
      * Order of desired URIs:
      * PID > id.acdh > id.acdh/uuid > long gui url
      * 
-     * @param \Drupal\oeaw\Model\OeawResource $results
+     * 
+     * @param array $results
      * @return string
      */
     public static function generateNiceUri(\Drupal\oeaw\Model\OeawResource $results): string {
@@ -170,6 +165,7 @@ class Helper {
                 }
             }
         }
+        
         return $niceURI;
     }
     
@@ -289,7 +285,7 @@ class Helper {
      */
     public static function estDLTime(int $binarySize): string{
         
-        $result = "";
+        $result = "10";
         if($binarySize < 1){ return $result; }
         
         $kb=1024;
@@ -313,6 +309,7 @@ class Helper {
             $result = round($seconds * 1.35) * 4;
             return $result;
         }
+        
         return $result;
     }
     

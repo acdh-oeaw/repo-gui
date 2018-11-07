@@ -45,7 +45,7 @@ class SidebarTypeOfResourceForm extends FormBase
         $searchClasses = array();
         
         if(count($data) == 0){
-            drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys'), 'error');
+            drupal_set_message($this->t('Database').' '.t('Empty'), 'error');
             return $form;            
         } else {
             // get the fields from the sparql query 
