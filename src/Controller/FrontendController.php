@@ -613,7 +613,7 @@ class FrontendController extends ControllerBase
             }
             
             if(isset($searchStr['words'])){
-                $solrData = $this->oeawFunctions->getDataFromSolar($searchStr['words']);
+                $solrData = $this->oeawFunctions->getDataFromSolr($searchStr['words']);
             }
             
             try{
