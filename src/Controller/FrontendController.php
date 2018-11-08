@@ -643,7 +643,7 @@ class FrontendController extends ControllerBase
             if($solrCount > 0) {
                 $res = array_merge($res, $solrData);
             }
-            
+
             if(count($res) > 0) {
                 foreach($res as $r){
                     if( (isset($r['title']) && !empty($r['title']) ) 
@@ -1234,9 +1234,18 @@ class FrontendController extends ControllerBase
                     if($d == "." || $d == ".." || $d == 'collection.tar'){
                         continue;
                     }else {
+                        $tarFilename = $d;
+                        //if the filename is bigger than 100chars, then we need 
+                        //to shrink it
+                        if(strlen($d) > 100) {
+                            $ext = pathinfo($d, PATHINFO_EXTENSION);
+                            $tarFilename = str_replace($ext, '', $d);
+                            $tarFilename = substr($tarFilename, 0, 90);
+                            $tarFilename = $tarFilename.'.'.$ext;
+                        }
                         //we will add the files into the tar, 
                         //with a localname to skip the server directory structure
-                        $tar->addFile($tmpDirDate.'/'.$d, $d);
+                        $tar->addFile($tmpDirDate.'/'.$d, $tarFilename);
                     }
                 }
                 $tar->compress(\Phar::NONE);
