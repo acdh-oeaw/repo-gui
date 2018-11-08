@@ -1986,6 +1986,10 @@ class OeawFunctions {
             $request = $client->request('GET',  RC::get('solrUrl').'/arche/select?hl.fl=_text_&hl=on&q=*'.$text,  ['auth' => ['admin', 'admin']]);
             if($request->getStatusCode() == 200) {
                 $data = json_decode($request->getBody()->getContents());
+                
+                if(!isset($data->response->docs) && !isset($data->highlighting)){
+                    return array();
+                }
                 $docs = $data->response->docs;
                 $highlighting = $data->highlighting;
                 
