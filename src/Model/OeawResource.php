@@ -13,17 +13,17 @@ use acdhOeaw\util\RepoConfig as RC;
  */
 class OeawResource {
     
-    private $uri;
-    private $insideUri;
-    private $fedoraUri;
+    private $uri = "";
+    private $insideUri = "";
+    private $fedoraUri = "";
     private $identifiers = array();
-    private $title;
-    private $pid;
-    private $type;
-    private $typeUri;
-    private $imageUrl;
-    private $availableDate;
-    private $highlighting;
+    private $title = "";
+    private $pid = "";
+    private $type = "";
+    private $typeUri = "";
+    private $imageUrl = "";
+    private $availableDate = "";
+    private $highlighting = "";
     private $accessRestriction = 'public';
     private $table = array();
     public $errors = array();
@@ -102,11 +102,11 @@ class OeawResource {
      * ARCHE supported inside url for the detail view display
      * @return type
      */    
-    public function getInsideUri(){
+    public function getInsideUri(): string{
         return $this->insideUri;
     }
     
-    public function getIdentifiers(){
+    public function getIdentifiers(): array{
         return $this->identifiers;
     }
     
@@ -130,46 +130,45 @@ class OeawResource {
         
     }
     
-    public function getFedoraUri(){
+    public function getFedoraUri(): string {
         return $this->fedoraUri;
     }
     
-    public function getTitle(){
+    public function getTitle(): string {
         return $this->title;
     }
     
-    public function getType(){
+    public function getType(): string {
         return $this->type;
     }
     
-    public function getTypeUri(){
+    public function getTypeUri(): string {
         return $this->typeUri;
     }
     
-    public function getImageUrl(){
+    public function getImageUrl(): string {
         return $this->imageUrl;
     }
     
-    public function getPID(){
+    public function getPID(): string {
         return $this->pid;
     }
     
-    public function getTable(){
+    public function getTable(): array {
         return $this->table;
     }
     
-    public function getAvailableDate(){
+    public function getAvailableDate(): string {
         return $this->availableDate;
     }
     
-    public function getAccessRestriction(){
+    public function getAccessRestriction(): string {
         if( (strtolower($this->getType()) == "collection") || 
             (strtolower($this->getType()) == "resource") || 
             (strtolower($this->getType()) == "metadata") ){
             return $this->accessRestriction;
         }
         return '';
-        
     }
     
     /**
@@ -196,7 +195,7 @@ class OeawResource {
         }
     }
     
-    public function getHighlighting(){
+    public function getHighlighting(): string{
         return $this->highlighting;
     }
     
