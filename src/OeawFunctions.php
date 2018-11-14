@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 
 use Drupal\oeaw\Model\OeawStorage;
@@ -55,6 +56,7 @@ class OeawFunctions {
             \acdhOeaw\util\RepoConfig::init($cfg);
         }
         $this->langConf = \Drupal::config('oeaw.settings');
+        //$this->langConf = \Drupal::service('config.factory')->getEditable('oeaw.settings');
     }
         
     /**
@@ -808,7 +810,6 @@ class OeawFunctions {
                 throw new \ErrorException($ex->getMessage());
             }
         }
-        
         return $obj;
     }
     
@@ -1315,7 +1316,7 @@ class OeawFunctions {
             $arrayObject->offsetSet('title', $d['title']);
             $arrayObject->offsetSet('pid', $d['pid']);
             $arrayObject->offsetSet('description', $d['description']);
-            $arrayObject->offsetSet('types', $d['types']);
+            $arrayObject->offsetSet('typeUri', $d['types']);
             $arrayObject->offsetSet('identifier', $d['identifier']);
             $arrayObject->offsetSet('insideUri', $this->detailViewUrlDecodeEncode($id, 1));
             $arrayObject->offsetSet('accessRestriction', $d['accessRestriction']);
@@ -1983,13 +1984,9 @@ class OeawFunctions {
         $result = array();
         $client = new \GuzzleHttp\Client();
         try{
-            $request = $client->request('GET',  RC::get('solrUrl').'/arche/select?hl.fl=_text_&hl=on&q=*'.$text,  ['auth' => [RC::get('fedoraUser'), RC::get('fedoraPswd')]]);
+            $request = $client->request('GET',  RC::get('solrUrl').'/arche/select?hl.fl=_text_&hl=on&q=*'.$text,  ['auth' => ['admin', 'admin']]);
             if($request->getStatusCode() == 200) {
                 $data = json_decode($request->getBody()->getContents());
-                
-                if(!isset($data->response->docs) && !isset($data->highlighting)){
-                    return array();
-                }
                 $docs = $data->response->docs;
                 $highlighting = $data->highlighting;
                 

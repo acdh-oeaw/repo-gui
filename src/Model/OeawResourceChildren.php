@@ -10,14 +10,14 @@ namespace Drupal\oeaw\Model;
  */
 class OeawResourceChildren {
     
-    private $uri;
-    private $title;
-    private $pid;
-    private $description;
-    private $types;
-    private $identifier;
-    private $insideUri;
-    private $typeName;
+    private $uri = "";
+    private $title = "";
+    private $pid = "";
+    private $description = "";
+    private $typeUri = "";
+    private $identifier = "";
+    private $insideUri = "";
+    private $typeName = "";
     private $accessRestriction = 'public';
     public $errors = array();
     
@@ -37,14 +37,13 @@ class OeawResourceChildren {
                 ($objIterator->key() == "title") ? $this->title = $objIterator->current() : NULL;
                 ($objIterator->key() == "pid") ? $this->pid = $objIterator->current() : NULL;
                 ($objIterator->key() == "description") ? $this->description = $objIterator->current() : NULL;
-                ($objIterator->key() == "types") ? $this->types = $objIterator->current() :  NULL;
+                ($objIterator->key() == "typeUri") ? $this->typeUri = $objIterator->current() :  NULL;
                 ($objIterator->key() == "identifier") ? $this->identifier = $objIterator->current() : NULL ;
                 ($objIterator->key() == "insideUri") ? $this->insideUri = $objIterator->current() : NULL;
                 ($objIterator->key() == "typeName") ? $this->typeName = $objIterator->current() : NULL;
                 ($objIterator->key() == "accessRestriction") ? $this->accessRestriction = $objIterator->current() : 'public' ;
                 $objIterator->next();
             }
-            
         }else {
             throw new \ErrorException(t('ArrayObject').' '.t('Error').' -> OeawResourceChildren construct');
         }
@@ -64,29 +63,30 @@ class OeawResourceChildren {
         if(empty($this->uri)){ array_push($this->errors, "uri"); }
         if(empty($this->title)){ array_push($this->errors, "title");  }
         //if(empty($this->description)){ array_push($this->errors, "description");  }
-        if(empty($this->types)){ array_push($this->errors, "types");  }
+        if(empty($this->typeUri)){ array_push($this->errors, "typeUri");  }
+        if(empty($this->typeName)){ array_push($this->errors, "typeName");  }
         if(empty($this->identifier)){ array_push($this->errors, "identifier");  }
         if(empty($this->insideUri)){ array_push($this->errors, "insideUri");  }
     }
     
-    public function getUri(){
+    public function getUri(): string {
         return $this->uri;
     }
     
-    public function getTitle(){
+    public function getTitle(): string {
         return $this->title;
     }
     
-    public function getPid(){
+    public function getPid(): string {
         return $this->pid;
     }
     
-    public function getDescription(){
+    public function getDescription(): string {
         return $this->description;
     }
     
-    public function getTypes(){
-        return $this->types;
+    public function getTypeUri() : string{
+        return $this->typeUri;
     }
     
     public function getIdentifier(){

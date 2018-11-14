@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\Tests\oeaw\Model\OeawResourceTest;
+namespace Drupal\Tests\oeaw\Model\OeawResourceCustomDataTest;
 namespace Drupal\oeaw\Model;
 
 use Drupal\Tests\UnitTestCase;
@@ -10,15 +10,15 @@ use acdhOeaw\util\RepoConfig as RC;
 require_once $_SERVER['HOME'].'/html/vendor/autoload.php';
 
 /**
- * @coversDefaultClass \Drupal\oeaw\Model\OeawResource
+ * @coversDefaultClass \Drupal\oeaw\Model\OeawResourceCustomData
  * @group oeaw
  */
 
-class OeawResourceTest extends UnitTestCase {
+class OeawResourceCustomDataTest extends UnitTestCase {
     
     static private $arrayObject;
     private $cfgDir = '/var/www/html/modules/oeaw/config.ini';
-        
+    
     /**
     * Shadow t() system call.
     *
@@ -29,11 +29,6 @@ class OeawResourceTest extends UnitTestCase {
     */
     public function t($string) {
         return $string;
-    }
-    
-    private function validateDate($date, $format = 'Y-m-d') {
-        $d = DateTime::createFromFormat($format, $date);
-        return $d && $d->format($format) === $date;
     }
     
     protected function setUp() {
@@ -59,51 +54,35 @@ class OeawResourceTest extends UnitTestCase {
     }
     
     
-    static public function setUpBeforeClass() 
-    {
+    static public function setUpBeforeClass() {
         self::$arrayObject = new \ArrayObject();
         self::$arrayObject->offsetSet('uri', 'http://localhost');
-        self::$arrayObject->offsetSet('insideUri', 'id.acdh.oeaw.ac.at%20dictgate');
-        self::$arrayObject->offsetSet('fedoraUri', 'http://fedora.localhost');
-        self::$arrayObject->offsetSet('identifiers', array('https://id.acdh.oeaw.ac.at/uuid/12313-223-11', 'https://id.acdh.oeaw.ac.at/myId'));
-        self::$arrayObject->offsetSet('title', 'title');
+        self::$arrayObject->offsetSet('title', 'my title');
         self::$arrayObject->offsetSet('type', 'Collection');
+        self::$arrayObject->offsetSet('identifiers', array('https://id.acdh.oeaw.ac.at/uuid/12313-223-11', 'https://id.acdh.oeaw.ac.at/myId', 'https://outside.url.at'));
+        self::$arrayObject->offsetSet('insideUri', 'id.acdh.oeaw.ac.at%20dictgate');
         self::$arrayObject->offsetSet('typeUri', 'http://type.com');
-        self::$arrayObject->offsetSet('table', array("acdh:hasIdentifier" => array("www.identifier.com"), "acdh:hasTitle" => array("My Test Title")));
-        
+        self::$arrayObject->offsetSet('basicProperties', array('acdh:HasTitle' => "my title"));
+        self::$arrayObject->offsetSet('extendedProperties', array());
     }
     
-    public function testInitialization() : \Drupal\oeaw\Model\OeawResource
-    {
-        $obj = new \Drupal\oeaw\Model\OeawResource(self::$arrayObject, $this->cfgDir);
-        $this->assertInstanceOf(\Drupal\oeaw\Model\OeawResource::class, $obj);
+    public function testInitialization() : \Drupal\oeaw\Model\OeawResourceCustomData {
+        $obj = new \Drupal\oeaw\Model\OeawResourceCustomData(self::$arrayObject, $this->cfgDir);
+        $this->assertInstanceOf(\Drupal\oeaw\Model\OeawResourceCustomData::class, $obj);
         return $obj;
     }
+   
     
-    /**
-     * @depends testInitialization
-     */
-    public function testTableDataModify($obj)
-    {
-        //$obj = new \Drupal\oeaw\Model\OeawResource(self::$arrayObject, $this->cfgDir);
-        $this->assertEquals(false, $obj->setTableData("acdh:hasTitle1", array("title")));
-        $this->assertEquals(false, $obj->setTableData("acdh:hasTitle1", array("")));
-        $this->assertEquals(true, $obj->setTableData("acdh:hasTitle", array("title")));
-    }
-    
-    public function testFalseInitialization()
-    {
-        self::$arrayObject->offsetUnset('table');
+    public function testFalseInitialization() {
+        self::$arrayObject->offsetSet('type', '');
         $this->expectException(\Error::class);
-        $obj = new \Drupal\oeaw\Model\OeawResource(self::$arrayObject, $this->cfgDir);
+        $obj = new \Drupal\oeaw\Model\OeawResourceCustomData(self::$arrayObject, $this->cfgDir);
     }
-    
     
     /**
      * @depends testInitialization
      */
-    public function testGetUri($obj)
-    {
+    public function testGetUri($obj) {
         $uri = $obj->getUri();
         $this->assertNotEmpty($uri);
         $this->assertInternalType('string',$uri);
@@ -119,31 +98,16 @@ class OeawResourceTest extends UnitTestCase {
         $this->assertInternalType('string',$insideUri);
         $this->assertRegExp('/id.acdh.oeaw.ac.at/i',$insideUri);
     }
-    
+      
     /**
      * @depends testInitialization
      */
     public function testGetIdentifiers($obj) {
-        $ids = $obj->getIdentifiers();
-        //we have values
-        $this->assertNotEmpty($ids);
+        $data = $obj->getIdentifiers();
         //the result is an array with the ids
-        $this->assertInternalType('array',$ids);
-        
-        foreach ($ids as $id){
-            //check that we have acdh identifier
-            $this->assertRegExp('/id.acdh.oeaw.ac.at/i',$id);
-        }
+        $this->assertInternalType('array',$data);
+        $this->assertArraySubset(array('https://id.acdh.oeaw.ac.at/uuid/12313-223-11'),$data);
     }        
-    /**
-     * @depends testInitialization
-     */
-    public function testGetFedoraUri($obj) {
-        $acdhID = $obj->getAcdhIdentifier();
-        $this->assertNotEmpty($acdhID);
-        $this->assertInternalType('string',$acdhID);
-        $this->assertRegExp('/id.acdh.oeaw.ac.at/i',$acdhID);
-    }
     
     /**
      * @depends testInitialization
@@ -174,19 +138,6 @@ class OeawResourceTest extends UnitTestCase {
     }
     /**
      * @depends testInitialization
-     */
-    public function testGetImageUrl($obj) {
-        $data = $obj->getImageUrl();
-        if(!empty($data)) {
-            $this->assertNotEmpty($data);
-            $this->assertInternalType('string',$data);
-            $this->assertRegExp('http/i',$data);
-        } else {
-            $this->assertEmpty($data);
-        }
-    }
-    /**
-     * @depends testInitialization
      */        
     public function testGetPID($obj) {
         $data = $obj->getPID();
@@ -200,56 +151,56 @@ class OeawResourceTest extends UnitTestCase {
     }
     /**
      * @depends testInitialization
-     */
-    public function testGetTable($obj) {
-        $data = $obj->getTable();
-        $this->assertNotEmpty($data);
-        $this->assertInternalType('array',$data);
-    }
-    /**
-     * @depends testInitialization
-     */        
-    public function testGetAvailableDate($obj) {
-        $data = $obj->getAvailableDate();
-        if(!empty($data)) {
-            $this->assertNotEmpty($data);
-            $this->assertInternalType('string',$data);
-            $this->assertEquals(true, $this->validateDate($data));
-        } else {
-            $this->assertEmpty($data);
-        }
-    }
-    /**
-     * @depends testInitialization
      */        
     public function testGetAccessRestriction($obj) {
         $data = $obj->getAccessRestriction();
         $this->assertNotEmpty($data);
         $this->assertInternalType('string',$data);
     }
-    /**
-     * @depends testInitialization
-     */   
-    public function testGetTableData($obj) {
-        //valid
-        $data = $obj->getTableData("acdh:hasIdentifier");
-        $this->assertNotEmpty($data);
-        $this->assertInternalType('array',$data);
-        
-        //not valid
-        $data = $obj->getTableData("acdh:hasIdentifier1");
-        $this->assertEmpty($data);
-    }
+    
     /**
      * @depends testInitialization
      */        
-    public function testGetHighlighting($obj) {
-        $data = $obj->getHighlighting();
+    public function testGetBasicProperties($obj) {
+        $data = $obj->getBasicProperties();
         if(!empty($data)) {
             $this->assertNotEmpty($data);
-            $this->assertInternalType('string',$data);
+            $this->assertInternalType('array',$data);
+        } else {
+            $this->assertEmpty($data);
+        }    
+    }
+    
+    /**
+     * @depends testInitialization
+     */        
+    public function testGetExtendedProperties($obj) {
+        $data = $obj->getExtendedProperties();
+        if(!empty($data)) {
+            $this->assertNotEmpty($data);
+            $this->assertInternalType('array',$data);
         } else {
             $this->assertEmpty($data);
         }
     }
+    
+    /**
+     * @depends testInitialization
+    */        
+    public function testGetAcdhIdentifier($obj) {
+        $data = $obj->getAcdhIdentifier();
+        $this->assertNotEmpty($data);
+        $this->assertInternalType('string',$data);
+       
+    }
+    
+    /**
+     * @depends testInitialization
+    */        
+    public function testSetupBasicExtendedData($obj) {
+        $obj = $obj;
+        $this->assertObjectHasAttribute('bpKeys', $obj);
+        $this->assertObjectHasAttribute('epKeys', $obj);
+    }
 }
+

@@ -14,13 +14,13 @@ use acdhOeaw\util\RepoConfig as RC;
  */
 class OeawResourceCustomData {
     
-    private $uri;
-    private $title;
-    private $type;
-    private $pid;
-    private $identifiers;
-    private $insideUri;
-    private $typeUri;
+    private $uri = "";
+    private $title = "";
+    private $type = "";
+    private $pid = "";
+    private $identifiers = array();
+    private $insideUri = "";
+    private $typeUri = "";
     private $basicProperties = array();
     private $bpKeys = array();
     private $extendedProperties = array();
@@ -38,9 +38,13 @@ class OeawResourceCustomData {
      * @param \ArrayObject $arrayObj
      * @throws \ErrorException
      */
-    public function __construct(\ArrayObject $arrayObj) 
+    public function __construct(\ArrayObject $arrayObj, $cfg = null) 
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        if($cfg == null){
+            \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        } else {
+            \acdhOeaw\util\RepoConfig::init($cfg);
+        }
         
         if (is_object($arrayObj) || !empty($arrayObj)) {
             
@@ -62,9 +66,7 @@ class OeawResourceCustomData {
         }else {
             throw new \ErrorException(t('ArrayObject').' '.t('Error').' -> OeawResourceCustomData construct');
         }
-        
         $this->checkEmptyVariables();
-        
         if(count($this->errors) > 0){
             throw new \ErrorException(
                 t('Init').' '.t('Error').' : OeawResourceCustomData.'.' '.t(' Empty').' '.t('Data').': '.print_r($this->errors, true)
@@ -82,6 +84,7 @@ class OeawResourceCustomData {
         if(empty($this->uri)){ array_push($this->errors, "uri"); }
         if(empty($this->title)){ array_push($this->errors, "title");  }
         if(empty($this->type)){ array_push($this->errors, "type");  }
+        if(empty($this->typeUri)){ array_push($this->errors, "typeUri");  }
         if(empty($this->identifiers)){ array_push($this->errors, "identifiers");  }
         if(empty($this->insideUri)){ array_push($this->errors, "insideUri");  }
     }
@@ -130,7 +133,7 @@ class OeawResourceCustomData {
      * 
      * @return bool
      */
-    private function isCustomType(): bool{
+    private function isCustomType(): bool {
         if(in_array(strtolower($this->getType()), CC::$availableCustomViews)){
             return true;
         }
@@ -142,7 +145,7 @@ class OeawResourceCustomData {
      * 
      * @return array
      */
-    private function getBasicPropertiesByType(): array{
+    private function getBasicPropertiesByType(): array {
         //get the necessary properties for the different types
         $propertyData = array();
         $propertyData = CC::getCustomDetailViewTemplateDataProperties($this->getType());
@@ -178,7 +181,7 @@ class OeawResourceCustomData {
      * 
      * @return type
      */
-    public function getUri(){
+    public function getUri(): string {
         return $this->uri;
     }
     
@@ -187,7 +190,7 @@ class OeawResourceCustomData {
      * 
      * @return type
      */
-    public function getTitle(){
+    public function getTitle(): string {
         return $this->title;
     }
     
@@ -196,7 +199,7 @@ class OeawResourceCustomData {
      * 
      * @return type
      */
-    public function getType(){
+    public function getType(): string {
         return $this->type;
     }
     
@@ -204,7 +207,7 @@ class OeawResourceCustomData {
      * Resource PID
      * @return type
      */
-    public function getPid(){
+    public function getPid(): string { 
         return $this->pid;
     }
     
@@ -212,7 +215,7 @@ class OeawResourceCustomData {
      * Resource identifiers array
      * @return type
      */
-    public function getIdentifiers(){
+    public function getIdentifiers(): array {
         return $this->identifiers;
     }
     
@@ -221,7 +224,7 @@ class OeawResourceCustomData {
      * 
      * @return array
      */
-    public function getNonAcdhIdentifiers(){
+    public function getNonAcdhIdentifiers(): array {
         $result = array();
         if(count($this->identifiers) > 0){
             foreach ($this->identifiers as $id){
@@ -237,7 +240,7 @@ class OeawResourceCustomData {
      * ARCHE supported inside url for the detail view display
      * @return type
      */
-    public function getInsideUri(){
+    public function getInsideUri(): string {
         return $this->insideUri;
     }
     
@@ -245,7 +248,7 @@ class OeawResourceCustomData {
      * Resource type URL
      * @return type
      */
-    public function getTypeUri(){
+    public function getTypeUri(): string {
         return $this->typeUri;
     }
     
@@ -253,7 +256,7 @@ class OeawResourceCustomData {
      * Resource Basic properties array for the special views
      * @return type
      */
-    public function getBasicProperties(){
+    public function getBasicProperties(): array {
         return $this->basicProperties;
     }
     
@@ -261,7 +264,7 @@ class OeawResourceCustomData {
      * Resource Extended properties array for the special views
      * @return type
      */
-    public function getExtendedProperties(){
+    public function getExtendedProperties(): array {
         return $this->extendedProperties;
     }
     
@@ -269,7 +272,7 @@ class OeawResourceCustomData {
      * Resource access restrictions
      * @return string
      */
-    public function getAccessRestriction(){
+    public function getAccessRestriction(): string {
         if( (strtolower($this->getType()) == "collection") || 
             (strtolower($this->getType()) == "resource") || 
             (strtolower($this->getType()) == "metadata") ){
@@ -282,7 +285,7 @@ class OeawResourceCustomData {
      * Get the ACDH identifiers
      * @return string
      */
-    public function getAcdhIdentifier(): string{
+    public function getAcdhIdentifier(): string {
         if (count($this->identifiers) > 0){
             $uuid = "";
             foreach($this->identifiers as $id){
