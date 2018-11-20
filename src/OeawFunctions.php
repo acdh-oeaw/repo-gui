@@ -1995,7 +1995,13 @@ class OeawFunctions {
                     foreach ($docs as $d) {
                         $docsData = array();
                         if(isset($d->meta_title) && isset($d->meta_rdfType)) {
-                            $docsData['title'] = $d->meta_title[0];
+                            
+                            if(is_array($d->meta_title)) {
+                                $docsData['title'] = $d->meta_title[0];
+                            } else {
+                                $docsData['title'] = $d->meta_title;
+                            }
+                            
                             $docsData['uri'] = $d->id;
                             if($d->meta_rdfType){
                                 foreach($d->meta_rdfType as $type) {
