@@ -247,7 +247,7 @@ class OeawResourceTest extends UnitTestCase {
         $data = $obj->getHighlighting();
         if(!empty($data)) {
             $this->assertNotEmpty($data);
-            $this->assertInternalType('string',$data);
+            $this->assertInternalType('array',$data);
         } else {
             $this->assertEmpty($data);
         }

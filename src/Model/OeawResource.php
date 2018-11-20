@@ -23,7 +23,7 @@ class OeawResource {
     private $typeUri = "";
     private $imageUrl = "";
     private $availableDate = "";
-    private $highlighting = "";
+    private $highlighting = array();
     private $accessRestriction = 'public';
     private $table = array();
     public $errors = array();
@@ -195,7 +195,7 @@ class OeawResource {
         }
     }
     
-    public function getHighlighting(): string{
+    public function getHighlighting(): array{
         return $this->highlighting;
     }
     
