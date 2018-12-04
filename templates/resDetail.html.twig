@@ -3,6 +3,23 @@
     <input type="hidden" id="insideUri" name="insideUri" value="{{ result.insideUri }}">
     <input type="hidden" id="accessRestriction" name="accessRestriction" value="{{ result.accessRestriction }}">
     
+    {% if extras['breadcrumb'] %}
+        {% set breadcrumbLength = extras['breadcrumb']|length  %}
+        {% for key, value in extras['breadcrumb'] %}
+            {% if value["rootTitle"] %}
+                {% if breadcrumbLength > 3 and key > 0 and key < breadcrumbLength - 1 %}
+                    {% set breadcrumbTitle = "..." %}
+                {% else %}
+                    {% set breadcrumbTitle = value["rootTitle"]  %}
+                    <a href='/browser/oeaw_detail/{{value["insideUri"]}}' >{{  breadcrumbTitle}}</a> 
+                    {% if breadcrumbLength -1 > key %}
+                        /  
+                    {% endif %}
+               {% endif %} 
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    
     <h3 class="single-res-heading">
             {{ "Overview"|trans }}
         <div class="res-act-button res-act-button-expertview basic">

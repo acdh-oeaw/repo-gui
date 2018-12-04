@@ -1938,4 +1938,46 @@ class OeawStorage implements OeawStorageInterface {
         }
         return $result;
     }
+    
+    /**
+     * Get the root elements of a resource, based on the ispartof
+     * 
+     * @param string $identifier
+     * @param string $lang
+     * @return array
+     */
+    public function createBreadcrumbData(string $identifier, string $lang = "en"): array {
+        $lang = strtolower($lang);
+        $result = array();
+        $select = 'SELECT ?roots ?mainIspartOf ?rootId ?rootTitle ?rootsRoot WHERE { ';
+        $where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";
+        $where .= " ?uri <".RC::get('fedoraRelProp')."> ?mainIspartOf . ";
+        $where .= " ?uri (<".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* / <".RC::get('fedoraRelProp')."> ?rootId .  ";
+        $where .= " ?roots <".RC::get('fedoraIdProp')."> ?rootId . ";
+        $where .= $this->modelFunctions->filterLanguage("roots", RC::get('fedoraTitleProp'), "rootTitle", $lang, true );
+        $where .= " OPTIONAL { ";
+            $where .= " ?roots <".RC::get('fedoraRelProp')."> ?rootsRoot . ";
+        $where .= " } ";
+        $where .= " } ";
+         
+        $queryStr = $select.$where;
+        
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+
+            $fields = $res->getFields(); 
+            $result = $this->oeawFunctions->createSparqlResult($res, $fields);
+            $result = $this->oeawFunctions->formatBreadcrumbData($result);
+            
+            return $result;
+
+         } catch (\Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+        return $result;
+    }
 } 

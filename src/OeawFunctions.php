@@ -1911,7 +1911,17 @@ class OeawFunctions {
         return $result;
     }
     
-    
+    /**
+     * 
+     * This function is generating the child api data
+     * 
+     * @param string $identifier
+     * @param int $limit
+     * @param int $page
+     * @param string $order
+     * @return array
+     * @throws \ErrorException
+     */
     public function generateChildAPIData(string $identifier, int $limit, int $page, string $order): array {
         
         $result = array();
@@ -1977,7 +1987,12 @@ class OeawFunctions {
         return $result;
     }
     
-    
+    /**
+     * Get highlight data from solr
+     * 
+     * @param string $text
+     * @return array
+     */
     public function getDataFromSolr(string $text) : array {
         if(!$text){ return array(); }
         
@@ -2036,6 +2051,77 @@ class OeawFunctions {
         return $result;
     }
     
+    /**
+     * 
+     * @param array $data
+     * @return array
+     */
+    public function formatBreadcrumbData(array $data): array {
+        $result = array();
+        //we will get the main root, becuase there the "rootsRoot" value is empty
+        $rootsIDArray = array_column($data, 'rootsRoot');
+        //we will get the id of the main root
+        $rootKey = array_filter($rootsIDArray, function($v,$k) {
+            if ($v == ''){ return $k; }
+        }, ARRAY_FILTER_USE_BOTH);
+        
+        if(count($rootKey) > 0 ){
+            $rootKey = array_keys($rootKey)[0];
+        } else {
+            //if the resource has only one root then it will be 0
+            $rootKey = 0;
+        }
+        
+        //add the main root as the first element
+        $result[0] = $data[$rootKey];
+        //remove the mainroot from out data array
+        unset($data[$rootKey]);
+        //create a recursive call
+        $this->makeBreadcrumbFinalData($data, $result);
+        $result = $this->formatBreadcrumbInsideUri($result);
+        return $result;
+    }
     
+    /**
+     * A recursive function to we can reorder the breadcrumbs data
+     * 
+     * @param array $data
+     * @param array $result
+     */
+    private function makeBreadcrumbFinalData(array &$data, array &$result) {
+        foreach($data as $k => $v) {
+      
+            $count = count($result);
+            if($count > 0) {
+                $count = $count -1;
+            }
+            if($result[$count]['rootId'] == $v['rootsRoot']) {
+                $result[] = $v;
+                unset($data[$k]);
+            }
+        }
+    
+        if (count($data) > 0) {
+            $this->makeBreadcrumbFinalData($data, $result);
+        }
+    }
+    
+    /**
+     * Creates an inside GUI uri based on the identifier
+     * This is for the breadcrumb
+     * 
+     * @param array $data
+     * @return array
+     */
+    private function formatBreadcrumbInsideUri(array $data): array {
+        $result = array();
+        $result = $data;
+        foreach($result as $k => $v) {
+            if(isset($v['rootId'])) {
+                $result[$k]['insideUri'] = $this->detailViewUrlDecodeEncode($v['rootId'], 1);
+            }
+        }
+        return $result;
+    }
     
 }

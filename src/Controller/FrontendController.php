@@ -297,6 +297,7 @@ class FrontendController extends ControllerBase
         $rules = array();
         $ACL = array();
         $fedoraRes = array();
+        $breadcumb = array();
         
         //we have the url and limit page data in the string
         if(empty($res_data)) {
@@ -312,6 +313,12 @@ class FrontendController extends ControllerBase
         if (empty($identifier)) {
             drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist',  'error');
             return array();
+        }
+        
+        $breadcrumb = array();
+        $breadcrumb = $this->oeawStorage->createBreadcrumbData($identifier);
+        if (count($breadcrumb) > 0) {
+            $extras['breadcrumb'] = $breadcrumb;
         }
         
         $limitAndPage = $this->oeawFunctions->getLimitAndPageFromUrl($res_data);

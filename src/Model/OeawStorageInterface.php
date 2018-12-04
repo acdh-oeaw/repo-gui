@@ -52,7 +52,8 @@ interface OeawStorageInterface {
     
     //cache sql
     public function getOntologyForCache(string $lang = "en"): array;
-    
+    //breadcrumb
+    public function createBreadcrumbData(string $identifier, string $lang = "en"): array;
         
     
     
