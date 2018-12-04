@@ -314,13 +314,7 @@ class FrontendController extends ControllerBase
             drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist',  'error');
             return array();
         }
-        
-        $breadcrumb = array();
-        $breadcrumb = $this->oeawStorage->createBreadcrumbData($identifier);
-        if (count($breadcrumb) > 0) {
-            $extras['breadcrumb'] = $breadcrumb;
-        }
-        
+                
         $limitAndPage = $this->oeawFunctions->getLimitAndPageFromUrl($res_data);
         
         $page = 1;
@@ -416,6 +410,15 @@ class FrontendController extends ControllerBase
         }
         */
      
+        if( $resultsObj->getType() == "Collection" || $resultsObj->getType() == "Resource"  
+                || $resultsObj->getType() == "Metadata" ) {
+            $breadcrumb = array();
+            $breadcrumb = $this->oeawStorage->createBreadcrumbData($identifier);
+            if (count($breadcrumb) > 0) {
+                $extras['breadcrumb'] = $breadcrumb;
+            }
+        }
+        
         $dissServices = array();
         //check the Dissemination services
         try {
