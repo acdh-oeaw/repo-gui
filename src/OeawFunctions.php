@@ -2058,6 +2058,9 @@ class OeawFunctions {
      */
     public function formatBreadcrumbData(array $data): array {
         $result = array();
+        
+        if(count($data) <= 0 ) {  return $result; }
+        
         //we will get the main root, becuase there the "rootsRoot" value is empty
         $rootsIDArray = array_column($data, 'rootsRoot');
         //we will get the id of the main root

@@ -11,11 +11,11 @@
                     {% set breadcrumbTitle = "..." %}
                 {% else %}
                     {% set breadcrumbTitle = value["rootTitle"]  %}
-                    <a href='/browser/oeaw_detail/{{value["insideUri"]}}' >{{  breadcrumbTitle}}</a> 
-                    {% if breadcrumbLength -1 > key %}
-                        /  
-                    {% endif %}
-               {% endif %} 
+                {% endif %} 
+                <a href='/browser/oeaw_detail/{{value["insideUri"]}}' >{{  breadcrumbTitle }}</a> 
+                {% if breadcrumbLength -1 > key %}
+                    /  
+                {% endif %}
             {% endif %}
         {% endfor %}
     {% endif %}
