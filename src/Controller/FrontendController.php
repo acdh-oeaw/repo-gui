@@ -17,6 +17,7 @@ use Drupal\oeaw\Model\OeawCustomSparql;
 
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\Helper\Helper;
+use Drupal\oeaw\BreadcrumbCache;
 use Drupal\oeaw\PropertyTableCache;
 use Drupal\Core\Cache\CacheBackendInterface;
 
@@ -409,13 +410,21 @@ class FrontendController extends ControllerBase
             }
         }
         */
-     
+        
+        //the breadcrumb section
         if( $resultsObj->getType() == "Collection" || $resultsObj->getType() == "Resource"  
                 || $resultsObj->getType() == "Metadata" ) {
-            $breadcrumb = array();
-            $breadcrumb = $this->oeawStorage->createBreadcrumbData($identifier);
-            if (count($breadcrumb) > 0) {
-                $extras['breadcrumb'] = $breadcrumb;
+            $breadcrumbs = array();
+            
+            $breadcrumbCache = new BreadcrumbCache();
+            //we have cached breadcrumbs with this identifier
+            if(count($breadcrumbCache->getCachedData($identifier)) > 0) {
+                $extras['breadcrumb'] = $breadcrumbCache->getCachedData($identifier);
+            } else {
+                $breadcrumbs = $breadcrumbCache->setCacheData($identifier);
+                if (count($breadcrumbs) > 0) {
+                    $extras['breadcrumb'] = $breadcrumbs;
+                }
             }
         }
         
