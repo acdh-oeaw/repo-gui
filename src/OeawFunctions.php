@@ -287,7 +287,7 @@ class OeawFunctions {
                         if(count($titles) > 0){
                             //merge the available diss.serv and the guiUrls
                             foreach($titles as $key => $val){ 
-                                if($guiUrls[$val['returnType']]){
+                                if(!empty($guiUrls[$val['returnType']])){
                                     $result[$key] = $val;
                                     if($val['returnType'] == "rdf"){
                                         $result[$key]['guiUrl'] = $guiUrls[$val['returnType']].'/fcr:metadata';
