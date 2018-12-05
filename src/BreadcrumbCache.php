@@ -26,7 +26,7 @@ class BreadcrumbCache {
         
         if(\Drupal::cache()->get('breadcrumbs')){
             $obj = \Drupal::cache()->get('breadcrumbs');
-            if($obj->data[$identifier]) {
+            if(isset($obj->data[$identifier])) {
                 $result = (array)$obj->data[$identifier];
             }
         }
