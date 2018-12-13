@@ -26,17 +26,34 @@
             -webkit-appearance:none; /* Safari and Chrome */
         }
     </style>
-    <div>
-        {% if data is empty %}
-            <span> <a href="#" id="first-btn" >{{ "First"|trans }}</a></span>
-        {% else %}
-            <span> {{ data }} {{ "Pages"|trans }}</span>
-            <span class="results-info-bar"> <a href="#" id="first-btn" >{{ "First"|trans }}</a></span>
-        {% endif %}
+    <script>
 
-        <span><a href="#" id="prev-btn" >{{ "Previous"|trans }}</a> </span>
-        <span><a href="#" id="next-btn"> {{ "Next"|trans }}</a></span>
-        <span><a href="#" id="last-btn" >{{ "Last"|trans }}</a></span>
+        var jq2 = jQuery;
+        jq2(function( $ ) {
+            let searchParams = new URLSearchParams(window.location.href);
+            var pageValue = 0;
+            if(searchParams.get('page')) {
+                pageValue = searchParams.get('page');
+                jq2('#actualPageSpan').html(pageValue);
+            }
+        });
+    </script>        
+    
+    <div>
+        <span class="">
+            {% if data is not empty %}
+                
+                <span id="actualPageSpan">1</span>
+                <span> {{ "of"|trans }} </span>
+                <span> {{ data }} {{ "Pages"|trans }}</span>
+                <li class="pagination-item" style="border-left: 1px solid #DDDDDD"> <a href="#" id="first-btn" ><i class="material-icons">first_page</i></a></li>
+                <li class="pagination-item"><a href="#" id="prev-btn" ><i class="material-icons">chevron_left</i></a> </li>
+                <li class="pagination-item"><a href="#" id="next-btn"><i class="material-icons">chevron_right</i></a></li>
+                <li class="pagination-item"><a href="#" id="last-btn" ><i class="material-icons">last_page</i></a></li>
+            {% endif %}
+            
+        </span>    
+        
 
         <span class="results-info-bar">{{ "Items"|trans }} : 
             <select id="limit-sel">
