@@ -402,30 +402,38 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $query = "";
         $lang = strtolower($lang);
         
-        $query = ' select ?uri ?title ?rootTitle ?binarySize ?filename ?accessRestriction (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
+        $query = ' select ?uri ?title ?rootTitle ?binarySize ?filename ?accessRestriction (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)  where { ';
+        //get the child elements with inverse link
+        $query .= " <".$url."> ( <".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* ?main . ";
+        //create a uri to we can work on with the child elements, to get their data/properties
+        $query .= " ?main (<".RC::get('fedoraIdProp')."> / ^<".RC::get('fedoraRelProp').">)+ ?uri . ";
         
-        $query .= "where {  
-            ?uri ( <".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* <".$url."> .
-            FILTER(?uri = ?nUri){
-                select ?nUri ?title ?rootTitle  ?binarySize ?filename ?identifiers ?accessRestriction
-                where {";
-        //$query .= "?nUri <".RC::get('fedoraTitleProp')."> ?title . ";
-        $query .= $this->modelFunctions->filterLanguage("nUri", RC::titleProp(), "title", $lang );
-        $query .= "?nUri <".RC::get('fedoraRelProp')."> ?isPartOf .
-                    ?nUri <".RC::get('fedoraIdProp')."> ?identifiers .
-                    ?rUri <".RC::get('fedoraIdProp')."> ?isPartOf .";
-        //$query .= "?rUri <".RC::get('fedoraTitleProp')."> ?rootTitle .";
-        $query .= $this->modelFunctions->filterLanguage("rUri", RC::titleProp(), "rootTitle", $lang );
-        $query .= " OPTIONAL {?nUri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";        
-        $query .= " OPTIONAL { 
-                        ?nUri <".RC::get('fedoraExtentProp')."> ?binarySize .
-                        ?nUri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename . 
-                    }
-                }
-            }
-        }
-        GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename ?accessRestriction
-        ORDER BY ?filename ?title ?rootTitle
+        $query .= " OPTIONAL {  ";
+            $query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang );
+        $query .= " } ";
+      
+        $query .= " OPTIONAL {  ";
+            $query .= " ?uri <".RC::get('fedoraIdProp')."> ?identifiers . ";
+        $query .= " } ";
+        
+        $query .= " OPTIONAL {  ";
+            $query .= " ?uri <".RC::get('fedoraRelProp')."> ?isPartOf . ";
+            $query .= " ?rUri <".RC::get('fedoraIdProp')."> ?isPartOf . ";
+            $query .= $this->modelFunctions->filterLanguage("rUri", RC::titleProp(), "rootTitle", $lang );
+        $query .= " } ";
+        
+        $query .= " OPTIONAL {  ";
+            $query .= " ?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . ";
+        $query .= " } ";
+        
+        $query .= " OPTIONAL {  ";
+            $query .= " ?uri <".RC::get('fedoraExtentProp')."> ?binarySize .
+                        ?uri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename .  ";
+        $query .= " } ";
+        $query .= " } ";
+        $query .= "
+            GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename ?accessRestriction
+            ORDER BY ?filename ?title ?rootTitle
         ";
         return $query;
     }
