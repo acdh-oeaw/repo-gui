@@ -564,7 +564,9 @@ class FrontendController extends ControllerBase
      * @param string $limit
      */
     public function oeaw_child_api(string $identifier, string $limit, string $page, string $order): Response {
-        $identifier = RC::get('fedoraUuidNamespace').$identifier;
+        if (strpos($identifier, RC::get('fedoraUuidNamespace')) === false) {
+            $identifier = RC::get('fedoraUuidNamespace').$identifier;
+        }
         $childArray = $this->oeawFunctions->generateChildAPIData($identifier, (int)$limit, (int)$page, $order);
          
         if(count($childArray['childResult']) == 0) { 

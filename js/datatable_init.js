@@ -187,7 +187,12 @@ jq2(function( $ ) {
             jq2('#orderby').val(orderBy);
         }
         
-        
+        function makeInsideUriFromUrl(){
+            var url = window.location.href;
+            url = url.substring(url.indexOf("/browser/oeaw_detail/"));
+            url = url.replace("/browser/oeaw_detail/", "");
+            return url;
+        }
         
        /**
          * Do the API request to get the actual child data
@@ -225,6 +230,7 @@ jq2(function( $ ) {
             //if we have a url and page in the URL
             if(urlPage) { page = urlPage; }
             if(urlLimit) { limit = urlLimit; }
+            insideUri = makeInsideUriFromUrl();
             getData(insideUri, limit, page, orderBy);
             //to skip the jump to top function
             jq2( ".getChildView" ).hide();
