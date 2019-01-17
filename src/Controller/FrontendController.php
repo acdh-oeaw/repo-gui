@@ -38,6 +38,7 @@ use EasyRdf\Resource;
 use TCPDF;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Drupal\Core\Render\HtmlResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -293,12 +294,14 @@ class FrontendController extends ControllerBase
      * @param string $res_data
      * @return array
      */
-    public function oeaw_detail(string $res_data): array {
+    public function oeaw_detail(string $res_data) {
+        
         drupal_get_messages('error', TRUE);
         $rules = array();
         $ACL = array();
         $fedoraRes = array();
         $breadcumb = array();
+        $response = "html";
         
         //we have the url and limit page data in the string
         if(empty($res_data)) {
@@ -307,6 +310,8 @@ class FrontendController extends ControllerBase
                     'error');
             return array();
         }
+        //if we have ajax div reload 
+        if (strpos($res_data, 'ajax=1') !== false) { $response = "ajax"; }
         
         $identifier = "";
         //transform the url from the browser to readable uri
@@ -513,17 +518,23 @@ class FrontendController extends ControllerBase
                 }
             }
         }
+        
         $datatable = array(
-            '#theme' => 'oeaw_detail_dt',
-            '#result' => $resultsObj,
-            '#extras' => $extras,
-            '#userid' => $uid,
-            '#attached' => [
-                'library' => [
-                'oeaw/oeaw-styles', //include our custom library for this response
+                '#theme' => 'oeaw_detail_dt',
+                '#result' => $resultsObj,
+                '#extras' => $extras,
+                '#userid' => $uid,
+                '#attached' => [
+                    'library' => [
+                    'oeaw/oeaw-styles', //include our custom library for this response
+                    ]
                 ]
-            ]
-        );
+        );        
+        //for the ajax oeaw_detail view page refresh we need to send a response
+        //othwerwise itt will post the whole page
+        if($response == "ajax"){
+            return new Response(render($datatable));
+        }
         
         return $datatable;
     }

@@ -1,8 +1,13 @@
 <link rel="stylesheet" type="text/css" href="/browser/core/themes/classy/css/components/messages.css">
+
 <!--   MAIN DETAIL VIEW -->
     <input type="hidden" id="insideUri" name="insideUri" value="{{ result.insideUri }}">
     <input type="hidden" id="accessRestriction" name="accessRestriction" value="{{ result.accessRestriction }}">
-    
+    <div class="loader-div">
+        <div class="loader-bg">
+            <div class="loader"></div>
+        </div>
+    </div>
     {% if extras['breadcrumb'] %}
         {% set breadcrumbLength = extras['breadcrumb']|length  %}
         {% for key, value in extras['breadcrumb'] %}
@@ -294,7 +299,7 @@
     
     <div class="res-actions" style="padding: 20px;">
         <div class="res-act-button" style="display: table; margin: 0 auto;">
-            <a href="#" id="getChildView"><i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;<b>{{ "Show More"|trans }}</b>&nbsp; <i class="fa fa-angle-down" aria-hidden="true"></i></a>
+            <a href="#" id="getChildView" class="getChildView"><i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;<b>{{ "Show More"|trans }}</b>&nbsp; <i class="fa fa-angle-down" aria-hidden="true"></i></a>
         </div>
     </div>
    

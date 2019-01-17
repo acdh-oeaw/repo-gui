@@ -391,12 +391,12 @@ jq2(function( $ ) {
 
     jq2(window).load(function() {
         //jq2("#loader").delay(3000).fadeOut("fast");
-        jq2("#loader-div").hide();
+        jq2(".loader-div").hide();
     });
     
     //prepare the zip file
     jq2( "#getCollectionData" ).click(function(e) {
-        jq2("#loader-div").show();
+        jq2(".loader-div").show();
         //disable the button after the click
         $(this).prop('disabled', true);
         var insideUri = jq2('#insideUri').val();
@@ -423,7 +423,7 @@ jq2(function( $ ) {
                 jq2('#dl_link_a').html('<a href="'+data+'" target="_blank">'+Drupal.t("Download Collection")+'</a>');
                 jq2('#dl_link').show();
                 jq2('#dl_link_txt').show();
-                jq2("#loader-div").delay(2000).fadeOut("fast");
+                jq2(".loader-div").delay(2000).fadeOut("fast");
                 jq2("#getCollectionDiv").hide();
                 return data;
 

@@ -5,7 +5,7 @@ jq2(function( $ ) {
            "lengthMenu": [[20, 35, 50, -1], [20, 35, 50, "All"]]
         });
         
-        jq2("#loader-div").hide();
+        jq2(".loader-div").hide();
         hidepopup();
         
         /** check the restriction for the dissemination services  START */
@@ -153,7 +153,7 @@ jq2(function( $ ) {
         if(urlPage && urlLimit){
             //display the child view
             jq2('#ajax-pagination').show();
-            jq2( "#getChildView" ).hide();
+            jq2( ".getChildView" ).hide();
             if(!urlOrder){ urlOrder = orderbySel; }
             
             limit = urlLimit;
@@ -214,9 +214,11 @@ jq2(function( $ ) {
                 }
             });
         }
-        
-        jq2( "#getChildView" ).click(function(e) {
-            jq2("#loader-div").show();
+   
+        //we need the delegate because we are loading the content with ajax, and otherwise
+        //the jquery cant find the button inside the new html content
+        jq2( document ).delegate( ".getChildView", "click", function(e) {
+            jq2(".loader-div").show();
             //drupalSettings.oeaw.detailView.insideUri.page = 1;
             e.preventDefault();            
             jq2('#ajax-pagination').show();
@@ -225,9 +227,9 @@ jq2(function( $ ) {
             if(urlLimit) { limit = urlLimit; }
             getData(insideUri, limit, page, orderBy);
             //to skip the jump to top function
-            jq2( "#getChildView" ).hide();
+            jq2( ".getChildView" ).hide();
+            jq2(".loader-div").hide();
             createNewUrl();
-            jq2("#loader-div").hide();
             return false;
         });
         
