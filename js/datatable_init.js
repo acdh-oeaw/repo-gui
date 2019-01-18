@@ -190,6 +190,7 @@ jq2(function( $ ) {
         function makeInsideUriFromUrl(){
             var url = window.location.href;
             url = url.substring(url.indexOf("/browser/oeaw_detail/"));
+            url = url.replace("/browser/oeaw_detail/id.acdh.oeaw.ac.at/uuid/", "");
             url = url.replace("/browser/oeaw_detail/", "");
             return url;
         }
