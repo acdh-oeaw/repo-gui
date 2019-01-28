@@ -1505,11 +1505,13 @@ class OeawStorage implements OeawStorageInterface {
         $result = array();
             
         $queryStr = 'SELECT ?year (COUNT(?year) as ?yearCount) WHERE { '
-                . '?uri <'.RC::get('fedoraAvailableDateProp').'> ?date . '
-                . 'BIND( (CONCAT(STR(substr(?date, 0, 4)))) as ?year) .'
+                . ' ?uri <'.RC::get('fedoraAvailableDateProp').'> ?date . '
+                . ' values ?duration { "P0DT1H0M0.000S"^^xsd:duration } . '
+                . ' BIND( (?date + ?duration) as ?end) . '
+                . ' BIND( (CONCAT(STR(substr(?end, 0, 4)))) as ?year) . '
                 . ' } '
-                . 'GROUP BY ?year '
-                . 'ORDER BY DESC(?year) ';
+                . ' GROUP BY ?year '
+                . ' ORDER BY DESC(?year) ';
         
         try {
             $q = new SimpleQuery($queryStr);
