@@ -320,9 +320,7 @@ class FrontendController extends ControllerBase
             drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist',  'error');
             return array();
         }
-                
         $limitAndPage = $this->oeawFunctions->getLimitAndPageFromUrl($res_data);
-        
         $page = 1;
         $limit = 10;
         
@@ -356,7 +354,6 @@ class FrontendController extends ControllerBase
             drupal_set_message(t($ex->getMessage()), 'error');
             return array();
         }
-        
         
         //get the actual resource rules
         try{
@@ -395,7 +392,6 @@ class FrontendController extends ControllerBase
                     drupal_set_message(t("Error message").' : Resource Custom Table View. '.$ex->getMessage(), 'error');
                     return array();
                 }
-                
                 if(count((array)$customDetailView) > 0){
                     $extras['specialType'][strtolower($resultsObj->getType())] = $customDetailView;
                 }
@@ -406,7 +402,6 @@ class FrontendController extends ControllerBase
                     'error');
             return array();
         }
-        
         /*
         $query = "";
         if(isset($results['query']) && isset($results['queryType'])){
@@ -432,7 +427,6 @@ class FrontendController extends ControllerBase
                 }
             }
         }
-        
         $dissServices = array();
         //check the Dissemination services
         try {
@@ -444,7 +438,6 @@ class FrontendController extends ControllerBase
             drupal_set_message($ex->getMessage(), 'error');
             return array();
         }
-        
         if(count($dissServices) > 0 && $fedoraRes->getId()){
             //we need to remove the raw from the list if it is a collection
             if($resultsObj->getType() == "Collection"){
@@ -455,11 +448,9 @@ class FrontendController extends ControllerBase
                     }
                 }
             }
-            
             $extras['dissServ']['services'] = $dissServices;
             $extras['dissServ']['identifier'] = $fedoraRes->getId();
         }
-        
         // Pass fedora uri so it can be linked in the template
         $extras["fedoraURI"] = $rootMeta->getUri();
         
@@ -518,7 +509,6 @@ class FrontendController extends ControllerBase
                 }
             }
         }
-        
         $datatable = array(
                 '#theme' => 'oeaw_detail_dt',
                 '#result' => $resultsObj,

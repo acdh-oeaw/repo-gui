@@ -228,32 +228,29 @@ class OeawFunctions {
      * @throws \Exception
      * @throws \acdhOeaw\fedora\exceptions\NotFound
      */
-    public function getResourceDissServ(\acdhOeaw\fedora\FedoraResource $fedoraRes): array {
-        
+    public function getResourceDissServ(\acdhOeaw\fedora\FedoraResource $fedoraRes): array { 
         $result = array();
         
         if($fedoraRes){
             try{
                 $id = $fedoraRes->getId();
                 $dissServ = $fedoraRes->getDissServices();
-                
                 if(count($dissServ) > 0){
                     $processed = array();
                     $guiUrls = array();
                     $i = 0;
+                    $fedora = $this->initFedora();
                     foreach ($dissServ as $service) {
                         //get the acdh identifiers for the dissemination services
                         if(!in_array($id, $processed)) {
                             $key = "";
                             $processed[$i] = $service->getId();
-                            $fedora = $this->initFedora();
                             //get the final url of the dissemination service
                             $srv = new Service($fedora, $service->getUri());
                             $service->getId();
                             //the url dissemination return shortname (raw/gui), to we can identify them
                             $sUri = $service->getFormats();
                             $key = $sUri[0]->format;
-                            
                             $servUri = "";
                             //make a nice url to remove the https:// tags from the url
                             //because of the acdh identifier should appears there
@@ -274,7 +271,6 @@ class OeawFunctions {
                             $i++;
                         }
                     }
-                    
                     if(count($processed) > 0){
                         $oeawStorage = new OeawStorage();
                         //get the titles
@@ -283,7 +279,6 @@ class OeawFunctions {
                         $titles = $oeawStorage->getTitleByIdentifierArray($processed, true);
                         //remove the duplicates
                         $titles = Helper::removeDuplicateValuesFromMultiArrayByKey($titles, "title");
-                        
                         if(count($titles) > 0){
                             //merge the available diss.serv and the guiUrls
                             foreach($titles as $key => $val){ 
@@ -1344,8 +1339,7 @@ class OeawFunctions {
      * @param Resource $data
      * @return array
      */
-    public function createDetailViewTable(\EasyRdf\Resource $data): \Drupal\oeaw\Model\OeawResource{
-        
+    public function createDetailViewTable(\EasyRdf\Resource $data): \Drupal\oeaw\Model\OeawResource {
         $result = array();
         $arrayObject = new \ArrayObject();
         $OeawStorage = new OeawStorage();
@@ -1370,7 +1364,6 @@ class OeawFunctions {
                 $rsId[] = $ids->getUri();
             }
         }
-        
         //get the resources and remove fedora properties
         $properties = array();
         $properties = $data->propertyUris();
@@ -1379,20 +1372,17 @@ class OeawFunctions {
                 unset($properties[$key]);
             }
         }
-        
         //reorder the array because have missing keys
         $properties = array_values($properties);
         $searchTitle = array();
         
         foreach ($properties as $p){
-            
             $propertyShortcut = $this->createPrefixesFromString($p);
             //get the properties data from the easyrdf resource object
             foreach ($data->all($p) as $key => $val){
                 
                 if(get_class($val) == "EasyRdf\Resource" ){
                     $classUri = $val->getUri();
-                    
                     if($p == RC::get("drupalRdfType")){
                         if ( (strpos($val->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false) 
                                 &&
@@ -1427,7 +1417,6 @@ class OeawFunctions {
                             }
                         }
                     }
-                    
                     //simply check the acdh:hasTitleImage for the root resources too.
                     if($p == RC::get('drupalHasTitleImage')){
                         $imgUrl = "";
@@ -1437,7 +1426,6 @@ class OeawFunctions {
                         }
                     }
                 }
-                
                 if( (get_class($val) == "EasyRdf\Literal") || 
                         (get_class($val) == "EasyRdf\Literal\DateTime") || 
                         (get_class($val) == "EasyRdf\Literal\Integer")){
@@ -1474,36 +1462,31 @@ class OeawFunctions {
         
         if(count($searchTitle) > 0){
             //get the not literal propertys TITLE
-            
             $existinTitles = array();
-            foreach ($searchTitle as $sTitle) {
-                $val = $OeawStorage->getTitleAndBasicInfoByIdentifier($sTitle);
-                if(count($val) > 0){
-                    $existinTitles[] = $val[0];
-                }
-            }
-            $resKeys = array_keys($result['table']);
-        
-            //change the titles
-            foreach($resKeys as $k){
-                foreach($result['table'][$k] as $key => $val){
-                    if(is_array($val)){
-                        foreach($existinTitles as $t){
-                            
-                            if($t['identifier'] == $val['uri'] || $t['pid'] == $val['uri'] || $t['uuid'] == $val['uri']){
-                                $result['table'][$k][$key]['title'] = $t['title'];
-                                
-                                $decodId = "";
-                                if(isset($t['pid']) && !empty($t['pid'])){
-                                    $decodId = $t['pid'];
-                                }else if(isset($t['uuid']) && !empty($t['uuid'])){
-                                    $decodId = $t['uuid'];
-                                }else if(isset($t['identifier']) && !empty($t['identifier'])){
-                                    $decodId = $t['identifier'];
-                                }
-                                
-                                if(!empty($decodId)){
-                                    $result['table'][$k][$key]['insideUri'] = $this->detailViewUrlDecodeEncode($decodId, 1);
+            $existinTitles = $OeawStorage->getTitleAndBasicInfoByIdentifierArray($searchTitle);
+            
+            if(count($existinTitles) > 0) {
+                $resKeys = array_keys($result['table']);
+                //change the titles
+                foreach($resKeys as $k){
+                    foreach($result['table'][$k] as $key => $val){
+                        if(is_array($val)){
+                            foreach($existinTitles as $t){
+                                if($t['identifier'] == $val['uri'] || $t['pid'] == $val['uri'] || $t['uuid'] == $val['uri']){
+                                    $result['table'][$k][$key]['title'] = $t['title'];
+
+                                    $decodId = "";
+                                    if(isset($t['pid']) && !empty($t['pid'])){
+                                        $decodId = $t['pid'];
+                                    }else if(isset($t['uuid']) && !empty($t['uuid'])){
+                                        $decodId = $t['uuid'];
+                                    }else if(isset($t['identifier']) && !empty($t['identifier'])){
+                                        $decodId = $t['identifier'];
+                                    }
+
+                                    if(!empty($decodId)){
+                                        $result['table'][$k][$key]['insideUri'] = $this->detailViewUrlDecodeEncode($decodId, 1);
+                                    }
                                 }
                             }
                         }
@@ -1515,7 +1498,6 @@ class OeawFunctions {
         if(empty($result['acdh_rdf:type']['title']) || !isset($result['acdh_rdf:type']['title'])){
             throw new \ErrorException(t("Empty").': ACDH RDF TYPE', 0);
         }
-      
         $result['resourceTitle'] = $resourceTitle;
         $result['uri'] = $resourceUri;
         $result['insideUri'] = $this->detailViewUrlDecodeEncode($resourceIdentifier, 1);
@@ -1532,9 +1514,7 @@ class OeawFunctions {
             $arrayObject->offsetSet('accessRestriction', $result['table']['acdh:hasAccessRestriction'][0]);
         }
         $arrayObject->offsetSet('insideUri', $this->detailViewUrlDecodeEncode( $uuid, 1));
-        if(isset($result['image'])){
-            $arrayObject->offsetSet('imageUrl', $result['image']);
-        }
+        if(isset($result['image'])){ $arrayObject->offsetSet('imageUrl', $result['image']); }
         
         try {
             $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);

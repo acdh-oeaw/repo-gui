@@ -1618,46 +1618,44 @@ class OeawStorage implements OeawStorageInterface {
         if(count($data) > 0){
             $lang = strtolower($lang);
             $where = "";
-            $i = 0;
-            $select = "";
-            foreach ($data as $key => $value){
-                $where .= " { ";
-                $where .= "?uri <".RC::get('fedoraIdProp')."> <".$value."> . ";
-                //$where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
-                //$where .= "?uri <".RC::titleProp()."> ?title . ";
-                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
-                $where .=" OPTIONAL {"
-                        . " ?uri <".RC::get('fedoraIdProp')."> ?identifier . "
-                        . " FILTER (regex(str(?identifier),'id.acdh.oeaw.ac.at/','i')) . "
-                        . " FILTER (!regex(str(?identifier),'.at/uuid/','i')) . "
-                        . "}"
-                        . "OPTIONAL { "
-                        . " ?uri <".RC::get('fedoraIdProp')."> ?uuid .  "
-                        . " FILTER (regex(str(?uuid),'id.acdh.oeaw.ac.at/uuid/','i')) . "
-                        . " } "
-                        . " OPTIONAL {"
-                        . " ?uri <".RC::get('fedoraIdProp')."> ?vocabs . "
-                        . " FILTER (regex(str(?vocabs),'vocabs.acdh.oeaw.ac.at/','i')) . "
-                        . " } "
-                        . " OPTIONAL { "
-                        . " ?uri <".RC::get('epicPidProp')."> ?pid . "
-                        . " } ";
-                
-                if($dissemination == true){
-                    $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
-                    $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
-                    //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
-                    $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
-                }
-                
-                $where .= " } ";
-                
-                if($i != count($data) - 1){
-                    $where .= " UNION ";
-                }
-                $i++;
+            
+            $where .= " { ";
+            $where .= "?uri <".RC::get('fedoraIdProp')."> ?id . ";
+            $where .= "FILTER (?id IN ( ";
+            $lastId = end($data);
+            foreach($data as $d) {
+                $where .= "<".$d.">";
+                if($d != $lastId) { $where .=","; }
+            }
+            $where .= " ) ) . ";
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+            $where .=" OPTIONAL {"
+                    . " ?uri <".RC::get('fedoraIdProp')."> ?identifier . "
+                    . " FILTER (regex(str(?identifier),'id.acdh.oeaw.ac.at/','i')) . "
+                    . " FILTER (!regex(str(?identifier),'.at/uuid/','i')) . "
+                    . "}"
+                    . "OPTIONAL { "
+                    . " ?uri <".RC::get('fedoraIdProp')."> ?uuid .  "
+                    . " FILTER (regex(str(?uuid),'id.acdh.oeaw.ac.at/uuid/','i')) . "
+                    . " } "
+                    . " OPTIONAL {"
+                    . " ?uri <".RC::get('fedoraIdProp')."> ?vocabs . "
+                    . " FILTER (regex(str(?vocabs),'vocabs.acdh.oeaw.ac.at/','i')) . "
+                    . " } "
+                    . " OPTIONAL { "
+                    . " ?uri <".RC::get('epicPidProp')."> ?pid . "
+                    . " } ";
+
+            if($dissemination == true){
+                $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
+                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
+                //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
+                $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
             }
             
+            $where .= " } ";
+            
+            $select = "";
             if($dissemination == true){
                 $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs ?returnType ?description WHERE { ';
             }else{
@@ -1665,7 +1663,6 @@ class OeawStorage implements OeawStorageInterface {
             }
             
             $queryStr = $select.$where." } ORDER BY ?title";
-            
             try {
                 $q = new SimpleQuery($queryStr);
                 $query = $q->getQuery();
@@ -1738,6 +1735,83 @@ class OeawStorage implements OeawStorageInterface {
 
         $queryStr = $select.$where." } ORDER BY ?title";
 
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            $fields = $res->getFields();
+            $result = $this->oeawFunctions->createSparqlResult($res, $fields);
+            return $result;
+         } catch (\Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex){
+            return $result;
+        }
+        
+        
+        return $result;
+    }
+    
+    /**
+     * Get title and some basic info about the resources by identifier
+     * 
+     * @param array $data
+     * @param bool $dissemination
+     * @param string $lang
+     * @return array
+     */
+    public function getTitleAndBasicInfoByIdentifierArray(array $data, bool $dissemination = false, string $lang = "en"): array
+    {
+        $result = array();
+        $lang = strtolower($lang);
+        $where = "";
+        $select = "";
+        
+        if(count($data) == 0) { return array(); }
+        $where .= " { ";
+        $where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
+        $where .= "FILTER (?identifier IN ( ";
+            $lastId = end($data);
+            foreach($data as $d) {
+                $where .= "<".$d.">";
+                if($d != $lastId) { $where .=","; }
+            }
+        $where .= " ) ) . ";
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+        $where .=" OPTIONAL {"
+                . " ?uri <".RC::get('fedoraIdProp')."> ?identifier . "
+                . " FILTER (regex(str(?identifier),'id.acdh.oeaw.ac.at/','i')) . "
+                . " FILTER (!regex(str(?identifier),'.at/uuid/','i')) . "
+                . "}"
+                . "OPTIONAL { "
+                . " ?uri <".RC::get('fedoraIdProp')."> ?uuid .  "
+                . " FILTER (regex(str(?uuid),'id.acdh.oeaw.ac.at/uuid/','i')) . "
+                . " } "
+                . " OPTIONAL {"
+                . " ?uri <".RC::get('fedoraIdProp')."> ?vocabs . "
+                . " FILTER (regex(str(?vocabs),'vocabs.acdh.oeaw.ac.at/','i')) . "
+                . " } "
+                . " OPTIONAL { "
+                . " ?uri <".RC::get('epicPidProp')."> ?pid . "
+                . " } ";
+
+        if($dissemination == true){
+            $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
+            //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
+            $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
+        }
+
+        $where .= " } ";
+                
+        if($dissemination == true){
+            $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs ?returnType ?description WHERE { ';
+        }else{
+            $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs WHERE { ';
+        }
+
+        $queryStr = $select.$where." } ORDER BY ?title";
+       
         try {
             $q = new SimpleQuery($queryStr);
             $query = $q->getQuery();
