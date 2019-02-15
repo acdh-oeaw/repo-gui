@@ -337,13 +337,12 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
             $minYear = min($years);
             $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
             if (\DateTime::createFromFormat('Y', $maxYear) !== FALSE && \DateTime::createFromFormat('Y', $minYear) !== FALSE) {                
-                $query .= "FILTER ( (CONCAT(str(substr(?date, 0, 4)))) <= '".$maxYear."' && (CONCAT(str(substr(?date, 0, 4)))) >= '".$minYear."')  \n";
+                $query .= "FILTER (  xsd:dateTime(?date) <= '".$maxYear."-12-31T00:00:000+01:00'^^xsd:dateTime &&  xsd:dateTime(?date) >= '".$minYear."-01-01T00:00:000+01:00'^^xsd:dateTime)  \n";
             }else {
                 //if we have a wrong date then we will select the actual date
                 $min = date("Y");
                 $query .= "FILTER ( (CONCAT(str(substr(?date, 0, 4)))) <= '".$min."' && (CONCAT(str(substr(?date, 0, 4)))) >= '".$min."')  \n";
             }
-            
         }else{
             if(isset($data["mindate"]) && isset($data["maxdate"])) {
                 if(!empty($data["mindate"]) && ($data["maxdate"])){
@@ -361,7 +360,6 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                         $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
                         $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
                     }
-                
                 }else{
                     throw new \ErrorException(t("Empty").':'.t("Minimum").' '.t("or").' '.t("Maximum").' '.t("Date"));
                 }
@@ -369,7 +367,6 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         }
         
         $query .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
-        //$query .= "OPTIONAL{ ?uri <".RC::get('drupalHasDescription')."> ?descriptions .} ";
         $query .= ' ?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
                    . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") .  ';
     	$query .= "OPTIONAL{ ?uri <".RC::get('drupalHasAuthor')."> ?author .}	    	
@@ -386,7 +383,6 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                 $query .= " OFFSET ".$page." ";
             }
         }
-        
         return $query;
     }
     
