@@ -633,8 +633,14 @@ class FrontendController extends ControllerBase
                 drupal_set_message(t("Your search yielded no results."), 'error');
                 return array();
             }
-            
-            if(isset($searchStr['words'])){
+            /** Check the the of the search, it is necessary for the solr search **/
+            if(
+                isset($searchStr['words']) && 
+                (   (!isset($searchStr['type']))  
+                        ||  
+                    ( isset($searchStr['type']) && strtolower($searchStr['type']) == "resource" )
+                ) 
+            ){
                 $solrData = $this->oeawFunctions->getDataFromSolr($searchStr['words']);
             }
             
@@ -662,6 +668,7 @@ class FrontendController extends ControllerBase
                 drupal_set_message($ex->getMessage(), 'error');
                 return array();
             }
+           
             if($solrCount > 0) {
                 $res = array_merge($res, $solrData);
             }

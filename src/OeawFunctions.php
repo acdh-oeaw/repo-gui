@@ -2016,6 +2016,8 @@ class OeawFunctions {
                             $id = $d->id;
                             if($highlighting->$id && isset($highlighting->$id->_text_[0])) {
                                 $docsData['highlighting'][] = html_entity_decode($highlighting->$id->_text_[0]);
+                            }else {
+                                $docsData['highlighting'][] = t('Re-index').' '.t('the').' '.t('File');
                             }
                             $result[] = $docsData;
                         }
