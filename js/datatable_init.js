@@ -205,9 +205,11 @@ jq2(function( $ ) {
          * @returns {undefined}
          */
         function getData(insideUri, limit, page, orderby) {
-            $.ajax({
+            
+            console.log(insideUri);
+            jq2.ajax({
                 url: '/browser/oeaw_child_api/'+insideUri+'/'+limit+'/'+page+'/'+orderby,
-                data: {'ajaxCall':true},
+                //data: {'ajaxCall':true},
                 async: true,
                 success: function(result){
                     //empty the data div, to display the new informations
@@ -215,6 +217,7 @@ jq2(function( $ ) {
                     return false;
                 },
                 error: function(error) {
+                    console.log(error);
                     jq2('#child-div-content').html('<div class="messages messages--error" role="contentinfo" aria-label="Error message">'+Drupal.t('There is no data!')+'</div>');
                     return false;
                 }
@@ -232,6 +235,10 @@ jq2(function( $ ) {
             if(urlPage) { page = urlPage; }
             if(urlLimit) { limit = urlLimit; }
             insideUri = makeInsideUriFromUrl();
+            //if we have the handlenet then we need to fetch the insideuri from the html
+            if(insideUri.includes(".handle.net")) {
+                insideUri = jq2('#insideUri').val().replace("id.acdh.oeaw.ac.at/uuid/", "");
+            }
             getData(insideUri, limit, page, orderBy);
             //to skip the jump to top function
             jq2( ".getChildView" ).hide();
