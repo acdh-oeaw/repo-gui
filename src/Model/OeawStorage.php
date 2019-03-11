@@ -1622,10 +1622,9 @@ class OeawStorage implements OeawStorageInterface {
             $where .= " { ";
             $where .= "?uri <".RC::get('fedoraIdProp')."> ?id . ";
             $where .= "FILTER (?id IN ( ";
-            $lastId = end($data);
-            foreach($data as $d) {
-                $where .= "<".$d.">";
-                if($d != $lastId) { $where .=","; }
+            for ($x = 0; $x <= count($data) - 1; $x++) {
+                $where .= "<".$data[$x].">";
+                if($x != count($data) - 1 ) { $where .=","; }
             }
             $where .= " ) ) . ";
             $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
