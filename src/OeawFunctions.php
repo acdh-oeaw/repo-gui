@@ -2109,4 +2109,30 @@ class OeawFunctions {
         return $result;
     }
     
+    
+    public function turtleDissService(string $fedoraUrl) {
+        $result = array();
+        $client = new \GuzzleHttp\Client();
+        echo $fedoraUrl;
+        //$fedoraUrl = "https://fedora.hephaistos.arz.oeaw.ac.at/rest/b5/14/9f/90/b5149f90-869d-43af-a545-b33683607f10";
+        try{
+            $request = $client->request('GET',  $fedoraUrl.'/fcr:metadata',  ['Accept' => ['application/n-triples']]);
+            if($request->getStatusCode() == 200) {
+                $body = "";
+                $body = $request->getBody()->getContents();
+                if(!empty($body)) {
+                    $graph = new \EasyRdf_Graph();
+                    $graph->parse($body);
+                    return $graph->serialise('turtle');
+                }
+                            
+            }
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return array();
+        }  catch (\Exception $ex) {
+            return array();
+        }
+        
+    }
+    
 }

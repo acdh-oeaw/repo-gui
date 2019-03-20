@@ -140,6 +140,15 @@ oeaw_child_api:
     requirements:
         _access: 'TRUE'
 
+oeaw_turtle_api:    
+    path: '/oeaw_turtle_api/{identifier}'
+    defaults:
+        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_turtle_api'
+    requirements:
+        data: '^[^\?]*$'
+        _permission: 'access content'
+        _access: 'TRUE'
+
         
 oeaw_ismember_result:
     path: '/oeaw_ismember_result/{data}'

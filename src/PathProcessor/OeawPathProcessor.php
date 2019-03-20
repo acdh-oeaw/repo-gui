@@ -59,6 +59,12 @@ class OeawPathProcessor implements InboundPathProcessorInterface
             return "/oeaw_ismember_result/$names";
         }
         
+        if (strpos($path, '/oeaw_turtle_api/') === 0) {
+            $names = preg_replace('|^\/oeaw_turtle_api\/|', '', $path);
+            $names = str_replace('/',':', $names);
+            return "/oeaw_turtle_api/$names";
+        }
+        
         if (strpos($path, '/oeaw_3d_viewer/') === 0) {
             $names = preg_replace('|^\/oeaw_3d_viewer\/|', '', $path);
             $names = str_replace('/',':', $names);
