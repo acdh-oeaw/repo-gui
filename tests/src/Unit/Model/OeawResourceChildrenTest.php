@@ -1,13 +1,11 @@
 <?php
 
-namespace Drupal\Tests\oeaw\Model\OeawResourceTest;
+namespace Drupal\Tests\oeaw\Model\OeawResourceChildrenTest;
 namespace Drupal\oeaw\Model;
 
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use acdhOeaw\util\RepoConfig as RC;
-
-require_once $_SERVER['HOME'].'/html/vendor/autoload.php';
 
 /**
  * @coversDefaultClass \Drupal\oeaw\Model\OeawResourceChildren
@@ -17,7 +15,7 @@ require_once $_SERVER['HOME'].'/html/vendor/autoload.php';
 class OeawResourceChildrenTest extends UnitTestCase {
     
     static private $arrayObject;
-    private $cfgDir = '/var/www/html/modules/oeaw/config.ini';
+    private $cfgDir;
     
     /**
     * Shadow t() system call.
@@ -32,6 +30,7 @@ class OeawResourceChildrenTest extends UnitTestCase {
     }
     
     protected function setUp() {
+        $this->cfgDir = $_SERVER['TRAVIS_BUILD_DIR']."/drupal/modules/oeaw/config.unittest.ini";
         //we need to setup the configfactory with the "oeaw.settings" config, because of
         // the multilanguage support.
          $this->config = $this->getMockBuilder('\Drupal\Core\Config\ImmutableConfig')

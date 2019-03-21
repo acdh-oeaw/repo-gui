@@ -1,0 +1,126 @@
+language: php
+
+sudo: true
+
+php:
+  - 7.2
+
+env:
+  global:
+    - MODULE_NAME='oeaw'
+    - MODUL_REPO='https://github.com/acdh-oeaw/repo-gui.git'
+    - DRUPAL_REPO='http://git.drupal.org/project/drupal.git'
+    - DRUPAL_VERSION='8.6.*'
+    - PHPCS_VERSION='2.*'
+    - CODER_VERSION='8.*'
+
+
+# Cache Composer & Drush directories.
+cache:
+  bundler: true
+  apt: true
+  directories:
+  - "$HOME/.composer/cache"
+  - "$HOME/.drush/cache"
+
+mysql:
+  database: drupal
+  username: root
+  encoding: utf8
+
+before_install:
+  # Disable xdebug.
+  - phpenv config-rm xdebug.ini
+
+  # Composer: boost installation
+  - composer global show hirak/prestissimo -q || travis_retry composer global require $DEFAULT_COMPOSER_FLAGS hirak/prestissimo
+
+  # Composer.
+  - sed -i '1i export PATH="$HOME/.composer/vendor/bin:$PATH"' $HOME/.bashrc
+  - source $HOME/.bashrc
+  # - composer self-update
+
+  # Drush.
+  - composer global require drush/drush:~8.1
+
+  # Codesniffer.
+  - composer global require squizlabs/php_codesniffer:$PHPCS_VERSION
+  - composer global require friendsofphp/php-cs-fixer
+  
+  - composer global require phpunit/phpunit ^6.5
+  - composer global require acdh-oeaw/repo-php-util
+  
+  # Coder.
+  - composer global require drupal/coder:$CODER_VERSION
+  - ln -s ~/.composer/vendor/drupal/coder/coder_sniffer/Drupal ~/.composer/vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/
+
+  - composer global update
+  
+  # Ensure the PHP environment is ready.
+  - phpenv rehash
+  
+install:
+  - git clone $DRUPAL_REPO
+  - cd drupal && composer install && cd -
+  - mkdir -p drupal/modules/$MODULE_NAME
+  # switched to doing it this way because it makes local testing a bit easier.
+  # create symbolic links to all of the files/folders in the module directory
+  - for d in $(pwd)/*; do ln -s "$d" "drupal/modules/$MODULE_NAME"; done
+  
+  # create directory with the code for the codefixing
+  - mkdir -p drupal/modules/_oeaw
+  - git clone $MODUL_REPO drupal/modules/_oeaw/.
+
+  - cd drupal
+
+before_script:
+  #- cd $HOME/build/devility11/commit-remove/ && ls
+  # This fixes a fail when install Drupal.
+  - echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+
+  # Mysql might time out for long tests, increase the wait timeout.
+  - mysql -e 'SET @@GLOBAL.wait_timeout=1200'
+
+  # Install Drupal and enable the required modules (including this one).
+  - mysql -e 'create database drupal;'  
+  - cd $TRAVIS_BUILD_DIR/drupal && drush --yes site-install standard --db-url="mysql://root@127.0.0.1/drupal"
+
+  # Dependency Modules  
+  - cd $TRAVIS_BUILD_DIR/drupal && drush --yes en simpletest
+
+  # Export web server URL for browser tests.
+  - export SIMPLETEST_BASE_URL=http://localhost:8080
+
+  # Export database variable for kernel tests.
+  - export SIMPLETEST_DB=mysql://root:@127.0.0.1/drupal
+  
+  # Start a web server.
+  - drush runserver 127.0.0.1:8080 &
+  - until netstat -an 2>/dev/null | grep '8080.*LISTEN'; do true; done
+  - mkdir -p $TRAVIS_BUILD_DIR/drupal/modules/$MODULE_NAME_diff
+   
+
+script:
+  - composer run-script drupal-phpunit-upgrade  
+
+  # PHP Unit Tests  
+  - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/Model/OeawResourceChildrenTest.php
+  - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/Model/OeawResourceCustomDataTest.php
+  - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/Model/OeawResourceTest.php
+  - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/OeawFunctionsTest.php
+  
+after_success:
+  - $HOME/.composer/vendor/bin/php-cs-fixer fix $TRAVIS_BUILD_DIR/drupal/modules/_oeaw  
+
+deploy:
+    provider: pages
+    skip-cleanup: true
+    local-dir: $TRAVIS_BUILD_DIR/drupal/modules/_oeaw    
+    github-token: $GITHUB_TOKEN
+    target-branch: master
+    #if it is false then Travis CI will delete all the files created during the build, which will probably delete what you are trying to upload.
+    keep-history: true
+    on:        
+branch: master
+
+  
