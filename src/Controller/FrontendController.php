@@ -249,8 +249,8 @@ class FrontendController extends ControllerBase
     {
         if (empty($uri)) {
             return drupal_set_message(
-               $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!',
-               'error'
+                $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!',
+                'error'
            );
         }
         
@@ -1357,8 +1357,8 @@ class FrontendController extends ControllerBase
     {
         if (empty($url)) {
             drupal_set_message(
-               $this->langConf->get('errmsg_url_not_valid') ? $this->langConf->get('errmsg_url_not_valid') : 'The URL is not valid!',
-               'error'
+                $this->langConf->get('errmsg_url_not_valid') ? $this->langConf->get('errmsg_url_not_valid') : 'The URL is not valid!',
+                'error'
            );
             return array();
         }
