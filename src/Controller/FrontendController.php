@@ -20,12 +20,7 @@ use Drupal\oeaw\Helper\Helper;
 use Drupal\oeaw\BreadcrumbCache;
 use Drupal\oeaw\PropertyTableCache;
 use Drupal\Core\Cache\CacheBackendInterface;
-
 use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\ChangedCommand;
-use Drupal\Core\Ajax\CssCommand;
-use Drupal\Core\Ajax\HtmlCommand;
-use Drupal\Core\Ajax\InvokeCommand;
 
 use acdhOeaw\fedora\dissemination\Service as Service;
 use acdhOeaw\util\RepoConfig as RC;
@@ -34,8 +29,6 @@ use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
 use EasyRdf\Graph;
 use EasyRdf\Resource;
-
-use TCPDF;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Drupal\Core\Render\HtmlResponse;
