@@ -8,19 +8,21 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use EasyRdf\RdfNamespace;
 
-class MyExampleSubscriber implements EventSubscriberInterface {
- /**
-  * @param GetResponseEvent $event
-  */
+class MyExampleSubscriber implements EventSubscriberInterface
+{
+    /**
+     * @param GetResponseEvent $event
+     */
 
-    public function checkForRedirection(GetResponseEvent $event) {        
+    public function checkForRedirection(GetResponseEvent $event)
+    {
         if ($event->getRequest()->getPathInfo() == '/oeaw_newresource_one') {
             error_log("oeaw_newresource_one");
-            \EasyRdf\RdfNamespace::set("dct", "http://purl.org/dc/terms/");            
+            \EasyRdf\RdfNamespace::set("dct", "http://purl.org/dc/terms/");
         }
         if ($event->getRequest()->getPathInfo() == '/oeaw_multi_new_resource') {
             error_log("oeaw_multi_new_resource");
-            \EasyRdf\RdfNamespace::set("dct", "http://purl.org/dc/terms/");            
+            \EasyRdf\RdfNamespace::set("dct", "http://purl.org/dc/terms/");
         }
     }
 
@@ -28,9 +30,9 @@ class MyExampleSubscriber implements EventSubscriberInterface {
     * {@inheritdoc}
     */
 
-    static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         //$events[KernelEvents::REQUEST][] = array('checkForRedirection');
         //return $events;
     }
-
 }

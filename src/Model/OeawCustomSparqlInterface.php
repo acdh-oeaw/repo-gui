@@ -1,9 +1,9 @@
-<?php 
+<?php
 
 namespace Drupal\oeaw\Model;
 
-
-interface OeawCustomSparqlInterface {
+interface OeawCustomSparqlInterface
+{
     public function createPersonsApiSparql(string $str): string;
     public function createBasicApiSparql(string $str, string $type): string;
     public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "datedesc"): string;
@@ -11,4 +11,3 @@ interface OeawCustomSparqlInterface {
     public function getCollectionBinaries(string $url): string;
     public function createGNDPersonsApiSparql(): string;
 }
-

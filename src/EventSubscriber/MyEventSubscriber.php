@@ -2,7 +2,6 @@
 
 namespace Drupal\oeaw\EventSubscriber;
 
-
 use Drupal\User\Entity\User;
 use Drupal\Core\DrupalKernel;
 // This is the interface we are going to implement.
@@ -15,22 +14,22 @@ use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 
-
-class MyEventSubscriber implements EventSubscriberInterface {
+class MyEventSubscriber implements EventSubscriberInterface
+{
     
     /**
      * Check the shibboleth user logins
-     * 
+     *
      * @global type $user
      * @param GetResponseEvent $event
      * @return TrustedRedirectResponse
      */
-    public function checkForShibboleth(GetResponseEvent $event) {    
-        
-        if ( ($event->getRequest()->getPathInfo() == '/user/logout') /*&&  (\Drupal::currentUser()->getUsername() == "shibboleth") */) {
+    public function checkForShibboleth(GetResponseEvent $event)
+    {
+        if (($event->getRequest()->getPathInfo() == '/user/logout') /*&&  (\Drupal::currentUser()->getUsername() == "shibboleth") */) {
             unset($_SERVER['HTTP_AUTHORIZATION']);
             unset($_SERVER['HTTP_EPPN']);
-            foreach (headers_list() as $header){
+            foreach (headers_list() as $header) {
                 header_remove($header);
             }
             $host = \Drupal::request()->getSchemeAndHttpHost();
@@ -42,25 +41,25 @@ class MyEventSubscriber implements EventSubscriberInterface {
         }
         
         
-        if ($event->getRequest()->getPathInfo() == '/federated_login' ) {
+        if ($event->getRequest()->getPathInfo() == '/federated_login') {
             global $user;
             //the actual user id, if the user is logged in
             $userid = \Drupal::currentUser()->id();
             //if it is a shibboleth login and there is no user logged in
-            if(isset($_SERVER['HTTP_EPPN']) && $_SERVER['HTTP_EPPN'] != null && $userid == 0 && \Drupal::currentUser()->isAnonymous()){
+            if (isset($_SERVER['HTTP_EPPN']) && $_SERVER['HTTP_EPPN'] != null && $userid == 0 && \Drupal::currentUser()->isAnonymous()) {
                 
                  //the global drupal shibboleth username
                 $shib = user_load_by_name('shibboleth');
                 //if we dont have it then we will create it
-                if($shib === FALSE){
+                if ($shib === false) {
                     $sh = $this->createShibbolethUser();
                     $shib = user_load_by_name('shibboleth');
                 }
-                if($shib->id() != 0) {
+                if ($shib->id() != 0) {
                     $user = \Drupal\User\Entity\User::load($shib->id());
                     $user->activate();
                     user_login_finalize($user);
-                    $host = \Drupal::request()->getSchemeAndHttpHost();        
+                    $host = \Drupal::request()->getSchemeAndHttpHost();
                     return new TrustedRedirectResponse($host."/browser/");
                 }
             }
@@ -70,20 +69,22 @@ class MyEventSubscriber implements EventSubscriberInterface {
 
     /**
      * This is the event handler main method
-     * 
+     *
      * @return string
      */
-    static function getSubscribedEvents() {
+    public static function getSubscribedEvents()
+    {
         $events[KernelEvents::REQUEST][] = array('checkForShibboleth');
         return $events;
     }
     
     /**
      * create the shibb. user inside the drupal DB
-     * 
+     *
      * @return type
      */
-    private function createShibbolethUser(){
+    private function createShibbolethUser()
+    {
         $user = \Drupal\user\Entity\User::create();
         // Mandatory.
         $user->setPassword('ShiBBoLeth');
@@ -94,6 +95,4 @@ class MyEventSubscriber implements EventSubscriberInterface {
         $result = $user->save();
         return $result;
     }
-   
-
 }

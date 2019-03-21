@@ -15,11 +15,6 @@ use Drupal\Core\Session\AccountInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Drupal\Component\Utility\SafeMarkup;
 
-
-
-class AdminController extends ControllerBase 
+class AdminController extends ControllerBase
 {
-    
-    
-  
 }

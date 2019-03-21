@@ -18,7 +18,6 @@ use acdhOeaw\fedora\FedoraResource;
 use EasyRdf\Graph;
 use EasyRdf\Resource;
 
-
 /**
  * Provides an Organisations Checker Resource
  *
@@ -30,19 +29,20 @@ use EasyRdf\Resource;
  *   }
  * )
  */
-class ApiOrganisationsResource extends ResourceBase {
+class ApiOrganisationsResource extends ResourceBase
+{
     
     /**
      * Responds to entity GET requests.
-     * 
+     *
      * @param string $data
      * @return Response|JsonResponse
      */
-    public function get(string $data) {
-        
+    public function get(string $data)
+    {
         $response = new Response();
         
-        if(empty($data)){
+        if (empty($data)) {
             return new JsonResponse(array("Please provide a link"), 404, ['Content-Type'=> 'application/json']);
         }
         
@@ -57,17 +57,16 @@ class ApiOrganisationsResource extends ResourceBase {
         
         $sparql = $OeawCustomSparql->createBasicApiSparql($data, RC::get('fedoraOrganisationClass'));
         
-        if($sparql){
+        if ($sparql) {
             $spRes = $OeawStorage->runUserSparql($sparql);
             
-            if(count($spRes) > 0){
+            if (count($spRes) > 0) {
                 for ($x = 0; $x < count($spRes); $x++) {
-                    
                     $ids = array();
                     $ids = explode(",", $spRes[$x]['identifiers']);
                     //set the flag to false
                     $idContains = false;
-                    foreach ($ids as $id){
+                    foreach ($ids as $id) {
                         $id = str_replace(RC::get('fedoraIdNamespace'), '', $id);
                         //if one of the identifier is contains the searched value
                         if (strpos(strtolower($id), strtolower($data)) !== false) {
@@ -75,23 +74,23 @@ class ApiOrganisationsResource extends ResourceBase {
                         }
                     }
                     
-                    $uri = str_replace(strtolower(RC::get('fedoraVocabsNamespace')), '', strtolower($spRes[$x]['uri']) );
+                    $uri = str_replace(strtolower(RC::get('fedoraVocabsNamespace')), '', strtolower($spRes[$x]['uri']));
                     $urlContains = false;
                     if (strpos($uri, $data) !== false) {
                         $urlContains = true;
                     }
                     
                     $titleContains = false;
-                    if (strpos(strtolower($spRes[$x]['title']), strtolower($data) ) !== false) {
+                    if (strpos(strtolower($spRes[$x]['title']), strtolower($data)) !== false) {
                         $titleContains = true;
                     }
                     
                     $altTitleContains = false;
-                    if (strpos(strtolower($spRes[$x]['altTitle']), strtolower($data) ) !== false) {
+                    if (strpos(strtolower($spRes[$x]['altTitle']), strtolower($data)) !== false) {
                         $altTitleContains = true;
                     }
                     
-                    if($idContains === true || $urlContains === true || $titleContains === true || $altTitleContains === true){
+                    if ($idContains === true || $urlContains === true || $titleContains === true || $altTitleContains === true) {
                         $result[$x]['uri'] = $spRes[$x]['uri'];
                         $result[$x]['title'] = $spRes[$x]['title'];
                         $result[$x]['altTitle'] = $spRes[$x]['altTitle'];
@@ -99,19 +98,18 @@ class ApiOrganisationsResource extends ResourceBase {
                     }
                 }
                 
-                if(count($result) > 0){
+                if (count($result) > 0) {
                     $response->setContent(json_encode($result));
                     $response->headers->set('Content-Type', 'application/json');
                     return $response;
-                }else{
+                } else {
                     return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
                 }
-            }else {
+            } else {
                 return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
             }
-        }else {
+        } else {
             return new JsonResponse(array("There is no resource"), 404, ['Content-Type'=> 'application/json']);
         }
     }
-
 }

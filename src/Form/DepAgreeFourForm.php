@@ -5,14 +5,15 @@ namespace Drupal\oeaw\Form;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
-class DepAgreeFourForm extends DepAgreeBaseForm{
-    
-    public function getFormId() {
+class DepAgreeFourForm extends DepAgreeBaseForm
+{
+    public function getFormId()
+    {
         return 'depagree_form';
     }
     
-    public function buildForm(array $form, FormStateInterface $form_state, $formid = NULL) {
-
+    public function buildForm(array $form, FormStateInterface $form_state, $formid = null)
+    {
         $form = parent::buildForm($form, $form_state);
         $repoFormID = \Drupal::routeMatch()->getParameter("formid");
         
@@ -20,38 +21,37 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
         
         $form['fields']['creators'] = array(
             '#type' => 'fieldset',
-            '#open' => TRUE,
+            '#open' => true,
             '#title' => t('Creators'),
             '#prefix' => '<div id="creators-wrapper">',
             '#suffix' => '</div>',
         );
 
         $max = $form_state->get('fields_count');
-        if(is_null($max)) {
+        if (is_null($max)) {
             $max = 0;
             $form_state->set('fields_count', $max);
         }
 
         // Add elements that don't already exist
-        for($i=0; $i<=$max; $i++) {
+        for ($i=0; $i<=$max; $i++) {
             if (!isset($form['fields']['creators'][$i])) {
-                
                 $form['fields']['creators']['creator_l_name_'.$i] = array(
                     '#type' => 'textfield',
                     '#title' => t('Last Name:'),
-                    '#required' => FALSE,
+                    '#required' => false,
                     '#default_value' => $this->store->get('creator_l_name_'.$i) ? $this->store->get('creator_l_name_'.$i) : '',
                     '#prefix' => t('<h2><b>Creator '.($i+1).' data</b></h2>')
                 );
                 $form['fields']['creators']['creator_f_name_'.$i] = array(
                     '#type' => 'textfield',
                     '#title' => t('First Name:'),
-                    '#required' => FALSE,
+                    '#required' => false,
                     '#default_value' => $this->store->get('creator_f_name_'.$i) ? $this->store->get('creator_f_name_'.$i) : '',
                 );
                 $form['fields']['creators']['creator_title_'.$i] = array(
                     '#type' => 'textfield',
-                    '#title' => t('Title:')                    
+                    '#title' => t('Title:')
                 );
                 $form['fields']['creators']['creator_institution_'.$i] = array(
                     '#type' => 'textfield',
@@ -64,7 +64,7 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
                     '#default_value' => $this->store->get('creator_city_'.$i) ? $this->store->get('creator_city_'.$i) : '',
                 );
                 $form['fields']['creators']['creator_address_'.$i] = array(
-                    '#type' => 'textfield',                    
+                    '#type' => 'textfield',
                     '#title' => t('Address:'),
                     '#default_value' => $this->store->get('creator_address_'.$i) ? $this->store->get('creator_address_'.$i) : '',
                 );
@@ -72,13 +72,13 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
                     '#type' => 'textfield',
                     '#title' => t('Zipcode:'),
                     '#default_value' => $this->store->get('creator_zipcode_'.$i) ? $this->store->get('creator_zipcode_'.$i) : '',
-                );                
-                $form['fields']['creators']['creator_phone_'.$i] = array (
+                );
+                $form['fields']['creators']['creator_phone_'.$i] = array(
                     '#type' => 'tel',
                     '#title' => t('Phone'),
-                    '#default_value' => $this->store->get('creator_phone_'.$i) ? $this->store->get('creator_phone_'.$i) : '',                  
+                    '#default_value' => $this->store->get('creator_phone_'.$i) ? $this->store->get('creator_phone_'.$i) : '',
                 );
-                $form['fields']['creators']['creator_email_'.$i] = array (
+                $form['fields']['creators']['creator_email_'.$i] = array(
                     '#type' => 'email',
                     '#title' => t('Email'),
                     '#default_value' => $this->store->get('creator_email_'.$i) ? $this->store->get('creator_email_'.$i) : '',
@@ -87,7 +87,7 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
             }
         }
 
-        if($max < 5){
+        if ($max < 5) {
             $form['fields']['creators']['add'] = array(
                 '#type' => 'submit',
                 '#name' => 'addfield',
@@ -98,15 +98,15 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
                     'wrapper' => 'creators-wrapper',
                     'effect' => 'fade',
                 ),
-            );            
-        }        
+            );
+        }
         
         $form['creators_title2'] = array(
             '#markup' => '<br><br>',
         );
          
-        $form['candidate_confirmation'] = array (
-            '#type' => 'radios',            
+        $form['candidate_confirmation'] = array(
+            '#type' => 'radios',
             '#title' => ('I read and agree the ....'),
             '#options' => array(
                 'Yes' =>t('Yes'),
@@ -137,21 +137,24 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
     /**
     * Ajax submit to add new field.
     */
-    public function addfieldsubmit(array &$form, FormStateInterface &$form_state) {
+    public function addfieldsubmit(array &$form, FormStateInterface &$form_state)
+    {
         $max = $form_state->get('fields_count') + 1;
-        $form_state->set('fields_count',$max);
+        $form_state->set('fields_count', $max);
         $this->store->set('fields_count_value', $max);
-        $form_state->setRebuild(TRUE);
+        $form_state->setRebuild(true);
     }
 
     /**
     * Ajax callback to add new field.
     */
-    public function addfieldCallback(array &$form, FormStateInterface &$form_state) {
+    public function addfieldCallback(array &$form, FormStateInterface &$form_state)
+    {
         return $form['fields']['creators'];
     }
   
-    public function submitForm(array &$form, FormStateInterface $form_state) {
+    public function submitForm(array &$form, FormStateInterface $form_state)
+    {
         // drupal_set_message($this->t('@can_name ,Your application is being submitted!', array('@can_name' => $form_state->getValue('candidate_name'))));
         $form4Val = array();
         //get the class and root values from the form
@@ -161,7 +164,7 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
         
         $fc = $form_state->get('fields_count');
         
-        for($i=0; $i <= $fc; $i++){
+        for ($i=0; $i <= $fc; $i++) {
             $form4Val['creator_title_'.$i] = $form_state->getValue('creator_title_'.$i);
             $form4Val['creator_l_name_'.$i] = $form_state->getValue('creator_l_name_'.$i);
             $form4Val['creator_f_name_'.$i] = $form_state->getValue('creator_f_name_'.$i);
@@ -178,15 +181,15 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
         $DBData = array();
     
         //we have record in the DB, so it will be an DB update
-        if(isset($this->dbData["data"]) && !empty($this->dbData["data"])){        
-            $DBData = json_decode($this->dbData["data"], TRUE);        
+        if (isset($this->dbData["data"]) && !empty($this->dbData["data"])) {
+            $DBData = json_decode($this->dbData["data"], true);
             //if we dont have a key then we creating one
-            if(array_key_exists('four', $DBData) == null){
+            if (array_key_exists('four', $DBData) == null) {
                 $DBData["four"] = $form4Val;
-            }else {
+            } else {
                 //if we have it then it will be a modification
-                foreach($DBData as $key => $value){
-                    if($key == "four"){
+                foreach ($DBData as $key => $value) {
+                    if ($key == "four") {
                         $DBData["four"] = $form4Val;
                     }
                 }
@@ -202,15 +205,14 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
                 ->condition('userid', \Drupal::currentUser()->id(), '=')
                 ->condition('repoid', $this->repoid, '=')
                 ->condition('status', "open", '=')
-                ->execute();        
-
-        }else {
+                ->execute();
+        } else {
             $DBData["four"] = $form4Val;
             $jsonObj = json_encode($DBData);
             //this will be a new DB insert
             $field = array(
                 'userid' => \Drupal::currentUser()->id(),
-                'repoid' => $this->repoid,        
+                'repoid' => $this->repoid,
                 'data' => $jsonObj,
                 'status' =>  'open',
                 'date'=>  date("d-m-Y H:i:s")
@@ -223,5 +225,4 @@ class DepAgreeFourForm extends DepAgreeBaseForm{
         
         parent::saveData();
     }
-    
 }

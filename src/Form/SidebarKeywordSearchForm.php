@@ -1,6 +1,7 @@
-<?php 
+<?php
 
 namespace Drupal\oeaw\Form;
+
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
@@ -15,14 +16,13 @@ use acdhOeaw\util\RepoConfig as RC;
 
 class SidebarKeywordSearchForm extends FormBase
 {
-    
     private $oeawStorage;
     private $oeawFunctions;
     
     /**
      * Set up necessary properties
      */
-    public function __construct() 
+    public function __construct()
     {
         $this->oeawStorage = new OeawStorage();
         $this->oeawFunctions = new OeawFunctions();
@@ -39,14 +39,13 @@ class SidebarKeywordSearchForm extends FormBase
     
     /**
      * Build form
-     * 
+     *
      * @param array $form
      * @param FormStateInterface $form_state
      * @return string
      */
-    public function buildForm(array $form, FormStateInterface $form_state) 
-    {   
-
+    public function buildForm(array $form, FormStateInterface $form_state)
+    {
         echo "sidebar keyword";
         $this->createSearchInput($form);
         
@@ -55,13 +54,13 @@ class SidebarKeywordSearchForm extends FormBase
         $resFields = $this->oeawStorage->getACDHTypes(true);
         
         $rs = array();
-        foreach($resFields as $val){            
+        foreach ($resFields as $val) {
             $type = str_replace(RC::get('fedoraVocabsNamespace'), '', $val['type']);
             $count = str_replace(RC::get('fedoraVocabsNamespace'), '', $val['type'])." (".$val['typeCount'].")";
             $rs[$type] = $count;
         }
         $resData["fields"] = $rs;
-        if(count($resData["fields"]) > 0){
+        if (count($resData["fields"]) > 0) {
             $this->createBox($form, $resData);
         }
         
@@ -69,19 +68,19 @@ class SidebarKeywordSearchForm extends FormBase
         $formatData["type"] = "searchbox_format";
         $formatFields = $this->oeawStorage->getMimeTypes();
         $frm = array();
-        foreach($formatFields as $val){            
+        foreach ($formatFields as $val) {
             $type = $val['mime'];
             $count = $val['mime']." (".$val['mimeCount'].")";
             $frm[$type] = $count;
         }
         $formatData["fields"] = $frm;
         
-        if(count($formatData["fields"]) > 0){
+        if (count($formatData["fields"]) > 0) {
             $this->createBox($form, $formatData);
         }
         
         $form['date_start_date'] = [
-            '#type' => 'date',           
+            '#type' => 'date',
             '#date_format' => 'd-m-Y',
             '#title' => t('Start date'),
         ];
@@ -96,7 +95,7 @@ class SidebarKeywordSearchForm extends FormBase
     
     /**
      * Create the checbox templates
-     * 
+     *
      * @param array $form
      * @param array $data
      */
@@ -115,32 +114,31 @@ class SidebarKeywordSearchForm extends FormBase
     
     
     /**
-     * 
-     * this function creates the search input field 
-     * 
+     *
+     * this function creates the search input field
+     *
      * @param array $form
      * @return array
      */
     private function createSearchInput(array &$form)
     {
-
         $propertys = array();
         $searchTerms = array();
         $basePath = base_path();
         $propertys = $this->oeawStorage->getAllPropertyForSearch();
   
-        if(empty($propertys)){
-             drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SidebarKeywordSearchForm '), 'error');
-             return $form;
-        }else {
+        if (empty($propertys)) {
+            drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SidebarKeywordSearchForm '), 'error');
+            return $form;
+        } else {
             $fields = array();
-            // get the fields from the sparql query 
-            $fields = array_keys($propertys[0]);        
+            // get the fields from the sparql query
+            $fields = array_keys($propertys[0]);
             $searchTerms = $this->oeawFunctions->createPrefixesFromArray($propertys, $fields);
             $searchTerms = $searchTerms["p"];
             asort($searchTerms);
-            if(count($searchTerms) > 0) {
-                foreach($searchTerms as $terms){
+            if (count($searchTerms) > 0) {
+                foreach ($searchTerms as $terms) {
                     $select[$terms] = t($terms);
                 }
                 
@@ -148,21 +146,21 @@ class SidebarKeywordSearchForm extends FormBase
                 $fullpath = $_SERVER['REQUEST_URI'];
                 $fullpath = explode("/", $fullpath);
                 if (count($fullpath) == 3) {
-	                $defaultterm = end($fullpath);
-	                $actionterm = prev($fullpath);
-	                if ($actionterm != "oeaw_keywordsearch") {
-		               $defaultterm = "";
-	                }
+                    $defaultterm = end($fullpath);
+                    $actionterm = prev($fullpath);
+                    if ($actionterm != "oeaw_keywordsearch") {
+                        $defaultterm = "";
+                    }
                 } else {
-	                $defaultterm = "";
-                }			    
+                    $defaultterm = "";
+                }
                 $form['metavalue'] = array(
                   '#type' => 'textfield',
                   '#attributes' => array(
-	                'value' => $defaultterm, 
+                    'value' => $defaultterm,
                     'class' => array('form-control')
-				  ),                            
-                  '#required' => TRUE,
+                  ),
+                  '#required' => true,
                 );
                 $form['actions']['#type'] = 'actions';
                 $form['actions']['submit'] = array(
@@ -170,7 +168,7 @@ class SidebarKeywordSearchForm extends FormBase
                   '#value' => $this->t('search'),
                   '#attributes' => array(
                     'class' => array('keywordsearch-btn')
-				  ),                   
+                  ),
                   '#button_type' => 'primary',
                 );
                 $form['examples'] = array(
@@ -180,14 +178,14 @@ class SidebarKeywordSearchForm extends FormBase
                   ),
                   '#markup' => $this->t('Keyword examples for a quick-start:'),
                 );
-			    
+                
                 $form['examples']['example-1'] = array(
                   '#type' => 'container',
                   '#markup' => $this->t('Austria'),
                   '#attributes' => array(
                     'class' => array('form-example-btn'),
                     'onClick' => 'window.location = "'.$basePath.'oeaw_keywordsearch/Austria";'
-				  ),                   
+                  ),
                   '#button_type' => 'primary',
                 );
                 $form['examples']['example-2'] = array(
@@ -196,7 +194,7 @@ class SidebarKeywordSearchForm extends FormBase
                   '#attributes' => array(
                     'class' => array('form-example-btn'),
                     'onClick' => 'window.location = "'.$basePath.'oeaw_keywordsearch/Media";'
-				  ),                   
+                  ),
                   '#button_type' => 'primary',
                 );
                 
@@ -206,29 +204,27 @@ class SidebarKeywordSearchForm extends FormBase
                   '#attributes' => array(
                     'class' => array('form-example-btn'),
                     'onClick' => 'window.location = "'.$basePath.'oeaw_keywordsearch/History";'
-				  ),                   
+                  ),
                   '#button_type' => 'primary',
                 );
                 
                 return $form;
-            } else {            
+            } else {
                 drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SidebarKeywordSearchForm'), 'error');
                 return $form;
             }
         }
     }
     
-    public function submitForm(array &$form, FormStateInterface $form_state) 
+    public function submitForm(array &$form, FormStateInterface $form_state)
     {
         $metavalue = $form_state->getValue('metavalue');
         // Data AND thun NOT editions type:Collection NOT Person date:[20170501 TO 20171020]
                 
-        //$metaVal = $this->oeawFunctions->convertSearchString($metavalue);        
+        //$metaVal = $this->oeawFunctions->convertSearchString($metavalue);
         
      
-        //$form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metaVal]); 
-        $form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metavalue]); 
-    
+        //$form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metaVal]);
+        $form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metavalue]);
     }
-  
 }

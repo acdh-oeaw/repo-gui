@@ -2,7 +2,6 @@
 
 namespace Drupal\oeaw\Form;
 
-
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ChangedCommand;
 use Drupal\Core\Ajax\CssCommand;
@@ -13,7 +12,6 @@ use Drupal\Core\Form\FormStateInterface;
 
 class AutoCompleteForm extends FormBase
 {
-    
     public function getFormId()
     {
         return "autocomplete_form";
@@ -22,16 +20,16 @@ class AutoCompleteForm extends FormBase
     /*
     * {@inheritdoc}.
     */
-    public function buildForm(array $form, FormStateInterface $form_state) {
-        
+    public function buildForm(array $form, FormStateInterface $form_state)
+    {
         $assd = "https://vocabs.acdh.oeaw.ac.at/schema#depositor";
         
         $label = "test";
         
         $form[$label] = array(
                 '#type' => 'textfield',
-                '#title' => $this->t($label),                                
-                '#description' => 'Please enter in a username',                
+                '#title' => $this->t($label),
+                '#description' => 'Please enter in a username',
                 '#autocomplete_route_name' => 'oeaw.autocomplete',
                 '#autocomplete_route_parameters' => array('prop1' => strtr(base64_encode($assd), '+/=', '-_,'), 'prop2' => strtr(base64_encode($assd), '+/=', '-_,')),
                 '#ajax' => [
@@ -44,7 +42,7 @@ class AutoCompleteForm extends FormBase
                         // Graphic shown to indicate ajax. Options: 'throbber' (default), 'bar'.
                         'type' => 'throbber',
                         // Message to show along progress graphic. Default: 'Please wait...'.
-                        'message' => NULL,
+                        'message' => null,
                     ),
                     
                   ],
@@ -67,12 +65,12 @@ class AutoCompleteForm extends FormBase
                     // Graphic shown to indicate ajax. Options: 'throbber' (default), 'bar'.
                     'type' => 'throbber',
                     // Message to show along progress graphic. Default: 'Please wait...'.
-                    'message' => NULL,
+                    'message' => null,
                 ),
             ),
         );
         
-         $form['user_name2'] = array(
+        $form['user_name2'] = array(
             '#type' => 'textfield',
             '#title' => 'Username',
             '#description' => 'Please enter in a username',
@@ -95,17 +93,19 @@ class AutoCompleteForm extends FormBase
         return $form;
     }
   
-    public function submitForm(array &$form, FormStateInterface $form_state) {
+    public function submitForm(array &$form, FormStateInterface $form_state)
+    {
         drupal_set_message('Nothing Submitted. Just an Example.');
     }
   
-    public function usernameValidateCallback(array &$form, FormStateInterface $form_state) {
+    public function usernameValidateCallback(array &$form, FormStateInterface $form_state)
+    {
        
 
         // Instantiate an AjaxResponse Object to return.
         $ajax_response = new AjaxResponse();
     
-        // Check if Username exists and is not Anonymous User (''). 
+        // Check if Username exists and is not Anonymous User ('').
         if (user_load_by_name($form_state->getValue('user_name')) && $form_state->getValue('user_name') != false) {
             $text = 'User Found';
             $color = 'green';
@@ -129,7 +129,8 @@ class AutoCompleteForm extends FormBase
         return $ajax_response;
     }
     
-    public function randomUsernameCallback(array &$form, FormStateInterface $form_state) {
+    public function randomUsernameCallback(array &$form, FormStateInterface $form_state)
+    {
         // Get all User Entities.
         $all_users = entity_load_multiple('user');
 
@@ -142,7 +143,7 @@ class AutoCompleteForm extends FormBase
         $ajax_response = new AjaxResponse();
     
         // ValCommand does not exist, so we can use InvokeCommand.
-        $ajax_response->addCommand(new InvokeCommand('#edit-user-name', 'val' , array($random_user->get('name')->getString())));
+        $ajax_response->addCommand(new InvokeCommand('#edit-user-name', 'val', array($random_user->get('name')->getString())));
 
         // ChangedCommand did not work.
         //$ajax_response->addCommand(new ChangedCommand('#edit-user-name', '#edit-user-name'));
@@ -153,6 +154,4 @@ class AutoCompleteForm extends FormBase
         // Return the AjaxResponse Object.
         return $ajax_response;
     }
-  
 }
-

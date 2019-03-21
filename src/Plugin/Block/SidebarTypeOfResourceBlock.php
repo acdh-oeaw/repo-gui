@@ -17,13 +17,14 @@ use Drupal\Core\Block\BlockBase;
  *   category = @Translation("Custom sidebar type of resource filter oeaw")
  * )
  */
-class SidebarTypeOfResourceBlock extends BlockBase {
+class SidebarTypeOfResourceBlock extends BlockBase
+{
     
     /**
      * Sidebar of type resources
      * @return type
      */
-    public function build() 
+    public function build()
     {
         $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\SidebarTypeOfResourceForm');
         return $form;

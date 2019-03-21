@@ -11,40 +11,38 @@ use acdhOeaw\util\RepoConfig as RC;
 use EasyRdf\Graph;
 use EasyRdf\Resource;
 
-
-
-
 /**
  * This class cointains the custom sparql queries for the ARCHE modul
- * 
+ *
  * You can run this queries with the OEAWStorage->runUserSparql() function.
  *
  * @author nczirjak
  */
-class OeawCustomSparql implements OeawCustomSparqlInterface {
-    
+class OeawCustomSparql implements OeawCustomSparqlInterface
+{
     private $modelFunctions;
 
     /**
      * Set up the necessary properties
      */
-    public function __construct(){
+    public function __construct()
+    {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->modelFunctions = new MC();
     }
     
     /**
      * This function creates a sparql query for the Persons API call
-     * 
+     *
      * @param string $str : search text
      * @param string $lang
      * @return string
      */
-    public function createPersonsApiSparql(string $str, string $lang = "en"): string {
-        
+    public function createPersonsApiSparql(string $str, string $lang = "en"): string
+    {
         $query = "";
         
-        if(empty($str)){
+        if (empty($str)) {
             return $query;
         }
         $lang = strtolower($lang);
@@ -53,7 +51,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $select = 'SELECT DISTINCT ?uri ?title (GROUP_CONCAT(DISTINCT ?identifier;separator=",") AS ?identifiers)   ';
         $where = "WHERE {"
                 . "?uri ?prop ?obj . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang );
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
         //$where .= "?uri <".RC::get('fedoraTitleProp')."> ?title . "
         $where .= "FILTER( ?prop IN (<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasLastName').">, <".RC::get('drupalHasFirstName').">, <".RC::get('fedoraIdProp')."> )) . "
                 . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
@@ -66,19 +64,18 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $query = $prefix.$select.$where.$groupby.$orderby;
        
         return $query;
-        
     }
     
     
     /**
      * This function creates a sparql query for the GND Persons API call
-     * 
+     *
      * @param string $order
      * @param string $limit
      * @return string
      */
-    public function createGNDPersonsApiSparql(): string {
-        
+    public function createGNDPersonsApiSparql(): string
+    {
         $query = "";
         
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
@@ -106,11 +103,11 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
      * @param string $lang
      * @return string
      */
-    public function createPublicationsApiSparql(string $str, string $lang = "en"): string {
-        
+    public function createPublicationsApiSparql(string $str, string $lang = "en"): string
+    {
         $query = "";
         
-        if(empty($str)){
+        if (empty($str)) {
             return $query;
         }
         $lang = strtolower($lang);
@@ -120,8 +117,8 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                 . ' (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) (GROUP_CONCAT(DISTINCT ?editor;separator=",") AS ?editors)  ';
         $where = "WHERE {"
                 . "?uri ?prop ?obj . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang );
-                //. "?uri <".RC::get('fedoraTitleProp')."> ?title . "
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
+        //. "?uri <".RC::get('fedoraTitleProp')."> ?title . "
         $where .= "FILTER( ?prop IN (<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasAlternativeTitle').">, "
                 . " <".RC::get('drupalHasAuthor').">, <".RC::get('drupalHasEditor').">, <".RC::get('fedoraIdProp')."> )) . "
                 . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
@@ -140,21 +137,23 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
     
     /**
      * This function creates a sparql query for the Basic API calls by type
-     * 
+     *
      * @param string $str
      * @param string $type
      * @param array $filters
      * @param type $lang
      * @return string
      */
-    public function createBasicApiSparql(string $str, string $type, array $filters = array(), $lang = "en"): string {
-        
+    public function createBasicApiSparql(string $str, string $type, array $filters = array(), $lang = "en"): string
+    {
         $query = "";
-        if(empty($str) || empty($type)){ return $query; }
+        if (empty($str) || empty($type)) {
+            return $query;
+        }
         
         $lang = strtolower($lang);
-        if(count($filters) == 0) {
-            $filters[] = RC::get('fedoraTitleProp'); 
+        if (count($filters) == 0) {
+            $filters[] = RC::get('fedoraTitleProp');
             $filters[] = RC::get('drupalHasAlternativeTitle');
             $filters[] = RC::get('fedoraIdProp');
         }
@@ -168,17 +167,17 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                 ." ?uri <".RC::get('drupalRdfType')."> ?id . "
                 . "?uri ?prop ?obj . ";
         
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang );
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
         //$where  .= "?uri <".RC::get('fedoraTitleProp')."> ?title . ";
         $where  .= "FILTER( ?prop IN ( ";
                 
-                for ($x = 0; $x <= count($filters) - 1; $x++) {
-                    $where .= "<".$filters[$x]."> ";
-                    if($x !== count($filters) - 1 ){
-                        $where .= ", ";
-                    }
-                }
-                //<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasAlternativeTitle').">, <".RC::get('fedoraIdProp')."> 
+        for ($x = 0; $x <= count($filters) - 1; $x++) {
+            $where .= "<".$filters[$x]."> ";
+            if ($x !== count($filters) - 1) {
+                $where .= ", ";
+            }
+        }
+        //<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasAlternativeTitle').">, <".RC::get('fedoraIdProp').">
         $where .= " )) . "
                 . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
                 . "?uri <".RC::get('fedoraIdProp')."> ?identifier ."
@@ -186,16 +185,16 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
                 . " } UNION { "
                 . " ?uri <".RC::get('drupalRdfType').">  <".$type."> . "
                 . " ?uri ?prop ?obj . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang );
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
         //$where  .= "?uri <".RC::get('fedoraTitleProp')."> ?title . ";
         $where  .= "FILTER( ?prop IN ( ";
                 
-                for ($x = 0; $x <= count($filters) - 1; $x++) {
-                    $where .= "<".$filters[$x]."> ";
-                    if($x !== count($filters) - 1 ){
-                        $where .= ", ";
-                    }
-                }
+        for ($x = 0; $x <= count($filters) - 1; $x++) {
+            $where .= "<".$filters[$x]."> ";
+            if ($x !== count($filters) - 1) {
+                $where .= ", ";
+            }
+        }
         $where .= " )) . "
                 . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
                 . "?uri <".RC::get('fedoraIdProp')."> ?identifier ."
@@ -212,7 +211,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
     
     /**
      * Creates the sparql for the complex search
-     * 
+     *
      * @param array $data
      * @param string $limit
      * @param string $page
@@ -222,12 +221,12 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
      * @return string
      * @throws \ErrorException
      */
-    public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "datedesc", $lang = "en"): string{
-
+    public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "datedesc", $lang = "en"): string
+    {
         $wordsQuery = "";
         $query = "";
                 
-        if(count($data) <= 0){
+        if (count($data) <= 0) {
             return $query;
         }
         $lang = strtolower($lang);
@@ -252,9 +251,9 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
 
         
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
-        if($count == true){
+        if ($count == true) {
             $select = "SELECT (COUNT(?uri) as ?count) ";
-        }else {
+        } else {
             $select = 'SELECT DISTINCT ?uri ?title ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction 
                 (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
                 (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) 
@@ -265,111 +264,118 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         
         $conditions = "";
         $query .= " ?uri ?prop ?obj . \n";
-        $query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang );
+        $query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
         //$query .= " ?uri <".RC::titleProp()."> ?title . \n
         $query .= "?uri <".RC::idProp()."> ?identifiers . \n       
             OPTIONAL { ?uri <".RC::get('epicPidProp')."> ?pid .  } 
             FILTER( ?prop IN (<".RC::titleProp().">, <".RC::get('drupalHasDescription').">, <".RC::get('drupalHasContributor')."> )) .   \n";
         
-        if(isset($data["words"])){
+        if (isset($data["words"])) {
             $wd = explode('+', $data["words"]);
             $not = false;
             
-            foreach ($wd as $w){
+            foreach ($wd as $w) {
+                if ($w == "and") {
+                    continue;
+                }
 
-                if($w == "and"){ continue; }
-
-                if($w == "not"){
+                if ($w == "not") {
                     $not = true;
                     continue;
                 }
-                if($not == true){
+                if ($not == true) {
                     $query .= "FILTER (!contains(lcase(?obj), lcase('".$w."' ))) .  \n";
                     $not = false;
-                }else {
+                } else {
                     $query .= "FILTER (contains(lcase(?obj), lcase('".$w."' ))) .  \n";
                 }
             }
         }
         
         //check the rdf types from the query
-        if(isset($data["type"])){
-            
+        if (isset($data["type"])) {
             $td = explode('+', $data["type"]);
             $not = false;
             $or = false;
             $storage =  new OeawStorage();
             $acdhTypes = $storage->getACDHTypes();
         
-            if(count($acdhTypes) > 0){
-                $query .= " { ";    
-                foreach($td as $dtype){                        
-                    foreach($acdhTypes as $t){
-                        
+            if (count($acdhTypes) > 0) {
+                $query .= " { ";
+                foreach ($td as $dtype) {
+                    foreach ($acdhTypes as $t) {
                         $val = explode(RC::get('fedoraVocabsNamespace'), $t["type"]);
                         $val = strtolower($val[1]);
                         
-                        if($dtype == "or"){ $or = true; continue;}
+                        if ($dtype == "or") {
+                            $or = true;
+                            continue;
+                        }
                         
-                        if( ($dtype == "not") || ($dtype == "and") ){
+                        if (($dtype == "not") || ($dtype == "and")) {
                             continue;
                         }
                         
                         if (strpos(strtolower($dtype), $val) !== false) {
-                            if($or == true){$query .= " UNION "; $or = false;}
+                            if ($or == true) {
+                                $query .= " UNION ";
+                                $or = false;
+                            }
                             $query .= " { SELECT * WHERE { ?uri <".RC::get('drupalRdfType')."> <".$t['type']."> . } }\n";
                         }
                     }
                 }
                 $query .= " } ";
-            }            
+            }
         }
         
-        if(isset($data["years"])){
-            
+        if (isset($data["years"])) {
             $yd = explode('+', $data["years"]);
             $years = array();
-            foreach ($yd as $y){
-                if($y == "or"){continue;}else{ $years[]=$y;
+            foreach ($yd as $y) {
+                if ($y == "or") {
+                    continue;
+                } else {
+                    $years[]=$y;
                 }
             }
             $maxYear = max($years);
             $minYear = min($years);
             $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
-            if (\DateTime::createFromFormat('Y', $maxYear) !== FALSE && \DateTime::createFromFormat('Y', $minYear) !== FALSE) {                
+            if (\DateTime::createFromFormat('Y', $maxYear) !== false && \DateTime::createFromFormat('Y', $minYear) !== false) {
                 $query .= "FILTER (  xsd:dateTime(?date) <= '".$maxYear."-12-31T00:00:000+01:00'^^xsd:dateTime &&  xsd:dateTime(?date) >= '".$minYear."-01-01T00:00:000+01:00'^^xsd:dateTime)  \n";
-            }else {
+            } else {
                 //if we have a wrong date then we will select the actual date
                 $min = date("Y");
                 $query .= "FILTER ( (CONCAT(str(substr(?date, 0, 4)))) <= '".$min."' && (CONCAT(str(substr(?date, 0, 4)))) >= '".$min."')  \n";
             }
-        }else{
-            if(isset($data["mindate"]) && isset($data["maxdate"])) {
-                if(!empty($data["mindate"]) && ($data["maxdate"])){
-                    if( (bool)strtotime($data["mindate"])  ){
+        } else {
+            if (isset($data["mindate"]) && isset($data["maxdate"])) {
+                if (!empty($data["mindate"]) && ($data["maxdate"])) {
+                    if ((bool)strtotime($data["mindate"])) {
                         $mindate = new \DateTime($data["mindate"]);
-                    }else  {
+                    } else {
                         throw new \ErrorException(t("Error").':'.t("Minimum").' '.t("Date"));
                     }
-                    if( (bool)strtotime($data["maxdate"]) ){
+                    if ((bool)strtotime($data["maxdate"])) {
                         $maxdate = new \DateTime($data["maxdate"]);
-                    }else  {
+                    } else {
                         throw new \ErrorException(t("Error").':'.t("Maximum").' '.t("Date"));
                     }
-                    if(isset($mindate) && isset($maxdate)){
+                    if (isset($mindate) && isset($maxdate)) {
                         $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
                         $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
                     }
-                }else{
+                } else {
                     throw new \ErrorException(t("Empty").':'.t("Minimum").' '.t("or").' '.t("Maximum").' '.t("Date"));
                 }
             }
         }
         
-        $query .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
+        $query .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true);
         $query .= ' ?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
                    . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") .  ';
-    	$query .= "OPTIONAL{ ?uri <".RC::get('drupalHasAuthor')."> ?author .}	    	
+        $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasAuthor')."> ?author .}	    	
         OPTIONAL{ ?uri <".RC::get('drupalHasContributor')."> ?contrib .}	
     	OPTIONAL{ ?uri <".RC::get('drupalRdfType')."> ?rdfType . }
         OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
@@ -377,9 +383,9 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $query .= " OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
         
         $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?uri ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
-        if($limit){
+        if ($limit) {
             $query .= " LIMIT ".$limit." ";
-            if($page){
+            if ($page) {
                 $query .= " OFFSET ".$page." ";
             }
         }
@@ -388,13 +394,13 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
     
     /**
      * The sparql gets a fedora Collection all child elements till the depth 5
-     * 
+     *
      * @param string $url
      * @param string $lang
      * @return string
      */
-    public function getCollectionBinaries(string $url, string $lang = "en"): string{
-        
+    public function getCollectionBinaries(string $url, string $lang = "en"): string
+    {
         $query = "";
         $lang = strtolower($lang);
         
@@ -405,25 +411,25 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         $query .= " ?main (<".RC::get('fedoraIdProp')."> / ^<".RC::get('fedoraRelProp').">)+ ?uri . ";
         
         $query .= " OPTIONAL {  ";
-            $query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang );
+        $query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
         $query .= " } ";
       
         $query .= " OPTIONAL {  ";
-            $query .= " ?uri <".RC::get('fedoraIdProp')."> ?identifiers . ";
+        $query .= " ?uri <".RC::get('fedoraIdProp')."> ?identifiers . ";
         $query .= " } ";
         
         $query .= " OPTIONAL {  ";
-            $query .= " ?uri <".RC::get('fedoraRelProp')."> ?isPartOf . ";
-            $query .= " ?rUri <".RC::get('fedoraIdProp')."> ?isPartOf . ";
-            $query .= $this->modelFunctions->filterLanguage("rUri", RC::titleProp(), "rootTitle", $lang );
+        $query .= " ?uri <".RC::get('fedoraRelProp')."> ?isPartOf . ";
+        $query .= " ?rUri <".RC::get('fedoraIdProp')."> ?isPartOf . ";
+        $query .= $this->modelFunctions->filterLanguage("rUri", RC::titleProp(), "rootTitle", $lang);
         $query .= " } ";
         
         $query .= " OPTIONAL {  ";
-            $query .= " ?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . ";
+        $query .= " ?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . ";
         $query .= " } ";
         
         $query .= " OPTIONAL {  ";
-            $query .= " ?uri <".RC::get('fedoraExtentProp')."> ?binarySize .
+        $query .= " ?uri <".RC::get('fedoraExtentProp')."> ?binarySize .
                         ?uri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename .  ";
         $query .= " } ";
         $query .= " } ";
@@ -433,5 +439,4 @@ class OeawCustomSparql implements OeawCustomSparqlInterface {
         ";
         return $query;
     }
-    
 }

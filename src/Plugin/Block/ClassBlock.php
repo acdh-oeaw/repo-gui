@@ -17,17 +17,17 @@ use Drupal\Core\Block\BlockBase;
  *   category = @Translation("Custom sidebar class list oeaw")
  * )
  */
-class ClassBlock extends BlockBase {
+class ClassBlock extends BlockBase
+{
 
     /**
      * Class block
-     * 
+     *
      * @return type
      */
-    public function build() 
+    public function build()
     {
         $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\ClassForm');
         return $form;
     }
-    
 }

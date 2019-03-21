@@ -15,8 +15,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use TCPDF;
 use TCPDF_FONTS;
 
-
-abstract class DepAgreeBaseForm extends FormBase {
+abstract class DepAgreeBaseForm extends FormBase
+{
    
     /**
     * @var \Drupal\user\PrivateTempStoreFactory
@@ -50,30 +50,30 @@ abstract class DepAgreeBaseForm extends FormBase {
    * @param \Drupal\Core\Session\AccountInterface $current_user
    */
     
-    public function __construct(PrivateTempStoreFactory $temp_store_factory, SessionManagerInterface $session_manager, AccountInterface $current_user) {    
+    public function __construct(PrivateTempStoreFactory $temp_store_factory, SessionManagerInterface $session_manager, AccountInterface $current_user)
+    {
         $this->tempStoreFactory = $temp_store_factory;
         $this->sessionManager = $session_manager;
-        $this->currentUser = $current_user;      
-        $this->store = $this->tempStoreFactory->get('deep_agree_form_data');           
-        
+        $this->currentUser = $current_user;
+        $this->store = $this->tempStoreFactory->get('deep_agree_form_data');
     }
     
-    public function getFormFromDB():array{
+    public function getFormFromDB():array
+    {
         $res = array();
-        try{
+        try {
             $query = db_select('oeaw_forms', 'of');
-            $query->fields('of',array('data', 'userid', 'repoid'));
+            $query->fields('of', array('data', 'userid', 'repoid'));
             $query->condition('of.userid', \Drupal::currentUser()->id());
             $query->condition('of.repoid', $this->repoid);
             $query->condition('of.status', 'open');
             $query->orderBy('of.date', 'DESC');
-            $query->range(0, 1);        
+            $query->range(0, 1);
             $result = $query->execute()->fetchAssoc();
         } catch (Exception $ex) {
-            
         }
         
-        if($result != false) {
+        if ($result != false) {
             $res = $result;
         }
         
@@ -81,34 +81,36 @@ abstract class DepAgreeBaseForm extends FormBase {
     }
     
     /**
-     * 
+     *
      * If the user is pasting a new form resource id then we need to change it
      * on the form
-     * 
+     *
      * @param string $repoFormID
      */
-    public function checkRepoId(string $repoFormID){
-        if(empty($this->repoid)){
-            if(isset($repoFormID) && $repoFormID != "new"){
+    public function checkRepoId(string $repoFormID)
+    {
+        if (empty($this->repoid)) {
+            if (isset($repoFormID) && $repoFormID != "new") {
                 $this->repoid = $repoFormID;
-            }else {
-                $this->store->set('material_acdh_repo_id',substr( md5(rand()), 0, 20));            
+            } else {
+                $this->store->set('material_acdh_repo_id', substr(md5(rand()), 0, 20));
                 $this->repoid = $this->store->get('material_acdh_repo_id');
             }
-        }else {
+        } else {
             //somebody trying to reach a diff one directly trough the url
-            if($this->repoid != $repoFormID){
+            if ($this->repoid != $repoFormID) {
                 $this->repoid = $repoFormID;
             }
         }
         
-        if($repoFormID == "new"){
-            $this->store->set('material_acdh_repo_id',substr( md5(rand()), 0, 20));            
+        if ($repoFormID == "new") {
+            $this->store->set('material_acdh_repo_id', substr(md5(rand()), 0, 20));
             $this->repoid = $this->store->get('material_acdh_repo_id');
         }
     }
     
-    public static function create(ContainerInterface $container){
+    public static function create(ContainerInterface $container)
+    {
         return new static(
                 $container->get('user.private_tempstore'),
                 $container->get('session_manager'),
@@ -116,33 +118,33 @@ abstract class DepAgreeBaseForm extends FormBase {
         );
     }
     
-    public function buildForm(array $form, FormStateInterface $form_state, $formid = NULL)
-    {    
+    public function buildForm(array $form, FormStateInterface $form_state, $formid = null)
+    {
         $repoFormID = \Drupal::routeMatch()->getParameter("formid");
         
-        if(isset($repoFormID) && $repoFormID != "new"){
+        if (isset($repoFormID) && $repoFormID != "new") {
             $this->repoid = $repoFormID;
             $this->dbData = $this->getFormFromDB();
             
-            if(count($this->dbData) == 0){
-                //return drupal_set_message($this->t('This REPO ID is already CLOSED!'), 'error');                
+            if (count($this->dbData) == 0) {
+                //return drupal_set_message($this->t('This REPO ID is already CLOSED!'), 'error');
                 $msg = base64_encode("This REPO ID is already CLOSED! Or it is not yours!");
                 $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
                 $response->send();
                 return;
             }
-        }else {            
-            $this->store->set('material_acdh_repo_id',substr( md5(rand()), 0, 20));            
+        } else {
+            $this->store->set('material_acdh_repo_id', substr(md5(rand()), 0, 20));
             $this->repoid = $this->store->get('material_acdh_repo_id');
         }
      
         //start a manual session for anonymus user
-        if(!isset($_SESSION['deep_agree_form_form_holds_session'])) {
+        if (!isset($_SESSION['deep_agree_form_form_holds_session'])) {
             $_SESSION['deep_agree_form_form_holds_session'] = true;
             $this->sessionManager->start();
         }
         
-        $form = array();        
+        $form = array();
                
         $form['actions']['#type'] = 'actions';
         $form['actions']['submit'] = array(
@@ -156,7 +158,7 @@ abstract class DepAgreeBaseForm extends FormBase {
             ),
         );
 
-        return $form;        
+        return $form;
     }
     
     
@@ -172,82 +174,81 @@ abstract class DepAgreeBaseForm extends FormBase {
         //$form4 = $this->store->get('form4Val');
      
         $fileMetaData = $this->store->get('material_metadata_file');
-        $fileNameScheme = $this->store->get('material_name_scheme');        
+        $fileNameScheme = $this->store->get('material_name_scheme');
         $fileMatTitle = $this->store->get('diss_material_title');
         $fileMatSub = $this->store->get('diss_material_sub_images');
         $fileMatLogo = $this->store->get('diss_material_logos');
         $fileMatBagit = $this->store->get('material_bagit_file');
         $fileMatArr = $this->store->get('material_arrangement_file');
         
-        if($fileMetaData){
+        if ($fileMetaData) {
             $fileMetaData = $fileMetaData[0];
             
-            if($fileMetaData){
+            if ($fileMetaData) {
                 $fmdObj = file_load($fileMetaData[0]);
                 $form2['material_metadata_file'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$fmdObj->getFilename();
             }
         }
         
-        if($fileNameScheme){
+        if ($fileNameScheme) {
             $fileNameScheme = $fileNameScheme[0];
-            if($fileNameScheme){
+            if ($fileNameScheme) {
                 $fnsObj = file_load($fileNameScheme[0]);
                 $form2['material_name_scheme'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$fnsObj->getFilename();
             }
         }
         
-        if(count($fileMatTitle) > 0){
+        if (count($fileMatTitle) > 0) {
             $fID = $fileMatTitle[0];
-            if(!empty($fID)){
+            if (!empty($fID)) {
                 $mtdObj = file_load($fID);
-                if($mtdObj->getFilename()){
+                if ($mtdObj->getFilename()) {
                     $form2['diss_material_title'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$mtdObj->getFilename();
                 }
             }
         }
-        if(count($fileMatSub) > 0){
-            $fmID = $fileMatSub[0];            
-            if(!empty($fmID)){
+        if (count($fileMatSub) > 0) {
+            $fmID = $fileMatSub[0];
+            if (!empty($fmID)) {
                 $msdObj = file_load($fmID);
-                if($msdObj->getFilename()){
+                if ($msdObj->getFilename()) {
                     $form2['diss_material_sub_images'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$msdObj->getFilename();
                 }
-                
             }
-        }        
-        if($fileMatLogo){
+        }
+        if ($fileMatLogo) {
             $fileMatLogo = $fileMatLogo[0];
-            if($fileMatLogo[0]){
+            if ($fileMatLogo[0]) {
                 $mlObj = file_load($fileMatLogo);
                 $form2['diss_material_logos'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$mlObj->getFilename();
             }
-        }        
-        if($fileMatBagit){
+        }
+        if ($fileMatBagit) {
             $fileMatBagit = $fileMatBagit[0];
-            if($fileMatBagit[0]){
+            if ($fileMatBagit[0]) {
                 $mbObj = file_load($fileMatBagit);
                 $form2['material_bagit_file'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$mbObj->getFilename();
             }
-        }        
-        if($fileMatArr){
+        }
+        if ($fileMatArr) {
             $fileMatArr = $fileMatArr[0];
-            if($fileMatArr[0]){
+            if ($fileMatArr[0]) {
                 $maObj = file_load($fileMatArr);
                 $form2['material_arrangement_file'] = $_SERVER['HTTP_HOST'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$maObj->getFilename();
             }
         }
         
         /*$dv = \Drupal\oeaw\DepAgreeConstants::getDataValidation();
-        $form3['data_validation'] = $dv[$form3['data_validation']];                
+        $form3['data_validation'] = $dv[$form3['data_validation']];
        */
         $num_updated = db_update('oeaw_forms')
-            ->fields(array(        
+            ->fields(array(
                     'status'=>  "closed"
             ))
             ->condition('userid', \Drupal::currentUser()->id(), '=')
             ->condition('repoid', $this->repoid, '=')
             ->condition('status', "open", '=')
-            ->execute();   
+            ->execute();
         
         $tcpdf = new \Drupal\oeaw\deppPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
         
@@ -261,12 +262,12 @@ abstract class DepAgreeBaseForm extends FormBase {
         $tcpdf->SetCreator('ACDH');
         $tcpdf->SetAuthor('ACDH');
         $tcpdf->SetTitle('Deposition Agreement');
-        $tcpdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+        $tcpdf->SetAutoPageBreak(true, PDF_MARGIN_BOTTOM);
         $tcpdf->setPrintHeader(false);
         $tcpdf->setPrintFooter(true);
         
         //$fontname = \TCPDF_FONTS::addTTFfont('modules/oeaw/fonts/Brandon_reg.ttf');
-        //$fontnameBold = \TCPDF_FONTS::addTTFfont('modules/oeaw/fonts/Brandon_bld.ttf');        
+        //$fontnameBold = \TCPDF_FONTS::addTTFfont('modules/oeaw/fonts/Brandon_bld.ttf');
         
         $fontname = 'times';
         $fontnameBold = 'times';
@@ -288,31 +289,30 @@ abstract class DepAgreeBaseForm extends FormBase {
         $tcpdf->Image('modules/oeaw/images/oeaw.png', 35, 30, 60, 26, 'PNG', '', '', true, 150, '', false, false, 0, false, false, false);
 
         $tcpdf->SetFont($fontnameBold, 'b', 60);
-        $tcpdf->SetXY(30,50);
-        $tcpdf->SetTextColor(0,0,0);
-        $tcpdf->Cell(0,0,'DEPOSITION',0,0,'L',0,'');
-        $tcpdf->SetXY(30,70);
-        $tcpdf->Cell(0,0,'AGREEMENT',0,0,'L',0,'');
+        $tcpdf->SetXY(30, 50);
+        $tcpdf->SetTextColor(0, 0, 0);
+        $tcpdf->Cell(0, 0, 'DEPOSITION', 0, 0, 'L', 0, '');
+        $tcpdf->SetXY(30, 70);
+        $tcpdf->Cell(0, 0, 'AGREEMENT', 0, 0, 'L', 0, '');
 
 
         $tcpdf->SetFont($fontnameBold, '', 7, '', false);
         $tcpdf->SetXY(10, 45);
         $tcpdf->Rotate(90);
-        $tcpdf->SetTextColor(255,255,255);
-        $tcpdf->Cell(0,0,'WWW.OEAW.AC.AT',0,0,'L',0,'');
+        $tcpdf->SetTextColor(255, 255, 255);
+        $tcpdf->Cell(0, 0, 'WWW.OEAW.AC.AT', 0, 0, 'L', 0, '');
         $tcpdf->StopTransform();
         $tcpdf->Rotate(0);
         $tcpdf->SetLineWidth(0.5);
         $tcpdf->setCellHeightRatio(1.5);
       
-        $tcpdf->SetFont($fontname, '', 14);        
-        $tcpdf->SetTextColor(0,0,0);
+        $tcpdf->SetFont($fontname, '', 14);
+        $tcpdf->SetTextColor(0, 0, 0);
         
         $fontnames = array('normal' => $fontname, 'bold' => $fontnameBold);
         
-       //generate the pages
-        if(empty($form1) || empty($form2) || empty($form3)){        
-            
+        //generate the pages
+        if (empty($form1) || empty($form2) || empty($form3)) {
             echo "<pre>";
             echo "form1";
             var_dump($form1);
@@ -329,7 +329,7 @@ abstract class DepAgreeBaseForm extends FormBase {
             $msg = base64_encode("This FORM is OUTDATED!");
             $response = new RedirectResponse(\Drupal::url('oeaw_error_page', ['errorMSG' => $msg]));
             $response->send();
-            return;        
+            return;
         }
         
         $this->generatePdfPage($tcpdf, $form1, "DEPOSITOR", \Drupal\oeaw\DepAgreeConstants::$depTXT, $fontnames);
@@ -358,7 +358,7 @@ abstract class DepAgreeBaseForm extends FormBase {
             </table>';
         
         $tcpdf->writeHTML($signTXT, true, false, false, false, '');
-         //Close and output PDF document
+        //Close and output PDF document
         $tcpdf->Output($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/'.$form2['material_acdh_repo_id'].'/'.$form2['material_acdh_repo_id'].'.pdf', 'F');
         
         $this->deleteStore($form1);
@@ -375,7 +375,8 @@ abstract class DepAgreeBaseForm extends FormBase {
         return;
     }
     
-    public function generatePdfPage(TCPDF $tcpdf, array $formData, string $title, string $ftrTXT = "", array $fontnames): TCPDF{
+    public function generatePdfPage(TCPDF $tcpdf, array $formData, string $title, string $ftrTXT = "", array $fontnames): TCPDF
+    {
         
         
         // add a page
@@ -388,15 +389,15 @@ abstract class DepAgreeBaseForm extends FormBase {
         $tcpdf->SetXY(110, 9);
         $tcpdf->SetFont($fontnames['normal'], '', 8, '', false);
         $tcpdf->SetTextColor(0, 71, 187);
-        $tcpdf->Cell(0,0,'DEPOSITION AGREEMENT',0,0,'L',0,'');
+        $tcpdf->Cell(0, 0, 'DEPOSITION AGREEMENT', 0, 0, 'L', 0, '');
         $tcpdf->StopTransform();
         
-        $tcpdf->SetTextColor(0,0,0);
+        $tcpdf->SetTextColor(0, 0, 0);
         $tcpdf->SetFont($fontnames['normal'], '', 12, '', false);
         $tcpdf->SetXY(10, 20);
         
        
-       $txt = "<style>
+        $txt = "<style>
    
     td.title {        
         border-right: 1px solid #0047BB;
@@ -419,36 +420,35 @@ abstract class DepAgreeBaseForm extends FormBase {
        
         // set some text to print
         $tcpdf->SetFont($fontnames['bold'], '', 20, '', false);
-        $tcpdf->SetTextColor(0,0,0);
-        $tcpdf->Cell(0,0,$title,0,0,'L',0,'');
+        $tcpdf->SetTextColor(0, 0, 0);
+        $tcpdf->Cell(0, 0, $title, 0, 0, 'L', 0, '');
         //$txt .= "<h1>".$title."</h1><br/>";
         $tcpdf->SetXY(10, 40);
-        $tcpdf->SetTextColor(0,0,0);
+        $tcpdf->SetTextColor(0, 0, 0);
         $tcpdf->SetFont($fontnames['normal'], '', 12, '', false);
-        foreach($formData as $k => $v){
-            
-            if(\Drupal\oeaw\DepAgreeConstants::getPDFLng($k)){
+        foreach ($formData as $k => $v) {
+            if (\Drupal\oeaw\DepAgreeConstants::getPDFLng($k)) {
                 $text = \Drupal\oeaw\DepAgreeConstants::getPDFLng($k);
-            }else {
+            } else {
                 $text = $k;
             }
             
-            if($k === "candidate_confirmation" || $k === "fields_count"){
+            if ($k === "candidate_confirmation" || $k === "fields_count") {
                 continue;
             }
             
-            if(is_array($v)){
+            if (is_array($v)) {
                 $txt .= '<table cellspacing="0" cellpadding="0" border="0">
                     <tr>
                         <td class="title" align="left">&nbsp;&nbsp;'.$text.'</td><td class="value" align="right">&nbsp;&nbsp;';
-                        foreach($v as $key => $val) {
-                            if($val){
-                                $txt .= $key.'&nbsp;&nbsp;<br />';
-                            }
-                        }
-                    $txt .= '</td></tr>
+                foreach ($v as $key => $val) {
+                    if ($val) {
+                        $txt .= $key.'&nbsp;&nbsp;<br />';
+                    }
+                }
+                $txt .= '</td></tr>
                     </table>';
-            }else {
+            } else {
                 $txt .= '
                 <table cellspacing="0" cellpadding="0" border="0">
                     <tr>
@@ -456,12 +456,12 @@ abstract class DepAgreeBaseForm extends FormBase {
                         <td class="value" align="right">&nbsp;&nbsp;'.$v.'&nbsp;&nbsp;</td>        
                     </tr>
                 </table>';
-            }      
+            }
         }
         $tcpdf->writeHTML($txt, true, false, false, false, '');
         
         $tcpdf->Line(8, 280, 60, 280, $style);
-        if($ftrTXT){
+        if ($ftrTXT) {
             $tcpdf->writeHTML($ftrTXT, true, false, false, false, '');
         }
         // print a block of text using Write()
@@ -469,14 +469,10 @@ abstract class DepAgreeBaseForm extends FormBase {
         return $tcpdf;
     }
     
-    protected function deleteStore(array $array) {
-                
+    protected function deleteStore(array $array)
+    {
         foreach ($array as $key => $value) {
-            $this->store->delete($key);            
+            $this->store->delete($key);
         }
     }
-    
-    
-    
-    
 }

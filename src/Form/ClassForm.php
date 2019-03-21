@@ -13,14 +13,13 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class ClassForm extends FormBase
 {
-  
-    private $oeawStorage;    
+    private $oeawStorage;
     private $oeawFunctions;
     
     /**
      * Set up the necessary properties
      */
-    public function __construct() 
+    public function __construct()
     {
         $this->oeawStorage = new OeawStorage();
         $this->oeawFunctions = new OeawFunctions();
@@ -36,15 +35,15 @@ class ClassForm extends FormBase
     }
     
     /**
-     * Class form 
-     * 
+     * Class form
+     *
      * @param array $form
      * @param FormStateInterface $form_state
      * @return array
      */
-    public function buildForm(array $form, FormStateInterface $form_state) 
+    public function buildForm(array $form, FormStateInterface $form_state)
     {
-        try{
+        try {
             $data = $this->oeawStorage->getClassesForSideBar();
         } catch (\ErrorException $ex) {
             drupal_set_message($ex->getMessage(), 'error');
@@ -53,17 +52,17 @@ class ClassForm extends FormBase
         
         $searchClasses = array();
         
-        if(count($data) == 0){
+        if (count($data) == 0) {
             drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys'), 'error');
-            return $form;            
+            return $form;
         } else {
-            // get the fields from the sparql query 
+            // get the fields from the sparql query
             $fields = array_keys($data[0]);
 
-            $searchTerms = $this->oeawFunctions->createPrefixesFromArray($data, $fields);        
+            $searchTerms = $this->oeawFunctions->createPrefixesFromArray($data, $fields);
 
             $i = 0;
-            foreach($searchTerms["type"] as $v){
+            foreach ($searchTerms["type"] as $v) {
                 $searchClasses[$i]["type"] = $v;
                 $searchClasses[$i]["value"] = $searchTerms["typeCount"][$i];
                 $i++;
@@ -74,11 +73,14 @@ class ClassForm extends FormBase
             $lbl = "";
             $count = "";
 
-            foreach($searchClasses as $value){
-                foreach($value as $k => $v){
-
-                    if($k == "type"){ $lbl = $v; }
-                    if($k == "value"){ $count = $v; }                
+            foreach ($searchClasses as $value) {
+                foreach ($value as $k => $v) {
+                    if ($k == "type") {
+                        $lbl = $v;
+                    }
+                    if ($k == "value") {
+                        $count = $v;
+                    }
 
                     $form[$lbl] = array(
                         '#type' => 'link',
@@ -91,7 +93,7 @@ class ClassForm extends FormBase
                         '#value' => $this->t($lbl." (".$count.")"),
                         '#url' => Url::fromRoute('oeaw_classes_result', ['data' => base64_encode($lbl)])
                     );
-                }            
+                }
                 $i++;
             }
             return $form;
@@ -103,9 +105,7 @@ class ClassForm extends FormBase
      * @param array $form
      * @param FormStateInterface $form_state
      */
-    public function submitForm(array &$form, FormStateInterface $form_state) 
-    {   
+    public function submitForm(array &$form, FormStateInterface $form_state)
+    {
     }
-  
 }
-

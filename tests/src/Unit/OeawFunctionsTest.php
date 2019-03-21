@@ -3,12 +3,12 @@
 declare(strict_types=1);
 
 namespace Drupal\Tests\oeaw\Model\OeawFunctionsTest;
+
 namespace Drupal\oeaw\Model;
 
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use acdhOeaw\util\RepoConfig as RC;
-
 
 /**
  * @coversDefaultClass \Drupal\oeaw\OeawFunctions
@@ -17,17 +17,18 @@ use acdhOeaw\util\RepoConfig as RC;
 
 class OeawFunctionsTest extends UnitTestCase
 {
-    private $oeawFunctions;    
+    private $oeawFunctions;
     private $cfgDir;
     private $acdhId = 'https://id.acdh.oeaw.ac.at/myidentifier';
     private $acdhUUID = 'https://id.acdh.oeaw.ac.at/uuid/myidentifier';
     private $pid = 'http://hdl.handle.net/21.11115/0000-0000';
     
-    protected function setUp() {
+    protected function setUp()
+    {
         $this->cfgDir = $_SERVER['TRAVIS_BUILD_DIR']."/drupal/modules/oeaw/config.unittest.ini";
         //we need to setup the configfactory with the "oeaw.settings" config, because of
         // the multilanguage support.
-         $this->config = $this->getMockBuilder('\Drupal\Core\Config\ImmutableConfig')
+        $this->config = $this->getMockBuilder('\Drupal\Core\Config\ImmutableConfig')
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -77,7 +78,7 @@ class OeawFunctionsTest extends UnitTestCase
     {
      //   $fd = $this->oeawFunctions->initFedora();
     }
-     * 
+     *
      */
 }
     

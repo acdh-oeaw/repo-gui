@@ -2,7 +2,6 @@
 
 namespace Drupal\oeaw\Model;
 
-
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\ConfigConstants;
 use Drupal\oeaw\Helper\Helper;
@@ -12,17 +11,17 @@ use acdhOeaw\fedora\FedoraResource;
 
 use acdhOeaw\util\RepoConfig as RC;
 
-class ModelFunctions {
-    
-    
-    public function __construct() {
+class ModelFunctions
+{
+    public function __construct()
+    {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
     }
     
     //the date formats for the formatting possibilities
     private $dateFormats = array(
-        'Y-m-d' => array('YEAR', 'MONTH', 'DAY'), 
-        'd-m-Y' => array('DAY', 'MONTH', 'YEAR'), 
+        'Y-m-d' => array('YEAR', 'MONTH', 'DAY'),
+        'd-m-Y' => array('DAY', 'MONTH', 'YEAR'),
         'Y' => array('YEAR')
     );
     
@@ -51,18 +50,19 @@ class ModelFunctions {
     
     
     /**
-     * 
+     *
      * This func will format the date on the sparql result based on the definied format
-     * 
-     * @param string $inputVar : Input field name 
+     *
+     * @param string $inputVar : Input field name
      * @param string $outputVar : output field name
      * @param string $format : the date format based on the $dateFormats
      * @return string
      */
-    public function convertFieldDate(string $inputVar, string $outputVar, string $format): string{
+    public function convertFieldDate(string $inputVar, string $outputVar, string $format): string
+    {
         $result = "";
         //if the defined format is not in the allowed formats then we set up a default one
-        if(!array_key_exists($format, $this->dateFormats)){
+        if (!array_key_exists($format, $this->dateFormats)) {
             $format = 'd-m-Y';
         }
         
@@ -71,8 +71,8 @@ class ModelFunctions {
         for ($x = 0; $x <= count($this->dateFormats[$format]) - 1; $x++) {
             //setup the vars
             $result .= 'STR( '.$this->dateFormats[$format][$x].'(?'.$inputVar.'))';
-            //setup the 
-            if( (count($this->dateFormats[$format]) - 1 > 1) && ( $x < count($this->dateFormats[$format]) - 1  ) ){
+            //setup the
+            if ((count($this->dateFormats[$format]) - 1 > 1) && ($x < count($this->dateFormats[$format]) - 1)) {
                 $result .= ', "-", ';
             }
         }
@@ -81,34 +81,37 @@ class ModelFunctions {
         return $result;
     }
     
-    //use : Uriparam = ?uri , propertyUri = <https://vocabs.acdh.oeaw.ac.at/schema#hasTitle>, $valueParam = ?title 
+    //use : Uriparam = ?uri , propertyUri = <https://vocabs.acdh.oeaw.ac.at/schema#hasTitle>, $valueParam = ?title
     
     
-    public function filterLanguage(string $uriParam, string $propertyUri, string $valueParam, string $lang = "en", bool $optional = false): string{
-        
+    public function filterLanguage(string $uriParam, string $propertyUri, string $valueParam, string $lang = "en", bool $optional = false): string
+    {
         $return = "";
         $lang = strtolower($lang);
         
-        //if the property 
-        if(in_array($propertyUri, $this->langProp)){
-            
-            if($optional == true){ $return .= " OPTIONAL { ";  }
+        //if the property
+        if (in_array($propertyUri, $this->langProp)) {
+            if ($optional == true) {
+                $return .= " OPTIONAL { ";
+            }
             $return .= "?".$uriParam." <".$propertyUri."> ?defaultValue".$valueParam." . "
                     . " OPTIONAL { "
                     . "?".$uriParam." <".$propertyUri."> ?langValue".$valueParam." . "
                     . "FILTER regex(lang(?langValue".$valueParam."), '".$lang."','i') ."
                     . " } "
                     . " BIND( IF( !bound(?langValue".$valueParam.") , ?defaultValue".$valueParam.", ?langValue".$valueParam.") as ?".$valueParam." ) .  ";
-            if($optional == true){ $return .= " } "; }
-        }else{
-            if($optional == true){ $return .= " OPTIONAL { "; }
+            if ($optional == true) {
+                $return .= " } ";
+            }
+        } else {
+            if ($optional == true) {
+                $return .= " OPTIONAL { ";
+            }
             $return .= "?".$uriParam." <".$propertyUri."> ?".$valueParam." . ";
-            if($optional == true){ $return .= " } "; }
+            if ($optional == true) {
+                $return .= " } ";
+            }
         }
         return $return;
     }
-    
-    
-    
 }
-

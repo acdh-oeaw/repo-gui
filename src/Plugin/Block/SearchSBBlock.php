@@ -17,17 +17,17 @@ use Drupal\Core\Block\BlockBase;
  *   category = @Translation("Custom complex search oeaw")
  * )
  */
-class SearchSBBlock extends BlockBase {
+class SearchSBBlock extends BlockBase
+{
 
     /**
      * Search Sb block
-     * 
+     *
      * @return type
      */
-    public function build() 
+    public function build()
     {
         $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\ComplexSearchForm');
         return $form;
     }
-    
 }

@@ -4,10 +4,11 @@ namespace Drupal\oeaw;
 
 use acdhOeaw\util\RepoConfig as RC;
 
-abstract class ConfigConstants {
+abstract class ConfigConstants
+{
     /**
      * sparql prefixes
-     * @var type 
+     * @var type
      */
     public static $prefixes = ''
             . 'PREFIX dct: <http://purl.org/dc/terms/> '
@@ -21,18 +22,18 @@ abstract class ConfigConstants {
   
     /**
      * Special prefixes for blazegrpah init
-     * @var type 
+     * @var type
      */
     public static $prefixesToBlazegraph = array(
-        "dct" => "http://purl.org/dc/terms/"        
+        "dct" => "http://purl.org/dc/terms/"
     );
     
     /**
      *
      * Prefixes to shortcur conversion
-     * @var type 
+     * @var type
      */
-    public static $prefixesToChange = array(        
+    public static $prefixesToChange = array(
         "http://fedora.info/definitions/v4/repository#" => "fedora",
         "http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#" => "ebucore",
         "http://www.loc.gov/premis/rdf/v1#" => "premis",
@@ -40,7 +41,7 @@ abstract class ConfigConstants {
         "http://www.w3.org/2000/01/rdf-schema#" => "rdfs",
         "http://www.w3.org/ns/ldp#" => "ldp",
         "http://www.iana.org/assignments/relation/" => "iana",
-        "https://vocabs.acdh.oeaw.ac.at/schema#" => "acdh",        
+        "https://vocabs.acdh.oeaw.ac.at/schema#" => "acdh",
         "https://id.acdh.oeaw.ac.at/" => "acdhID",
         "http://purl.org/dc/elements/1.1/" => "dc",
         "http://purl.org/dc/terms/" => "dct",
@@ -55,14 +56,14 @@ abstract class ConfigConstants {
     
     /**
      * ACDH User query property
-     * @var type 
+     * @var type
      */
     public static $acdhQueryType = "https://vocabs.acdh.oeaw.ac.at/schema#querytype";
     
     /**
      *
      * Detail view special custom view types
-     * @var type 
+     * @var type
      */
     public static $availableCustomViews = array(
         "person", "project", "organisation", "publication", "place"
@@ -70,16 +71,17 @@ abstract class ConfigConstants {
     
     /**
      * Special view properties
-     * 
+     *
      * @param string $property
      * @return array
      */
-    static function getCustomDetailViewTemplateDataProperties(string $property): array {
+    public static function getCustomDetailViewTemplateDataProperties(string $property): array
+    {
         $result = array();
         
         $property = strtolower($property);
         
-        if($property == "person"){
+        if ($property == "person") {
             $result['basicProperties'] = array(
                 "acdh:hasTitle",
                 "acdh:hasIdentifier",
@@ -100,7 +102,7 @@ abstract class ConfigConstants {
             return $result;
         }
         
-        if($property == "project"){
+        if ($property == "project") {
             $result['basicProperties'] = array(
                 "acdh:hasTitle",
                 "acdh:hasIdentifier",
@@ -132,7 +134,7 @@ abstract class ConfigConstants {
             return $result;
         }
         
-        if($property == "organisation"){
+        if ($property == "organisation") {
             $result['basicProperties'] = array(
                 "acdh:hasTitle",
                 "acdh:hasAlternativeTitle",
@@ -149,7 +151,7 @@ abstract class ConfigConstants {
             return $result;
         }
 
-        if($property == "place"){
+        if ($property == "place") {
             $result['basicProperties'] = array(
                 "acdh:hasTitle",
                 "acdh:hasAlternativeTitle",
@@ -173,7 +175,7 @@ abstract class ConfigConstants {
             return $result;
         }
         
-        if($property == "publication"){
+        if ($property == "publication") {
             $result['basicProperties'] = array(
                 "acdh:hasTitle",
                 "acdh:hasAlternativeTitle",
@@ -200,43 +202,43 @@ abstract class ConfigConstants {
     }
     
     /**
-     * 
-     * Get the necessary properties for the ChildViewGeneraton, based on the root 
+     *
+     * Get the necessary properties for the ChildViewGeneraton, based on the root
      * resource property (fe: Person, Organisation, etc..)
-     * 
+     *
      * OeawFunctions->generateChildViewData()
-     * 
+     *
      * @param string $propertyUri
      * @return array
      */
-    static function getDetailChildViewProperties(string $propertyUri): array {
-        
+    public static function getDetailChildViewProperties(string $propertyUri): array
+    {
         $result = array();
         
         //organisation
-        if($propertyUri == RC::get('fedoraOrganisationClass')){
-            $result = 
+        if ($propertyUri == RC::get('fedoraOrganisationClass')) {
+            $result =
                 array(
-                    RC::get('drupalHasContributor'), 
-                    RC::get('drupalHasFunder'), 
-                    RC::get('fedoraHostingProp'), 
-                    RC::get('drupalHasOwner'), 
-                    RC::get('drupalHasLicensor'), 
+                    RC::get('drupalHasContributor'),
+                    RC::get('drupalHasFunder'),
+                    RC::get('fedoraHostingProp'),
+                    RC::get('drupalHasOwner'),
+                    RC::get('drupalHasLicensor'),
                     RC::get('drupalHasRightsholder')
                 );
         }
         //publication
-        if($propertyUri == RC::get('drupalPublication')){
-            $result = 
+        if ($propertyUri == RC::get('drupalPublication')) {
+            $result =
                 array(
-                    RC::get('drupalHasDerivedPublication'), 
-                    RC::get('drupalHasSource'), 
+                    RC::get('drupalHasDerivedPublication'),
+                    RC::get('drupalHasSource'),
                     RC::get('drupalHasReferencedBy')
                 );
         }
         //person
-        if($propertyUri == RC::get('drupalPerson')){
-            $result = 
+        if ($propertyUri == RC::get('drupalPerson')) {
+            $result =
                 array(
                     RC::get('drupalHasContributor'),
                     RC::get('drupalHasAuthor'),
@@ -246,29 +248,29 @@ abstract class ConfigConstants {
                 );
         }
         //concept
-        if($propertyUri == RC::get('drupalConcept')){
-            $result = 
+        if ($propertyUri == RC::get('drupalConcept')) {
+            $result =
                 array(
                     RC::get('drupalSkosNarrower')
                 );
         }
         //project
-        if($propertyUri == RC::get('drupalProject')){
-            $result = 
+        if ($propertyUri == RC::get('drupalProject')) {
+            $result =
                 array(
                     RC::get('drupalRelatedProject')
                 );
         }
         //institute
-        if($propertyUri == RC::get('drupalInstitute')){
-            $result = 
+        if ($propertyUri == RC::get('drupalInstitute')) {
+            $result =
                 array(
                     RC::get('drupalHasMember')
                 );
         }
         //place
-        if($propertyUri == RC::get('drupalPlace')){
-            $result = 
+        if ($propertyUri == RC::get('drupalPlace')) {
+            $result =
                 array(
                     RC::get('drupalHasSpatialCoverage')
                 );

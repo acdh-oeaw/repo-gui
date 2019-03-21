@@ -2,9 +2,9 @@
 
 namespace Drupal\oeaw\Model;
 
-interface OeawStorageInterface {
-    
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc" ): array;
+interface OeawStorageInterface
+{
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc"): array;
     
     public function checkValueToAutocomplete(string $string, string $property): array;
     public function getACDHIdByPid(string $pid): array;
@@ -36,12 +36,12 @@ interface OeawStorageInterface {
     
     //API sql
     public function getClassMetaForApi(string $classURI, string $lang = "en"): array;
-    public function getTypeByIdentifier(string $identifier, string $lang = "en" ): array;
+    public function getTypeByIdentifier(string $identifier, string $lang = "en"): array;
     
     //detail view sql
     public function getInverseViewDataByIdentifier(array $data): array;
     public function getImageByIdentifier(string $string): string;
-    public function getImage(string $value, string $property = null ): string;
+    public function getImage(string $value, string $property = null): string;
     public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false): array;
     public function getDigitalResources(): array;
     public function getInverseViewDataByURL(string $url): array;
@@ -55,8 +55,4 @@ interface OeawStorageInterface {
     public function getOntologyForCache(string $lang = "en"): array;
     //breadcrumb
     public function createBreadcrumbData(string $identifier, string $lang = "en"): array;
-        
-    
-    
-    
 }

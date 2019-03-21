@@ -17,17 +17,17 @@ use Drupal\Core\Block\BlockBase;
  *   category = @Translation("Custom sidebar keyword search oeaw")
  * )
  */
-class SidebarKeywordSearchBlock extends BlockBase {
+class SidebarKeywordSearchBlock extends BlockBase
+{
 
     /**
      * Sidebar keyword search
-     * 
+     *
      * @return type
      */
-    public function build() 
+    public function build()
     {
         $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\SidebarKeywordSearchForm');
         return $form;
     }
-    
 }

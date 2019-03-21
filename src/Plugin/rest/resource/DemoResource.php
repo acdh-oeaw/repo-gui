@@ -5,7 +5,6 @@ namespace Drupal\oeaw\Plugin\rest\resource;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 
-
 /**
  * Provides a Demo Resource
  *
@@ -17,16 +16,17 @@ use Drupal\rest\ResourceResponse;
  *   }
  * )
  */
-class DemoResource extends ResourceBase {
+class DemoResource extends ResourceBase
+{
     
     
     /**
     * Responds to entity GET requests.
     * @return \Drupal\rest\ResourceResponse
     */
-    public function get() {
+    public function get()
+    {
         $response = ['message' => 'Hello, this is a rest service'];
         return new ResourceResponse($response);
     }
-
 }

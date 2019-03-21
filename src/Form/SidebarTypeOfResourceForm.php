@@ -15,11 +15,11 @@ use Drupal\oeaw\OeawFunctions;
 
 class SidebarTypeOfResourceForm extends FormBase
 {
-    
     private $oeawStorage;
     private $oeawFunctions;
     
-    public function __construct() {    
+    public function __construct()
+    {
         $this->oeawStorage = new OeawStorage();
         $this->oeawFunctions = new OeawFunctions();
     }
@@ -32,8 +32,8 @@ class SidebarTypeOfResourceForm extends FormBase
     /*
     * {@inheritdoc}.
     */
-    public function buildForm(array $form, FormStateInterface $form_state) 
-    { 
+    public function buildForm(array $form, FormStateInterface $form_state)
+    {
         echo "side bar typeof res";
         try {
             $data = $this->oeawStorage->getClassesForSideBar();
@@ -44,19 +44,19 @@ class SidebarTypeOfResourceForm extends FormBase
         
         $searchClasses = array();
         
-        if(count($data) == 0){
+        if (count($data) == 0) {
             drupal_set_message($this->t('Database').' '.t('Empty'), 'error');
-            return $form;            
+            return $form;
         } else {
-            // get the fields from the sparql query 
+            // get the fields from the sparql query
             $fields = array_keys($data[0]);
 
-            $searchTerms = $this->oeawFunctions->createPrefixesFromArray($data, $fields);        
+            $searchTerms = $this->oeawFunctions->createPrefixesFromArray($data, $fields);
 
             $i = 0;
-            foreach($searchTerms["type"] as $v){
-	            $searchClasses[$i]["type"] = $v;
-	            $searchClasses[$i]["value"] = $searchTerms["typeCount"][$i];
+            foreach ($searchTerms["type"] as $v) {
+                $searchClasses[$i]["type"] = $v;
+                $searchClasses[$i]["value"] = $searchTerms["typeCount"][$i];
                 $i++;
             }
             asort($searchClasses);
@@ -68,31 +68,35 @@ class SidebarTypeOfResourceForm extends FormBase
                 $defaultterm = end($fullpath);
                 $actionterm = prev($fullpath);
                 if ($actionterm != "oeaw_classes_result") {
-	               $defaultterm = "";
+                    $defaultterm = "";
                 }
             } else {
                 $defaultterm = "";
-            }	
+            }
            
 
             $i = 0;
             $lbl = "";
             $count = "";
 
-            foreach($searchClasses as $value){
-                foreach($value as $k => $v){
-                    if($k == "type"){ $lbl = $v; }
-                    if($k == "value"){ $count = $v; }
+            foreach ($searchClasses as $value) {
+                foreach ($value as $k => $v) {
+                    if ($k == "type") {
+                        $lbl = $v;
+                    }
+                    if ($k == "value") {
+                        $count = $v;
+                    }
                     
                     if (preg_match("/^acdh:/", $lbl)) {
                         $label = explode('acdh:', $lbl)[1];
-                        $labelReadable = preg_replace('/(?<! )(?<!^)[A-Z]/',' $0', $label);               
-						
+                        $labelReadable = preg_replace('/(?<! )(?<!^)[A-Z]/', ' $0', $label);
+                        
                         $termencoded = base64_encode($lbl);
                         if ($defaultterm == $termencoded) {
-                            $checked = TRUE;
+                            $checked = true;
                         } else {
-                            $checked = FALSE;
+                            $checked = false;
                         }
 
                         $form['checkbox-'.$label] = array(
@@ -100,9 +104,9 @@ class SidebarTypeOfResourceForm extends FormBase
                             '#attributes' => array(
                                 'class' => array('form-checkbox-custom'),
                                 'onClick' => 'window.location = "'.base_path().'oeaw_classes_result/'.base64_encode($lbl).'/10/0";'
-                            ) 
+                            )
                         );
-		
+        
                         $form['checkbox-'.$label]['checkbox'] = array(
                             '#type' => 'checkbox',
                             '#title' => $this->t($labelReadable." (".$count.")"),
@@ -121,20 +125,16 @@ class SidebarTypeOfResourceForm extends FormBase
     }
     
     
-    public function validateForm(array &$form, FormStateInterface $form_state) 
+    public function validateForm(array &$form, FormStateInterface $form_state)
     {
-        
     }
     
   
-    public function submitForm(array &$form, FormStateInterface $form_state) {
-        
+    public function submitForm(array &$form, FormStateInterface $form_state)
+    {
         $metavalue = $form_state->getValue('metavalue');
         //$metavalue = base64_encode($metavalue);
-        $metavalue = urlencode($metavalue);        
-        $form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metavalue]); 
-    
+        $metavalue = urlencode($metavalue);
+        $form_state->setRedirect('oeaw_keywordsearch', ["metavalue" => $metavalue]);
     }
-  
 }
-

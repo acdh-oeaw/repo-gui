@@ -15,22 +15,21 @@ use Drupal\oeaw\OeawFunctions;
 
 class SearchForm extends FormBase
 {
-    
     private $oeawStorage;
     private $oeawFunctions;
     
     /**
      * Set up the necessary properties
      */
-    public function __construct() 
-    {    
+    public function __construct()
+    {
         $this->oeawStorage = new OeawStorage();
         $this->oeawFunctions = new OeawFunctions();
     }
     
     /**
      * set up the form id
-     * 
+     *
      * @return string
      */
     public function getFormId()
@@ -38,48 +37,47 @@ class SearchForm extends FormBase
         return "search_form";
     }
     
-   /**
-    * 
-    * Build Search form
-    * 
-    * @param array $form
-    * @param FormStateInterface $form_state
-    * @return array
-    */
-    public function buildForm(array $form, FormStateInterface $form_state) 
-    {   
+    /**
+     *
+     * Build Search form
+     *
+     * @param array $form
+     * @param FormStateInterface $form_state
+     * @return array
+     */
+    public function buildForm(array $form, FormStateInterface $form_state)
+    {
         echo "search form";
         $propertys = array();
         $searchTerms = array();
                 
         $propertys = $this->oeawStorage->getAllPropertyForSearch();
   
-        if(empty($propertys)){
-             drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SearchForm '), 'error');
-             return $form;
-        }else {
+        if (empty($propertys)) {
+            drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SearchForm '), 'error');
+            return $form;
+        } else {
             $fields = array();
-            // get the fields from the sparql query 
-            $fields = array_keys($propertys[0]);        
+            // get the fields from the sparql query
+            $fields = array_keys($propertys[0]);
             $searchTerms = $this->oeawFunctions->createPrefixesFromArray($propertys, $fields);
 
             $searchTerms = $searchTerms["p"];
             asort($searchTerms);
 
-            if(count($searchTerms) > 0) {
-
-                foreach($searchTerms as $terms){
+            if (count($searchTerms) > 0) {
+                foreach ($searchTerms as $terms) {
                     $select[$terms] = t($terms);
                 }
 
-                $form['metakey'] = array (
+                $form['metakey'] = array(
                   '#type' => 'select',
                   '#title' => ('MetaKey'),
-                  '#required' => TRUE,
+                  '#required' => true,
                   '#attributes' => array(
                     'class' => array('form-control')
-				  ),                  
-                  '#options' => 
+                  ),
+                  '#options' =>
                       $select
                 );
 
@@ -88,8 +86,8 @@ class SearchForm extends FormBase
                   '#title' => ('MetaValue'),
                   '#attributes' => array(
                     'class' => array('form-control')
-				  ),                             
-                  '#required' => TRUE,
+                  ),
+                  '#required' => true,
                 );
 
                 $form['actions']['#type'] = 'actions';
@@ -98,12 +96,12 @@ class SearchForm extends FormBase
                   '#value' => $this->t('Search'),
                   '#attributes' => array(
                     'class' => array('btn')
-				  ),                   
+                  ),
                   '#button_type' => 'primary',
                 );
 
                 return $form;
-            } else {            
+            } else {
                 drupal_set_message($this->t('Your DB is EMPTY! There are no Propertys -> SearchForm'), 'error');
                 return $form;
             }
@@ -112,19 +110,17 @@ class SearchForm extends FormBase
   
     /**
      * Search submit
-     * 
+     *
      * @param array $form
      * @param FormStateInterface $form_state
      */
-    public function submitForm(array &$form, FormStateInterface $form_state) 
+    public function submitForm(array &$form, FormStateInterface $form_state)
     {
         $metakey = $form_state->getValue('metakey');
         $metavalue = $form_state->getValue('metavalue');
         $metakey = base64_encode($metakey);
         $metavalue = base64_encode($metavalue);
         
-        $form_state->setRedirect('oeaw_resources', ["metakey" => $metakey, "metavalue" => $metavalue]); 
+        $form_state->setRedirect('oeaw_resources', ["metakey" => $metakey, "metavalue" => $metavalue]);
     }
-  
 }
-

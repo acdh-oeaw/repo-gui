@@ -9,14 +9,16 @@
 namespace Drupal\oeaw;
 
 use TCPDF;
+
 /**
  * Description of deppPDF
  *
  * @author nczirjak
  */
-class deppPDF extends TCPDF{
-    
-    public function Header() {
+class deppPDF extends TCPDF
+{
+    public function Header()
+    {
         // Logo
         
         $image_file = 'sites/default/files/OEAW_Logo2_150.png';
@@ -28,7 +30,8 @@ class deppPDF extends TCPDF{
     }
 
     // Page footer
-    public function Footer() {
+    public function Footer()
+    {
         // Position at 15 mm from bottom
         $this->SetY(-15);
         // Set font
@@ -36,7 +39,4 @@ class deppPDF extends TCPDF{
         // Page number
         $this->Cell(0, 10, 'Page '.$this->getAliasNumPage().'/'.$this->getAliasNbPages(), 0, false, 'C', 0, '', 0, false, 'T', 'M');
     }
-    
-    
-    
 }

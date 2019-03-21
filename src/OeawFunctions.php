@@ -41,18 +41,19 @@ use EasyRdf\Resource;
  *
  * @author nczirjak
  */
-class OeawFunctions {
-    
+class OeawFunctions
+{
     private $langConf;
     
     /**
      * Set up the config file
      * @param type $cfg
      */
-    public function __construct($cfg = null){
-        if($cfg == null){
+    public function __construct($cfg = null)
+    {
+        if ($cfg == null) {
             \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-        }else {
+        } else {
             \acdhOeaw\util\RepoConfig::init($cfg);
         }
         $this->langConf = \Drupal::config('oeaw.settings');
@@ -60,38 +61,40 @@ class OeawFunctions {
     }
         
     /**
-     * 
+     *
      * Creates the Fedora instance
-     * 
+     *
      * @return Fedora
-     */   
-    public function initFedora(): Fedora{
+     */
+    public function initFedora(): Fedora
+    {
         // setup fedora
         $fedora = array();
-        $fedora = new Fedora();        
+        $fedora = new Fedora();
         return $fedora;
     }
     
     /**
-     * 
+     *
      * Check the data array for the PID, identifier or uuid identifier
-     * 
+     *
      * @param array $data
      * @return string
      */
-    public function createDetailViewUrl(array $data): string {
+    public function createDetailViewUrl(array $data): string
+    {
         //check the PID
-        if(isset($data['pid']) && !empty($data['pid'])){
+        if (isset($data['pid']) && !empty($data['pid'])) {
             if (strpos($data['pid'], RC::get('epicResolver')) !== false) {
                 return $data['pid'];
             }
         }
         
-        if(isset($data['identifier'])){
+        if (isset($data['identifier'])) {
             //if we dont have pid then check the identifiers
             $idArr = explode(",", $data['identifier']);
             $uuid = "";
-            foreach($idArr as $id){
+            foreach ($idArr as $id) {
                 //the id contains the acdh uuid
                 if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
                     return $id;
@@ -109,17 +112,20 @@ class OeawFunctions {
     
     /**
      * Get the actual child page and limit from the actual url
-     * 
+     *
      * @param string $data
      * @return array
      */
-    public function getLimitAndPageFromUrl(string $data): array {
-        if(empty($data)){ return array(); }
+    public function getLimitAndPageFromUrl(string $data): array
+    {
+        if (empty($data)) {
+            return array();
+        }
         
         $data = explode("&", $data);
         $page = 0;
         $limit = 10;
-        foreach($data as $d) {
+        foreach ($data as $d) {
             if (strpos($d, 'page') !== false) {
                 $page = str_replace("page=", "", $d);
             }
@@ -129,73 +135,74 @@ class OeawFunctions {
         }
         
         return array("page" => $page, "limit" => $limit);
-        
     }
     
     /**
-     * 
+     *
      * Encode or decode the detail view url
-     * 
+     *
      * @param string $uri
      * @param bool $code : 0 - decode / 1 -encode
      * @return string
     */
-    public function detailViewUrlDecodeEncode(string $data, int $code = 0): string {
-       
-        if(empty($data)){ return ""; }
+    public function detailViewUrlDecodeEncode(string $data, int $code = 0): string
+    {
+        if (empty($data)) {
+            return "";
+        }
         
-        if($code == 0) {
+        if ($code == 0) {
             $data = explode(":", $data);
             $page = 0;
             $limit = 0;
             $identifier = "";
 
-            foreach($data as $ra) {
+            foreach ($data as $ra) {
                 if (strpos($ra, '&') !== false) {
                     $pos = strpos($ra, '&');
                     $ra = substr($ra, 0, $pos);
                     //$page = str_replace("page=", "", $ra);
                     $identifier .= $ra."/";
-                }else {
+                } else {
                     $identifier .= $ra."/";
                 }
             }
             
             if (strpos($identifier, 'hdl.handle.net') !== false) {
                 $identifier = "http://".$identifier;
-            }else {
+            } else {
                 $identifier = "https://".$identifier;
             }
             
-            if(substr($identifier, -1) == "/") { 
-                $identifier = substr_replace($identifier, "", -1); 
+            if (substr($identifier, -1) == "/") {
+                $identifier = substr_replace($identifier, "", -1);
             }
             return $identifier;
         }
         
-        if($code == 1){
+        if ($code == 1) {
             if (strpos($data, 'hdl.handle.net') !== false) {
                 $data = str_replace("http://", "", $data);
-            }else if(strpos($data, 'https') !== false) {
+            } elseif (strpos($data, 'https') !== false) {
                 $data = str_replace("https://", "", $data);
-            }else {
+            } else {
                 $data = str_replace("http://", "", $data);
             }
             return $data;
             //return array($data['identifier']);
         }
-        
     }
     
     /**
-     * 
+     *
      * This function is get the acdh identifier by the PID, because all of the functions
      * are using the identifier and not the pid :)
-     * 
+     *
      * @param string $identifier
      * @return string
      */
-    public function pidToAcdhIdentifier(string $identifier): string {
+    public function pidToAcdhIdentifier(string $identifier): string
+    {
         $return = "";
         $oeawStorage = new OeawStorage();
         
@@ -204,13 +211,13 @@ class OeawFunctions {
         } catch (Exception $ex) {
             drupal_set_message($ex->getMessage(), 'error');
             return "";
-        }catch (\InvalidArgumentException $ex){
+        } catch (\InvalidArgumentException $ex) {
             drupal_set_message($ex->getMessage(), 'error');
             return "";
         }
         
-        if(count($idsByPid) > 0){
-            foreach ($idsByPid as $d){
+        if (count($idsByPid) > 0) {
+            foreach ($idsByPid as $d) {
                 if (strpos((string)$d['id'], RC::get('fedoraIdNamespace')) !== false) {
                     $return = $d['id'];
                     break;
@@ -222,27 +229,28 @@ class OeawFunctions {
     
     /**
      * Get the actual Resource Dissemination services
-     * 
+     *
      * @param FedoraResource $fedoraRes
      * @return array
      * @throws \Exception
      * @throws \acdhOeaw\fedora\exceptions\NotFound
      */
-    public function getResourceDissServ(\acdhOeaw\fedora\FedoraResource $fedoraRes): array { 
+    public function getResourceDissServ(\acdhOeaw\fedora\FedoraResource $fedoraRes): array
+    {
         $result = array();
         
-        if($fedoraRes){
-            try{
+        if ($fedoraRes) {
+            try {
                 $id = $fedoraRes->getId();
                 $dissServ = $fedoraRes->getDissServices();
-                if(count($dissServ) > 0){
+                if (count($dissServ) > 0) {
                     $processed = array();
                     $guiUrls = array();
                     $i = 0;
                     $fedora = $this->initFedora();
                     foreach ($dissServ as $service) {
                         //get the acdh identifiers for the dissemination services
-                        if(!in_array($id, $processed)) {
+                        if (!in_array($id, $processed)) {
                             $key = "";
                             $processed[$i] = $service->getId();
                             //get the final url of the dissemination service
@@ -254,12 +262,12 @@ class OeawFunctions {
                             $servUri = "";
                             //make a nice url to remove the https:// tags from the url
                             //because of the acdh identifier should appears there
-                            if($srv->getRequest($fedoraRes)->getUri()->__toString() && !empty($key)){
+                            if ($srv->getRequest($fedoraRes)->getUri()->__toString() && !empty($key)) {
                                 $servUri = urldecode($srv->getRequest($fedoraRes)->getUri()->__toString());
                                 //remove the identifier http/https tags from the url
                                 if (strpos($servUri, '/https') !== false) {
                                     $servUri = str_replace('/https://', '/', $servUri);
-                                }else if (strpos($servUri, '/http') !== false) {
+                                } elseif (strpos($servUri, '/http') !== false) {
                                     $servUri = str_replace('/http://', '/', $servUri);
                                 }
                                 if (strpos($servUri, '/fcr:metadata') !== false) {
@@ -271,7 +279,7 @@ class OeawFunctions {
                             $i++;
                         }
                     }
-                    if(count($processed) > 0){
+                    if (count($processed) > 0) {
                         $oeawStorage = new OeawStorage();
                         //get the titles
                         $titles = array();
@@ -279,14 +287,14 @@ class OeawFunctions {
                         $titles = $oeawStorage->getTitleByIdentifierArray($processed, true);
                         //remove the duplicates
                         $titles = Helper::removeDuplicateValuesFromMultiArrayByKey($titles, "title");
-                        if(count($titles) > 0){
+                        if (count($titles) > 0) {
                             //merge the available diss.serv and the guiUrls
-                            foreach($titles as $key => $val){ 
-                                if(!empty($guiUrls[$val['returnType']])){
+                            foreach ($titles as $key => $val) {
+                                if (!empty($guiUrls[$val['returnType']])) {
                                     $result[$key] = $val;
-                                    if($val['returnType'] == "rdf"){
+                                    if ($val['returnType'] == "rdf") {
                                         $result[$key]['guiUrl'] = $guiUrls[$val['returnType']].'/fcr:metadata';
-                                    }else{
+                                    } else {
                                         $result[$key]['guiUrl'] = $guiUrls[$val['returnType']];
                                     }
                                 }
@@ -299,7 +307,7 @@ class OeawFunctions {
                 throw new \Exception(
                     t('Error').':'.__FUNCTION__.t('Message').':'.$ex->getMessage()
                 );
-            } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+            } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
                 throw new \acdhOeaw\fedora\exceptions\NotFound(
                     t('Error').':'.__FUNCTION__.t('Message').':'.$ex->getMessage()
                 );
@@ -309,27 +317,27 @@ class OeawFunctions {
     }
     
     /**
-     * 
+     *
      * Create the data for the pagination function
-     * 
+     *
      * @param int $limit
      * @param int $page
      * @param int $total
      * @return array
-     * 
+     *
      */
-    public function createPaginationData(int $limit, int $page, int $total): array {
-        
+    public function createPaginationData(int $limit, int $page, int $total): array
+    {
         $totalPages = 0;
         $res = array();
         
-        if($limit == 0){
+        if ($limit == 0) {
             $totalPages = 0;
-        }else {
-            $totalPages = ceil( $total / $limit ) ;
+        } else {
+            $totalPages = ceil($total / $limit) ;
         }
 
-        if(isset($page) && $page != 0){
+        if (isset($page) && $page != 0) {
             if ($page > 0 && $page <= $totalPages) {
                 $start = ($page - 1) * $limit;
                 $end = $page * $limit;
@@ -338,12 +346,12 @@ class OeawFunctions {
                 $start = 0;
                 $end = $limit;
             }
-        }else {
+        } else {
             // if page isn't set, show first set of results
             $start = 0;
             $end = 0;
             $page = 0;
-        }   
+        }
         
         $res["start"] = $start;
         $res["end"] = $end;
@@ -354,14 +362,14 @@ class OeawFunctions {
     }
     
     /**
-     * 
+     *
      * Prepare the searchString for the sparql Query
-     * 
+     *
      * @param string $string
      * @return array
      */
-    public function explodeSearchString(string $string): array{
-        
+    public function explodeSearchString(string $string): array
+    {
         $filters = array("type", "dates", "words", "mindate", "maxdate", "years");
         //$operands = array("and" => "+", "not" => "-");
         $positions = array();
@@ -370,11 +378,11 @@ class OeawFunctions {
         
         $strArr = explode('&', $string);
                 
-        foreach($filters as $f){
-            foreach($strArr as $arr){
+        foreach ($filters as $f) {
+            foreach ($strArr as $arr) {
                 if (strpos($arr, $f) !== false) {
                     $arr = str_replace($f.'=', '', $arr);
-                    if( ($f == "mindate") || ($f == "maxdate") ){
+                    if (($f == "mindate") || ($f == "maxdate")) {
                         $arr = str_replace('+', '', $arr);
                     }
                     $res[$f] = $arr;
@@ -386,20 +394,20 @@ class OeawFunctions {
     
     /**
      * Creates a string from the currentPage For the pagination
-     * 
+     *
      * @return string
      */
-    public function getCurrentPageForPagination(): string{
-        
+    public function getCurrentPageForPagination(): string
+    {
         $currentPath = "";
         $currentPage = "";
         
         $currentPath = \Drupal::service('path.current')->getPath();
         $currentPage = substr($currentPath, 1);
         $currentPage = explode("/", $currentPage);
-        if(isset($currentPage[0]) && isset($currentPage[1])){
+        if (isset($currentPage[0]) && isset($currentPage[1])) {
             $currentPage = $currentPage[0].'/'.$currentPage[1];
-        }else{
+        } else {
             $currentPage = $currentPage[0].'/';
         }
         return $currentPage;
@@ -407,13 +415,13 @@ class OeawFunctions {
     
     /**
      * Create a rawurlencoded string from the users entered search string
-     * 
+     *
      * @param string $string
      * @param array $extras
      * @return string
      */
-    public function convertSearchString(string $string, array $extras = null): string{
-      
+    public function convertSearchString(string $string, array $extras = null): string
+    {
         $filters = array("type", "date", "words",);
         $operands = array("or", "not");
         $positions = array();
@@ -422,12 +430,12 @@ class OeawFunctions {
         $string = strtolower($string);
         $string = str_replace(' ', '+', $string);
         //get the filters actual position in the string
-        foreach($filters as $f){
-            if(strpos($string, $f)){
+        foreach ($filters as $f) {
+            if (strpos($string, $f)) {
                 $positions[$f] = strpos($string.':', $f);
             }
         }
-        if(empty($positions) && !empty($string)){
+        if (empty($positions) && !empty($string)) {
             $positions["words"] = 0;
         }
         //sort them by value to get the right order in the text
@@ -437,17 +445,17 @@ class OeawFunctions {
 
         $newStrArr = array();
         //create the type array
-        foreach(array_keys($keys) as $k ){
+        foreach (array_keys($keys) as $k) {
             $thisVal = $positions[$keys[$k]];
-            if($k == 0){
+            if ($k == 0) {
                 //add the first line
                 $newStrArr["words"] = substr($string, 0, $thisVal);
             }
             
-            if($positions[$keys[$k+1]]){
+            if ($positions[$keys[$k+1]]) {
                 $nextVal = $positions[$keys[$k+1]];
                 $newStrArr[$keys[$k]] =  substr($string, $thisVal, $nextVal - $thisVal);
-            }else {
+            } else {
                 $newStrArr[$keys[$k]] =  substr($string, $thisVal);
             }
         }
@@ -456,16 +464,16 @@ class OeawFunctions {
         $tyStr = "";
         $wsStr = "";
                 
-        if(isset($newStrArr["words"])){
+        if (isset($newStrArr["words"])) {
             $wdStr = strtolower($newStrArr["words"]);
             $wdStr = "words=".$wdStr;
             $res = $wdStr;
         }
 
-        if(isset($newStrArr["type"])){
+        if (isset($newStrArr["type"])) {
             $tyStr = strtolower($newStrArr["type"]);
-            if(isset($extras["type"])){
-                foreach($extras["type"] as $t){
+            if (isset($extras["type"])) {
+                foreach ($extras["type"] as $t) {
                     if (strpos($tyStr, $t) == false) {
                         $tyStr .= "or+".$t."+";
                     }
@@ -474,39 +482,38 @@ class OeawFunctions {
             
             $tyStr = str_replace('type:', 'type=', $tyStr);
             
-            if(!empty($tyStr)){
+            if (!empty($tyStr)) {
                 $res = $res."&".$tyStr;
             }
-            
-        } elseif (isset($extras["type"])){
+        } elseif (isset($extras["type"])) {
             $tyStr .="type=";
             
             $count = count($extras["type"]);
             $i = 0;
-            foreach($extras["type"] as $t){
+            foreach ($extras["type"] as $t) {
                 if (strpos($tyStr, $t) == false) {
                     $tyStr .= "".$t."+";
                 }
-                if($i != $count -1){
+                if ($i != $count -1) {
                     $tyStr .= "or+";
-                }                
+                }
                 $i++;
             }
             $res = $res."&".$tyStr;
         }
         
         //date format should be: mindate=20160101&maxdate=20170817
-        if(isset($newStrArr["date"])){
+        if (isset($newStrArr["date"])) {
             $dtStr = strtolower($newStrArr["date"]);
             $dtStr = str_replace('date:[', 'mindate=', $dtStr);
             $dtStr = str_replace(']', '', $dtStr);
             $dtStr = str_replace(' ', '', $dtStr);
             $dtStr = str_replace('+to+', '&maxdate=', $dtStr);
             $newStrArr["date"] = $dtStr;
-            if(!empty($res)){
+            if (!empty($res)) {
                 $res = $res."&".$dtStr;
             }
-        }elseif (isset($extras["start_date"]) && isset($extras["end_date"])){
+        } elseif (isset($extras["start_date"]) && isset($extras["end_date"])) {
             $mindate = date("Ymd", strtotime($extras['start_date']));
             $maxdate = date("Ymd", strtotime($extras['end_date']));
         
@@ -515,7 +522,7 @@ class OeawFunctions {
         
         $res = str_replace('+&', '&', $res);
         
-        return $res;    
+        return $res;
     }
     
     
@@ -523,17 +530,17 @@ class OeawFunctions {
     
     
     /**
-     * 
+     *
      * create the page navigation html code
-     * 
+     *
      * @param type $actualPage
      * @param type $page
      * @param type $tpages
      * @param type $limit
      * @return string
      */
-    public function createPaginationHTML(string $actualPage, string $page, $tpages, $limit): string {
-       
+    public function createPaginationHTML(string $actualPage, string $page, $tpages, $limit): string
+    {
         $adjacents = 2;
         $prevlabel = "<i class='material-icons'>&#xE5CB;</i>";
         $nextlabel = "<i class='material-icons'>&#xE5CC;</i>";
@@ -542,7 +549,7 @@ class OeawFunctions {
         $tpages = $tpages;
         // previous
         if ($page == 0) {
-	        //Don't show prev if we are on the first page
+            //Don't show prev if we are on the first page
             //$out.= "<li class='pagination-item'><span>" . $prevlabel . "</span></li>";
         } else {
             $out.= "<li class='pagination-item'><a data-pagination='" . $page . "'>" . $prevlabel . "</a>\n</li>";
@@ -563,7 +570,7 @@ class OeawFunctions {
         if ($page < $tpages-1) {
             $out.= "<li class='pagination-item'><a data-pagination='" . ($page + 2) . "'>" . $nextlabel . "</a>\n</li>";
         } else {
-	        //Don't show next if we are on the last page
+            //Don't show next if we are on the last page
             //$out.= "<li class='pagination-item'><span style=''>" . $nextlabel . "</span></li>";
         }
         
@@ -577,37 +584,36 @@ class OeawFunctions {
     
 
     /**
-     * 
+     *
      * Check the Resource Rules and display the users/grants
-     * 
+     *
      * @param array $rules
      * @return array
-     * 
+     *
      */
-    public function checkRules(array $rules): array{
-        
+    public function checkRules(array $rules): array
+    {
         $rights = array();
-        //if we dont have rights then we have some error in the fedora db, so we 
+        //if we dont have rights then we have some error in the fedora db, so we
         // will automatically adding the READ rights for the resource
-        if(count($rules) == 0){
+        if (count($rules) == 0) {
             $rights['username'] = "user";
             $rights['mode'][] = "READ";
-        }else {
+        } else {
             $i = 0;
             //check the rules
-            foreach($rules as $r){
-                if( $r->getRoles(\acdhOeaw\fedora\acl\WebAclRule::USER) ){
+            foreach ($rules as $r) {
+                if ($r->getRoles(\acdhOeaw\fedora\acl\WebAclRule::USER)) {
                     $rights['username'] = "user";
-                }
-                else if( $r->getRoles(\acdhOeaw\fedora\acl\WebAclRule::GROUP) ){
+                } elseif ($r->getRoles(\acdhOeaw\fedora\acl\WebAclRule::GROUP)) {
                     $rights['username'] = "group";
                 }
                 
                 switch ($r->getMode(\acdhOeaw\fedora\acl\WebAclRule::WRITE)) {
-                    case \acdhOeaw\fedora\acl\WebAclRule::READ :
-                        $rights['mode'][] = "READ"; 
+                    case \acdhOeaw\fedora\acl\WebAclRule::READ:
+                        $rights['mode'][] = "READ";
                         break;
-                    case \acdhOeaw\fedora\acl\WebAclRule::WRITE :
+                    case \acdhOeaw\fedora\acl\WebAclRule::WRITE:
                         $rights['mode'][] = "WRITE";
                         break;
                     default:
@@ -616,32 +622,34 @@ class OeawFunctions {
             }
         }
         
-        if(count($rights) == 0 || $this->checkMultiDimArrayForValue('NONE', $rights) == true){
+        if (count($rights) == 0 || $this->checkMultiDimArrayForValue('NONE', $rights) == true) {
             throw new \Exception(
-                $this->langConf->get('errmsg_dont_have_permission') ? $this->langConf->get('errmsg_dont_have_permission') : 'You do not have enough permission');
+                $this->langConf->get('errmsg_dont_have_permission') ? $this->langConf->get('errmsg_dont_have_permission') : 'You do not have enough permission'
+            );
         }
         return $rights;
     }
     
     /**
-     * 
+     *
      * Get the Fedora Resource Rules
      * If it is empty, then it is a private resource
-     * 
+     *
      * @param string $uri
      * @param FedoraResource $fedoraRes
      * @return array
      */
-    public function getRules(string $uri, \acdhOeaw\fedora\FedoraResource $fedoraRes): array{
+    public function getRules(string $uri, \acdhOeaw\fedora\FedoraResource $fedoraRes): array
+    {
         $result = array();
         
-        try{
+        try {
             $aclObj = $fedoraRes->getAcl()->getRules();
-        }catch (Exception $ex) {
+        } catch (Exception $ex) {
             throw new \Exception(
                 t('Error').':'.__FUNCTION__.t('Message').':'.$ex->getMessage()
             );
-        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
             throw new \acdhOeaw\fedora\exceptions\NotFound(
                 t('Error').':'.__FUNCTION__.t('Message').':'.$ex->getMessage()
             );
@@ -650,55 +658,56 @@ class OeawFunctions {
     }
     
     /**
-     * 
+     *
      * Add access to the user on the actual resource
-     * 
+     *
      * @param string $uri
      * @param string $user
      * @param Fedora $fedora
      * @return array
      */
-    public function grantAccess(string $uri, string $user, \acdhOeaw\fedora\Fedora $fedora): array{
+    public function grantAccess(string $uri, string $user, \acdhOeaw\fedora\Fedora $fedora): array
+    {
         $result = array();
         
         $fedora->begin();
         
-        try{
+        try {
             $res = $fedora->getResourceByUri($uri);
         } catch (Exception $ex) {
             return array();
-        }catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
             return array();
         }
         
         $aclObj = $res->getAcl();
         $aclObj->grant(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
         $aclObj = $res->getAcl();
-        $result = $aclObj->getRules();        
+        $result = $aclObj->getRules();
         $fedora->commit();
         
         return $result;
-
-    }   
+    }
     
     /**
      * Remove the user rules from the resource
-     * 
+     *
      * @param string $uri
      * @param string $user
      * @param Fedora $fedora
      * @return array
      */
-    public function revokeRules(string $uri, string $user, \acdhOeaw\fedora\Fedora $fedora): array{
+    public function revokeRules(string $uri, string $user, \acdhOeaw\fedora\Fedora $fedora): array
+    {
         $result = array();
         
-        $fedora->begin();        
+        $fedora->begin();
         $res = $fedora->getResourceByUri($uri);
         $aclObj = $res->getAcl();
         $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::READ);
         $aclObj->revoke(\acdhOeaw\fedora\acl\WebAclRule::USER, $user, \acdhOeaw\fedora\acl\WebAclRule::WRITE);
         $aclObj = $res->getAcl();
-        $result = $aclObj->getRules();        
+        $result = $aclObj->getRules();
         $fedora->commit();
         
         return $result;
@@ -706,19 +715,20 @@ class OeawFunctions {
     
     /**
      * This functions create the Concept template data for the basic view
-     * 
+     *
      * @param array $data
      * @return array
      */
-    public function createPlacesTemplateData(array $data): array {
+    public function createPlacesTemplateData(array $data): array
+    {
         $result = array();
         
-        if(count($data['table']) > 0){
-             //basic
+        if (count($data['table']) > 0) {
+            //basic
             $basicPropertys = array(
                 "acdh:hasTitle",
                 "acdh:hasIdentifier",
-                "acdh:hasAlternativeTitle",                
+                "acdh:hasAlternativeTitle",
                 "acdh:hasAddressLine1",
                 "acdh:hasAddressLine2",
                 "acdh:hasPostcode",
@@ -730,20 +740,20 @@ class OeawFunctions {
                 "acdh:isIdenticalTo"
             );
             
-            foreach($basicPropertys as $bP) {
-                if( (isset($data['table'][$bP])) && (count($data['table'][$bP]) > 0) ){
-                    foreach($data['table'][$bP] as $val){
-                        if($bP == "acdh:hasIdentifier"){
+            foreach ($basicPropertys as $bP) {
+                if ((isset($data['table'][$bP])) && (count($data['table'][$bP]) > 0)) {
+                    foreach ($data['table'][$bP] as $val) {
+                        if ($bP == "acdh:hasIdentifier") {
                             if (strpos($val['uri'], 'id.acdh.oeaw.ac.at') == false) {
                                 $result['basic'][$bP][] = $val;
                             }
-                        }else {
+                        } else {
                             $result['basic'][$bP][] = $val;
                         }
                     }
                 }
             }
-            if(isset($data['acdh_rdf:type'])){
+            if (isset($data['acdh_rdf:type'])) {
                 $result['basic']['acdh_rdf:type'] = $data['acdh_rdf:type'];
             }
             
@@ -755,8 +765,8 @@ class OeawFunctions {
             );
             
             //generate the contact data
-            foreach ($spatialProperties as $prop){
-                if( (isset($data['table'][$prop])) && (count($data['table'][$prop]) > 0) ){
+            foreach ($spatialProperties as $prop) {
+                if ((isset($data['table'][$prop])) && (count($data['table'][$prop]) > 0)) {
                     $result['spatial'][$prop] = $data['table'][$prop];
                 }
             }
@@ -767,16 +777,17 @@ class OeawFunctions {
     
     /**
      * This functions create the Project template data for the basic view
-     * 
+     *
      * @param OeawResource $data
      * @param string $type
      * @return \Drupal\oeaw\Model\OeawResourceCustomData
      * @throws \ErrorException
      */
-    public function createCustomDetailViewTemplateData(\Drupal\oeaw\Model\OeawResource $data, string $type): \Drupal\oeaw\Model\OeawResourceCustomData {
+    public function createCustomDetailViewTemplateData(\Drupal\oeaw\Model\OeawResource $data, string $type): \Drupal\oeaw\Model\OeawResourceCustomData
+    {
         
         //check the table data in the object that we have enough data :)
-        if(count($data->getTable()) > 0){
+        if (count($data->getTable()) > 0) {
             //set the data for the resource custom data object
             $arrayObject = new \ArrayObject();
             $arrayObject->offsetSet('uri', $data->getUri());
@@ -786,15 +797,15 @@ class OeawFunctions {
             $arrayObject->offsetSet('title', $data->getTitle());
             $arrayObject->offsetSet('type', $data->getType());
             $arrayObject->offsetSet('typeUri', $data->getTypeUri());
-            if(!empty($data->getPID())){
+            if (!empty($data->getPID())) {
                 $arrayObject->offsetSet('pid', $data->getPID());
             }
-            if(!empty($data->getAccessRestriction())){
+            if (!empty($data->getAccessRestriction())) {
                 $arrayObject->offsetSet('accessRestriction', $data->getAccessRestriction());
             }
             
-            if(!empty($data->getType())){
-                $arrayObject->offsetSet('acdh_rdf:type', $data->getType() );
+            if (!empty($data->getType())) {
+                $arrayObject->offsetSet('acdh_rdf:type', $data->getType());
             }
             
             try {
@@ -809,64 +820,64 @@ class OeawFunctions {
     }
     
     /**
-     * 
+     *
      * Convers the sparql result contributors, authors, creators data to fit our spec. Obj
-     * 
+     *
      * @param array $data
      * @return array
      */
-    public function createContribAuthorData(array $data): array {
+    public function createContribAuthorData(array $data): array
+    {
         $result = array();
         $oeawStorage = new OeawStorage();
         foreach ($data as $d) {
             $title = $oeawStorage->getTitleByIdentifier($d);
-            if(count($title) > 0){
-                if(!empty($title[0]['title'])) {
+            if (count($title) > 0) {
+                if (!empty($title[0]['title'])) {
                     $result[] = array("title" => $title[0]['title'], "insideUri" => $this->detailViewUrlDecodeEncode($d, 1));
                 }
             }
         }
         return $result;
-        
     }
 
     /**
-     * 
+     *
      * Get the necessary data for the CITE Widget based on the properties
-     * 
+     *
      * @param array $data - resource data array
      * @param string $property - shortcur property - f.e.: acdh:hasCreator
      * @return string - a string with the available data
      */
-    private function getCiteWidgetData(\Drupal\oeaw\Model\OeawResource $data, string $property): string {
+    private function getCiteWidgetData(\Drupal\oeaw\Model\OeawResource $data, string $property): string
+    {
         $result = "";
         
-        if(count((array)$data) > 0){
+        if (count((array)$data) > 0) {
             if (!empty($data->getTableData($property))) {
                 foreach ($data->getTableData($property) as $key => $val) {
                     if (count($data->getTableData($property)) > 0) {
-                        if(isset($val["title"])){
-                            $result .= $val["title"]; 
-                            if($key + 1 != count($data->getTableData($property))) {
+                        if (isset($val["title"])) {
+                            $result .= $val["title"];
+                            if ($key + 1 != count($data->getTableData($property))) {
                                 $result .= ", ";
                             }
-                        } else if(isset($val["uri"])){
-                            $result .= $val["uri"]; 
-                            if($key + 1 != count($data->getTableData($property))) {
+                        } elseif (isset($val["uri"])) {
+                            $result .= $val["uri"];
+                            if ($key + 1 != count($data->getTableData($property))) {
                                 $result .= ", ";
                             }
-                        }else {
-                            if(!is_array($val)){
+                        } else {
+                            if (!is_array($val)) {
                                 $result .= ", " . $val;
                             }
                         }
                     } else {
-                        if(isset($val["title"])){
+                        if (isset($val["title"])) {
                             $result = $val["title"];
-                        }else if(isset($val["uri"])){
+                        } elseif (isset($val["uri"])) {
                             $result = $val["uri"];
-                        }
-                        else{
+                        } else {
                             $result = $val;
                         }
                     }
@@ -877,18 +888,18 @@ class OeawFunctions {
     }
     
     /**
-     * 
+     *
      * Create the HTML content of the cite-this widget on single resource view
-     * 
+     *
      * @param array $resourceData Delivers the properties of the resource
      * @return array $widget Returns the cite-this widget as HTML
      */
-    public function createCiteThisWidget(\Drupal\oeaw\Model\OeawResource $resourceData): array {
-        
+    public function createCiteThisWidget(\Drupal\oeaw\Model\OeawResource $resourceData): array
+    {
         $content = [];
 
         /** MLA Format
-	     * Example:
+         * Example:
          * Mörth, Karlheinz. Dictionary Gate. ACDH, 2013, hdl.handle.net/11022/0000-0000-001B-2. Accessed 12 Oct. 2017.
          */
         $widget["MLA"] = ["authors" => "", "creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => "", "hasHosting" => "", "hasEditor" => "", "accesedDate" => "", "acdhURI" => ""];
@@ -896,21 +907,21 @@ class OeawFunctions {
         //Get authors(s)
         $authors = "";
         $authors = $this->getCiteWidgetData($resourceData, "acdh:hasAuthor");
-        if(!empty($authors) ){
+        if (!empty($authors)) {
             $widget["MLA"]["authors"] = $authors;
         }
         
         //Get creator(s)
         $creators = "";
         $creators = $this->getCiteWidgetData($resourceData, "acdh:hasCreator");
-        if(!empty($creators) ){
+        if (!empty($creators)) {
             $widget["MLA"]["creators"] = $creators;
         }
         
-        //Get contributor(s) 
+        //Get contributor(s)
         $contributors = "";
         $contributors = $this->getCiteWidgetData($resourceData, "acdh:hasContributor");
-        if(!empty($contributors) ){
+        if (!empty($contributors)) {
             $widget["MLA"]["contributors"] = $contributors;
         }
 
@@ -919,16 +930,16 @@ class OeawFunctions {
             $widget["MLA"]["title"] = $resourceData->getTitle();
         }
 
-        //Get isPartOf		
+        //Get isPartOf
         if (!empty($resourceData->getTableData("acdh:isPartOf"))) {
             $isPartOf = $resourceData->getTableData("acdh:isPartOf")[0]["title"];
-            $widget["MLA"]["isPartOf"] = $isPartOf;		
+            $widget["MLA"]["isPartOf"] = $isPartOf;
         }
         
-        //Get hasHosting		
+        //Get hasHosting
         if (!empty($resourceData->getTableData("acdh:hasHosting"))) {
             $hasHosting = $resourceData->getTableData("acdh:hasHosting")[0]["title"];
-            $widget["MLA"]["hasHosting"] = $hasHosting;		
+            $widget["MLA"]["hasHosting"] = $hasHosting;
         }
 
         /* Get hasPid & create copy link
@@ -940,18 +951,18 @@ class OeawFunctions {
         }
         
         if (!$widget["MLA"]["acdhURI"]) {
-            if (!empty($resourceData->getIdentifiers()) && count($resourceData->getIdentifiers()) > 0 ){
+            if (!empty($resourceData->getIdentifiers()) && count($resourceData->getIdentifiers()) > 0) {
                 $acdhURIs = $resourceData->getIdentifiers();
                 //Only one value under acdh:hasIdentifier
                 
                 $uuid = "";
                 
-                foreach($acdhURIs as $id){
+                foreach ($acdhURIs as $id) {
                     //the id contains the acdh uuid
                     if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
                         $uuid = $id;
-                        //if the identifier is the normal acdh identifier then return it
-                    }else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
+                    //if the identifier is the normal acdh identifier then return it
+                    } elseif (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
                         $uuid = $id;
                         break;
                     }
@@ -964,11 +975,11 @@ class OeawFunctions {
         if (!empty($resourceData->getTableData("acdh:hasAvailableDate"))) {
             $availableDate = $resourceData->getTableData("acdh:hasAvailableDate")[0];
             $availableDate = strtotime($availableDate);
-            $widget["MLA"]["availableDate"] = date('Y',$availableDate);
+            $widget["MLA"]["availableDate"] = date('Y', $availableDate);
         }
         
-         //Get accesed date
-        $widget["MLA"]["accesedDate"] = date('d M Y');			
+        //Get accesed date
+        $widget["MLA"]["accesedDate"] = date('d M Y');
 
         
         //Process MLA
@@ -977,28 +988,38 @@ class OeawFunctions {
 
         $widget["MLA"]["string"] = "";
         //AUTHORS
-        if ( isset($widget["MLA"]["authors"]) && !empty($widget["MLA"]["authors"]) ) { 
-            $widget["MLA"]["string"] .= $widget["MLA"]["authors"].'. '; 
-        } else if ( isset($widget["MLA"]["creators"]) && !empty($widget["MLA"]["creators"]) ) { 
+        if (isset($widget["MLA"]["authors"]) && !empty($widget["MLA"]["authors"])) {
+            $widget["MLA"]["string"] .= $widget["MLA"]["authors"].'. ';
+        } elseif (isset($widget["MLA"]["creators"]) && !empty($widget["MLA"]["creators"])) {
             $widget["MLA"]["string"] .= $widget["MLA"]["creators"].'. ';
-        } else if ( isset($widget["MLA"]["contributors"]) && !empty($widget["MLA"]["contributors"]) ) { 
-            $widget["MLA"]["string"] .= $widget["MLA"]["contributors"].'. '; 
+        } elseif (isset($widget["MLA"]["contributors"]) && !empty($widget["MLA"]["contributors"])) {
+            $widget["MLA"]["string"] .= $widget["MLA"]["contributors"].'. ';
         }
 
         //TITLE
-        if ($widget["MLA"]["title"]) { $widget["MLA"]["string"] .= '<em>'.$widget["MLA"]["title"].'.</em> '; }
+        if ($widget["MLA"]["title"]) {
+            $widget["MLA"]["string"] .= '<em>'.$widget["MLA"]["title"].'.</em> ';
+        }
 
         //PUBLISHER
-        if ($widget["MLA"]["hasHosting"]) { $widget["MLA"]["string"] .= $widget["MLA"]["hasHosting"].', '; }
+        if ($widget["MLA"]["hasHosting"]) {
+            $widget["MLA"]["string"] .= $widget["MLA"]["hasHosting"].', ';
+        }
 
         //DATE
-        if ($widget["MLA"]["availableDate"]) { $widget["MLA"]["string"] .= $widget["MLA"]["availableDate"].', '; }
+        if ($widget["MLA"]["availableDate"]) {
+            $widget["MLA"]["string"] .= $widget["MLA"]["availableDate"].', ';
+        }
 
         //HANDLE
-        if ($widget["MLA"]["acdhURI"]) { $widget["MLA"]["string"] .= $widget["MLA"]["acdhURI"].'. '; }
+        if ($widget["MLA"]["acdhURI"]) {
+            $widget["MLA"]["string"] .= $widget["MLA"]["acdhURI"].'. ';
+        }
 
         //DATE
-        if ($widget["MLA"]["accesedDate"]) { $widget["MLA"]["string"] .= 'Accessed '.$widget["MLA"]["accesedDate"].'. '; }
+        if ($widget["MLA"]["accesedDate"]) {
+            $widget["MLA"]["string"] .= 'Accessed '.$widget["MLA"]["accesedDate"].'. ';
+        }
 
         /*
         } else {
@@ -1008,35 +1029,35 @@ class OeawFunctions {
         */
 
         return $widget;
-	}
+    }
 
     /**
-     * 
+     *
      * Creates the EasyRdf_Resource by uri
-     * 
+     *
      * @param string $uri
      * @return \EasyRdf\Resource
      */
-    public function makeMetaData(string $uri): \EasyRdf\Resource {
-        
-        if(empty($uri)){
+    public function makeMetaData(string $uri): \EasyRdf\Resource
+    {
+        if (empty($uri)) {
             return drupal_set_message(
-                    $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!', 
-                    'error'
+                $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!',
+                'error'
                 );
         }
         
         $meta = array();
-       // setup fedora
+        // setup fedora
         $fedora = new Fedora();
-         try{
+        try {
             $meta = $fedora->getResourceByUri($uri);
             $meta = $meta->getMetadata();
-        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
             throw new \acdhOeaw\fedora\exceptions\NotFound(
-                    $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!'
+                $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!'
                 );
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             throw new \GuzzleHttp\Exception\ClientException($ex->getMessage());
         }
         return $meta;
@@ -1045,115 +1066,115 @@ class OeawFunctions {
     
     /**
      * Creates the EasyRdf_Graph by uri
-     * 
+     *
      * @param string $uri - resource uri
      * @return  \EasyRdf\Graph
-     * 
+     *
      */
-    public function makeGraph(string $uri): \EasyRdf\Graph{
-     
+    public function makeGraph(string $uri): \EasyRdf\Graph
+    {
         $graph = array();
-        // setup fedora        
+        // setup fedora
         $fedora = new Fedora();
         
         //create and load the data to the graph
-        try{
+        try {
             $graph = $fedora->getResourceByUri($uri);
             $graph = $graph->getMetadata()->getGraph();
-        }catch ( \Exception $ex){
+        } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
-        }     
-        catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
             throw new \acdhOeaw\fedora\exceptions\NotFound("Resource does not exist!");
-        } catch (\acdhOeaw\fedora\exceptions\Deleted $ex){
+        } catch (\acdhOeaw\fedora\exceptions\Deleted $ex) {
             throw new \acdhOeaw\fedora\exceptions\Deleted($ex->getMessage());
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             throw new \GuzzleHttp\Exception\ClientException($ex->getMessage());
-        }          
+        }
         
         return $graph;
     }
     
     
-     /**
-     * Get the title by the property
-     * This is a static method because the Edit/Add form will use it
-     * over their callback method.
-     *     
-     * 
-     * @param array $formElements -> the actual form input
-     * @param string $mode -> edit/new form.
-     * @return AjaxResponse
-     * 
-     */    
-    public function getFieldNewTitle(array $formElements, string $mode = 'edit'): AjaxResponse {
-        
-        $ajax_response = array();         
+    /**
+    * Get the title by the property
+    * This is a static method because the Edit/Add form will use it
+    * over their callback method.
+    *
+    *
+    * @param array $formElements -> the actual form input
+    * @param string $mode -> edit/new form.
+    * @return AjaxResponse
+    *
+    */
+    public function getFieldNewTitle(array $formElements, string $mode = 'edit'): AjaxResponse
+    {
+        $ajax_response = array();
         $fedora = new Fedora();
         
-        if($mode == "edit"){
+        if ($mode == "edit") {
             //create the old values and the new values arrays with the user inputs
-            foreach($formElements as $key => $value){
+            foreach ($formElements as $key => $value) {
                 if (strpos($key, ':oldValues') !== false) {
-                    if(strpos($key, ':prop') === false){
+                    if (strpos($key, ':prop') === false) {
                         $newKey = str_replace(':oldValues', "", $key);
                         $oldValues[$newKey] = $value;
                     }
-                }else {
+                } else {
                     $newValues[$key] = $value;
                 }
             }
             //get the differences
             $result = array_diff_assoc($newValues, $oldValues);
-            
-        }else if($mode == "new"){
-                 //get the values which are urls
-            foreach($formElements as $key => $value){
-                if((strpos($key, ':prop') !== false)) {
+        } elseif ($mode == "new") {
+            //get the values which are urls
+            foreach ($formElements as $key => $value) {
+                if ((strpos($key, ':prop') !== false)) {
                     unset($formElements[$key]);
-                }elseif (strpos($value, 'http') !== false) {
+                } elseif (strpos($value, 'http') !== false) {
                     $result[$key] = $value;
                 }
             }
         }
         
         $ajax_response = new AjaxResponse();
-        if(empty($result)){ return $ajax_response; }
+        if (empty($result)) {
+            return $ajax_response;
+        }
         
-        foreach($result as $key => $value){
+        foreach ($result as $key => $value) {
             //get the fedora urls, where we can create a FedoraObject
             if (!empty($value) && strpos($value, RC::get('fedoraApiUrl')) !== false && $key != "file" && !is_array($value)) {
                 $lblFO = $this->makeMetaData($value);
                 //if not empty the fedoraObj then get the label
-                if(!empty($lblFO)){
+                if (!empty($lblFO)) {
                     $lbl = $lblFO->label();
                 }
             }
             
-            if(!empty($lbl)){
+            if (!empty($lbl)) {
                 $label = htmlentities($lbl, ENT_QUOTES, "UTF-8");
-            }else {
+            } else {
                 $label = "";
             }
             $ajax_response->addCommand(new HtmlCommand('#edit-'.$key.'--description', "New Value: <a href='".(string)$value."' target='_blank'>".(string)$label."</a>"));
             $ajax_response->addCommand(new InvokeCommand('#edit-'.$key.'--description', 'css', array('color', 'green')));
         }
         // Return the AjaxResponse Object.
-        return $ajax_response;        
+        return $ajax_response;
     }
   
            
     /**
-     * 
+     *
      * Create array from  EasyRdf_Sparql_Result object
-     * 
+     *
      * @param \EasyRdf\Sparql\Result $result
      * @param array $fields
      * @return array
      */
-    public function createSparqlResult(\EasyRdf\Sparql\Result $result, array $fields): array {
-        
-        if(empty($result) && empty($fields)){
+    public function createSparqlResult(\EasyRdf\Sparql\Result $result, array $fields): array
+    {
+        if (empty($result) && empty($fields)) {
             drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
             return array();
         }
@@ -1162,25 +1183,22 @@ class OeawFunctions {
         $val = "";
         
         for ($x = 0; $x <= $resCount; $x++) {
-        
-            foreach($fields as $f){                
-               
-                if(!empty($result[$x]->$f)){                    
+            foreach ($fields as $f) {
+                if (!empty($result[$x]->$f)) {
                     $objClass = get_class($result[$x]->$f);
                     
-                    if($objClass == "EasyRdf\Resource"){
+                    if ($objClass == "EasyRdf\Resource") {
                         $val = $result[$x]->$f;
                         $val = $val->getUri();
                         $res[$x][$f] = $val;
-                    }else if($objClass == "EasyRdf\Literal"){
+                    } elseif ($objClass == "EasyRdf\Literal") {
                         $val = $result[$x]->$f;
                         $val = $val->__toString();
                         $res[$x][$f] = $val;
                     } else {
                         $res[$x][$f] = $result[$x]->$f->__toString();
                     }
-                }
-                else{
+                } else {
                     $res[$x][$f] = "";
                 }
             }
@@ -1190,16 +1208,19 @@ class OeawFunctions {
     
     
     /**
-     * 
+     *
      * Creating an array from the vocabsNamespace
-     * 
+     *
      * @param string $string
      * @return array
-     * 
-     * 
+     *
+     *
      */
-    public function createStrongFromACDHVocabs(string $string): array {
-        if (empty($string)) { return false; }
+    public function createStrongFromACDHVocabs(string $string): array
+    {
+        if (empty($string)) {
+            return false;
+        }
         $result = array();
         
         if (strpos($string, RC::vocabsNmsp()) !== false) {
@@ -1210,14 +1231,17 @@ class OeawFunctions {
     }
     
     /**
-     * 
-     * create prefix from string based on the  prefixes     
-     * 
+     *
+     * create prefix from string based on the  prefixes
+     *
      * @param string $string
      * @return string
      */
-    public static function createPrefixesFromString(string $string): string {
-        if (empty($string)) { return false; }
+    public static function createPrefixesFromString(string $string): string
+    {
+        if (empty($string)) {
+            return false;
+        }
         $result = array();
         $endValue = explode('/', $string);
         $endValue = end($endValue);
@@ -1231,9 +1255,9 @@ class OeawFunctions {
         $newString = explode($endValue, $string);
         $newString = $newString[0];
                 
-        if(!empty(CC::$prefixesToChange[$newString])){
+        if (!empty(CC::$prefixesToChange[$newString])) {
             $result = CC::$prefixesToChange[$newString].':'.$endValue;
-        }else {
+        } else {
             $result = $string;
         }
         return $result;
@@ -1241,26 +1265,25 @@ class OeawFunctions {
 
     
     /**
-     * 
-     * create prefix from array based on the ConfigConstants.php prefixes     
-     * 
+     *
+     * create prefix from array based on the ConfigConstants.php prefixes
+     *
      * @param array $array
      * @param array $header
      * @return array
      */
-    public function createPrefixesFromArray(array $array, array $header): array {
-        
+    public function createPrefixesFromArray(array $array, array $header): array
+    {
         if (empty($array) && empty($header)) {
             return drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
         }
         
-        $result = array();        
-        $newString = array();        
+        $result = array();
+        $newString = array();
         
         for ($index = 0; $index < count($header); $index++) {
-            
             $key = $header[$index];
-            foreach($array as $a){
+            foreach ($array as $a) {
                 $value = $a[$key];
                 $endValue = explode('/', $value);
                 $endValue = end($endValue);
@@ -1273,9 +1296,9 @@ class OeawFunctions {
                 $newString = explode($endValue, $value);
                 $newString = $newString[0];
                  
-                if(!empty(CC::$prefixesToChange[$newString])){            
+                if (!empty(CC::$prefixesToChange[$newString])) {
                     $result[$key][] = CC::$prefixesToChange[$newString].':'.$endValue;
-                }else {
+                } else {
                     $result[$key][] = $value;
                 }
             }
@@ -1285,25 +1308,24 @@ class OeawFunctions {
     
     
     /**
-     * 
+     *
      * Format data to children array
-     * 
+     *
      * @param array $data
      * @return array
-     * 
+     *
      */
-    public function createChildrenViewData(array $data): array {
+    public function createChildrenViewData(array $data): array
+    {
         $result = array();
         
-        if(count($data) == 0) {   
+        if (count($data) == 0) {
             throw new \ErrorException(
                 $this->langConf->get('errmsg_no_child_resources') ? $this->langConf->get('errmsg_no_child_resources') : 'There is no any children data'
                 );
-                    
         }
         
-        foreach($data as $d){
-            
+        foreach ($data as $d) {
             $id = $this->createDetailViewUrl($d);
             $arrayObject = new \ArrayObject();
             
@@ -1316,7 +1338,7 @@ class OeawFunctions {
             $arrayObject->offsetSet('insideUri', $this->detailViewUrlDecodeEncode($id, 1));
             $arrayObject->offsetSet('accessRestriction', $d['accessRestriction']);
             
-            if(isset($d['uri'])){
+            if (isset($d['uri'])) {
                 $arrayObject->offsetSet('typeName', explode(RC::get('fedoraVocabsNamespace'), $d['types'])[1]);
             }
             $result[] = new \Drupal\oeaw\Model\OeawResourceChildren($arrayObject);
@@ -1327,24 +1349,25 @@ class OeawFunctions {
     
 
     /**
-     * 
+     *
      * this will generate an array with the Resource data.
      * The Table will contains the resource properties with the values in array.
-     * 
+     *
      * There will be also some additional data:
      * - resourceTitle -> the Main Resource Title
      * - uri -> the Main Resource Uri
      * - insideUri -> the base64_encoded uri to the gui browsing
-     * 
+     *
      * @param Resource $data
      * @return array
      */
-    public function createDetailViewTable(\EasyRdf\Resource $data): \Drupal\oeaw\Model\OeawResource {
+    public function createDetailViewTable(\EasyRdf\Resource $data): \Drupal\oeaw\Model\OeawResource
+    {
         $result = array();
         $arrayObject = new \ArrayObject();
         $OeawStorage = new OeawStorage();
 
-        if(empty($data)){
+        if (empty($data)) {
             return drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
         }
         
@@ -1356,10 +1379,10 @@ class OeawFunctions {
         
         $rsId = array();
         $uuid = "";
-        if(count($resourceIdentifiers) > 0){
-            foreach ($resourceIdentifiers as $ids){
+        if (count($resourceIdentifiers) > 0) {
+            foreach ($resourceIdentifiers as $ids) {
                 if (strpos($ids->getUri(), RC::get('fedoraUuidNamespace')) !== false) {
-                   $uuid =  $ids->getUri();
+                    $uuid =  $ids->getUri();
                 }
                 $rsId[] = $ids->getUri();
             }
@@ -1367,7 +1390,7 @@ class OeawFunctions {
         //get the resources and remove fedora properties
         $properties = array();
         $properties = $data->propertyUris();
-        foreach ($properties as $key => $val){
+        foreach ($properties as $key => $val) {
             if (strpos($val, 'fedora.info') !== false) {
                 unset($properties[$key]);
             }
@@ -1376,83 +1399,80 @@ class OeawFunctions {
         $properties = array_values($properties);
         $searchTitle = array();
         
-        foreach ($properties as $p){
+        foreach ($properties as $p) {
             $propertyShortcut = $this->createPrefixesFromString($p);
             //get the properties data from the easyrdf resource object
-            foreach ($data->all($p) as $key => $val){
-                
-                if(get_class($val) == "EasyRdf\Resource" ){
+            foreach ($data->all($p) as $key => $val) {
+                if (get_class($val) == "EasyRdf\Resource") {
                     $classUri = $val->getUri();
-                    if($p == RC::get("drupalRdfType")){
-                        if ( (strpos($val->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false) 
+                    if ($p == RC::get("drupalRdfType")) {
+                        if ((strpos($val->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false)
                                 &&
-                                $val->localName()) 
-                        {
+                                $val->localName()) {
                             $result['acdh_rdf:type']['title'] = $val->localName();
-                            $result['acdh_rdf:type']['insideUri'] = $this->detailViewUrlDecodeEncode($val->__toString(), 1);   
+                            $result['acdh_rdf:type']['insideUri'] = $this->detailViewUrlDecodeEncode($val->__toString(), 1);
                             $result['acdh_rdf:type']['uri'] = $val->__toString();
                         }
                     }
                     $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
                     
                     //we will skip the title for the resource identifier
-                    if($p != RC::idProp() ){
+                    if ($p != RC::idProp()) {
                         //this will be the proper
                         $searchTitle[] = $classUri;
                     }
                     //if the acdhImage is available or the ebucore MIME
-                    if($p == RC::get("drupalRdfType")){
-                        if($val == RC::get('drupalHasTitleImage')){
+                    if ($p == RC::get("drupalRdfType")) {
+                        if ($val == RC::get('drupalHasTitleImage')) {
                             $result['image'] = $resourceUri;
                         }
                         //check that the resource has Binary or not
-                        if($val == RC::get('drupalFedoraBinary')){
+                        if ($val == RC::get('drupalFedoraBinary')) {
                             $result['hasBinary'] = $resourceUri;
                         }
                         
-                        if($val == RC::get('drupalMetadata') ){
+                        if ($val == RC::get('drupalMetadata')) {
                             $invMeta = $OeawStorage->getMetaInverseData($resourceUri);
-                            if(count($invMeta) > 0){
+                            if (count($invMeta) > 0) {
                                 $result['isMetadata'] = $invMeta;
                             }
                         }
                     }
                     //simply check the acdh:hasTitleImage for the root resources too.
-                    if($p == RC::get('drupalHasTitleImage')){
+                    if ($p == RC::get('drupalHasTitleImage')) {
                         $imgUrl = "";
                         $imgUrl = $OeawStorage->getImageByIdentifier($val->getUri());
-                        if($imgUrl){
+                        if ($imgUrl) {
                             $result['image'] = $imgUrl;
                         }
                     }
                 }
-                if( (get_class($val) == "EasyRdf\Literal") || 
-                        (get_class($val) == "EasyRdf\Literal\DateTime") || 
-                        (get_class($val) == "EasyRdf\Literal\Integer")){
-                    
-                    if(get_class($val) == "EasyRdf\Literal\DateTime"){
-                        $dt = $val->__toString();                        
+                if ((get_class($val) == "EasyRdf\Literal") ||
+                        (get_class($val) == "EasyRdf\Literal\DateTime") ||
+                        (get_class($val) == "EasyRdf\Literal\Integer")) {
+                    if (get_class($val) == "EasyRdf\Literal\DateTime") {
+                        $dt = $val->__toString();
                         $time = strtotime($dt);
                         $result['table'][$propertyShortcut][$key]  = date('Y-m-d', $time);
-                    }else{
+                    } else {
                         $result['table'][$propertyShortcut][$key] = $val->getValue();
                     }
                     
                     //we dont have the image yet but we have a MIME
-                    if( ($p == RC::get('drupalEbucoreHasMime')) && (!isset($result['image'])) && (strpos($val, 'image') !== false) ) {
+                    if (($p == RC::get('drupalEbucoreHasMime')) && (!isset($result['image'])) && (strpos($val, 'image') !== false)) {
                         //if we have image/tiff then we need to use the loris
-                        if($val == "image/tiff"){
+                        if ($val == "image/tiff") {
                             $lorisImg = array();
                             $lorisImg = Helper::generateLorisUrl(base64_encode($resourceUri), true);
-                            if(count($lorisImg) > 0){
+                            if (count($lorisImg) > 0) {
                                 $result['image'] = $lorisImg['imageUrl'];
                             }
-                        }else {
+                        } else {
                             $result['image'] = $resourceUri;
                         }
                     }
-                    if( $p == RC::get('fedoraExtentProp') ) {
-                        if($val->getValue()){
+                    if ($p == RC::get('fedoraExtentProp')) {
+                        if ($val->getValue()) {
                             $result['table'][$propertyShortcut][$key] = Helper::formatSizeUnits($val->getValue());
                         }
                     }
@@ -1460,31 +1480,31 @@ class OeawFunctions {
             }
         }
         
-        if(count($searchTitle) > 0){
+        if (count($searchTitle) > 0) {
             //get the not literal propertys TITLE
             $existinTitles = array();
             $existinTitles = $OeawStorage->getTitleAndBasicInfoByIdentifierArray($searchTitle);
             
-            if(count($existinTitles) > 0) {
+            if (count($existinTitles) > 0) {
                 $resKeys = array_keys($result['table']);
                 //change the titles
-                foreach($resKeys as $k){
-                    foreach($result['table'][$k] as $key => $val){
-                        if(is_array($val)){
-                            foreach($existinTitles as $t){
-                                if($t['identifier'] == $val['uri'] || $t['pid'] == $val['uri'] || $t['uuid'] == $val['uri']){
+                foreach ($resKeys as $k) {
+                    foreach ($result['table'][$k] as $key => $val) {
+                        if (is_array($val)) {
+                            foreach ($existinTitles as $t) {
+                                if ($t['identifier'] == $val['uri'] || $t['pid'] == $val['uri'] || $t['uuid'] == $val['uri']) {
                                     $result['table'][$k][$key]['title'] = $t['title'];
 
                                     $decodId = "";
-                                    if(isset($t['pid']) && !empty($t['pid'])){
+                                    if (isset($t['pid']) && !empty($t['pid'])) {
                                         $decodId = $t['pid'];
-                                    }else if(isset($t['uuid']) && !empty($t['uuid'])){
+                                    } elseif (isset($t['uuid']) && !empty($t['uuid'])) {
                                         $decodId = $t['uuid'];
-                                    }else if(isset($t['identifier']) && !empty($t['identifier'])){
+                                    } elseif (isset($t['identifier']) && !empty($t['identifier'])) {
                                         $decodId = $t['identifier'];
                                     }
 
-                                    if(!empty($decodId)){
+                                    if (!empty($decodId)) {
                                         $result['table'][$k][$key]['insideUri'] = $this->detailViewUrlDecodeEncode($decodId, 1);
                                     }
                                 }
@@ -1495,7 +1515,7 @@ class OeawFunctions {
             }
         }
         
-        if(empty($result['acdh_rdf:type']['title']) || !isset($result['acdh_rdf:type']['title'])){
+        if (empty($result['acdh_rdf:type']['title']) || !isset($result['acdh_rdf:type']['title'])) {
             throw new \ErrorException(t("Empty").': ACDH RDF TYPE', 0);
         }
         $result['resourceTitle'] = $resourceTitle;
@@ -1504,70 +1524,79 @@ class OeawFunctions {
         
         $arrayObject->offsetSet('table', $result['table']);
         $arrayObject->offsetSet('title', $resourceTitle->__toString());
-        $arrayObject->offsetSet('uri', $this->detailViewUrlDecodeEncode( $resourceIdentifier, 0));
-        $arrayObject->offsetSet('type', $result['acdh_rdf:type']['title'] );
-        $arrayObject->offsetSet('typeUri', $result['acdh_rdf:type']['uri'] );
+        $arrayObject->offsetSet('uri', $this->detailViewUrlDecodeEncode($resourceIdentifier, 0));
+        $arrayObject->offsetSet('type', $result['acdh_rdf:type']['title']);
+        $arrayObject->offsetSet('typeUri', $result['acdh_rdf:type']['uri']);
         $arrayObject->offsetSet('acdh_rdf:type', array("title" => $result['acdh_rdf:type']['title'], "insideUri" => $result['acdh_rdf:type']['insideUri']));
         $arrayObject->offsetSet('fedoraUri', $resourceUri);
         $arrayObject->offsetSet('identifiers', $rsId);
-        if(isset($result['table']['acdh:hasAccessRestriction']) && !empty($result['table']['acdh:hasAccessRestriction'][0]) ){
+        if (isset($result['table']['acdh:hasAccessRestriction']) && !empty($result['table']['acdh:hasAccessRestriction'][0])) {
             $arrayObject->offsetSet('accessRestriction', $result['table']['acdh:hasAccessRestriction'][0]);
         }
-        $arrayObject->offsetSet('insideUri', $this->detailViewUrlDecodeEncode( $uuid, 1));
-        if(isset($result['image'])){ $arrayObject->offsetSet('imageUrl', $result['image']); }
+        $arrayObject->offsetSet('insideUri', $this->detailViewUrlDecodeEncode($uuid, 1));
+        if (isset($result['image'])) {
+            $arrayObject->offsetSet('imageUrl', $result['image']);
+        }
         
         try {
             $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
         } catch (ErrorException $ex) {
-            throw new \ErrorException( t('Init').' '.t('Error').' : OeawResource', 0);
+            throw new \ErrorException(t('Init').' '.t('Error').' : OeawResource', 0);
         }
         return $obj;
     }
     
     
     /**
-     * 
+     *
      * Get the keys from a multidimensional array
-     * 
+     *
      * @param array $arr
      * @return array
      */
-    public function getKeysFromMultiArray(array $arr): array{
-     
-        foreach($arr as $key => $value) {
+    public function getKeysFromMultiArray(array $arr): array
+    {
+        foreach ($arr as $key => $value) {
             $return[] = $key;
-            if(is_array($value)) $return = array_merge($return, $this->getKeysFromMultiArray($value));
+            if (is_array($value)) {
+                $return = array_merge($return, $this->getKeysFromMultiArray($value));
+            }
         }
         
         //remove the duplicates
         $return = array_unique($return);
         
         //remove the integers from the values, we need only the strings
-        foreach($return as $key => $value){
-            if(is_numeric($value)) unset($return[$key]);
+        foreach ($return as $key => $value) {
+            if (is_numeric($value)) {
+                unset($return[$key]);
+            }
         }
         
         return $return;
     }
     
     /**
-     * 
+     *
      * Get the Resource Title by the uri
-     * 
+     *
      * @param string $string
      * @return boolean
-     * 
+     *
      */
-    public function getTitleByUri(string $string){
-        if(!$string) { return false; }
+    public function getTitleByUri(string $string)
+    {
+        if (!$string) {
+            return false;
+        }
         
         $return = "";
-        $OeawStorage = new OeawStorage(); 
+        $OeawStorage = new OeawStorage();
         
         $itemRes = $OeawStorage->getResourceTitle($string);
 
-        if(count($itemRes) > 0){
-            if($itemRes[0]["title"]){
+        if (count($itemRes) > 0) {
+            if ($itemRes[0]["title"]) {
                 $return = $itemRes[0]["title"];
             }
         }
@@ -1576,18 +1605,20 @@ class OeawFunctions {
     
     /**
      * Get the title if the url contains the fedoraIDNamespace or the viaf.org ID
-     * 
+     *
      * @param string $string
      * @return array
      */
-    public function getTitleByTheFedIdNameSpace(string $string): array{
-        
-        if(!$string) { return false; }
+    public function getTitleByTheFedIdNameSpace(string $string): array
+    {
+        if (!$string) {
+            return false;
+        }
         $return = array();
         $OeawStorage = new OeawStorage();
         $itemRes = $OeawStorage->getTitleByIdentifier($string);
 
-        if(count($itemRes) > 0){
+        if (count($itemRes) > 0) {
             $return = $itemRes;
         }
         return $return;
@@ -1595,15 +1626,16 @@ class OeawFunctions {
     
     
     /**
-     * 
+     *
      * Check the value in the array
-     * 
+     *
      * @param type $needle -> strtolower value of the string
      * @param type $haystack -> the array where the func should serach
      * @param type $strict
      * @return boolean
      */
-    function checkMultiDimArrayForValue($needle, $haystack, $strict = false) {
+    public function checkMultiDimArrayForValue($needle, $haystack, $strict = false)
+    {
         foreach ($haystack as $item) {
             if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && $this->checkMultiDimArrayForValue($needle, $item, $strict))) {
                 return true;
@@ -1614,14 +1646,15 @@ class OeawFunctions {
     
     /**
      * Check value in array, recursive mode
-     * 
+     *
      * @param string $needle
      * @param array $haystack
      * @param bool $strict
      * @param array $keys
      * @return bool
      */
-    function in_array_r(string $needle, array $haystack, bool $strict = false, array &$keys): bool {
+    public function in_array_r(string $needle, array $haystack, bool $strict = false, array &$keys): bool
+    {
         foreach ($haystack as $key => $item) {
             if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && $this->in_array_r($needle, $item, $strict, $keys))) {
                 //we checking only the propertys
@@ -1636,12 +1669,12 @@ class OeawFunctions {
     
     /**
      * Generate the collection data for the download view
-     * 
+     *
      * @param string $id
      * @return array
      */
-    public function generateCollectionData(string $id): array{
-                
+    public function generateCollectionData(string $id): array
+    {
         $fedora = $this->initFedora();
         $fedoraRes = array();
         $rootMeta = array();
@@ -1652,10 +1685,10 @@ class OeawFunctions {
             return $resData;
         }
 
-        try{
-            //get the resource data 
+        try {
+            //get the resource data
             $fedoraRes = $fedora->getResourceById($id);
-            $rootMeta = $fedoraRes->getMetadata();            
+            $rootMeta = $fedoraRes->getMetadata();
             $uri = $rootMeta->getUri();
             //get title
             $title = $rootMeta->get(RC::get('fedoraTitleProp'));
@@ -1667,35 +1700,35 @@ class OeawFunctions {
             $isPartOf = $rootMeta->get(RC::get('fedoraRelProp'));
             $accessRestriction = $rootMeta->get(RC::get('fedoraAccessRestrictionProp'));
             
-            if(isset($title) && $title->getValue()){
+            if (isset($title) && $title->getValue()) {
                 $resData['title'] = $title->getValue();
             }
-            if(isset($accessRestriction) && $accessRestriction->getValue()){
+            if (isset($accessRestriction) && $accessRestriction->getValue()) {
                 $resData['accessRestriction'] = $accessRestriction->getValue();
             }
-            if(isset($filesNum) && $filesNum->getValue()){
+            if (isset($filesNum) && $filesNum->getValue()) {
                 $resData['filesNum'] = $filesNum->getValue();
             }
-            if(isset($license)){
+            if (isset($license)) {
                 $objClass = get_class($license);
-                if($objClass == "EasyRdf\Resource"){
+                if ($objClass == "EasyRdf\Resource") {
                     $resData['license'] = $license->getUri();
-                }else if($objClass == "EasyRdf\Literal"){
+                } elseif ($objClass == "EasyRdf\Literal") {
                     $resData['license'] = $license->__toString();
-                } 
+                }
             }
-            if(isset($isPartOf) && $isPartOf->getUri()){
+            if (isset($isPartOf) && $isPartOf->getUri()) {
                 $OeawStorage = new OeawStorage();
                 $isPartTitle = $OeawStorage->getParentTitle($isPartOf->getUri());
-                if(count($isPartTitle) > 0){
-                    if($isPartTitle[0]["title"]){
+                if (count($isPartTitle) > 0) {
+                    if ($isPartTitle[0]["title"]) {
                         $resData['isPartOf'] = $isPartTitle[0]["title"];
                     }
                 }
             }
             
             //if we have binary size
-            if(isset($binarySize) && $binarySize->getValue()){
+            if (isset($binarySize) && $binarySize->getValue()) {
                 $bs = 0;
                 $bs = $binarySize->getValue();
                 $resData['binarySize'] = $bs;
@@ -1704,20 +1737,22 @@ class OeawFunctions {
 
                 //the estimated download time
                 $estDLTime = Helper::estDLTime($bs);
-                if($estDLTime > 0){ $resData['estDLTime'] = $estDLTime; }
+                if ($estDLTime > 0) {
+                    $resData['estDLTime'] = $estDLTime;
+                }
 
                 $freeSpace = 0;
-                if(!file_exists($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/')){
+                if (!file_exists($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/')) {
                     mkdir($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/', 0777);
                 }
                 //get the free space to we can calculate the zipping will be okay or not?!
                 $freeSpace = disk_free_space($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/');
 
-                if($freeSpace){
+                if ($freeSpace) {
                     $resData['freeSpace'] = $freeSpace;
                     $resData['formattedFreeSpace'] = Helper::formatSizeUnits((string)$freeSpace);
 
-                    if($freeSpace > 1499999999 * 2.2){
+                    if ($freeSpace > 1499999999 * 2.2) {
                         //if there is no enough free space then we will not allow to DL the collection
                         $resData['dl'] = true;
                     }
@@ -1731,69 +1766,70 @@ class OeawFunctions {
             $cacheData = array();
             $cache = new CollectionCache();
             
-            if($cache->getCachedData($uri)){
+            if ($cache->getCachedData($uri)) {
                 $cacheData = $cache->getCachedData($uri);
-            }else{
+            } else {
                 $cacheData = $cache->setCacheData($uri);
             }
             
-            if(count($cacheData) > 0){
-                foreach($cacheData as $k => $v){
+            if (count($cacheData) > 0) {
+                foreach ($cacheData as $k => $v) {
                     $cacheData[$k]['userAllowedToDL'] = true;
-                    if($v['binarySize']){
+                    if ($v['binarySize']) {
                         $cacheData[$k]['formSize'] = Helper::formatSizeUnits((string)$v['binarySize']);
                     }
-                    if(isset($v['accessRestriction'])){
-                        if(empty($v['accessRestriction'])){ $v['accessRestriction'] = "public"; }
+                    if (isset($v['accessRestriction'])) {
+                        if (empty($v['accessRestriction'])) {
+                            $v['accessRestriction'] = "public";
+                        }
                         $cacheData[$k]['accessRestriction'] = $v['accessRestriction'];
                         //we need to check amybe the user already logged with his/her account and then we need to
                         //allow them to reach the restricted resources in his/her permission level
-                        if($v['accessRestriction'] != "public"){
+                        if ($v['accessRestriction'] != "public") {
                             //check the user is already logged in and allowed to dl the file.
                             $fdrBinaryRes = $fedora->getResourceByUri($v['uri']);
-                            if( ($fdrBinaryRes) && (\acdhOeaw\fedora\acl\CheckAcess::check($fdrBinaryRes) == true) ){
+                            if (($fdrBinaryRes) && (\acdhOeaw\fedora\acl\CheckAcess::check($fdrBinaryRes) == true)) {
                                 $cacheData[$k]['userAllowedToDL'] = true;
-                            }else{
+                            } else {
                                 $cacheData[$k]['userAllowedToDL'] = false;
                             }
                         }
                     }
 
-                    if($v['identifier']){
+                    if ($v['identifier']) {
                         $dtUri = $this->createDetailViewUrl($v);
                         $dtUri = $this->detailViewUrlDecodeEncode($dtUri, 1);
                         $cacheData[$k]['encodedUri'] = $dtUri;
                     }
 
-                    if(!empty($v['filename']) && $v['binarySize'] > 0){
+                    if (!empty($v['filename']) && $v['binarySize'] > 0) {
                         $cacheData[$k]['text'] = $v['filename']." | ".$cacheData[$k]['formSize'];
                         $cacheData[$k]['dir'] = false;
                         $cacheData[$k]['icon'] = "jstree-file";
-                    }else{
+                    } else {
                         $cacheData[$k]['text'] = $v['title'];
-                         $cacheData[$k]['dir'] = true;
+                        $cacheData[$k]['dir'] = true;
                     }
                     //if there is no text then it could be a wrong binary
                     //so we will remove it from the list
-                    if(empty($cacheData[$k]['text'])){
+                    if (empty($cacheData[$k]['text'])) {
                         unset($cacheData[$k]);
                     }
                 }
                 $resData['binaries'] = $cacheData;
             }
-
-        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex){
+        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
             return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return array();
         }
         return $resData;
     }
     
     /**
-     * 
+     *
      * THis func is generating a child based array from a single array
-     * 
+     *
      * @param array $flat
      * @param type $idField
      * @param type $parentIdField
@@ -1801,22 +1837,23 @@ class OeawFunctions {
      * @return type
      */
     public function convertToTree(
-        array $flat, $idField = 'id', $parentIdField = 'parentId',
-        $childNodesField = 'children') {
-        
+        array $flat,
+        $idField = 'id',
+        $parentIdField = 'parentId',
+        $childNodesField = 'children'
+    ) {
         $indexed = array();
-        // first pass - get the array indexed by the primary id  
+        // first pass - get the array indexed by the primary id
         foreach ($flat as $row) {
             $indexed[$row[$idField]] = $row;
             $indexed[$row[$idField]][$childNodesField] = array();
         }
    
-        //second pass  
+        //second pass
         $root = null;
         foreach ($indexed as $id => $row) {
             $indexed[$row[$parentIdField]][$childNodesField][] =& $indexed[$id];
             if (!$row[$parentIdField] || empty($row[$parentIdField])) {
-                
                 $root = $id;
             }
         }
@@ -1826,17 +1863,17 @@ class OeawFunctions {
     
     /**
      * Generate the resource child data and some pagination data also
-     * 
+     *
      * @param array $identifiers - Resource acdh:hasIdentifier
      * @param array $data - Resource metadata
-     * @param array $properties - actual uri and for pagination: limit, page 
+     * @param array $properties - actual uri and for pagination: limit, page
      * @return array with children array, type and currentpage
-     * 
+     *
      */
-    public function generateChildViewData(array $identifiers, \Drupal\oeaw\Model\OeawResource $data, array $properties): array{
-        
+    public function generateChildViewData(array $identifiers, \Drupal\oeaw\Model\OeawResource $data, array $properties): array
+    {
         $result = array();
-        if( (count($identifiers) == 0 ) || (count((array)$data) == 0 ) || (count($properties) == 0) ){
+        if ((count($identifiers) == 0) || (count((array)$data) == 0) || (count($properties) == 0)) {
             return $result;
         }
         
@@ -1847,38 +1884,42 @@ class OeawFunctions {
         $currentPage = $this->getCurrentPageForPagination();
         
         //we checks if the acdh:Person is available then we will get the Person Detail view data
-        if(!empty($data->getType()) && !empty($data->getTypeUri())){
-            if(in_array(strtolower($data->getType()), CC::$availableCustomViews)){
+        if (!empty($data->getType()) && !empty($data->getTypeUri())) {
+            if (in_array(strtolower($data->getType()), CC::$availableCustomViews)) {
                 $specialType = $data->getType();
                 $typeProperties = CC::getDetailChildViewProperties($data->getTypeUri());
-                if(count($typeProperties) > 0){
+                if (count($typeProperties) > 0) {
                     $countData = $oeawStorage->getSpecialDetailViewData($properties['identifier'][0], $properties['limit'], $properties['page'], true, $typeProperties);
                 }
-            }else{
-                if(count($countData) == 0) {
-                    $countData = $oeawStorage->getChildrenViewData($identifiers, $properties['limit'], $properties['page'], true);   
+            } else {
+                if (count($countData) == 0) {
+                    $countData = $oeawStorage->getChildrenViewData($identifiers, $properties['limit'], $properties['page'], true);
                 }
             }
         }
        
         $total = (int)count($countData);
-        if($properties['limit'] == "0") { $pagelimit = "10"; } else { $pagelimit = $properties['limit']; }
-        //create data for the pagination                
+        if ($properties['limit'] == "0") {
+            $pagelimit = "10";
+        } else {
+            $pagelimit = $properties['limit'];
+        }
+        //create data for the pagination
         $pageData = $this->createPaginationData($pagelimit, (int)$properties['page'], $total);
 
         if ($pageData['totalPages'] > 1) {
-           $result["pagination"] =  $this->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $pagelimit);
+            $result["pagination"] =  $this->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $pagelimit);
         }
  
-        if(in_array(strtolower($specialType), CC::$availableCustomViews)){
+        if (in_array(strtolower($specialType), CC::$availableCustomViews)) {
             $childrenData = $oeawStorage->getSpecialDetailViewData($properties['identifier'][0], $pagelimit, $pageData['end'], false, $typeProperties);
-        }else{
+        } else {
             //there is no special children view, so we are using the the default children table
             $childrenData = $oeawStorage->getChildrenViewData($identifiers, $pagelimit, $pageData['end']);
         }
 
         //we have children data so we will generate the view for it
-        if(count($childrenData) > 0){
+        if (count($childrenData) > 0) {
             try {
                 $result["childResult"] = $this->createChildrenViewData($childrenData);
             } catch (Exception $ex) {
@@ -1892,9 +1933,9 @@ class OeawFunctions {
     }
     
     /**
-     * 
+     *
      * This function is generating the child api data
-     * 
+     *
      * @param string $identifier
      * @param int $limit
      * @param int $page
@@ -1902,8 +1943,8 @@ class OeawFunctions {
      * @return array
      * @throws \ErrorException
      */
-    public function generateChildAPIData(string $identifier, int $limit, int $page, string $order): array {
-        
+    public function generateChildAPIData(string $identifier, int $limit, int $page, string $order): array
+    {
         $result = array();
         $countData = array();
         $typeProperties = array();
@@ -1912,43 +1953,51 @@ class OeawFunctions {
         //get the main resource data
         $resType = $oeawStorage->getTypeByIdentifier($identifier);
         
-        if(count($resType) == 0) { return array(); }
+        if (count($resType) == 0) {
+            return array();
+        }
         
         $typeUri = $resType[0]['type'];
         $type = str_replace(RC::get('fedoraVocabsNamespace'), '', $resType[0]['type']);
         
         //we checks if the acdh:Person is available then we will get the Person Detail view data
-        if(!empty($type) && !empty($typeUri)){
-            if(in_array(strtolower($type), CC::$availableCustomViews)){
+        if (!empty($type) && !empty($typeUri)) {
+            if (in_array(strtolower($type), CC::$availableCustomViews)) {
                 $specialType = $type;
                 $typeProperties = CC::getDetailChildViewProperties($typeUri);
-                if(count($typeProperties) > 0){
+                if (count($typeProperties) > 0) {
                     $countData = $oeawStorage->getSpecialDetailViewData($identifier, 0, $page, true, $typeProperties);
                     $result["maxPage"] = count($countData);
                 }
-            }else{
-                if(count($countData) == 0) {
-                    $countData = $oeawStorage->getChildrenViewData(array($identifier), 0, $page, true);   
+            } else {
+                if (count($countData) == 0) {
+                    $countData = $oeawStorage->getChildrenViewData(array($identifier), 0, $page, true);
                     $result["maxPage"] = count($countData);
                 }
             }
         }
        
         $total = (int)count($countData);
-        if($limit == "0") { $limit = "10"; }
-        if($page != "0" && $page != "1") {  $offset = ($page - 1)  * $limit; } else { $offset = 0; }
+        if ($limit == "0") {
+            $limit = "10";
+        }
+        if ($page != "0" && $page != "1") {
+            $offset = ($page - 1)  * $limit;
+        } else {
+            $offset = 0;
+        }
         
-        if(in_array(strtolower($specialType), CC::$availableCustomViews)) {
+        if (in_array(strtolower($specialType), CC::$availableCustomViews)) {
             //$childrenData = $oeawStorage->getSpecialDetailViewData($identifier, $limit, $offset, false, $typeProperties);
             $childrenData = $oeawStorage->getSpecialDetailViewData($identifier, $limit, $offset, false, $typeProperties, "en", $order);
-        }else {
+        } else {
             //there is no special children view, so we are using the the default children table
             //$childrenData = $oeawStorage->getChildrenViewData(array($identifier), $limit, $offset);
             $childrenData = $oeawStorage->getChildrenViewData(array($identifier), $limit, $offset, false, "en", $order);
         }
         
-         //we have children data so we will generate the view for it
-        if(count($childrenData) > 0){
+        //we have children data so we will generate the view for it
+        if (count($childrenData) > 0) {
             try {
                 $result["childResult"] = $this->createChildrenViewData($childrenData);
             } catch (Exception $ex) {
@@ -1959,7 +2008,7 @@ class OeawFunctions {
         $result["mainResourceType"] = $type;
         $result["currentPage"] = $page;
         $result["currentLimit"] = $limit;
-        if(isset($result["maxPage"]) && !empty($result["maxPage"])) {
+        if (isset($result["maxPage"]) && !empty($result["maxPage"])) {
             $result["maxPageLimit"] = ceil((int)$result["maxPage"]/(int)$limit);
         }
         $result["specialType"] = $specialType;
@@ -1969,54 +2018,58 @@ class OeawFunctions {
     
     /**
      * Get highlight data from solr
-     * 
+     *
      * @param string $text
      * @return array
      */
-    public function getDataFromSolr(string $text) : array {
-        if(!$text){ return array(); }
+    public function getDataFromSolr(string $text) : array
+    {
+        if (!$text) {
+            return array();
+        }
         
         $result = array();
         $client = new \GuzzleHttp\Client();
-        try{
-            $request = $client->request('GET',  RC::get('solrUrl').'/arche/select?hl.fl=_text_&hl=on&q=*'.$text,  ['auth' => ['admin', 'admin']]);
-            if($request->getStatusCode() == 200) {
+        try {
+            $request = $client->request('GET', RC::get('solrUrl').'/arche/select?hl.fl=_text_&hl=on&q=*'.$text, ['auth' => ['admin', 'admin']]);
+            if ($request->getStatusCode() == 200) {
                 $data = json_decode($request->getBody()->getContents());
                 $docs = $data->response->docs;
                 $highlighting = $data->highlighting;
                 
                 $docsCount = count((array)$docs);
-                if( $docsCount > 0) {
+                if ($docsCount > 0) {
                     foreach ($docs as $d) {
                         $docsData = array();
-                        if(isset($d->meta_title) && isset($d->meta_rdfType)) {
-                            
-                            if(is_array($d->meta_title)) {
+                        if (isset($d->meta_title) && isset($d->meta_rdfType)) {
+                            if (is_array($d->meta_title)) {
                                 $docsData['title'] = $d->meta_title[0];
                             } else {
                                 $docsData['title'] = $d->meta_title;
                             }
                             
                             $docsData['uri'] = $d->id;
-                            if($d->meta_rdfType){
-                                foreach($d->meta_rdfType as $type) {
+                            if ($d->meta_rdfType) {
+                                foreach ($d->meta_rdfType as $type) {
                                     if (strpos($type, RC::get('fedoraVocabsNamespace')) !== false) {
                                         $docsData['acdhType'] = str_replace(RC::get('fedoraVocabsNamespace'), '', $type);
                                     }
                                 }
                             }
-                            if($d->meta_identifier){
-                                foreach($d->meta_identifier as $identifiers) {
+                            if ($d->meta_identifier) {
+                                foreach ($d->meta_identifier as $identifiers) {
                                     if (strpos($identifiers, RC::get('fedoraUuidNamespace')) !== false) {
                                         $docsData['identifier'] = $identifiers;
                                     }
                                 }
                             }
-                            if(isset($d->meta_description)){ $docsData['description'] = $d->meta_description[0]; }
+                            if (isset($d->meta_description)) {
+                                $docsData['description'] = $d->meta_description[0];
+                            }
                             $id = $d->id;
-                            if($highlighting->$id && isset($highlighting->$id->_text_[0])) {
+                            if ($highlighting->$id && isset($highlighting->$id->_text_[0])) {
                                 $docsData['highlighting'][] = html_entity_decode($highlighting->$id->_text_[0]);
-                            }else {
+                            } else {
                                 $docsData['highlighting'][] = t('Re-index').' '.t('the').' '.t('File');
                             }
                             $result[] = $docsData;
@@ -2026,7 +2079,7 @@ class OeawFunctions {
             }
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return array();
-        }  catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             return array();
         }
         
@@ -2034,23 +2087,28 @@ class OeawFunctions {
     }
     
     /**
-     * 
+     *
      * @param array $data
      * @return array
      */
-    public function formatBreadcrumbData(array $data): array {
+    public function formatBreadcrumbData(array $data): array
+    {
         $result = array();
         
-        if(count($data) <= 0 ) {  return $result; }
+        if (count($data) <= 0) {
+            return $result;
+        }
         
         //we will get the main root, becuase there the "rootsRoot" value is empty
         $rootsIDArray = array_column($data, 'rootsRoot');
         //we will get the id of the main root
-        $rootKey = array_filter($rootsIDArray, function($v,$k) {
-            if ($v == ''){ return $k; }
+        $rootKey = array_filter($rootsIDArray, function ($v, $k) {
+            if ($v == '') {
+                return $k;
+            }
         }, ARRAY_FILTER_USE_BOTH);
         
-        if(count($rootKey) > 0 ){
+        if (count($rootKey) > 0) {
             $rootKey = array_keys($rootKey)[0];
         } else {
             //if the resource has only one root then it will be 0
@@ -2069,18 +2127,18 @@ class OeawFunctions {
     
     /**
      * A recursive function to we can reorder the breadcrumbs data
-     * 
+     *
      * @param array $data
      * @param array $result
      */
-    private function makeBreadcrumbFinalData(array &$data, array &$result) {
-        foreach($data as $k => $v) {
-      
+    private function makeBreadcrumbFinalData(array &$data, array &$result)
+    {
+        foreach ($data as $k => $v) {
             $count = count($result);
-            if($count > 0) {
+            if ($count > 0) {
                 $count = $count -1;
             }
-            if($result[$count]['rootId'] == $v['rootsRoot']) {
+            if ($result[$count]['rootId'] == $v['rootsRoot']) {
                 $result[] = $v;
                 unset($data[$k]);
             }
@@ -2094,15 +2152,16 @@ class OeawFunctions {
     /**
      * Creates an inside GUI uri based on the identifier
      * This is for the breadcrumb
-     * 
+     *
      * @param array $data
      * @return array
      */
-    private function formatBreadcrumbInsideUri(array $data): array {
+    private function formatBreadcrumbInsideUri(array $data): array
+    {
         $result = array();
         $result = $data;
-        foreach($result as $k => $v) {
-            if(isset($v['rootId'])) {
+        foreach ($result as $k => $v) {
+            if (isset($v['rootId'])) {
                 $result[$k]['insideUri'] = $this->detailViewUrlDecodeEncode($v['rootId'], 1);
             }
         }
@@ -2110,29 +2169,27 @@ class OeawFunctions {
     }
     
     
-    public function turtleDissService(string $fedoraUrl) {
+    public function turtleDissService(string $fedoraUrl)
+    {
         $result = array();
         $client = new \GuzzleHttp\Client();
         echo $fedoraUrl;
         //$fedoraUrl = "https://fedora.hephaistos.arz.oeaw.ac.at/rest/b5/14/9f/90/b5149f90-869d-43af-a545-b33683607f10";
-        try{
-            $request = $client->request('GET',  $fedoraUrl.'/fcr:metadata',  ['Accept' => ['application/n-triples']]);
-            if($request->getStatusCode() == 200) {
+        try {
+            $request = $client->request('GET', $fedoraUrl.'/fcr:metadata', ['Accept' => ['application/n-triples']]);
+            if ($request->getStatusCode() == 200) {
                 $body = "";
                 $body = $request->getBody()->getContents();
-                if(!empty($body)) {
+                if (!empty($body)) {
                     $graph = new \EasyRdf_Graph();
                     $graph->parse($body);
                     return $graph->serialise('turtle');
                 }
-                            
             }
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return array();
-        }  catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             return array();
         }
-        
     }
-    
 }

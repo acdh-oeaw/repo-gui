@@ -17,17 +17,17 @@ use Drupal\Core\Block\BlockBase;
  *   category = @Translation("Custom sidebar date of resource filter oeaw")
  * )
  */
-class SidebarDateBlock extends BlockBase {
+class SidebarDateBlock extends BlockBase
+{
     
     /**
      * Sidebar date block
-     * 
+     *
      * @return type
      */
-    public function build() 
+    public function build()
     {
         $form = \Drupal::formBuilder()->getForm('Drupal\oeaw\Form\SidebarDateForm');
         return $form;
     }
-    
 }

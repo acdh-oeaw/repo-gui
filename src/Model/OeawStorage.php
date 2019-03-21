@@ -2,7 +2,6 @@
 
 namespace Drupal\oeaw\Model;
 
-
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\Model\ModelFunctions as MC;
 use Drupal\oeaw\ConfigConstants;
@@ -25,11 +24,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use acdhOeaw\util\SparqlEndpoint;
 use acdhOeaw\util\RepoConfig as RC;
 
-
-
-
-class OeawStorage implements OeawStorageInterface {
-
+class OeawStorage implements OeawStorageInterface
+{
     private static $prefixes = 'PREFIX dct: <http://purl.org/dc/terms/> '
             . 'PREFIX ebucore: <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#> '
             . 'PREFIX premis: <http://www.loc.gov/premis/rdf/v1#> '
@@ -54,33 +50,33 @@ class OeawStorage implements OeawStorageInterface {
         'owlOnProperty' => 'http://www.w3.org/2002/07/owl#onProperty',
         'owlCardinality' => 'http://www.w3.org/2002/07/owl#cardinality',
         'owlMinCardinality' => 'http://www.w3.org/2002/07/owl#minCardinality',
-        'owlMaxCardinality' => 'http://www.w3.org/2002/07/owl#maxCardinality'        
+        'owlMaxCardinality' => 'http://www.w3.org/2002/07/owl#maxCardinality'
     );
         
     
     private $oeawFunctions;
     private $modelFunctions;
-    private $fedora;   
+    private $fedora;
     private static $instance;
     
     /**
      * Set up the necessary properties, variables
      * @return type
      */
-    public function __construct() {
-       
+    public function __construct()
+    {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
                 
         $this->oeawFunctions = new OeawFunctions();
         $this->modelFunctions = new MC();
-        $this->fedora = new Fedora();        
+        $this->fedora = new Fedora();
         
         //blazegraph bugfix. Add missing namespace
         $blazeGraphNamespaces = \EasyRdf\RdfNamespace::namespaces();
         $localNamespaces = \Drupal\oeaw\ConfigConstants::$prefixesToBlazegraph;
                 
-        foreach($localNamespaces as $key => $val){
-            if(!array_key_exists($val, $blazeGraphNamespaces)){
+        foreach ($localNamespaces as $key => $val) {
+            if (!array_key_exists($val, $blazeGraphNamespaces)) {
                 \EasyRdf\RdfNamespace::set($key, $val);
             }
         }
@@ -95,7 +91,7 @@ class OeawStorage implements OeawStorageInterface {
 
     /**
      * Get the root elements from fedora
-     * 
+     *
      * @param int $limit
      * @param int $offset
      * @param bool $count
@@ -105,7 +101,7 @@ class OeawStorage implements OeawStorageInterface {
      * @throws \Exception
      * @throws \InvalidArgumentException
      */
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc", string $lang = "en" ): array 
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc", string $lang = "en"): array
     {
         //Let's process the order argument
         switch ($order) {
@@ -125,7 +121,9 @@ class OeawStorage implements OeawStorageInterface {
                 $order = "DESC(?avDate)";
         }
 
-        if($offset < 0) { $offset = 0; }
+        if ($offset < 0) {
+            $offset = 0;
+        }
         
         $getResult = array();
         $lang = strtolower($lang);
@@ -140,28 +138,27 @@ class OeawStorage implements OeawStorageInterface {
 
             $where = " WHERE { ";
             
-            $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang );
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
             $where .= "?uri <".RC::get('drupalRdfType')."> <".RC::get('drupalCollection')."> . ";
             
             $where .= "?uri <". RC::idProp()."> ?identifiers . ";
             $where .= "OPTIONAL { ?uri <".RC::get('epicPidProp')."> ?pid .  } ";
-            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true);
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasContributor')."> ?contributors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasAuthor')."> ?authors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?avDate . }";
-                            //. " BIND( (CONCAT(STR(substr(?avDate, 0, 10)))) as ?availableDate) . } ";
+            //. " BIND( (CONCAT(STR(substr(?avDate, 0, 10)))) as ?availableDate) . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationStartDate')."> ?hasCreationStartDate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationEndDate')."> ?hasCreationEndDate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('fedoraRelProp')."> ?isPartOf . } ";
             $where .= "OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage . } ";
 
-            if($count == false){
-                    $where .= "?uri <".RC::get('drupalRdfType')."> ?rdfType .  ";
-                    $where .= '?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
+            if ($count == false) {
+                $where .= "?uri <".RC::get('drupalRdfType')."> ?rdfType .  ";
+                $where .= '?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
                    . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") . ';
-                   
             }
 
             $where .=" 
@@ -174,79 +171,78 @@ class OeawStorage implements OeawStorageInterface {
 
             $where .= " } ";
 
-            if($count == false){
-                    $select = 'SELECT ?uri ?title ?pid '; 
-                    $select .= $this->modelFunctions->convertFieldDate("avDate", "availableDate", 0); 
-                    $select .= ' ?isPartOf ?image ?hasTitleImage ?avDate';
-                    $select .= $this->modelFunctions->convertFieldDate("hasCreationStartDate", "hasCreationStartDate", 0);
-                    $select .= $this->modelFunctions->convertFieldDate("hasCreationEndDate", "hasCreationEndDate", 0);
-                    $select .= ' ?accessRestriction ?acdhType '
+            if ($count == false) {
+                $select = 'SELECT ?uri ?title ?pid ';
+                $select .= $this->modelFunctions->convertFieldDate("avDate", "availableDate", 0);
+                $select .= ' ?isPartOf ?image ?hasTitleImage ?avDate';
+                $select .= $this->modelFunctions->convertFieldDate("hasCreationStartDate", "hasCreationStartDate", 0);
+                $select .= $this->modelFunctions->convertFieldDate("hasCreationEndDate", "hasCreationEndDate", 0);
+                $select .= ' ?accessRestriction ?acdhType '
                                     . '(GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) (GROUP_CONCAT(DISTINCT ?contributors;separator=",") AS ?contributor) '
                                     . ' (GROUP_CONCAT(DISTINCT ?authors;separator=",") AS ?author) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)'
                                     . '(GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)';
 
-                    $groupby = " GROUP BY ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ?accessRestriction ?acdhType ?avDate ";
-                    $orderby = " ORDER BY ".$order." ";
-                    $limitOffset = "LIMIT ".$limit." OFFSET ".$offset." ";
-            }else {
-                    $select = " SELECT (COUNT(DISTINCT ?uri) as ?count) ";
-                    $orderby = ' order by ?uri ';
+                $groupby = " GROUP BY ?uri ?title ?pid ?availableDate ?isPartOf ?image ?hasTitleImage ?hasCreationStartDate ?hasCreationEndDate ?accessRestriction ?acdhType ?avDate ";
+                $orderby = " ORDER BY ".$order." ";
+                $limitOffset = "LIMIT ".$limit." OFFSET ".$offset." ";
+            } else {
+                $select = " SELECT (COUNT(DISTINCT ?uri) as ?count) ";
+                $orderby = ' order by ?uri ';
             }
 
             $query = $prefix.$select.$where.$groupby.$orderby.$limitOffset;
           
             $result = $this->fedora->runSparql($query);
-            if(count($result) > 0){
-                $fields = $result->getFields();             
-                $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);        
+            if (count($result) > 0) {
+                $fields = $result->getFields();
+                $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
                 return $getResult;
-            }else {                
+            } else {
                 return $getResult;
             }
-            
-        } catch (\Exception $ex) {            
+        } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
-        }catch (\InvalidArgumentException $ex){
+        } catch (\InvalidArgumentException $ex) {
             throw new \InvalidArgumentException($ex->getMessage());
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             throw new \Exception($ex->getMessage());
         }
     }
 
     /**
-     * If we have hasPid as an URL then we need the acdh Identifier, to we can 
+     * If we have hasPid as an URL then we need the acdh Identifier, to we can
      * work with the resource data
-     * 
+     *
      * @param string $pid
      * @return array
      * @throws Exception
      * @throws \InvalidArgumentException
      */
-    public function getACDHIdByPid(string $pid): array 
+    public function getACDHIdByPid(string $pid): array
     {
         $getResult = array();
         
         try {
             $q = new Query();
-            $q->addParameter((new HasValue(RC::get('epicPidProp'), $pid ))->setSubVar('?uri'));
+            $q->addParameter((new HasValue(RC::get('epicPidProp'), $pid))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', RC::get('fedoraIdProp'), '?id'));
             $query = $q->getQuery();
             $result = $this->fedora->runSparql($query);
             
-            $fields = $result->getFields();             
-            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);        
+            $fields = $result->getFields();
+            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
             return $getResult;
-            
         } catch (\Exception $ex) {
             throw new Exception($ex->getMessage());
-        } catch (\InvalidArgumentException $ex){            
+        } catch (\InvalidArgumentException $ex) {
             throw new \InvalidArgumentException($ex->getMessage());
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             throw new Exception($ex->getMessage());
         }
     }
     
-    public function getTypeByIdentifier(string $identifier, string $lang = "en" ): array {
+    public function getTypeByIdentifier(string $identifier, string $lang = "en"): array
+    {
         $getResult = array();
         $lang = strtolower($lang);
         
@@ -261,20 +257,20 @@ class OeawStorage implements OeawStorageInterface {
             $query = $select.$where;
             
             $result = $this->fedora->runSparql($query);
-            $fields = $result->getFields();             
+            $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
             
             return $getResult;
-        }  catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             return array();
-        } catch (\InvalidArgumentException $ex){
+        } catch (\InvalidArgumentException $ex) {
             return array();
         }
     }
    
     /**
      * Get the reource title by its acdh:hasIdentifier property
-     * 
+     *
      * @param string $string
      * @param string $lang
      * @return array
@@ -288,24 +284,24 @@ class OeawStorage implements OeawStorageInterface {
             $select = " SELECT * WHERE { ";
             
             $where = " ?uri <".RC::get('fedoraIdProp')."> <".$string."> . ";
-            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false);
             $where .= " } ";
             
             $query = $select.$where;
             $result = $this->fedora->runSparql($query);
-            $fields = $result->getFields();             
-            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);        
+            $fields = $result->getFields();
+            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
             return $getResult;
-        }  catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             return array();
-        } catch (\InvalidArgumentException $ex){            
+        } catch (\InvalidArgumentException $ex) {
             return array();
         }
     }
     
     /**
      * Create the property data for the expert view
-     * 
+     *
      * @param array $data
      * @param string $lang
      * @return array
@@ -314,23 +310,23 @@ class OeawStorage implements OeawStorageInterface {
     {
         $result = array();
         $lang = strtolower($lang);
-        if(count($data) > 0){
+        if (count($data) > 0) {
             $where = "";
             $i = 0;
             
-            foreach ($data as $key => $value){
+            foreach ($data as $key => $value) {
                 $where .= " { ";
                 $where .= "?uri <".RC::get('fedoraIdProp')."> <".$value."> . ";
                 $where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
-                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalRdfsLabel'), "title", $lang, false );
-                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalRdfsComment'), "comment", $lang, false );
+                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalRdfsLabel'), "title", $lang, false);
+                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalRdfsComment'), "comment", $lang, false);
                 $where .= " } ";
 
-                if($i != count($data) - 1){
+                if ($i != count($data) - 1) {
                     $where .= " UNION ";
                 }
                 $i++;
-            }   
+            }
             $select = 'SELECT DISTINCT ?title ?uri ?comment ?identifier WHERE { ';
             $queryStr = $select.$where." } ";
             
@@ -339,14 +335,13 @@ class OeawStorage implements OeawStorageInterface {
                 $query = $q->getQuery();
                 $res = $this->fedora->runSparql($query);
             
-                $fields = $res->getFields(); 
+                $fields = $res->getFields();
                 $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             
                 return $result;
-
             } catch (\Exception $ex) {
                 return $result;
-            } catch (\GuzzleHttp\Exception\ClientException $ex){
+            } catch (\GuzzleHttp\Exception\ClientException $ex) {
                 return $result;
             }
         }
@@ -356,12 +351,12 @@ class OeawStorage implements OeawStorageInterface {
     
     /**
      * get the resource title by language
-     * 
+     *
      * @param string $uri
      * @param string $lang
      * @return array
      */
-    public function getResourceTitle(string $uri, string $lang = "en"): array 
+    public function getResourceTitle(string $uri, string $lang = "en"): array
     {
         $getResult = array();
         $lang = strtolower($lang);
@@ -372,33 +367,31 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $result = $this->fedora->runSparql($query);
             
-            $fields = $result->getFields();             
-            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);        
+            $fields = $result->getFields();
+            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
             return $getResult;
-            
         } catch (\Exception $ex) {
-           return array();            
-        }catch (\InvalidArgumentException $ex){
-           return array();
+            return array();
+        } catch (\InvalidArgumentException $ex) {
+            return array();
         }
     }
     
     /**
      * Get all property for search
-     * 
+     *
      * @return array
      * @throws Exception
      * @throws \GuzzleHttp\Exception\ClientException
      */
-    public function getAllPropertyForSearch():array 
+    public function getAllPropertyForSearch():array
     {
         $getResult = array();
         
         try {
-            
             $q = new Query();
-            $q->addParameter(new HasTriple('?s', '?p', '?o'));    
-            $q->setDistinct(true);            
+            $q->addParameter(new HasTriple('?s', '?p', '?o'));
+            $q->setDistinct(true);
             $q->setSelect(array('?p'));
         
             $query= $q->getQuery();
@@ -406,18 +399,17 @@ class OeawStorage implements OeawStorageInterface {
             $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
 
-            return $getResult;                
-            
+            return $getResult;
         } catch (\Exception $ex) {
             throw new Exception($ex->getMessage());
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             throw new \GuzzleHttp\Exception\ClientException($ex->getMessage());
         }
     }
 
     /**
      * Get value by the resource uri and property
-     * 
+     *
      * @param string $uri
      * @param string $property
      * @return array
@@ -426,14 +418,13 @@ class OeawStorage implements OeawStorageInterface {
     {
         if (empty($uri) || empty($property)) {
             return drupal_set_message(
-                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,
                 'error'
                 );
         }
         
         $getResult = array();
         try {
-            
             $q = new Query();
             $q->addParameter((new HasTriple($uri, $property, '?value')));
             $q->setJoinClause('optional');
@@ -441,24 +432,21 @@ class OeawStorage implements OeawStorageInterface {
             
             $result = $this->fedora->runSparql($query);
             
-            $fields = $result->getFields(); 
+            $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
-            return $getResult;                
-        
-        } catch (\Exception $ex) {            
             return $getResult;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\Exception $ex) {
             return $getResult;
-        } 
-        catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $getResult;
-        } 
-        
+        } catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex) {
+            return $getResult;
+        }
     }
 
     /**
      * Get a value as string with resource uri and property
-     * 
+     *
      * @param string $uri
      * @param string $property
      * @return string
@@ -467,7 +455,7 @@ class OeawStorage implements OeawStorageInterface {
     {
         if (empty($uri) || empty($property)) {
             return drupal_set_message(
-                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,
                 'error'
             );
         }
@@ -475,7 +463,6 @@ class OeawStorage implements OeawStorageInterface {
         $getResult = array();
 
         try {
-            
             $q = new Query();
             $q->addParameter((new HasValue(RC::get('fedoraIdProp'), $uri))->setSubVar('?uri'));
             $q->addParameter(new HasTriple('?uri', $property, '?value'));
@@ -484,24 +471,22 @@ class OeawStorage implements OeawStorageInterface {
 
             $result = $this->fedora->runSparql($query);
             
-            $fields = $result->getFields(); 
+            $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
 
-            return $getResult[0]["value"];                
-        
-        } catch (\Exception $ex) {            
+            return $getResult[0]["value"];
+        } catch (\Exception $ex) {
             return $getResult;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $getResult;
-        } 
-        catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex){
+        } catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex) {
             return $getResult;
-        } 
+        }
     }
 
     /**
      * Get all data by property and value
-     * 
+     *
      * @param string $property
      * @param string $value
      * @param int $limit
@@ -511,45 +496,47 @@ class OeawStorage implements OeawStorageInterface {
      * @return array
      * @throws \Exception
      */
-    public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false, $lang = "en"): array {
-        
+    public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false, $lang = "en"): array
+    {
         if (empty($value) || empty($property)) {
             return drupal_set_message(
-                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,
                 'error'
             );
         }
         $lanf = strtolower($lang);
-       if($offset < 0) { $offset = 0; }
+        if ($offset < 0) {
+            $offset = 0;
+        }
        
-        if(!filter_var($property, FILTER_VALIDATE_URL)){
+        if (!filter_var($property, FILTER_VALIDATE_URL)) {
             $property = Helper::createUriFromPrefix($property);
-            if($property === false){
+            if ($property === false) {
                 return drupal_set_message(
-                    t('Error').':'.__FUNCTION__, 'error'
-                ); 
-            }           
-        }else if(filter_var($property, FILTER_VALIDATE_URL)){            
+                    t('Error').':'.__FUNCTION__,
+                    'error'
+                );
+            }
+        } elseif (filter_var($property, FILTER_VALIDATE_URL)) {
             $property = '<'. $property .'>';
         }
         
-        if(!filter_var($value, FILTER_VALIDATE_URL)){
+        if (!filter_var($value, FILTER_VALIDATE_URL)) {
             $value = Helper::createUriFromPrefix($value);
-            if($value === false){
-                return drupal_set_message(t('Error').':'.__FUNCTION__, 'error'); 
+            if ($value === false) {
+                return drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
             }
-           
-        }else if(filter_var($value, FILTER_VALIDATE_URL)){            
+        } elseif (filter_var($value, FILTER_VALIDATE_URL)) {
             $value = '<'. $value .'>';
-        }        
+        }
 
         $getResult = array();
 
         try {
             $where = "?uri ".$property." ".$value." . ";
             
-            if($count == false){
-                 $select  = 'SELECT  
+            if ($count == false) {
+                $select  = 'SELECT  
                             ?uri ?title ?label ?creationdate ?isPartOf ?firstName ?lastName  
                             (CONCAT ( STR( DAY(?fdCreated)), "-", STR( MONTH(?fdCreated)), "-", STR( YEAR(?fdCreated))) as ?fdCreated) 
                             (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) 
@@ -558,10 +545,10 @@ class OeawStorage implements OeawStorageInterface {
                             (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
                         WHERE { ';
             
-                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true );
+                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true);
                 //$where .= " OPTIONAL { ?uri <".RC::get('fedoraTitleProp')."> ?title . } ";
                 $where .= " OPTIONAL { ?uri <".RC::get('drupalHasAuthor')."> ?author . } ";
-                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
+                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true);
                 //$where .= " OPTIONAL { ?uri <".RC::get('drupalHasDescription')."> ?descriptions . } ";
                 $where .= " OPTIONAL { ?uri <".RC::get('drupalRdfsLabel')."> ?label . } ";
                 $where .= " OPTIONAL { ?uri <".RC::get('drupalHasContributor')."> ?contributor . } ";
@@ -574,18 +561,19 @@ class OeawStorage implements OeawStorageInterface {
                 $where .= " OPTIONAL { ?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
                 $where .= " } ";
                 $groupby = "GROUP BY ?uri ?title ?label ?creationdate ?isPartOf ?firstName ?lastName ?fdCreated ";
-                if($limit == 0){ $limit = 10; }
+                if ($limit == 0) {
+                    $limit = 10;
+                }
                 $limit = "LIMIT $limit ";
                 $offset = "OFFSET $offset ";
-                if ($value == RC::get('drupalPerson') ) {
+                if ($value == RC::get('drupalPerson')) {
                     $orderby = "ORDER BY ?firstName ";
                 } else {
                     $orderby = "ORDER BY ?title ";
                 }
                 
                 $query = $select.$where.$groupby.$orderby.$limit.$offset;
-                
-            }else {
+            } else {
                 $select = "SELECT COUNT(?uri) as ?count) WHERE { ";
                 $orderby = "ORDER BY ?uri ";
                 $query = $select.$where.$groupby.$orderby;
@@ -593,31 +581,29 @@ class OeawStorage implements OeawStorageInterface {
             
 
             $result = $this->fedora->runSparql($query);
-            $fields = $result->getFields(); 
+            $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
 
             return $getResult;
-        
-        } catch (\Exception $ex) {            
+        } catch (\Exception $ex) {
             throw new \Exception($ex->getMessage());
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             throw new \Exception($ex->getMessage());
-        } catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex){
+        } catch (\Symfony\Component\Routing\Exception\InvalidParameterException $ex) {
             throw new \Exception($ex->getMessage());
-        } 
+        }
     }
     
     /**
      * Get the digital rescources to we can know which is needed a file upload
-     * 
+     *
      * @return array
      */
     public function getDigitalResources(): array
-    {        
+    {
         $getResult = array();
         
         try {
-            
             $select = "SELECT  ?id ?collection  WHERE { ";
             
             $where = " ?class a owl:Class . ";
@@ -634,32 +620,31 @@ class OeawStorage implements OeawStorageInterface {
                             }
                         } ";
             
-            $query = self::$prefixes . $select.$where; 
+            $query = self::$prefixes . $select.$where;
             
             $result = $this->fedora->runSparql($query);
-            $fields = $result->getFields(); 
+            $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
 
             return $getResult;
-            
         } catch (\Exception $ex) {
-           return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
-           return array();
-        }  
+            return array();
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return array();
+        }
     }
     
     /**
      * Get the digital rescources Meta data and the cardinality data by ResourceUri
-     * 
+     *
      * @param string $classString
      * @param string $lang
      * @return array
      */
-    public function getClassMetaForApi(string $classString, string $lang = "en"): array{
-        
+    public function getClassMetaForApi(string $classString, string $lang = "en"): array
+    {
         if (empty($classString)) {
-            return drupal_set_message( t('Empty').' '.t('Values').' -->'.__FUNCTION__, 'error');
+            return drupal_set_message(t('Empty').' '.t('Values').' -->'.__FUNCTION__, 'error');
         }
         
         $lang = strtolower($lang);
@@ -675,11 +660,11 @@ class OeawStorage implements OeawStorageInterface {
         $where = " ?mainURI <".RC::get('fedoraIdProp').">  <".RC::get('fedoraVocabsNamespace').$classString."> . ";
         $where .= "?mainURI (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . ";
         $where .= "{ ?uri rdfs:domain ?class . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", "http://www.w3.org/2004/02/skos/core#altLabel", "propTitle", $lang, false );
+        $where .= $this->modelFunctions->filterLanguage("uri", "http://www.w3.org/2004/02/skos/core#altLabel", "propTitle", $lang, false);
         $where .= "} UNION { ";
         $where .= " ?mainURI <".RC::get('fedoraIdProp')."> ?mainID .";
         $where .= " ?uri rdfs:domain ?mainID . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", "http://www.w3.org/2004/02/skos/core#altLabel", "propTitle", $lang, false );
+        $where .= $this->modelFunctions->filterLanguage("uri", "http://www.w3.org/2004/02/skos/core#altLabel", "propTitle", $lang, false);
         $where .= " } ";
         $where .= "?uri <".RC::get('fedoraIdProp')."> ?propID . ";
         
@@ -693,7 +678,7 @@ class OeawStorage implements OeawStorageInterface {
             OPTIONAL {
                 ?uri <".RC::get('fedoraVocabsNamespace')."vocabs> ?vocabs .
             }";
-        $optionals .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalRdfsComment'), "comments", $lang, true );
+        $optionals .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalRdfsComment'), "comments", $lang, true);
         $optionals .= " OPTIONAL{ 
                 SELECT  * WHERE { 
                     ?uri rdfs:range ?range .
@@ -710,14 +695,13 @@ class OeawStorage implements OeawStorageInterface {
                 OPTIONAL {
                     ?subUri owl:cardinality ?cardinality .
                 }
-        }"; 
+        }";
         
         $groupby = " GROUP BY ?uri ?propID ?propTitle ?range ?subUri ?cardinality ?maxCardinality ?minCardinality ?order ?vocabs"
                 . " ORDER BY ?order";
         $string = $prefix.$select.$where.$optionals." } ".$groupby;
         
         try {
-            
             $q = new SimpleQuery($string);
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
@@ -725,21 +709,21 @@ class OeawStorage implements OeawStorageInterface {
             $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             return $result;
-            
         } catch (\Exception $ex) {
-           return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
-           return array();
-        }  
+            return array();
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return array();
+        }
     }
     
     /**
      * Get the fedora url by the id or pid
-     * 
+     *
      * @param string $id
      * @return string
      */
-    public function getFedoraUrlByIdentifierOrPid(string $id): string {
+    public function getFedoraUrlByIdentifierOrPid(string $id): string
+    {
         $result = "";
         
         $string = "select ?uri ?pid where { "
@@ -756,38 +740,37 @@ class OeawStorage implements OeawStorageInterface {
             
             $fields = $res->getFields();
             $data = $this->oeawFunctions->createSparqlResult($res, $fields);
-            if(count($data) > 0){
-                if(isset($data[0]['pid']) && !empty($data[0]['pid'])){
+            if (count($data) > 0) {
+                if (isset($data[0]['pid']) && !empty($data[0]['pid'])) {
                     $result = $data[0]['pid'];
-                }else if(isset($data[0]['uri']) && !empty($data[0]['uri'])){
+                } elseif (isset($data[0]['uri']) && !empty($data[0]['uri'])) {
                     $result = $data[0]['uri'];
                 }
             }
             return $result;
-            
-            
-        } catch (\Exception $ex) {            
+        } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
-        } 
+        }
     }
   
     
     /**
      * We using it for the NEW/EDIT FORMS
      *  Get the digital rescources Meta data and the cardinality data by ResourceUri
-     * 
+     *
      * @param string $classURI
      * @param string $lang
      * @return array
      */
-    public function getClassMeta(string $classURI, string $lang = "en"): array{
-       
+    public function getClassMeta(string $classURI, string $lang = "en"): array
+    {
         if (empty($classURI)) {
             return drupal_set_message(
-                     t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
-                    'error');
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,
+                'error'
+            );
         }
         $lang = strtolower($lang);
         
@@ -806,7 +789,7 @@ class OeawStorage implements OeawStorageInterface {
         
         $where .= " ?prop <".$rdfsDomain."> ?class . ";
         $where .= " ?prop <".RC::idProp()."> ?propID . ";
-        $where .= $this->modelFunctions->filterLanguage("prop", RC::get('fedoraTitleProp'), "propTitle", $lang, false );
+        $where .= $this->modelFunctions->filterLanguage("prop", RC::get('fedoraTitleProp'), "propTitle", $lang, false);
         $optionals = "";
         $optionals = "
             OPTIONAL{ 
@@ -825,7 +808,7 @@ class OeawStorage implements OeawStorageInterface {
                 SELECT  * WHERE { ?prop <".RC::get('drupalOwlMaxCardinality')."> ?maxCardinality .}
             }";
         
-        $optionals .= $this->modelFunctions->filterLanguage("prop", RC::get('drupalRdfsComment'), "comments", $lang, true );
+        $optionals .= $this->modelFunctions->filterLanguage("prop", RC::get('drupalRdfsComment'), "comments", $lang, true);
         $where .= $optionals;
         
         $where .="
@@ -833,7 +816,7 @@ class OeawStorage implements OeawStorageInterface {
         $where .=" <".$classURI."> <".RC::idProp()."> ?classID . ";
         $where .= " ?prop <".$rdfsDomain."> ?classID . ";
         $where .= " ?prop <".RC::idProp()."> ?propID .";
-        $where .= $this->modelFunctions->filterLanguage("prop", RC::get('fedoraTitleProp'), "propTitle", $lang, false );
+        $where .= $this->modelFunctions->filterLanguage("prop", RC::get('fedoraTitleProp'), "propTitle", $lang, false);
         $where .= $optionals;
         
         $where .= " } }";
@@ -842,7 +825,6 @@ class OeawStorage implements OeawStorageInterface {
         
         $query = $select.$where.$groupby.$orderby;
         try {
-            
             $q = new SimpleQuery($query);
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
@@ -850,71 +832,73 @@ class OeawStorage implements OeawStorageInterface {
             $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             return $result;
-            
-            
         } catch (\Exception $ex) {
-           return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
-           return array();
-        }  
+            return array();
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return array();
+        }
     }
     
     /**
      * Get the image by the identifier
-     * 
+     *
      * @param string $string - image acdh:hasIdentifier value
      * @return string - the fedora url of the image
      */
-    public function getImageByIdentifier(string $string): string{
-        
+    public function getImageByIdentifier(string $string): string
+    {
         $return = "";
         if (empty($string)) {
             return drupal_set_message(
-                t('Empty').' '.t('Values').' -->'.__FUNCTION__,  'error');
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,
+                'error'
+            );
         }
        
-        try{            
+        try {
             $q = new Query();
             $q->setSelect(array('?uri'));
             $q->addParameter((new HasValue(RC::idProp(), $string))->setSubVar('?uri'));
             $q->addParameter((new HasValue(RC::get('drupalRdfType'), RC::get('drupalImage')))->setSubVar('?uri'));
             $query = $q->getQuery();
             $result = $this->fedora->runSparql($query);
-            foreach($result as $r){
-                if($r->uri){
+            foreach ($result as $r) {
+                if ($r->uri) {
                     $return = $r->uri->getUri();
                 }
             }
             return $return;
         } catch (\Exception $ex) {
             return "";
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return "";
-        }  
+        }
     }
     
     /**
      * Get the resource thumbnail image
-     * 
-     * @param string $value -> the property value 
+     *
+     * @param string $value -> the property value
      * @param string $property -> the property
      * @return string
      */
-    public function getImage(string $value, string $property = null ): string
-    {         
-        
+    public function getImage(string $value, string $property = null): string
+    {
         if (empty($value)) {
             drupal_set_message(
-                 t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
-                'error');
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,
+                'error'
+            );
             return "";
         }
         
-        if($property == null){ $property = RC::idProp(); } 
+        if ($property == null) {
+            $property = RC::idProp();
+        }
         $foafImage = self::$sparqlPref["foafImage"];
         $res = "";
 
-        try{            
+        try {
             $q = new Query();
             $q->setSelect(array('?res'));
             $q->addParameter((new HasValue($property, $value)));
@@ -922,32 +906,33 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $result = $this->fedora->runSparql($query);
 
-            foreach($result as $r){
-                if($r->res){
+            foreach ($result as $r) {
+                if ($r->res) {
                     $res = $r->res->getUri();
-                }                
+                }
             }
             return $res;
         } catch (\Exception $ex) {
             return "";
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return "";
-        }  
+        }
     }
     
     /**
      * Get the acdh:isMember values by resource URI for the Organisation view.
-     * 
+     *
      * @param string $uri
      * @param string $lang
      * @return array
      */
-    public function getIsMembers(string $uri, string $lang = "en"): array {
-        
+    public function getIsMembers(string $uri, string $lang = "en"): array
+    {
         if (empty($uri)) {
             return drupal_set_message(
-                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
-                'error');
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,
+                'error'
+            );
         }
         $lang = strtolower($lang);
         
@@ -962,7 +947,7 @@ class OeawStorage implements OeawStorageInterface {
         $where = '<'.$uri.'> <'.RC::get("fedoraIdProp").'> ?id . ';
         $where .= '?uri <'.RC::get('drupalIsMember').'> ?id . ';
         //$where .= '?uri <'.RC::get('fedoraTitleProp').'> ?title . ';
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false);
         $where .= ' OPTIONAL { '
                 . ' ?uri  <'.RC::get("fedoraIdProp").'> ?childId . '
                 . ' FILTER regex(str(?childId),"id.acdh.oeaw.ac.at","i") . '
@@ -991,14 +976,12 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             return $result;
-            
-
         } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
     }
@@ -1008,7 +991,7 @@ class OeawStorage implements OeawStorageInterface {
      * We have also a similar sparql which is the getSpecialDetailViewData, but there we
      * have some extra filtering, this sparql is the clone of the get ChildrenViewData
      * just with a property
-     * 
+     *
      * @param string $uri
      * @param string $limit
      * @param string $offset
@@ -1017,15 +1000,18 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $lang
      * @return array
      */
-    public function getChildResourcesByProperty(string $uri, string $limit, string $offset, bool $count, array $property, string $lang = "en"): array{
-        
+    public function getChildResourcesByProperty(string $uri, string $limit, string $offset, bool $count, array $property, string $lang = "en"): array
+    {
         if (empty($uri)) {
             return drupal_set_message(
-                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 
-                'error');
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,
+                'error'
+            );
         }
         $lang = strtolower($lang);
-        if($offset < 0) { $offset = 0; }
+        if ($offset < 0) {
+            $offset = 0;
+        }
         $result = array();
         $select = "";
         $where = "";
@@ -1033,23 +1019,23 @@ class OeawStorage implements OeawStorageInterface {
         $queryStr = "";
         
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
-        if($count == false){
-            $select = 'SELECT ?uri ?title (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)  ';            
+        if ($count == false) {
+            $select = 'SELECT ?uri ?title (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description)  ';
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
-        }else {
-            $select = 'SELECT (COUNT(?uri) as ?count) ';            
+        } else {
+            $select = 'SELECT (COUNT(?uri) as ?count) ';
         }
         
         $where = '
             WHERE {
                 <'.$uri.'>  <'.RC::get("fedoraIdProp").'> ?id  . ';
-        foreach($property as $p){
+        foreach ($property as $p) {
             $where .= ' ?uri <'.$p.'> ?id . ';
         }
         
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true );
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true);
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true);
        
         $where .= '?uri  <'.RC::get("drupalRdfType").'> ?type . '
                 . 'FILTER regex(str(?type),"vocabs.acdh","i") . '
@@ -1063,19 +1049,19 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             return $result;
         } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
     }
     
     /**
      * Get the necessary data for the children view
-     * 
+     *
      * @param array $ids
      * @param string $limit
      * @param string $offset
@@ -1083,10 +1069,14 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $lang
      * @return array
      */
-    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "en", string $order = "asc"): array {
-        
-        if (count($ids) < 0) { return array(); }
-        if($offset < 0) { $offset = 0; }
+    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "en", string $order = "asc"): array
+    {
+        if (count($ids) < 0) {
+            return array();
+        }
+        if ($offset < 0) {
+            $offset = 0;
+        }
         $lang = strtolower($lang);
         $result = array();
         $select = "";
@@ -1094,19 +1084,19 @@ class OeawStorage implements OeawStorageInterface {
         $limitStr = "";
         $queryStr = "";
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
-        if($count == false){
+        if ($count == false) {
             $select = 'SELECT ?uri ?title ?pid ?accessRestriction '
-                    . '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)  ';            
+                    . '(GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)  ';
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
-        }else {
-            $select = 'SELECT (COUNT(?uri) as ?count) ';            
+        } else {
+            $select = 'SELECT (COUNT(?uri) as ?count) ';
         }
         
         $where = '
             WHERE { ';
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false);
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true);
         $where .= '
                 OPTIONAL { ?uri <'.RC::get("epicPidProp").'> ?pid .} ';
         $where .= ' OPTIONAL { ?uri <'.RC::get("fedoraAccessRestrictionProp").'> ?accessRestriction . } ';
@@ -1120,14 +1110,13 @@ class OeawStorage implements OeawStorageInterface {
         $num = count($ids);
         
         for ($i = 0; $i <= $num -1 ; $i++) {
-                        
             $where .= '?isPartOf =  <'.$ids[$i].'> ';
-            if($i !== ($num - 1)){
+            if ($i !== ($num - 1)) {
                 $where .= ' || ';
             }
         }
         $where .= ')';
-        $groupBy = ' }  GROUP BY ?uri ?title ?pid ?accessRestriction '; 
+        $groupBy = ' }  GROUP BY ?uri ?title ?pid ?accessRestriction ';
         $groupBy .= ' ORDER BY '.$order.' ( fn:lower-case(?title)) ';
         
         $queryStr = $select.$where.$groupBy.$limitStr;
@@ -1137,26 +1126,24 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             return $result;
         } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
-        
-        
     }
     
     /**
      * Get the HasMetadata Inverse property by Resource Identifier
-     * 
+     *
      * @param string $id
      * @return array
      */
-    public function getMetaInverseData(string $uri): array{
-        
+    public function getMetaInverseData(string $uri): array
+    {
         $result = array();
         
         $where = "";
@@ -1176,19 +1163,19 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $res = $this->oeawFunctions->createSparqlResult($res, $fields);
             
             $i = 0;
-            foreach($res as $r){
-                foreach($r as $k => $v){                    
+            foreach ($res as $r) {
+                foreach ($r as $k => $v) {
                     $result[$i][$k] = $v;
-                    if($k == "uri"){
+                    if ($k == "uri") {
                         $title = $this->oeawFunctions->getTitleByUri($v);
                         $result[$i]["title"] = $title;
                         $result[$i]["insideUri"] = $this->oeawFunctions->detailViewUrlDecodeEncode($v, 1);
                     }
-                    if($k == "prop"){                        
+                    if ($k == "prop") {
                         $shortcut = $this->oeawFunctions->createPrefixesFromString($v);
                         $result[$i]["shortcut"] = $shortcut;
                     }
@@ -1198,19 +1185,19 @@ class OeawStorage implements OeawStorageInterface {
             return $result;
         } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
     }
     
     /**
      * Create the Inverse table data by URL
-     * 
+     *
      * @param string $url
      * @return array
      */
-    public function getInverseViewDataByURL(string $url): array{
-        
+    public function getInverseViewDataByURL(string $url): array
+    {
         $result = array();
         
         $where = ' <'.$url.'> <'.RC::get("fedoraIdProp").'> ?obj . ';
@@ -1248,19 +1235,19 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $res = $this->oeawFunctions->createSparqlResult($res, $fields);
             
             $i = 0;
-            foreach($res as $r){
-                foreach($r as $k => $v){                    
+            foreach ($res as $r) {
+                foreach ($r as $k => $v) {
                     $result[$i][$k] = $v;
-                    if($k == "uri"){
+                    if ($k == "uri") {
                         $title = $this->oeawFunctions->getTitleByUri($v);
                         $result[$i]["title"] = $title;
                         $result[$i]["insideUri"] = $this->oeawFunctions->detailViewUrlDecodeEncode($v, 1);
                     }
-                    if($k == "prop"){                        
+                    if ($k == "prop") {
                         $shortcut = $this->oeawFunctions->createPrefixesFromString($v);
                         $result[$i]["shortcut"] = $shortcut;
                     }
@@ -1270,7 +1257,7 @@ class OeawStorage implements OeawStorageInterface {
             return $result;
         } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
     }
@@ -1278,19 +1265,18 @@ class OeawStorage implements OeawStorageInterface {
     
     /**
      * Create the data for the InverseViews by the Resource Identifier
-     * 
+     *
      * @param array $data
      * @return array
      */
-    public function getInverseViewDataByIdentifier(array $data): array{
-        
+    public function getInverseViewDataByIdentifier(array $data): array
+    {
         $result = array();
         $num = count($data);
         $string = "";
         $where = "?uri ?prop ?obj . ";
         
         for ($i = 0; $i <= $num -1 ; $i++) {
-                        
             $where .= '{
                 select * where 
                 {
@@ -1298,7 +1284,7 @@ class OeawStorage implements OeawStorageInterface {
                 }   
             }
             ';
-            if($i !== ($num - 1)){
+            if ($i !== ($num - 1)) {
                 $where .= 'UNION';
             }
         }
@@ -1315,19 +1301,19 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $res = $this->oeawFunctions->createSparqlResult($res, $fields);
             
             $i = 0;
-            foreach($res as $r){
-                foreach($r as $k => $v){                    
+            foreach ($res as $r) {
+                foreach ($r as $k => $v) {
                     $result[$i][$k] = $v;
-                    if($k == "uri"){
+                    if ($k == "uri") {
                         $title = $this->oeawFunctions->getTitleByUri($v);
                         $result[$i]["title"] = $title;
                         $result[$i]["insideUri"] = $this->oeawFunctions->detailViewUrlDecodeEncode($v, 1);
                     }
-                    if($k == "prop"){                        
+                    if ($k == "prop") {
                         $shortcut = $this->oeawFunctions->createPrefixesFromString($v);
                         $result[$i]["shortcut"] = $shortcut;
                     }
@@ -1337,7 +1323,7 @@ class OeawStorage implements OeawStorageInterface {
             return $result;
         } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
     }
@@ -1345,7 +1331,7 @@ class OeawStorage implements OeawStorageInterface {
     
     /**
      * Run users sparql from the resource views
-     * 
+     *
      * @param string $string
      * @return array
      */
@@ -1361,26 +1347,27 @@ class OeawStorage implements OeawStorageInterface {
             $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             return $result;
-
         } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
-        } 
+        }
     }
     
     /**
      *  Check labels for the autocomplete input fields
-     * 
+     *
      * @param string $string
      * @param string $property
      * @return array
      */
-    public function checkValueToAutocomplete(string $string, string $property): array{
-        
+    public function checkValueToAutocomplete(string $string, string $property): array
+    {
         if (empty($string) || empty($property)) {
             return drupal_set_message(
-                t('Empty').' '.t('Values').' -->'.__FUNCTION__, 'error');
+                t('Empty').' '.t('Values').' -->'.__FUNCTION__,
+                'error'
+            );
         }
                 
         $rdfsLabel = self::$sparqlPref["rdfsLabel"];
@@ -1389,7 +1376,6 @@ class OeawStorage implements OeawStorageInterface {
         //we need to extend the Filter options in the DB class, to we can use the
         // Filter =  value
         try {
-           
             $q = new Query();
             $q->setSelect(array('?res'));
             $q->setDistinct(true);
@@ -1399,25 +1385,24 @@ class OeawStorage implements OeawStorageInterface {
           
             $result = $this->fedora->runSparql($query);
            
-            $fields = $result->getFields(); 
+            $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
            
             return $getResult;
-
         } catch (\Exception $ex) {
-           return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
-           return array();
+            return array();
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return array();
         }
     }
     
     /**
      * Get the MIME infos
-     * 
+     *
      * @return array
      */
-    public function getMimeTypes(): array{
-        
+    public function getMimeTypes(): array
+    {
         $getResult = array();
         
         try {
@@ -1433,39 +1418,37 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
 
             $result = $this->fedora->runSparql($query);
-            $fields = $result->getFields(); 
+            $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
             
             return $getResult;
-
         } catch (\Exception $ex) {
-           return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
-           return array();
-        }  
+            return array();
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return array();
+        }
     }
     
     /**
      * Function Return the ACDH vocabs Namespace Types with a count
-     * 
+     *
      * @param bool $count -> we want only count or not
      * @param bool $searchBox -> the complex searchbox has to skip some values
      * @return array
      */
     public function getACDHTypes(bool $count = false, bool $searchBox = false) :array
-    {        
-            
+    {
         $getResult = array();
         
-        try {            
-            if($count == true){
+        try {
+            if ($count == true) {
                 $select = "SELECT  ?type (COUNT(?type) as ?typeCount) ";
-            }else {
+            } else {
                 $select = "SELECT  DISTINCT ?type ";
             }
             
             $filter = "FILTER (regex(str(?type), '".RC::vocabsNmsp()."', 'i')) .";
-            if($searchBox == true){
+            if ($searchBox == true) {
                 $filter .= "FILTER (!regex(str(?type), '".RC::get('drupalImage')."', 'i')) ."
                         . "FILTER (!regex(str(?type), '".RC::get('fedoraServiceClass')."', 'i')) .";
             }
@@ -1480,24 +1463,23 @@ class OeawStorage implements OeawStorageInterface {
                 ";
             
             $queryStr = $select.$queryStr;
-            $q = new SimpleQuery($queryStr);            
+            $q = new SimpleQuery($queryStr);
             $query = $q->getQuery();
             $result = $this->fedora->runSparql($query);
-            $fields = $result->getFields(); 
+            $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
             
             return $getResult;
-
         } catch (\Exception $ex) {
-           return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
-           return array();
-        }  
+            return array();
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return array();
+        }
     }
     
     /**
      * Generate the data for the left side complexSearch Year searching function
-     * 
+     *
      * @return array
      */
     public function getDateForSearch(): array
@@ -1518,14 +1500,13 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
 
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
 
             return $result;
-
         } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
         return $result;
@@ -1533,7 +1514,7 @@ class OeawStorage implements OeawStorageInterface {
     
     /**
      * Get the actual classes for the SideBar block
-     * 
+     *
      * @return array
      * @throws \ErrorException
      */
@@ -1541,7 +1522,7 @@ class OeawStorage implements OeawStorageInterface {
     {
         $getResult = array();
         
-        try {            
+        try {
             $q = new Query();
             $q->addParameter(new HasTriple('?uri', RC::get("drupalRdfType"), '?type'));
             $q->setSelect(array('?type', '(COUNT(?type) as ?typeCount)'));
@@ -1550,21 +1531,20 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             
             $result = $this->fedora->runSparql($query);
-            $fields = $result->getFields(); 
+            $fields = $result->getFields();
             $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
 
             return $getResult;
-
-        } catch (\Exception $ex) {            
+        } catch (\Exception $ex) {
             throw new \ErrorException($ex->getMessage());
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             throw new \ErrorException($ex->getMessage());
-        }  
+        }
     }
     
     /**
      * This func gets the parent title from the DB
-     * 
+     *
      * @param string $id
      * @param string $lang
      * @return array
@@ -1573,12 +1553,11 @@ class OeawStorage implements OeawStorageInterface {
     {
         $result = array();
         $lang = strtolower($lang);
-        if($id){
-            
+        if ($id) {
             $where = "";
             $where .= " WHERE { ";
             $where .= "?uri <".RC::get('fedoraIdProp')."> <".$id."> . ";
-            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false);
             //$where .= "?uri <".RC::titleProp()."> ?title . ";
             $where .= " } ";
             $select = 'SELECT ?title   ';
@@ -1589,14 +1568,13 @@ class OeawStorage implements OeawStorageInterface {
                 $query = $q->getQuery();
                 $res = $this->fedora->runSparql($query);
             
-                $fields = $res->getFields(); 
+                $fields = $res->getFields();
                 $result = $this->oeawFunctions->createSparqlResult($res, $fields);
              
                 return $result;
- 
-             } catch (\Exception $ex) {
+            } catch (\Exception $ex) {
                 return $result;
-            } catch (\GuzzleHttp\Exception\ClientException $ex){
+            } catch (\GuzzleHttp\Exception\ClientException $ex) {
                 return $result;
             }
         }
@@ -1606,7 +1584,7 @@ class OeawStorage implements OeawStorageInterface {
     
     /**
      * Get the titles for the detail view property values
-     * 
+     *
      * @param array $data
      * @param bool $dissemination
      * @param string $lang
@@ -1615,7 +1593,7 @@ class OeawStorage implements OeawStorageInterface {
     public function getTitleByIdentifierArray(array $data, bool $dissemination = false, string $lang = "en"): array
     {
         $result = array();
-        if(count($data) > 0){
+        if (count($data) > 0) {
             $lang = strtolower($lang);
             $where = "";
             
@@ -1624,10 +1602,12 @@ class OeawStorage implements OeawStorageInterface {
             $where .= "FILTER (?id IN ( ";
             for ($x = 0; $x <= count($data) - 1; $x++) {
                 $where .= "<".$data[$x].">";
-                if($x != count($data) - 1 ) { $where .=","; }
+                if ($x != count($data) - 1) {
+                    $where .=",";
+                }
             }
             $where .= " ) ) . ";
-            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false);
             $where .=" OPTIONAL {"
                     . " ?uri <".RC::get('fedoraIdProp')."> ?identifier . "
                     . " FILTER (regex(str(?identifier),'id.acdh.oeaw.ac.at/','i')) . "
@@ -1645,9 +1625,9 @@ class OeawStorage implements OeawStorageInterface {
                     . " ?uri <".RC::get('epicPidProp')."> ?pid . "
                     . " } ";
 
-            if($dissemination == true){
+            if ($dissemination == true) {
                 $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
-                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
+                $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true);
                 //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
                 $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
             }
@@ -1655,9 +1635,9 @@ class OeawStorage implements OeawStorageInterface {
             $where .= " } ";
             
             $select = "";
-            if($dissemination == true){
+            if ($dissemination == true) {
                 $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs ?returnType ?description WHERE { ';
-            }else{
+            } else {
                 $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs WHERE { ';
             }
             
@@ -1666,13 +1646,12 @@ class OeawStorage implements OeawStorageInterface {
                 $q = new SimpleQuery($queryStr);
                 $query = $q->getQuery();
                 $res = $this->fedora->runSparql($query);
-                $fields = $res->getFields(); 
+                $fields = $res->getFields();
                 $result = $this->oeawFunctions->createSparqlResult($res, $fields);
                 return $result;
- 
-             } catch (\Exception $ex) {
+            } catch (\Exception $ex) {
                 return $result;
-            } catch (\GuzzleHttp\Exception\ClientException $ex){
+            } catch (\GuzzleHttp\Exception\ClientException $ex) {
                 return $result;
             }
         }
@@ -1682,7 +1661,7 @@ class OeawStorage implements OeawStorageInterface {
     
     /**
      * Get title and some basic info about the resource by identifier
-     * 
+     *
      * @param string $data
      * @param bool $dissemination
      * @param string $lang
@@ -1699,7 +1678,7 @@ class OeawStorage implements OeawStorageInterface {
         $where .= "?uri <".RC::get('fedoraIdProp')."> <".$data."> . ";
         //$where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
         //$where .= "?uri <".RC::titleProp()."> ?title . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false);
         $where .=" OPTIONAL {"
                 . " ?uri <".RC::get('fedoraIdProp')."> ?identifier . "
                 . " FILTER (regex(str(?identifier),'id.acdh.oeaw.ac.at/','i')) . "
@@ -1717,18 +1696,18 @@ class OeawStorage implements OeawStorageInterface {
                 . " ?uri <".RC::get('epicPidProp')."> ?pid . "
                 . " } ";
 
-        if($dissemination == true){
+        if ($dissemination == true) {
             $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
-            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true);
             //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
             $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
         }
 
         $where .= " } ";
                 
-        if($dissemination == true){
+        if ($dissemination == true) {
             $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs ?returnType ?description WHERE { ';
-        }else{
+        } else {
             $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs WHERE { ';
         }
 
@@ -1741,9 +1720,9 @@ class OeawStorage implements OeawStorageInterface {
             $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             return $result;
-         } catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
         
@@ -1753,7 +1732,7 @@ class OeawStorage implements OeawStorageInterface {
     
     /**
      * Get title and some basic info about the resources by identifier
-     * 
+     *
      * @param array $data
      * @param bool $dissemination
      * @param string $lang
@@ -1766,17 +1745,21 @@ class OeawStorage implements OeawStorageInterface {
         $where = "";
         $select = "";
         
-        if(count($data) == 0) { return array(); }
+        if (count($data) == 0) {
+            return array();
+        }
         $where .= " { ";
         $where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
         $where .= "FILTER (?identifier IN ( ";
-            $lastId = end($data);
-            foreach($data as $d) {
-                $where .= "<".$d.">";
-                if($d != $lastId) { $where .=","; }
+        $lastId = end($data);
+        foreach ($data as $d) {
+            $where .= "<".$d.">";
+            if ($d != $lastId) {
+                $where .=",";
             }
+        }
         $where .= " ) ) . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false );
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false);
         $where .=" OPTIONAL {"
                 . " ?uri <".RC::get('fedoraIdProp')."> ?identifier . "
                 . " FILTER (regex(str(?identifier),'id.acdh.oeaw.ac.at/','i')) . "
@@ -1794,18 +1777,18 @@ class OeawStorage implements OeawStorageInterface {
                 . " ?uri <".RC::get('epicPidProp')."> ?pid . "
                 . " } ";
 
-        if($dissemination == true){
+        if ($dissemination == true) {
             $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
-            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true );
+            $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true);
             //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
             $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
         }
 
         $where .= " } ";
                 
-        if($dissemination == true){
+        if ($dissemination == true) {
             $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs ?returnType ?description WHERE { ';
-        }else{
+        } else {
             $select = 'SELECT DISTINCT ?title ?identifier ?uri ?uuid ?pid ?vocabs WHERE { ';
         }
 
@@ -1818,9 +1801,9 @@ class OeawStorage implements OeawStorageInterface {
             $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             return $result;
-         } catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
         
@@ -1830,7 +1813,7 @@ class OeawStorage implements OeawStorageInterface {
     
     /**
      * Create the Sparql Query for the special ACDH rdf:type "children views"
-     * 
+     *
      * @param string $uri
      * @param string $limit
      * @param string $offset
@@ -1839,9 +1822,11 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $lang
      * @return array
      */
-    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en", string $orderby = 'asc'): array 
+    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en", string $orderby = 'asc'): array
     {
-        if($offset < 0) { $offset = 0; }
+        if ($offset < 0) {
+            $offset = 0;
+        }
         $lang = strtolower($lang);
         $result = array();
         $select = "";
@@ -1849,12 +1834,12 @@ class OeawStorage implements OeawStorageInterface {
         $limitStr = "";
         $queryStr = "";
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
-        if($count == false){
+        if ($count == false) {
             $select = 'SELECT ?uri ?title ?pid ?accessRestriction '
                     . '(GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) ';
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
-        }else {
+        } else {
             $select = 'SELECT (COUNT(?uri) as ?count) ';
         }
         
@@ -1868,14 +1853,14 @@ class OeawStorage implements OeawStorageInterface {
                 . 'FILTER( ?prop IN ( ';
         for ($x = 0; $x < count($property); $x++) {
             $where .='<'.$property[$x].'>';
-            if($x +1 < count($property)){
+            if ($x +1 < count($property)) {
                 $where .= ', ';
             }
-        } 
+        }
         
         $where .= ' )) . ';
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true );
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true);
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true);
         $where .= '?uri  <'.RC::get("drupalRdfType").'> ?type . 
                 FILTER regex(str(?type),"vocabs.acdh","i") . ';
         $where .= '?uri <'.RC::get("fedoraIdProp").'> ?identifiers .
@@ -1892,21 +1877,20 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             
             return $result;
-
         } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
     }
     
     /**
      * Create the children data for the detail views
-     * 
+     *
      * @param string $uri -> resource URI
      * @param string $limit -> limit for pagination
      * @param string $offset -> offset for pagination
@@ -1915,9 +1899,11 @@ class OeawStorage implements OeawStorageInterface {
      * @param string $lang
      * @return array
      */
-    public function getSpecialChildrenViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en"): array 
+    public function getSpecialChildrenViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en"): array
     {
-        if($offset < 0) { $offset = 0; }
+        if ($offset < 0) {
+            $offset = 0;
+        }
         $lang = strtolower($lang);
         $result = array();
         $select = "";
@@ -1926,12 +1912,12 @@ class OeawStorage implements OeawStorageInterface {
         $queryStr = "";
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         
-        if($count == false){
-            $select = 'SELECT ?uri ?title (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) ';            
+        if ($count == false) {
+            $select = 'SELECT ?uri ?title (GROUP_CONCAT(DISTINCT ?type;separator=",") AS ?types) (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) ';
             $limitStr = ' LIMIT '.$limit.'
             OFFSET '.$offset.' ';
-        }else {
-            $select = 'SELECT (COUNT(?uri) as ?count) ';            
+        } else {
+            $select = 'SELECT (COUNT(?uri) as ?count) ';
         }
         
         $where = '
@@ -1941,15 +1927,15 @@ class OeawStorage implements OeawStorageInterface {
         
         for ($x = 0; $x < count($property); $x++) {
             $where .='<'.$property[$x].'>';
-            if($x +1 < count($property)){
+            if ($x +1 < count($property)) {
                 $where .= ', ';
             }
         }
         
         $where .='  )) . ';
         $where .= '?uri <'.RC::get('fedoraIdProp').'> ?obj .    ';
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true );
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true );
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true);
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true);
         $where .= '?uri  <'.RC::get("drupalRdfType").'> ?type . 
                 FILTER regex(str(?type),"vocabs.acdh","i") . ';
         $groupBy = ' }  GROUP BY ?uri ?title ORDER BY ASC( fn:lower-case(?title))';
@@ -1961,26 +1947,25 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
             
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             
             return $result;
-
         } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
     }
     
     /**
      * This sparql will create an array with the ontology for the caching
-     * 
+     *
      * @param string $lang
      * @return array
      */
-    public function getOntologyForCache(string $lang = "en"): array{
-        
+    public function getOntologyForCache(string $lang = "en"): array
+    {
         $lang = strtolower($lang);
         $result = array();
         
@@ -1989,8 +1974,8 @@ class OeawStorage implements OeawStorageInterface {
         $where = "?uri <".RC::get('drupalRdfType')."> ?type ."
                 . "FILTER( ?type IN ( <http://www.w3.org/2002/07/owl#DatatypeProperty>, <http://www.w3.org/2002/07/owl#ObjectProperty>)) . "
                 . "?uri <".RC::get('fedoraIdProp')."> ?id . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", "http://www.w3.org/2004/02/skos/core#altLabel", "title", $lang, true );
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalRdfsComment'), "comment", $lang, true );
+        $where .= $this->modelFunctions->filterLanguage("uri", "http://www.w3.org/2004/02/skos/core#altLabel", "title", $lang, true);
+        $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalRdfsComment'), "comment", $lang, true);
         $where .= " } ";
         $groupby = " GROUP BY ?id ?title ?comment ";
         $orderby = " ORDER BY ?title ";
@@ -2001,14 +1986,13 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
 
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
 
             return $result;
-
-         } catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
         return $result;
@@ -2016,12 +2000,13 @@ class OeawStorage implements OeawStorageInterface {
     
     /**
      * Get the root elements of a resource, based on the ispartof
-     * 
+     *
      * @param string $identifier
      * @param string $lang
      * @return array
      */
-    public function createBreadcrumbData(string $identifier, string $lang = "en"): array {
+    public function createBreadcrumbData(string $identifier, string $lang = "en"): array
+    {
         $lang = strtolower($lang);
         $result = array();
         $select = 'SELECT ?roots ?mainIspartOf ?rootId ?rootTitle ?rootsRoot WHERE { ';
@@ -2029,9 +2014,9 @@ class OeawStorage implements OeawStorageInterface {
         $where .= " ?uri <".RC::get('fedoraRelProp')."> ?mainIspartOf . ";
         $where .= " ?uri (<".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* / <".RC::get('fedoraRelProp')."> ?rootId .  ";
         $where .= " ?roots <".RC::get('fedoraIdProp')."> ?rootId . ";
-        $where .= $this->modelFunctions->filterLanguage("roots", RC::get('fedoraTitleProp'), "rootTitle", $lang, true );
+        $where .= $this->modelFunctions->filterLanguage("roots", RC::get('fedoraTitleProp'), "rootTitle", $lang, true);
         $where .= " OPTIONAL { ";
-            $where .= " ?roots <".RC::get('fedoraRelProp')."> ?rootsRoot . ";
+        $where .= " ?roots <".RC::get('fedoraRelProp')."> ?rootsRoot . ";
         $where .= " } ";
         $where .= " } ";
          
@@ -2042,17 +2027,16 @@ class OeawStorage implements OeawStorageInterface {
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
 
-            $fields = $res->getFields(); 
+            $fields = $res->getFields();
             $result = $this->oeawFunctions->createSparqlResult($res, $fields);
             $result = $this->oeawFunctions->formatBreadcrumbData($result);
             
             return $result;
-
-         } catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             return $result;
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return $result;
         }
         return $result;
     }
-} 
+}

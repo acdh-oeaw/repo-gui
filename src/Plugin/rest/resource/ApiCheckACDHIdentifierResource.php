@@ -14,8 +14,6 @@ use Drupal\oeaw\OeawFunctions;
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
 
-
-
 /**
  * Check the acdh identifier in the database
  *
@@ -27,29 +25,30 @@ use acdhOeaw\util\RepoConfig as RC;
  *   }
  * )
  */
-class ApiCheckACDHIdentifierResource extends ResourceBase {
+class ApiCheckACDHIdentifierResource extends ResourceBase
+{
     
     /*
      * Usage:
-     * 
+     *
      *  https://domain.com/browser/api/checkIdentifier/MYVALUE?_format=json
-     * 
+     *
      * F.e.:identifier: "https://id.acdh.oeaw.ac.at/pub-calvetrobin1997" -> remove http/https and urlencode
      * the rest of it: id.acdh.oeaw.ac.at%20pub-calvetrobin1997
-     * 
+     *
      * https://fedora.localhost/browser/api/checkIdentifier/id.acdh.oeaw.ac.at%20pub-calvetrobin1997?_format=json
-     * 
+     *
      */
     
     /**
      * Responds to entity GET requests.
-     * 
+     *
      * @param string $identifier
      * @return JsonResponse
      */
-    public function get(string $identifier) {
-        
-        if(empty($identifier)){
+    public function get(string $identifier)
+    {
+        if (empty($identifier)) {
             return new JsonResponse(array("Please provide an identifier!"), 404, ['Content-Type'=> 'application/json']);
         }
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
@@ -72,21 +71,21 @@ class ApiCheckACDHIdentifierResource extends ResourceBase {
             $classMeta = $oeawStorage->getDataByProp(RC::idProp(), $identifier);
         } catch (Exception $ex) {
             return new JsonResponse(array($ex->getMessage()), 404, ['Content-Type'=> 'application/json']);
-        } catch (\GuzzleHttp\Exception\ClientException $ex){
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
             return new JsonResponse(array($ex->getMessage()), 404, ['Content-Type'=> 'application/json']);
         }
-        if(count($classMeta) > 0){
+        if (count($classMeta) > 0) {
             $result = array();
-            if(isset($classMeta[0]['title'])){
+            if (isset($classMeta[0]['title'])) {
                 $result['title'] = $classMeta[0]['title'];
             }
-            if(isset($classMeta[0]['rdfTypes'])){
+            if (isset($classMeta[0]['rdfTypes'])) {
                 $result["rdfTypes"] = explode(",", $classMeta[0]['rdfTypes']);
             }
-            if(isset($classMeta[0]['creationdate']) && !empty($classMeta[0]['creationdate'])){
+            if (isset($classMeta[0]['creationdate']) && !empty($classMeta[0]['creationdate'])) {
                 $result["creationDate"] = date("Y-m-d", strtotime($classMeta[0]['creationdate']));
             }
-            if(isset($classMeta[0]['fdCreated']) && !empty($classMeta[0]['fdCreated'])){
+            if (isset($classMeta[0]['fdCreated']) && !empty($classMeta[0]['fdCreated'])) {
                 $result["fedoraCreateDate"] = date("Y-m-d", strtotime($classMeta[0]['fdCreated']));
             }
             return new JsonResponse($result, 200, ['Content-Type'=> 'application/json']);

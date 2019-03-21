@@ -5,14 +5,15 @@ namespace Drupal\oeaw\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 
-class DepAgreeForm extends FormBase{
-    
-    public function getFormId() {
+class DepAgreeForm extends FormBase
+{
+    public function getFormId()
+    {
         return 'depagree_form';
     }
     
-    public function buildForm(array $form, FormStateInterface $form_state) {
-        
+    public function buildForm(array $form, FormStateInterface $form_state)
+    {
         $form['depositor_agreement_title'] = array(
             '#markup' => '<h1><b>Deposition agreement</b></h1>',
         );
@@ -20,8 +21,8 @@ class DepAgreeForm extends FormBase{
         $form['depositor'] = array(
             '#type' => 'fieldset',
             '#title' => t('<h2><b>Depositor</b></h2>'),
-            '#collapsible' => TRUE,
-            '#collapsed' => FALSE,  
+            '#collapsible' => true,
+            '#collapsed' => false,
         );
               
         
@@ -30,56 +31,56 @@ class DepAgreeForm extends FormBase{
             '#title' => t('Name Title:'),
             '#attributes' => array(
               'class' => array('form-control')
-		    ),                     
-            '#required' => TRUE,
+            ),
+            '#required' => true,
         );
         
         $form['depositor']['l_name'] = array(
             '#type' => 'textfield',
             '#title' => t('Last Name:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['depositor']['f_name'] = array(
             '#type' => 'textfield',
             '#title' => t('First Name:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['depositor']['institution'] = array(
             '#type' => 'textfield',
             '#title' => t('Institution:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['depositor']['city'] = array(
             '#type' => 'textfield',
             '#title' => t('City:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['depositor']['address'] = array(
             '#type' => 'textfield',
             '#title' => t('Address:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['depositor']['zipcode'] = array(
             '#type' => 'textfield',
             '#title' => t('Zipcode:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['depositor']['email'] = array(
             '#type' => 'email',
             '#title' => t('Email:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
-        $form['depositor']['phone'] = array (
+        $form['depositor']['phone'] = array(
             '#type' => 'tel',
             '#title' => t('Phone'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         /*
         $form['depositor_agreement_title'] = array(
@@ -95,43 +96,43 @@ class DepAgreeForm extends FormBase{
         $form['material'] = array(
             '#type' => 'fieldset',
             '#title' => t('<h2><b>Description Of Material</b></h2>'),
-            '#collapsible' => TRUE,
-            '#collapsed' => FALSE,  
+            '#collapsible' => true,
+            '#collapsed' => false,
         );
         
         $form['material']['acdh_repo_id'] = array(
             '#type' => 'textfield',
             '#title' => t('ACDH-repo ID:'),
-            '#required' => TRUE,
-            '#default_value' => substr( md5(rand()), 0, 20),
-            '#attributes' => array("readonly" => TRUE),
+            '#required' => true,
+            '#default_value' => substr(md5(rand()), 0, 20),
+            '#attributes' => array("readonly" => true),
             '#description' => $this->t('string used as an internal identifier for the deposited resources'),
         );
         
         $form['material']['title'] = array(
             '#type' => 'textfield',
             '#title' => t('Title:'),
-            '#required' => TRUE,
+            '#required' => true,
             '#description' => $this->t(''),
         );
         
         $form['material']['ipr'] = array(
             '#type' => 'textarea',
             '#title' => t('Intellectual Property Rights (IPR):'),
-            '#required' => TRUE,
+            '#required' => true,
             '#description' => $this->t('Intellectual property rights including, but not limited to copyrights, related (or neighbouring) rights and database rights'),
         );
         
         $form['material']['metadata'] = array(
             '#type' => 'textarea',
             '#title' => t('Metadata:'),
-            '#required' => TRUE,
+            '#required' => true,
             '#description' => $this->t('is the information that may serve to identify, discover, interpret, manage, and describe content and structure.'),
         );
         
         $form['material']['file'] = array(
             '#type' => 'managed_file',
-            '#title' => t('Metadata Resource:'),                
+            '#title' => t('Metadata Resource:'),
             '#upload_validators' => array(
                 'file_validate_extensions' => array('xml doc txt simplified docx pdf jpg png tiff gif bmp'),
              ),
@@ -145,7 +146,7 @@ class DepAgreeForm extends FormBase{
                 'file_validate_extensions' => array('xml doc txt simplified docx pdf jpg png tiff gif bmp'),
              ),
             '#description' => $this->t('A reduced size or length audio and/or visual representation of Content, in the form of one or more images, text files, audio files and/or moving image files.'),
-        );    
+        );
         
         $form['material']['licence'] = array(
             '#type' => 'select',
@@ -164,17 +165,17 @@ class DepAgreeForm extends FormBase{
                 'In Copyright' => t('In Copyright'),
                 'In Copyright - Educational Use Permitted' => t('In Copyright - Educational Use Permitted'),
                 'In Copyright - EU Orphan Work' => t('In Copyright - EU Orphan Work'),
-                'Copyright Not Evaluated' => t('Copyright Not Evaluated'),                
+                'Copyright Not Evaluated' => t('Copyright Not Evaluated'),
             ),
             '#title' => t('Licence:'),
-            '#required' => TRUE,
+            '#required' => true,
             '#description' => $this->t(''),
         );
         
         $form['material']['scope_content_statement'] = array(
             '#type' => 'textarea',
             '#title' => t('Scope and content statement:'),
-            '#required' => TRUE,
+            '#required' => true,
             '#description' => $this->t('Provide a description of genres, purpose, and content of the resources being deposited.'),
         );
         
@@ -188,28 +189,28 @@ class DepAgreeForm extends FormBase{
         $form['extent'] = array(
             '#type' => 'fieldset',
             '#title' => t('<h2><b>Extent</b></h2>'),
-            '#collapsible' => TRUE,
-            '#collapsed' => FALSE,  
+            '#collapsible' => true,
+            '#collapsed' => false,
         );
               
         $form['extent']['file_size_byte'] = array(
             '#type' => 'textfield',
             '#title' => t('Overall file size in bytes:'),
-            '#required' => TRUE,
+            '#required' => true,
             '#description' => $this->t(''),
         );
         
         $form['extent']['file_number'] = array(
             '#type' => 'textfield',
             '#title' => t('Number of files:'),
-            '#required' => TRUE,
+            '#required' => true,
             '#description' => $this->t(''),
         );
         
         $form['extent']['folder_number'] = array(
             '#type' => 'textfield',
             '#title' => t('Number of folders:'),
-            '#required' => TRUE,
+            '#required' => true,
             '#description' => $this->t(''),
         );
         
@@ -223,7 +224,7 @@ class DepAgreeForm extends FormBase{
         $form['file_types'] = array(
             '#type' => 'checkboxes',
             '#title' => t('List of file types included:'),
-            '#required' => TRUE,
+            '#required' => true,
             '#options' => $fileTypes,
             '#description' => $this->t(''),
         );
@@ -237,7 +238,7 @@ class DepAgreeForm extends FormBase{
         $form['file_formats'] = array(
             '#type' => 'checkboxes',
             '#title' => t('List of file formats included:'),
-            '#required' => TRUE,
+            '#required' => true,
             '#options' => $fileFormats,
             '#description' => $this->t(''),
         );
@@ -250,66 +251,66 @@ class DepAgreeForm extends FormBase{
         $form['creators'] = array(
             '#type' => 'fieldset',
             '#title' => t('<h2><b>Creators</b></h2>'),
-            '#collapsible' => TRUE,
-            '#collapsed' => FALSE,  
-        );       
+            '#collapsible' => true,
+            '#collapsed' => false,
+        );
      
         
         $form['creators']['title'] = array(
             '#type' => 'textfield',
             '#title' => t('Name Title:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['creators']['l_name'] = array(
             '#type' => 'textfield',
             '#title' => t('Last Name:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['creators']['f_name'] = array(
             '#type' => 'textfield',
             '#title' => t('First Name:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['creators']['institution'] = array(
             '#type' => 'textfield',
             '#title' => t('Institution:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['creators']['city'] = array(
             '#type' => 'textfield',
             '#title' => t('City:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['creators']['address'] = array(
             '#type' => 'textfield',
             '#title' => t('Address:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['creators']['zipcode'] = array(
             '#type' => 'textfield',
             '#title' => t('Zipcode:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
         $form['creators']['email'] = array(
             '#type' => 'email',
             '#title' => t('Email:'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
-        $form['creators']['phone'] = array (
+        $form['creators']['phone'] = array(
             '#type' => 'tel',
             '#title' => t('Phone'),
-            '#required' => TRUE,
+            '#required' => true,
         );
         
-         $form['creators_add'] = array(
+        $form['creators_add'] = array(
             '#markup' => '<a href="#">Add more creators</a>',
         );
          
@@ -319,9 +320,9 @@ class DepAgreeForm extends FormBase{
             '#markup' => '<br><br>',
         );
          
-        $form['candidate_confirmation'] = array (
+        $form['candidate_confirmation'] = array(
             '#type' => 'radios',
-            '#required' => TRUE,
+            '#required' => true,
             '#title' => ('I read and agree the ....'),
             '#options' => array(
                 'Yes' =>t('Yes'),
@@ -340,13 +341,13 @@ class DepAgreeForm extends FormBase{
         );
         
         return $form;
-  }
-  
-   public function submitForm(array &$form, FormStateInterface $form_state) {
-   // drupal_set_message($this->t('@can_name ,Your application is being submitted!', array('@can_name' => $form_state->getValue('candidate_name'))));
-    foreach ($form_state->getValues() as $key => $value) {
-      drupal_set_message($key . ': ' . $value);
     }
-   }
-    
+  
+    public function submitForm(array &$form, FormStateInterface $form_state)
+    {
+        // drupal_set_message($this->t('@can_name ,Your application is being submitted!', array('@can_name' => $form_state->getValue('candidate_name'))));
+        foreach ($form_state->getValues() as $key => $value) {
+            drupal_set_message($key . ': ' . $value);
+        }
+    }
 }

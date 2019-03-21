@@ -15,7 +15,6 @@ use acdhOeaw\fedora\FedoraResource;
 use EasyRdf\Graph;
 use EasyRdf\Resource;
 
-
 /**
  * Provides an Publications Checker Resource
  *
@@ -27,27 +26,25 @@ use EasyRdf\Resource;
  *   }
  * )
  */
-class APICacheOntologyResource extends ResourceBase {
+class APICacheOntologyResource extends ResourceBase
+{
     
     
     /**
     * Responds to entity GET requests.
-     * 
+     *
     * @return \Drupal\rest\ResourceResponse
     */
-    public function get() {
-        
+    public function get()
+    {
         $response = array();
                  
         $PTC = new \Drupal\oeaw\PropertyTableCache();
-        if($PTC->setCacheData() == true){
+        if ($PTC->setCacheData() == true) {
             $response = json_encode("cache updated succesfully!");
-        }else {
+        } else {
             $response = json_encode("there is no ontology data to cache!");
         }
         return new ResourceResponse($response);
-        
     }
-
 }
-

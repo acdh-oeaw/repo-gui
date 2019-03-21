@@ -17,21 +17,22 @@ use acdhOeaw\util\RepoConfig as RC;
 use EasyRdf\Graph;
 use EasyRdf\Resource;
 
-
-class Helper {
-    
-    public function __construct(){
+class Helper
+{
+    public function __construct()
+    {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
     }
     
     
-    public static function getAcdhIdentifier(array $identifiers): string{
-        if (count($identifiers) > 0){
-            foreach($identifiers as $id){
+    public static function getAcdhIdentifier(array $identifiers): string
+    {
+        if (count($identifiers) > 0) {
+            foreach ($identifiers as $id) {
                 if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
                     return $id;
-                    //if the identifier is the normal acdh identifier then return it
-                }else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
+                //if the identifier is the normal acdh identifier then return it
+                } elseif (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
                     return $id;
                 }
             }
@@ -40,27 +41,27 @@ class Helper {
     }
     
     /**
-     * 
+     *
      * This function checks that the Resource is a 3dData or not
-     * 
+     *
      * @param array $data
      * @return bool
      */
-    public static function check3dData(array $data): bool{
+    public static function check3dData(array $data): bool
+    {
         $return = false;
        
-        if( (isset($data['ebucore:filename'][0])) 
-            && 
-            ( (strpos(strtolower($data['ebucore:filename'][0]), '.nxs') !== false) 
-            || 
-            (strpos(strtolower($data['ebucore:filename'][0]), '.ply') !== false) ) 
+        if ((isset($data['ebucore:filename'][0]))
             &&
-            ( isset($data['acdh:hasCategory'][0]) && $data['acdh:hasCategory'][0] =="3dData")
-            && (isset($data['premis:hasSize'][0]) )
-        )
-        {
+            ((strpos(strtolower($data['ebucore:filename'][0]), '.nxs') !== false)
+            ||
+            (strpos(strtolower($data['ebucore:filename'][0]), '.ply') !== false))
+            &&
+            (isset($data['acdh:hasCategory'][0]) && $data['acdh:hasCategory'][0] =="3dData")
+            && (isset($data['premis:hasSize'][0]))
+        ) {
             //check the size of the binary, because our 3d viewer can shows only files till 125MB
-            if( ((int)$data['premis:hasSize'][0] > 0) && ((int)$data['premis:hasSize'][0] < 125829120) ) {
+            if (((int)$data['premis:hasSize'][0] > 0) && ((int)$data['premis:hasSize'][0] < 125829120)) {
                 $return = true;
             }
         }
@@ -68,18 +69,18 @@ class Helper {
     }
     
     
-     /**
-     * Generate Loris Url and data for the IIIF Viwer and for the detail view
-     * 
-     * @param string $uri - base64 encoded fedora rest uri
-     * @param bool $image
-     * @return array
-     */
-    public static function generateLorisUrl(string $uri, bool $image = false): array{
-        
+    /**
+    * Generate Loris Url and data for the IIIF Viwer and for the detail view
+    *
+    * @param string $uri - base64 encoded fedora rest uri
+    * @param bool $image
+    * @return array
+    */
+    public static function generateLorisUrl(string $uri, bool $image = false): array
+    {
         $result = array();
-        if(!$uri){
-            return $result; 
+        if (!$uri) {
+            return $result;
         }
         
         $url = "";
@@ -88,44 +89,43 @@ class Helper {
         //check which instance we are using
         if (strpos(RC::get('fedoraApiUrl'), 'hephaistos') !== false) {
             $domain = "hephaistos:/rest/";
-        }else if(strpos(RC::get('fedoraApiUrl'), 'minerva') !== false ) {
+        } elseif (strpos(RC::get('fedoraApiUrl'), 'minerva') !== false) {
             $domain = "minerva:/rest/";
-        }else{
-         $domain = "apollo:/rest/";   
+        } else {
+            $domain = "apollo:/rest/";
         }
         
         $resource = explode("/rest/", $uri);
         
-        if(isset($resource[1]) && !empty($resource[1])){
-            if($image == false){
+        if (isset($resource[1]) && !empty($resource[1])) {
+            if ($image == false) {
                 $result['imageUrl'] = $lorisUrl.$domain.$resource[1]."/info.json";
             } else {
                 $result['imageUrl'] = $lorisUrl.$domain.$resource[1]."/full/500,/0/default.jpg";
             }
             $oeawStorage = new OeawStorage();
             $tRes = $oeawStorage->getResourceTitle($uri);
-            if($tRes[0]["title"]){
+            if ($tRes[0]["title"]) {
                 $result['title'] = $tRes[0]["title"];
             }
             $result['insideUri'] = $uri;
         }
         
         return $result;
-
     }
     
-     /**
-     * 
-     * Get hasPid & create copy link
-     * Order of desired URIs:
-     * PID > id.acdh > id.acdh/uuid > long gui url
-     * 
-     * 
-     * @param array $results
-     * @return string
-     */
-    public static function generateNiceUri(\Drupal\oeaw\Model\OeawResource $results): string {
-        
+    /**
+    *
+    * Get hasPid & create copy link
+    * Order of desired URIs:
+    * PID > id.acdh > id.acdh/uuid > long gui url
+    *
+    *
+    * @param array $results
+    * @return string
+    */
+    public static function generateNiceUri(\Drupal\oeaw\Model\OeawResource $results): string
+    {
         $niceURI = "";
         
         if (!empty($results->getTableData("acdh:hasPid"))) {
@@ -135,7 +135,7 @@ class Helper {
         }
         
         if (empty($niceURI)) {
-            if (!empty($results->getTableData("acdh:hasIdentifier")) && !empty($results->getTableData("acdh:hasIdentifier")) ){
+            if (!empty($results->getTableData("acdh:hasIdentifier")) && !empty($results->getTableData("acdh:hasIdentifier"))) {
                 $acdhURIs = $results->getTableData("acdh:hasIdentifier");
                 //Only one value under acdh:hasIdentifier
                 if (isset($acdhURIs["uri"])) {
@@ -145,7 +145,7 @@ class Helper {
                     }
                     //id.acdh
                     if (!isset($extras["niceURI"]) && strpos($acdhURIs["uri"], 'id.acdh.oeaw.ac.at') !== false) {
-                       $niceURI = $acdhURIs["uri"];
+                        $niceURI = $acdhURIs["uri"];
                     }
                 }
                 //Multiple values under acdh:hasIdentifier
@@ -153,13 +153,13 @@ class Helper {
                     foreach ($acdhURIs as $key => $acdhURI) {
                         if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at/uuid') !== false) {
                             $acdhURIuuid = $acdhURI["uri"];
-                        } else if (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at') !== false) {
+                        } elseif (strpos($acdhURI["uri"], 'id.acdh.oeaw.ac.at') !== false) {
                             $acdhURIidacdh = $acdhURI["uri"];
                         }
                     }
                     if (isset($acdhURIidacdh)) {
                         $niceURI = $acdhURIidacdh;
-                    } else if (isset($acdhURIuuid)) {
+                    } elseif (isset($acdhURIuuid)) {
                         $niceURI = $acdhURIuuid;
                     }
                 }
@@ -170,15 +170,17 @@ class Helper {
     }
     
     /**
-     * 
+     *
      * Creates a property uri based on the prefix
-     * 
+     *
      * @param string $prefix
      * @return string
      */
-    public static function createUriFromPrefix(string $prefix): string{
-        
-        if(empty($prefix)){ return false; }
+    public static function createUriFromPrefix(string $prefix): string
+    {
+        if (empty($prefix)) {
+            return false;
+        }
         
         $res = "";
         
@@ -188,46 +190,35 @@ class Helper {
         
         $prefixes = \Drupal\oeaw\ConfigConstants::$prefixesToChange;
         
-        foreach ($prefixes as $key => $value){
-            if($value == $newPrefix){
+        foreach ($prefixes as $key => $value) {
+            if ($value == $newPrefix) {
                 $res = $key.$newValue;
             }
-        }        
+        }
         return $res;
     }
     
     
-     /**
-     * 
-     * Create nice format from file sizes
-     * 
-     * @param type $bytes
-     * @return string
-     */
+    /**
+    *
+    * Create nice format from file sizes
+    *
+    * @param type $bytes
+    * @return string
+    */
     public static function formatSizeUnits(string $bytes): string
     {
-        if ($bytes >= 1073741824)
-        {
+        if ($bytes >= 1073741824) {
             $bytes = number_format($bytes / 1073741824, 2) . ' GB';
-        }
-        elseif ($bytes >= 1048576)
-        {
+        } elseif ($bytes >= 1048576) {
             $bytes = number_format($bytes / 1048576, 2) . ' MB';
-        }
-        elseif ($bytes >= 1024)
-        {
+        } elseif ($bytes >= 1024) {
             $bytes = number_format($bytes / 1024, 2) . ' KB';
-        }
-        elseif ($bytes > 1)
-        {
+        } elseif ($bytes > 1) {
             $bytes = $bytes . ' bytes';
-        }
-        elseif ($bytes == 1)
-        {
+        } elseif ($bytes == 1) {
             $bytes = $bytes . ' byte';
-        }
-        else
-        {
+        } else {
             $bytes = '0 bytes';
         }
 
@@ -235,10 +226,10 @@ class Helper {
     }
     
     /**
-     * 
-     * Checks the multi array by key, and if the key has a duplicated value then 
+     *
+     * Checks the multi array by key, and if the key has a duplicated value then
      * it will remove it, the result will be an unique array
-     * 
+     *
      * @param array $array
      * @param string $key
      * @return array
@@ -247,7 +238,7 @@ class Helper {
     {
         $temp_array = [];
         foreach ($array as &$v) {
-            if (!isset($temp_array[$v[$key]])){
+            if (!isset($temp_array[$v[$key]])) {
                 $temp_array[$v[$key]] =& $v;
             }
         }
@@ -255,16 +246,16 @@ class Helper {
         return $array;
     }
     
-      /**
-     * 
+    /**
+     *
      * check that the string is URL
-     * 
+     *
      * @param string $string
      * @return string
      */
-    public static function isURL(string $string): string{
-        
-        $res = "";        
+    public static function isURL(string $string): string
+    {
+        $res = "";
         if (filter_var($string, FILTER_VALIDATE_URL)) {
             if (strpos($string, RC::get('fedoraApiUrl')) !== false) {
                 $res = base64_encode($string);
@@ -272,31 +263,33 @@ class Helper {
             return $res;
         } else {
             return false;
-        }        
+        }
     }
     
     
     /**
-     * 
+     *
      * Calculate the estimated Download time for the collection
-     * 
+     *
      * @param int $binarySize
      * @return string
      */
-    public static function estDLTime(int $binarySize): string{
-        
+    public static function estDLTime(int $binarySize): string
+    {
         $result = "10";
-        if($binarySize < 1){ return $result; }
+        if ($binarySize < 1) {
+            return $result;
+        }
         
         $kb=1024;
         flush();
-        $time = explode(" ",microtime());
+        $time = explode(" ", microtime());
         $start = $time[0] + $time[1];
-        for( $x=0; $x < $kb; $x++ ){
+        for ($x=0; $x < $kb; $x++) {
             str_pad('', 1024, '.');
             flush();
         }
-        $time = explode(" ",microtime());
+        $time = explode(" ", microtime());
         $finish = $time[0] + $time[1];
         $deltat = $finish - $start;
         
@@ -304,7 +297,7 @@ class Helper {
         $input = floor($input / 1000);
         $seconds = $input;
         
-        if($seconds > 0){
+        if ($seconds > 0) {
             //because of the zip time we add
             $result = round($seconds * 1.35) * 4;
             return $result;
@@ -314,23 +307,22 @@ class Helper {
     }
     
     /**
-     * 
+     *
      * Check the array if there is a string inside it
-     * 
+     *
      * @param array $data
      * @param string $str
      * @return bool
      */
-    public static function checkArrayForValue(array $data, string $str):bool {
-        
-        if(count($data) > 0){
-            foreach($data as $item){
-                if(strpos($item, $str)!== false){
+    public static function checkArrayForValue(array $data, string $str):bool
+    {
+        if (count($data) > 0) {
+            foreach ($data as $item) {
+                if (strpos($item, $str)!== false) {
                     return true;
                 }
             }
         }
         return false;
     }
-    
 }
