@@ -1165,6 +1165,7 @@ class FrontendController extends ControllerBase
                 );
                 return array();
             }
+            $resData['insideUri'] = $this->oeawFunctions->detailViewUrlDecodeEncode($identifier, 1);
         }
         
         $result =
