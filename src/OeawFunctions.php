@@ -2031,7 +2031,7 @@ class OeawFunctions
         $result = array();
         $client = new \GuzzleHttp\Client();
         try {
-            $request = $client->request('GET', RC::get('solrUrl').'/arche/select?hl.fl=_text_&hl=on&q=*'.$text, ['auth' => ['admin', 'admin']]);
+            $request = $client->request('GET', RC::get('solrUrl').'/arche/select?hl.fl=_text_&hl.maxAnalyzedChars='.RC::get("solrMaxAnalyzedChars").'&hl=true&q=*'.$text, ['auth' => ['admin', 'admin']]);
             if ($request->getStatusCode() == 200) {
                 $data = json_decode($request->getBody()->getContents());
                 $docs = $data->response->docs;
