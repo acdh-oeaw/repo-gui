@@ -29,24 +29,27 @@ class MyEventSubscriber implements EventSubscriberInterface
         if (($event->getRequest()->getPathInfo() == '/user/logout') /*&&  (\Drupal::currentUser()->getUsername() == "shibboleth") */) {
             unset($_SERVER['HTTP_AUTHORIZATION']);
             unset($_SERVER['HTTP_EPPN']);
+            $_SERVER['HTTP_AUTHORIZATION'] = "";
+            $_SERVER['HTTP_EPPN'] = "";
             foreach (headers_list() as $header) {
                 header_remove($header);
             }
             $host = \Drupal::request()->getSchemeAndHttpHost();
             $userid = \Drupal::currentUser()->id();
-            \Drupal::service('session_manager')->delete($userid);
-            //$event->setResponse(new TrustedRedirectResponse($host."/Shibboleth.sso/Logout?return=".$host."/browser/"));
-            //return;
+            \Drupal::service('session_manager')->delete($userid);            
+            //return new TrustedRedirectResponse($host."/Shibboleth.sso/Logout?return=".$host."/browser/discover/root");
             $event->setResponse(new TrustedRedirectResponse($host."/Shibboleth.sso/Logout?return=".$host."/browser/"));
         }
-        
-        
+       
         if ($event->getRequest()->getPathInfo() == '/federated_login') {
             global $user;
             //the actual user id, if the user is logged in
             $userid = \Drupal::currentUser()->id();
             //if it is a shibboleth login and there is no user logged in
-            if (isset($_SERVER['HTTP_EPPN']) && $_SERVER['HTTP_EPPN'] != null && $userid == 0 && \Drupal::currentUser()->isAnonymous()) {
+            if (isset($_SERVER['HTTP_EPPN']) 
+                    && $_SERVER['HTTP_EPPN'] != "(null)"
+                    && $userid == 0 
+                    && \Drupal::currentUser()->isAnonymous()) {
                 
                  //the global drupal shibboleth username
                 $shib = user_load_by_name('shibboleth');
@@ -74,6 +77,7 @@ class MyEventSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
+        $events = [];
         $events[KernelEvents::REQUEST][] = array('checkForShibboleth');
         return $events;
     }

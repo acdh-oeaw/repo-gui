@@ -1108,7 +1108,7 @@ class FrontendController extends ControllerBase
         return $result;
     }
       
-    /**
+   /**
      *
      * Displaying the federated login with shibboleth
      *
@@ -1119,8 +1119,8 @@ class FrontendController extends ControllerBase
         $result = array();
         $userid = \Drupal::currentUser()->id();
         
-        if ((isset($_SERVER['HTTP_EPPN']) && $_SERVER['HTTP_EPPN'] != null)
-                && (isset($_SERVER['HTTP_AUTHORIZATION']) && $_SERVER['HTTP_AUTHORIZATION'] != null)
+        if ((isset($_SERVER['HTTP_EPPN']) && $_SERVER['HTTP_EPPN'] != "(null)")
+               && (isset($_SERVER['HTTP_AUTHORIZATION']) && $_SERVER['HTTP_AUTHORIZATION'] != "(null)")
                 ) {
             drupal_set_message(t('You already signed in!'), 'status', false);
             return $result;
