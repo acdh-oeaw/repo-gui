@@ -1108,12 +1108,12 @@ class FrontendController extends ControllerBase
         return $result;
     }
       
-   /**
-     *
-     * Displaying the federated login with shibboleth
-     *
-     * @return array
-     */
+    /**
+      *
+      * Displaying the federated login with shibboleth
+      *
+      * @return array
+      */
     public function oeaw_shibboleth_login()
     {
         $result = array();

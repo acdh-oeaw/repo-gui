@@ -36,7 +36,7 @@ class MyEventSubscriber implements EventSubscriberInterface
             }
             $host = \Drupal::request()->getSchemeAndHttpHost();
             $userid = \Drupal::currentUser()->id();
-            \Drupal::service('session_manager')->delete($userid);            
+            \Drupal::service('session_manager')->delete($userid);
             //return new TrustedRedirectResponse($host."/Shibboleth.sso/Logout?return=".$host."/browser/discover/root");
             $event->setResponse(new TrustedRedirectResponse($host."/Shibboleth.sso/Logout?return=".$host."/browser/"));
         }
@@ -46,9 +46,9 @@ class MyEventSubscriber implements EventSubscriberInterface
             //the actual user id, if the user is logged in
             $userid = \Drupal::currentUser()->id();
             //if it is a shibboleth login and there is no user logged in
-            if (isset($_SERVER['HTTP_EPPN']) 
+            if (isset($_SERVER['HTTP_EPPN'])
                     && $_SERVER['HTTP_EPPN'] != "(null)"
-                    && $userid == 0 
+                    && $userid == 0
                     && \Drupal::currentUser()->isAnonymous()) {
                 
                  //the global drupal shibboleth username
