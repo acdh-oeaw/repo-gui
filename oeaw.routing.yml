@@ -215,10 +215,9 @@ oeaw_shibboleth_login:
     path: '/federated_login'
     defaults:
         _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_shibboleth_login'
-    requirements:
+    requirements:        
         _access: 'TRUE'
         _permission: 'access content'
-
-    
-
+    options:
+        no_cache: 'TRUE'
         
