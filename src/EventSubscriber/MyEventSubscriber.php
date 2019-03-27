@@ -78,7 +78,7 @@ class MyEventSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents()
     {
         $events = [];
-        $events[KernelEvents::REQUEST][] = array('checkForShibboleth');
+        $events[KernelEvents::REQUEST][] = array('checkForShibboleth', 300);
         return $events;
     }
     
