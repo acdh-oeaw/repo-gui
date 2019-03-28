@@ -40,7 +40,7 @@ class MyEventSubscriber implements EventSubscriberInterface
             $event->setResponse(new TrustedRedirectResponse($host."/Shibboleth.sso/Logout?return=".$host."/browser/"));
         }
        
-            if ($event->getRequest()->getPathInfo() == '/federated_login') {
+        if ($event->getRequest()->getPathInfo() == '/federated_login') {
             global $user;
             //the actual user id, if the user is logged in
             $userid = \Drupal::currentUser()->id();
@@ -75,7 +75,7 @@ class MyEventSubscriber implements EventSubscriberInterface
      * @return string
      */
     public static function getSubscribedEvents()
-    {   
+    {
         $events = [];
         $events[KernelEvents::REQUEST][] = array('checkForShibboleth', 300);
         return $events;

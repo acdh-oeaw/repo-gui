@@ -1125,13 +1125,15 @@ class FrontendController extends ControllerBase
     public function oeaw_shibboleth_login()
     {
         $result = array();
-        $userid = \Drupal::currentUser()->id();        
+        $userid = \Drupal::currentUser()->id();
         if ((isset($_SERVER['HTTP_EPPN']) && $_SERVER['HTTP_EPPN'] != "(null)")
                && (isset($_SERVER['HTTP_AUTHORIZATION']) && $_SERVER['HTTP_AUTHORIZATION'] != "(null)")
                 ) {
+
             drupal_set_message(t('You are logged in as '.$_SERVER['HTTP_EPPN']), 'status', false);
             //if we already logged in with shibboleth then login the user with the shibboleth account            
-            $shib = user_load_by_name('shibboleth');            
+            $shib = user_load_by_name('shibboleth');
+
             if ($shib->id() != 0) {
                 $user = \Drupal\User\Entity\User::load($shib->id());
                 $user->activate();
@@ -1141,7 +1143,7 @@ class FrontendController extends ControllerBase
         } else {
             $result =
                 array(
-                    '#cache' => ['max-age' => 0,], 
+                    '#cache' => ['max-age' => 0,],
                     '#theme' => 'oeaw_shibboleth_login'
                 );
         }
