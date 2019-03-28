@@ -229,3 +229,8 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+.shibboleth_login_info {
+    font-weight: bold;
+    color: red !important;
+}

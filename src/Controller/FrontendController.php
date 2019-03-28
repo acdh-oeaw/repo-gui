@@ -519,6 +519,14 @@ class FrontendController extends ControllerBase
                 }
             }
         }
+        
+        //we have a shibboleth user logged in
+        if ((isset($_SERVER['HTTP_EPPN']) && $_SERVER['HTTP_EPPN'] != "(null)")
+               && (isset($_SERVER['HTTP_AUTHORIZATION']) && $_SERVER['HTTP_AUTHORIZATION'] != "(null)")
+                ) {
+            $extras['basic_auth'] = $_SERVER["HTTP_AUTHORIZATION"];
+        }
+        
         $datatable = array(
                 '#theme' => 'oeaw_detail_dt',
                 '#result' => $resultsObj,
@@ -1121,7 +1129,7 @@ class FrontendController extends ControllerBase
         if ((isset($_SERVER['HTTP_EPPN']) && $_SERVER['HTTP_EPPN'] != "(null)")
                && (isset($_SERVER['HTTP_AUTHORIZATION']) && $_SERVER['HTTP_AUTHORIZATION'] != "(null)")
                 ) {
-            drupal_set_message(t('You already signed in!'), 'status', false);
+            drupal_set_message(t('You are logged in as '.$_SERVER['HTTP_EPPN']), 'status', false);
             //if we already logged in with shibboleth then login the user with the shibboleth account            
             $shib = user_load_by_name('shibboleth');            
             if ($shib->id() != 0) {

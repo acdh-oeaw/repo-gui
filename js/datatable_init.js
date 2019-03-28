@@ -37,16 +37,43 @@ jq2(function( $ ) {
                     if(urlValue.indexOf(webUrl) > -1) {
                         window.location.replace(urlValue);
                     }
+                    var xhr = new XMLHttpRequest();
+                    let basic_auth = $("input#basic_auth").val();
+                    console.log(basic_auth);
+                    if(basic_auth){
+                        $.ajax
+                        ({
+                            type: "GET",
+                            url: urlValue,                            
+                            xhr: function() {
+                                return xhr;
+                            },
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader ("Authorization", basic_auth);
+                            },
+                            success: function (){
+                                if(xhr.responseURL) {
+                                    window.location.replace(xhr.responseURL);
+                                }else{
+                                    jq2( "#shibboleth_login_info" ).show().html(Drupal.t('Login error'));
+                                }
+                            },
+                            error( xhr,status,error) {
+                                jq2( "#shibboleth_login_info" ).show().html(Drupal.t('Login error:' + error));
+                            }
+                        });
+                        return false;
+                    }
                     
                     showpopup();
+                    
                     jq2( "#dologin" ).click(function(ed) {
                         var username = $("input#username").val();
                         var password = $("input#password").val();
                         
                         if( username && password) {
                             ed.preventDefault();
-                            var xhr = new XMLHttpRequest();
-
+                            
                             $.ajax
                             ({
                                 type: "GET",

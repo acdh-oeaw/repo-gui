@@ -3,6 +3,8 @@
 <!--   MAIN DETAIL VIEW -->
     <input type="hidden" id="insideUri" name="insideUri" value="{{ result.insideUri }}">
     <input type="hidden" id="accessRestriction" name="accessRestriction" value="{{ result.accessRestriction }}">
+    <input type="hidden" id="basic_auth" name="basic_auth" value="{{ extras['basic_auth'] }}">
+    
     <div class="loader-div">
         <div class="loader-bg">
             <div class="loader"></div>
@@ -216,9 +218,19 @@
             </div>
                 
         </div>
+                    
+        <div id="shibboleth_login_info" class="shibboleth_login_info" style="display:none"></div>
+        
         <!-- DISS LOGIN FORM START  -->
         <div id="dissServLoginform">
-            <div id="loginInfo">{{ "Please provide your login credentials"|trans }}</div>
+            <div id="loginInfo">
+                {{ "Click here to login with your federated account"|trans }} 
+                <a class="shibboleth" href="/browser/federated_login"><i class="fa fa-sign-in" aria-hidden="true"></i></a>     
+                <br>
+                {{ "or" }}
+                <br>
+                {{ "Please provide your login credentials"|trans }}
+            </div>
             <div id="loginErrorDiv"></div>
             <input type="text" id="username" placeholder="username" name="username">
             <input type="password" id="password" name="password" placeholder="password">
