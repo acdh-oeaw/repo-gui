@@ -14,6 +14,7 @@ oeaw-styles:
         js/dataTables.bootstrap4.min.js: {}
         js/datatable_init.js: {}
         js/lightbox.js: {}
+        js/detailview-functions.js: {}        
     dependencies:
         - core/drupal
         - core/drupal.form        

@@ -39,7 +39,7 @@ jq2(function( $ ) {
                     }
                     var xhr = new XMLHttpRequest();
                     let basic_auth = $("input#basic_auth").val();
-                    console.log(basic_auth);
+                    
                     if(basic_auth){
                         $.ajax
                         ({
@@ -233,7 +233,6 @@ jq2(function( $ ) {
          */
         function getData(insideUri, limit, page, orderby) {
             
-            console.log(insideUri);
             jq2.ajax({
                 url: '/browser/oeaw_child_api/'+insideUri+'/'+limit+'/'+page+'/'+orderby,
                 //data: {'ajaxCall':true},
