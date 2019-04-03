@@ -16,7 +16,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
 
-
 /**
  * Provides an Organisations Checker Resource
  *
@@ -59,11 +58,10 @@ class ApiOrganisationsResource extends ResourceBase
         if ($sparql) {
             $spRes = $OeawStorage->runUserSparql($sparql, true);
             
-            if (count($spRes) > 0) {              
+            if (count($spRes) > 0) {
                 $spRes = Helper::formatApiSparqlResult($spRes);
                 
                 for ($x = 0; $x < count($spRes); $x++) {
-                    
                     $ids = array();
                     $ids = explode(",", $spRes[$x]['identifiers']);
                     //set the flag to false
@@ -85,7 +83,7 @@ class ApiOrganisationsResource extends ResourceBase
                     $titleContains = false;
                     if (strpos(strtolower($spRes[$x]['title']), strtolower($data)) !== false) {
                         $titleContains = true;
-                    } else if( is_array($spRes[$x]['title'])) {
+                    } elseif (is_array($spRes[$x]['title'])) {
                         foreach ($spRes[$x]['title'] as $d) {
                             if (strpos(strtolower($d), strtolower($data)) !== false) {
                                 $titleContains = true;
@@ -96,16 +94,15 @@ class ApiOrganisationsResource extends ResourceBase
                     $altTitleContains = false;
                     if (strpos(strtolower($spRes[$x]['altTitle']), strtolower($data)) !== false) {
                         $altTitleContains = true;
-                    }else if( is_array($spRes[$x]['altTitle'])) {
+                    } elseif (is_array($spRes[$x]['altTitle'])) {
                         foreach ($spRes[$x]['altTitle'] as $d) {
                             if (strpos(strtolower($d), strtolower($data)) !== false) {
                                 $altTitleContains = true;
                             }
                         }
-                    }                   
+                    }
                     
                     if ($idContains === true || $urlContains === true || $titleContains === true || $altTitleContains === true) {
-                        
                         $result[$x]['uri'] = $spRes[$x]['uri'];
                         $result[$x]['title'] = $spRes[$x]['title'];
                         $result[$x]['altTitle'] = $spRes[$x]['altTitle'];

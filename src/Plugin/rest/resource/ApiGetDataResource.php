@@ -71,7 +71,6 @@ class ApiGetDataResource extends ResourceBase
             $spRes = $OeawStorage->runUserSparql($sparql, true);
           
             if (count($spRes) > 0) {
-                
                 $spRes = Helper::formatApiSparqlResult($spRes);
                 
                 for ($x = 0; $x < count($spRes); $x++) {
@@ -97,7 +96,7 @@ class ApiGetDataResource extends ResourceBase
                     $titleContains = false;
                     if (strpos(strtolower($spRes[$x]['title']), strtolower($searchStr)) !== false) {
                         $titleContains = true;
-                    } else if( is_array($spRes[$x]['title'])) {
+                    } elseif (is_array($spRes[$x]['title'])) {
                         foreach ($spRes[$x]['title'] as $d) {
                             if (strpos(strtolower($d), strtolower($searchStr)) !== false) {
                                 $titleContains = true;
@@ -108,7 +107,7 @@ class ApiGetDataResource extends ResourceBase
                     $altTitleContains = false;
                     if (strpos(strtolower($spRes[$x]['altTitle']), strtolower($searchStr)) !== false) {
                         $altTitleContains = true;
-                    }else if( is_array($spRes[$x]['altTitle'])) {
+                    } elseif (is_array($spRes[$x]['altTitle'])) {
                         foreach ($spRes[$x]['altTitle'] as $d) {
                             if (strpos(strtolower($d), strtolower($searchStr)) !== false) {
                                 $altTitleContains = true;

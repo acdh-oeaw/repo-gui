@@ -88,7 +88,7 @@ class ApiPersonsResource extends ResourceBase
                     $titleContains = false;
                     if (strpos(strtolower($spRes[$x]['title']), strtolower($data)) !== false) {
                         $titleContains = true;
-                    } else if( is_array($spRes[$x]['title'])) {
+                    } elseif (is_array($spRes[$x]['title'])) {
                         foreach ($spRes[$x]['title'] as $d) {
                             if (strpos(strtolower($d), strtolower($data)) !== false) {
                                 $titleContains = true;

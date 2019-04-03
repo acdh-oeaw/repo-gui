@@ -1330,7 +1330,7 @@ class OeawStorage implements OeawStorageInterface
     
     
     /**
-     * Run users sparql from the resource views 
+     * Run users sparql from the resource views
      * @param string $string
      * @param bool $multilang
      * @return array

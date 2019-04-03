@@ -1167,7 +1167,7 @@ class OeawFunctions
     
     /**
      * Create array from  EasyRdf_Sparql_Result object
-     * 
+     *
      * @param \EasyRdf\Sparql\Result $result
      * @param array $fields
      * @param bool $multilang
@@ -1193,15 +1193,15 @@ class OeawFunctions
                         $res[$x][$f] = $val;
                     } elseif ($objClass == "EasyRdf\Literal") {
                         $val = $result[$x]->$f;
-                        if($multilang){
+                        if ($multilang) {
                             $literalVal = array();
                             $lng = "en";
-                            if($val-> getLang()){
+                            if ($val-> getLang()) {
                                 $lng = $val-> getLang();
                             }
                             $literalVal[$lng] = $val->__toString();
                             $res[$x][$f] = $literalVal;
-                        }else {
+                        } else {
                             $val = $val->__toString();
                             $res[$x][$f] = $val;
                         }
@@ -1214,7 +1214,7 @@ class OeawFunctions
             }
         }
         return $res;
-    }    
+    }
     
     
     /**

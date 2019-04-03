@@ -83,7 +83,7 @@ class ApiPublicationsResource extends ResourceBase
                     $titleContains = false;
                     if (strpos(strtolower($spRes[$x]['title']), strtolower($data)) !== false) {
                         $titleContains = true;
-                    } else if( is_array($spRes[$x]['title'])) {
+                    } elseif (is_array($spRes[$x]['title'])) {
                         foreach ($spRes[$x]['title'] as $d) {
                             if (strpos(strtolower($d), strtolower($data)) !== false) {
                                 $titleContains = true;
@@ -94,7 +94,7 @@ class ApiPublicationsResource extends ResourceBase
                     $altTitleContains = false;
                     if (strpos(strtolower($spRes[$x]['altTitle']), strtolower($data)) !== false) {
                         $altTitleContains = true;
-                    }else if( is_array($spRes[$x]['altTitle'])) {
+                    } elseif (is_array($spRes[$x]['altTitle'])) {
                         foreach ($spRes[$x]['altTitle'] as $d) {
                             if (strpos(strtolower($d), strtolower($data)) !== false) {
                                 $altTitleContains = true;
