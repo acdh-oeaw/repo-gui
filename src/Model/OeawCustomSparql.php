@@ -38,7 +38,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
      * @param string $lang
      * @return string
      */
-    public function createPersonsApiSparql(string $str, string $lang = "en"): string
+    public function createPersonsApiSparql(string $str): string
     {
         $query = "";
         
@@ -51,8 +51,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
         $select = 'SELECT DISTINCT ?uri ?title (GROUP_CONCAT(DISTINCT ?identifier;separator=",") AS ?identifiers)   ';
         $where = "WHERE {"
                 . "?uri ?prop ?obj . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
-        //$where .= "?uri <".RC::get('fedoraTitleProp')."> ?title . "
+        $where .= "?uri <".RC::get('fedoraTitleProp')."> ?title . ";
         $where .= "FILTER( ?prop IN (<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasLastName').">, <".RC::get('drupalHasFirstName').">, <".RC::get('fedoraIdProp')."> )) . "
                 . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
                 . "?uri <".RC::get('fedoraIdProp')."> ?identifier ."
@@ -117,8 +116,8 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
                 . ' (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) (GROUP_CONCAT(DISTINCT ?editor;separator=",") AS ?editors)  ';
         $where = "WHERE {"
                 . "?uri ?prop ?obj . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
-        //. "?uri <".RC::get('fedoraTitleProp')."> ?title . "
+        
+        $where .= "?uri <".RC::get('fedoraTitleProp')."> ?title . ";
         $where .= "FILTER( ?prop IN (<".RC::get('fedoraTitleProp').">, <".RC::get('drupalHasAlternativeTitle').">, "
                 . " <".RC::get('drupalHasAuthor').">, <".RC::get('drupalHasEditor').">, <".RC::get('fedoraIdProp')."> )) . "
                 . "FILTER (contains(lcase(str(?obj)), lcase('".$str."' ))) .  "
@@ -141,17 +140,15 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
      * @param string $str
      * @param string $type
      * @param array $filters
-     * @param type $lang
      * @return string
      */
-    public function createBasicApiSparql(string $str, string $type, array $filters = array(), $lang = "en"): string
+    public function createBasicApiSparql(string $str, string $type, array $filters = array()): string
     {
         $query = "";
         if (empty($str) || empty($type)) {
             return $query;
         }
         
-        $lang = strtolower($lang);
         if (count($filters) == 0) {
             $filters[] = RC::get('fedoraTitleProp');
             $filters[] = RC::get('drupalHasAlternativeTitle');
@@ -166,9 +163,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
                 . "?uriM <".RC::get('fedoraIdProp')."> ?id . "
                 ." ?uri <".RC::get('drupalRdfType')."> ?id . "
                 . "?uri ?prop ?obj . ";
-        
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
-        //$where  .= "?uri <".RC::get('fedoraTitleProp')."> ?title . ";
+        $where  .= "?uri <".RC::get('fedoraTitleProp')."> ?title . ";
         $where  .= "FILTER( ?prop IN ( ";
                 
         for ($x = 0; $x <= count($filters) - 1; $x++) {
@@ -185,8 +180,8 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
                 . " } UNION { "
                 . " ?uri <".RC::get('drupalRdfType').">  <".$type."> . "
                 . " ?uri ?prop ?obj . ";
-        $where .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
-        //$where  .= "?uri <".RC::get('fedoraTitleProp')."> ?title . ";
+        
+        $where  .= "?uri <".RC::get('fedoraTitleProp')."> ?title . ";
         $where  .= "FILTER( ?prop IN ( ";
                 
         for ($x = 0; $x <= count($filters) - 1; $x++) {
@@ -437,6 +432,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
             GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename ?accessRestriction
             ORDER BY ?filename ?title ?rootTitle
         ";
+
         return $query;
     }
 }

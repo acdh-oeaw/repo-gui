@@ -57,7 +57,7 @@ class ApiConceptsResource extends ResourceBase
         $sparql = $OeawCustomSparql->createBasicApiSparql($data, RC::get('drupalConcept'));
 
         if ($sparql) {
-            $spRes = $OeawStorage->runUserSparql($sparql);
+            $spRes = $OeawStorage->runUserSparql($sparql, true);
             
             if (count($spRes) > 0) {
                 for ($x = 0; $x < count($spRes); $x++) {
@@ -82,11 +82,23 @@ class ApiConceptsResource extends ResourceBase
                     $titleContains = false;
                     if (strpos(strtolower($spRes[$x]['title']), strtolower($data)) !== false) {
                         $titleContains = true;
+                    } else if( is_array($spRes[$x]['title'])) {
+                        foreach ($spRes[$x]['title'] as $d) {
+                            if (strpos(strtolower($d), strtolower($data)) !== false) {
+                                $titleContains = true;
+                            }
+                        }
                     }
                     
                     $altTitleContains = false;
                     if (strpos(strtolower($spRes[$x]['altTitle']), strtolower($data)) !== false) {
                         $altTitleContains = true;
+                    }else if( is_array($spRes[$x]['altTitle'])) {
+                        foreach ($spRes[$x]['altTitle'] as $d) {
+                            if (strpos(strtolower($d), strtolower($data)) !== false) {
+                                $altTitleContains = true;
+                            }
+                        }
                     }
                     
                     if ($idContains === true || $urlContains === true || $titleContains === true || $altTitleContains === true) {

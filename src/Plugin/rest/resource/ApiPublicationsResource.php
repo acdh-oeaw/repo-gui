@@ -4,18 +4,17 @@ namespace Drupal\oeaw\Plugin\rest\resource;
 
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
+
 // our drupal custom libraries
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Helper\Helper;
+
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
-use acdhOeaw\fedora\Fedora;
-use acdhOeaw\fedora\FedoraResource;
-use EasyRdf\Graph;
-use EasyRdf\Resource;
 
 /**
  * Provides an Publications Checker Resource
@@ -57,9 +56,11 @@ class ApiPublicationsResource extends ResourceBase
         $sparql = $OeawCustomSparql->createPublicationsApiSparql($data);
 
         if ($sparql) {
-            $spRes = $OeawStorage->runUserSparql($sparql);
+            $spRes = $OeawStorage->runUserSparql($sparql, true);
             
             if (count($spRes) > 0) {
+                $spRes = Helper::formatApiSparqlResult($spRes);
+                
                 for ($x = 0; $x < count($spRes); $x++) {
                     $ids = array();
                     $ids = explode(",", $spRes[$x]['identifiers']);
@@ -82,11 +83,23 @@ class ApiPublicationsResource extends ResourceBase
                     $titleContains = false;
                     if (strpos(strtolower($spRes[$x]['title']), strtolower($data)) !== false) {
                         $titleContains = true;
+                    } else if( is_array($spRes[$x]['title'])) {
+                        foreach ($spRes[$x]['title'] as $d) {
+                            if (strpos(strtolower($d), strtolower($data)) !== false) {
+                                $titleContains = true;
+                            }
+                        }
                     }
                     
                     $altTitleContains = false;
                     if (strpos(strtolower($spRes[$x]['altTitle']), strtolower($data)) !== false) {
                         $altTitleContains = true;
+                    }else if( is_array($spRes[$x]['altTitle'])) {
+                        foreach ($spRes[$x]['altTitle'] as $d) {
+                            if (strpos(strtolower($d), strtolower($data)) !== false) {
+                                $altTitleContains = true;
+                            }
+                        }
                     }
                     
                     if ($idContains === true || $urlContains === true || $titleContains === true || $altTitleContains === true) {

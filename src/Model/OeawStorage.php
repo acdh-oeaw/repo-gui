@@ -1330,12 +1330,12 @@ class OeawStorage implements OeawStorageInterface
     
     
     /**
-     * Run users sparql from the resource views
-     *
+     * Run users sparql from the resource views 
      * @param string $string
+     * @param bool $multilang
      * @return array
      */
-    public function runUserSparql(string $string): array
+    public function runUserSparql(string $string, bool $multilang = false): array
     {
         $result = array();
         
@@ -1343,10 +1343,8 @@ class OeawStorage implements OeawStorageInterface
             $q = new SimpleQuery($string);
             $query = $q->getQuery();
             $res = $this->fedora->runSparql($query);
-            
             $fields = $res->getFields();
-            $result = $this->oeawFunctions->createSparqlResult($res, $fields);
-            return $result;
+            return $result = $this->oeawFunctions->createSparqlResult($res, $fields, $multilang);
         } catch (\Exception $ex) {
             return $result;
         } catch (\GuzzleHttp\Exception\ClientException $ex) {

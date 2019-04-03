@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 // our drupal custom libraries
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Helper\Helper;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
@@ -39,6 +40,7 @@ class ApiGetDataResource extends ResourceBase
      *
      * @param string $class
      * @param string $searchStr
+     * @param string $lang
      * @return Response|JsonResponse
      */
     public function get(string $class, string $searchStr)
@@ -63,11 +65,15 @@ class ApiGetDataResource extends ResourceBase
         $OeawStorage = new OeawStorage();
         
         $sparql = $OeawCustomSparql->createBasicApiSparql($searchStr, $class, $filters);
-        
+
+
         if ($sparql) {
-            $spRes = $OeawStorage->runUserSparql($sparql);
-            
+            $spRes = $OeawStorage->runUserSparql($sparql, true);
+          
             if (count($spRes) > 0) {
+                
+                $spRes = Helper::formatApiSparqlResult($spRes);
+                
                 for ($x = 0; $x < count($spRes); $x++) {
                     $ids = array();
                     $ids = explode(",", $spRes[$x]['identifiers']);
@@ -91,11 +97,23 @@ class ApiGetDataResource extends ResourceBase
                     $titleContains = false;
                     if (strpos(strtolower($spRes[$x]['title']), strtolower($searchStr)) !== false) {
                         $titleContains = true;
+                    } else if( is_array($spRes[$x]['title'])) {
+                        foreach ($spRes[$x]['title'] as $d) {
+                            if (strpos(strtolower($d), strtolower($searchStr)) !== false) {
+                                $titleContains = true;
+                            }
+                        }
                     }
                     
                     $altTitleContains = false;
                     if (strpos(strtolower($spRes[$x]['altTitle']), strtolower($searchStr)) !== false) {
                         $altTitleContains = true;
+                    }else if( is_array($spRes[$x]['altTitle'])) {
+                        foreach ($spRes[$x]['altTitle'] as $d) {
+                            if (strpos(strtolower($d), strtolower($searchStr)) !== false) {
+                                $altTitleContains = true;
+                            }
+                        }
                     }
                     
                     if ($idContains === true || $urlContains === true || $titleContains === true || $altTitleContains === true) {

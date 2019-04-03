@@ -1163,16 +1163,17 @@ class OeawFunctions
         return $ajax_response;
     }
   
-           
+          
+    
     /**
-     *
      * Create array from  EasyRdf_Sparql_Result object
-     *
+     * 
      * @param \EasyRdf\Sparql\Result $result
      * @param array $fields
+     * @param bool $multilang
      * @return array
      */
-    public function createSparqlResult(\EasyRdf\Sparql\Result $result, array $fields): array
+    public function createSparqlResult(\EasyRdf\Sparql\Result $result, array $fields, bool $multilang = false): array
     {
         if (empty($result) && empty($fields)) {
             drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
@@ -1186,15 +1187,24 @@ class OeawFunctions
             foreach ($fields as $f) {
                 if (!empty($result[$x]->$f)) {
                     $objClass = get_class($result[$x]->$f);
-                    
                     if ($objClass == "EasyRdf\Resource") {
                         $val = $result[$x]->$f;
                         $val = $val->getUri();
                         $res[$x][$f] = $val;
                     } elseif ($objClass == "EasyRdf\Literal") {
                         $val = $result[$x]->$f;
-                        $val = $val->__toString();
-                        $res[$x][$f] = $val;
+                        if($multilang){
+                            $literalVal = array();
+                            $lng = "en";
+                            if($val-> getLang()){
+                                $lng = $val-> getLang();
+                            }
+                            $literalVal[$lng] = $val->__toString();
+                            $res[$x][$f] = $literalVal;
+                        }else {
+                            $val = $val->__toString();
+                            $res[$x][$f] = $val;
+                        }
                     } else {
                         $res[$x][$f] = $result[$x]->$f->__toString();
                     }
@@ -1204,7 +1214,7 @@ class OeawFunctions
             }
         }
         return $res;
-    }
+    }    
     
     
     /**

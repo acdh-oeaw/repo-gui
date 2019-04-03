@@ -7,16 +7,14 @@ use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+
 // our drupal custom libraries
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Helper\Helper;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
-use acdhOeaw\fedora\Fedora;
-use acdhOeaw\fedora\FedoraResource;
-use EasyRdf\Graph;
-use EasyRdf\Resource;
 
 /**
  * Provides a Persons Checker Resource
@@ -63,9 +61,11 @@ class ApiPersonsResource extends ResourceBase
         $sparql = $OeawCustomSparql->createPersonsApiSparql($data);
 
         if ($sparql) {
-            $spRes = $OeawStorage->runUserSparql($sparql);
+            $spRes = $OeawStorage->runUserSparql($sparql, true);
             
             if (count($spRes) > 0) {
+                $spRes = Helper::formatApiSparqlResult($spRes);
+                
                 for ($x = 0; $x < count($spRes); $x++) {
                     $ids = array();
                     $ids = explode(",", $spRes[$x]['identifiers']);
@@ -88,8 +88,13 @@ class ApiPersonsResource extends ResourceBase
                     $titleContains = false;
                     if (strpos(strtolower($spRes[$x]['title']), strtolower($data)) !== false) {
                         $titleContains = true;
+                    } else if( is_array($spRes[$x]['title'])) {
+                        foreach ($spRes[$x]['title'] as $d) {
+                            if (strpos(strtolower($d), strtolower($data)) !== false) {
+                                $titleContains = true;
+                            }
+                        }
                     }
-                    
                     if ($idContains === true || $urlContains === true || $titleContains === true) {
                         $result[$x]['uri'] = $spRes[$x]['uri'];
                         $result[$x]['title'] = $spRes[$x]['title'];
