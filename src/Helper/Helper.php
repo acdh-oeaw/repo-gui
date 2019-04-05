@@ -328,11 +328,12 @@ class Helper
     
     /**
      * Format the api results, to merge the same URI values
-     * 
+     *
      * @param array $data
      * @return array
      */
-    public static function formatApiSparqlResult(array $data): array {
+    public static function formatApiSparqlResult(array $data): array
+    {
         //create the new array.
         $newData = array();
 
@@ -349,10 +350,10 @@ class Helper
         
             //see if you can find the current id inside the newly created array if you do, only push the new data in.
             foreach ($newData as $key2 => $value2) {
-                if( $id == $value2['uri'] ) { 
-                    foreach($keys as $k) {
-                        if($value2[$k] != $value[$k]) {                       
-                            $newData[$key2][$k] = array_merge($newData[$key2][$k],$value[$k]);
+                if ($id == $value2['uri']) {
+                    foreach ($keys as $k) {
+                        if ($value2[$k] != $value[$k]) {
+                            $newData[$key2][$k] = array_merge($newData[$key2][$k], $value[$k]);
                         }
                     }
                     $exists = 1;
@@ -361,17 +362,17 @@ class Helper
             }
 
             //if we didnt find the id inside the newly created array, we push the id and the new data inside it now.
-            if( $exists == 0 ){
+            if ($exists == 0) {
                 $newData[$i]['uri'] = $id;
-                foreach($keys as $k) {
-                    if(is_object($value[$k])){
+                foreach ($keys as $k) {
+                    if (is_object($value[$k])) {
                         $newData[$i][$k][] = $value[$k];
                     } else {
                         $newData[$i][$k] = $value[$k];
                     }
                 }
             }
-        }   
+        }
 
         return $newData;
     }
