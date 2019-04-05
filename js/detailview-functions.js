@@ -1,94 +1,111 @@
-var jq2 = jQuery;
-jq2(function( $ ) {
-    jq2(".loader-div").hide();
+(function ($, Drupal) {
+    Drupal.behaviors.myModuleBehavior = {
+        attach: function (context, settings) {
+    
+            function generateUrlParams(){
+                var result = [];
+                //check that we have already submitted pagination info
+                let searchParams = new URLSearchParams(window.location.href);
+                var urlPage = searchParams.get('page');
+                var urlLimit = searchParams.get('limit');
+                var urlOrder = searchParams.get('order');
+                //remove the # sign from the url
+                result["urlPage"] = removeSpecialChar(urlPage);
+                result["urlLimit"] = removeSpecialChar(urlLimit);
+                result["urlOrder"] = removeSpecialChar(urlOrder);
 
-    /***  PAGINATION START  ****/
-    //get the identifier from the url
-    var insideUri = jq2('#insideUri').val();
-    insideUri = insideUri.replace('id.acdh.oeaw.ac.at/uuid/', '');
 
-    //check that we have already submitted pagination info
-    let searchParams = new URLSearchParams(window.location.href);
-    var urlPage = searchParams.get('page');
-    var urlLimit = searchParams.get('limit');
-    var urlOrder = searchParams.get('order');
-    //remove the # sign from the url
-    urlPage = removeSpecialChar(urlPage);
-    urlLimit = removeSpecialChar(urlLimit);
-    urlOrder = removeSpecialChar(urlOrder);
+                var insideUri = $('#insideUri').val();
+                if(insideUri){
+                    insideUri = insideUri.replace('id.acdh.oeaw.ac.at/uuid/', '');
+                    result["insideUri"] = insideUri;
+                }
 
-    //check the checkbox values
-    var limitSel = jq2('#limit-sel').val();
-    if(!limitSel){ limitSel = 10; }
-    var orderbySel = jq2('#orderby').val();
-    if(!orderbySel){ orderbySel = 'asc'; }
+                //check the checkbox values
+                var limitSel = $('#limit-sel').val();
+                if(!limitSel){ limitSel = 10; }
+                var orderbySel = $('#orderby').val();
+                if(!orderbySel){ orderbySel = 'asc'; }
 
-    var maxPage = 0;
-    maxPage = jq2('#maxPage').val();
-    var maxPageLimit = 0;
+                result["limitSel"] = limitSel;
+                result["orderbySel"] = orderbySel;
 
-    var limit = 0;
-    var page = 0;
-    var orderBy = "asc";
+                var maxPage = 0;
+                maxPage = $('#maxPage').val();
+                var maxPageLimit = 0;
 
-    // if we have already submitted page and/or limit infos then
-    if(urlPage && urlLimit){
-        //display the child view
-        jq2('#ajax-pagination').show();
-        if(!urlOrder){ urlOrder = orderbySel; }
+                result["maxPage"] = maxPage;  
 
-        limit = urlLimit;
-        page = urlPage;
-        orderBy = urlOrder;
-        // we check the maxPage and if the actual page is bigger
-        // then we change the page
-        if( maxPage > 0) {
-            maxPageLimit = Math.ceil(maxPage / limit);
-            if( page > maxPageLimit) {
-                page = maxPageLimit;
+                var limit = 0;
+                var page = 0;
+                var orderBy = "asc";
+
+                // if we have already submitted page and/or limit infos then
+                if(urlPage && urlLimit){
+                    //display the child view
+                    $('#ajax-pagination').show();
+                    if(!urlOrder){ urlOrder = orderbySel; }
+
+                    limit = urlLimit;
+                    page = urlPage;
+                    orderBy = urlOrder;
+                    // we check the maxPage and if the actual page is bigger
+                    // then we change the page
+                    if( maxPage > 0) {
+                        maxPageLimit = Math.ceil(maxPage / limit);
+                        if( page > maxPageLimit) {
+                            page = maxPageLimit;
+                        }
+                    }
+                }else{
+                    page = 1;
+                    limit = limitSel;
+                    orderBy = orderbySel;
+                }
+
+                if(page >= maxPageLimit){
+                    $( "#next-btn" ).attr('disabled', true);
+                    $( "#next-btn" ).removeAttr("href");
+                    $( "#last-btn" ).attr('disabled', true);
+                    $( "#last-btn" ).removeAttr("href");
+
+                }else{
+                    $( "#next-btn" ).attr('disabled', false);
+                    $( "#next-btn" ).attr("href");
+                    $( "#last-btn" ).attr('disabled', false);
+                    $( "#last-btn" ).attr("href");
+                }
+
+                if(page === 1){
+                    $( "#prev-btn" ).attr('disabled', true);
+                    $( "#prev-btn" ).removeAttr("href");
+                    $( "#first-btn" ).attr('disabled', true);
+                    $( "#first-btn" ).removeAttr("href");
+                }else{
+                    $( "#prev-btn" ).attr('disabled', false);
+                    $( "#prev-btn" ).attr("href");
+                    $( "#first-btn" ).attr('disabled', false);
+                    $( "#first-btn" ).attr("href");
+                }
+
+                 result["maxPageLimit"] = $('#maxPageLimit').val();
+                return result;
+
             }
-        }
-        //change the select values
-        jq2('#limit-sel').val(limit);
-        jq2('#orderby').val(orderBy);
 
+            if(window.location.href.indexOf("/oeaw_detail/") > -1) {
+                $(".loader-div").hide();
+                if(window.location.href.indexOf("&page=") > -1) {
+                    var urlParams = generateUrlParams();
+                    var urlPage = urlParams['urlPage'];
+                    var urlLimit = urlParams['urlLimit'];
+                    var urlOrder = urlParams['urlOrder'];
+                    var maxPageLimit = urlParams['maxPageLimit'];
+                    var insideUri = urlParams['insideUri'];
 
-    }else{
-        page = 1;
-        limit = limitSel;
-        orderBy = orderbySel;
-        //we dont have page and limit passed in the url
-       // getData(insideUri, limitSel, 1, orderbySel);
-        jq2('#limit-sel').val(limit);
-        jq2('#orderby').val(orderBy);
-    }
-
-            if(page >= maxPageLimit){
-                jq2( "#next-btn" ).attr('disabled', true);
-                jq2( "#next-btn" ).removeAttr("href");
-                jq2( "#last-btn" ).attr('disabled', true);
-                jq2( "#last-btn" ).removeAttr("href");
-                
-            }else{
-                jq2( "#next-btn" ).attr('disabled', false);
-                jq2( "#next-btn" ).attr("href");
-                jq2( "#last-btn" ).attr('disabled', false);
-                jq2( "#last-btn" ).attr("href");
+                    getData(insideUri, urlLimit, urlPage, urlOrder);
+                }
             }
-            
-            if(page === 1){
-                jq2( "#prev-btn" ).attr('disabled', true);
-                jq2( "#prev-btn" ).removeAttr("href");
-                jq2( "#first-btn" ).attr('disabled', true);
-                jq2( "#first-btn" ).removeAttr("href");
-            }else{
-                jq2( "#prev-btn" ).attr('disabled', false);
-                jq2( "#prev-btn" ).attr("href");
-                jq2( "#first-btn" ).attr('disabled', false);
-                jq2( "#first-btn" ).attr("href");
-            }
-
-
 
             /**
              * Do the API request to get the actual child data
@@ -106,18 +123,21 @@ jq2(function( $ ) {
                     async: true,
                     success: function(result){
                         //empty the data div, to display the new informations
-                        jq2('#child-div-content').html(result);
-                        jq2(".loader-div").hide();
+                        $('#child-div-content').html(result);
+                        $(".loader-div").hide();
+                        $('#limit-sel').val(limit);
+                        $('#actualPageSpan').val(page);
+                        $('#orderby').val(orderby);
                         return false;
                     },
                     error: function(error){
-                        jq2('#child-div-content').html('<div>There is no data</div>');
-                        jq2(".loader-div").hide();
+                        $('#child-div-content').html('<div>There is no data</div>');
+                        $(".loader-div").hide();
                         return false;
                     }
                 });
             }
-            
+
             /**
              * Remove the # sign from the url
              * 
@@ -125,7 +145,7 @@ jq2(function( $ ) {
              * @returns string
              */
             function removeSpecialChar(str){
-                if (str.indexOf('#') > -1) {
+                if ( str && str.indexOf('#') > -1) {
                     str = str.replace('#', '');
                 }
                 return str;
@@ -136,7 +156,7 @@ jq2(function( $ ) {
              * 
              * @type Arguments
              */
-            function createNewUrl(){
+            function createNewUrl(page, limit, orderBy){
                 if (history.pushState) {
                     var path = window.location.pathname;
                     var newUrlLimit = "&limit="+limit;
@@ -153,116 +173,182 @@ jq2(function( $ ) {
                 }
             }
 
-            jq2(document ).delegate( ".getChildView", "click", function(e) {
-            //jq2( "#getChildView" ).click(function(e) {
+            $(document ).delegate( ".getChildView", "click", function(e) {
+            //$( "#getChildView" ).click(function(e) {
                 //drupalSettings.oeaw.detailView.insideUri.page = 1;
-                e.preventDefault();            
+                e.preventDefault();     
+                var urlParams = generateUrlParams();
+                var urlPage = urlParams['urlPage'];
+                var urlLimit = urlParams['urlLimit'];
+                var urlOrder = urlParams['urlOrder'];
+                var maxPageLimit = urlParams['maxPageLimit'];
+                var maxPageLimit = urlParams['maxPageLimit'];
+                var insideUri = urlParams['insideUri'];
+                var page = 1;
+                var limit = 10;
+                
                 if(urlPage) { page = urlPage; }
+                if(!urlPage) { urlPage = 1; }
                 if(urlLimit) { limit = urlLimit; }
+                
+                if(!urlOrder) { urlOrder = "asc"; }
                 if(page > maxPageLimit) {
                     page = maxPageLimit;
                 }
-                jq2('#ajax-pagination').show();
-                getData(insideUri, limit, page, orderBy);
-                createNewUrl();
-                jq2(".loader-div").hide();
+
+                $('#ajax-pagination').show();                
+                getData(insideUri, limit, page, urlOrder);
+                createNewUrl(page, limit, urlOrder);
+                $(".loader-div").hide();
+                $('#actualPageSpan').val(page);
                 //to skip the jump to top function
                 return false;
             });
 
-            jq2(document ).delegate( "#limit-sel", "change", function(e) {            
+            $(document ).delegate( "#limit-sel", "change", function(e) {            
                 e.preventDefault();
-                limit = this.value;
-                jq2(".loader-div").show();
+                var limit = this.value;
+                var urlParams = generateUrlParams();
+                var urlPage = urlParams['urlPage'];
+                var urlLimit = urlParams['urlLimit'];
+                var urlOrder = urlParams['urlOrder'];
+                var maxPageLimit = urlParams['maxPageLimit'];
+                var maxPage = urlParams['maxPage'];
+                var insideUri = urlParams['insideUri'];
+
+                $(".loader-div").show();
                 if( maxPage > 0) {
                     maxPageLimit = Math.ceil(maxPage / limit);
-                    if( page > maxPageLimit) {
-                        page = maxPageLimit;
+                    if( urlPage > maxPageLimit) {
+                        urlPage = maxPageLimit;
                     }
                 }
-                getData(insideUri, limit, page, orderBy);
-                createNewUrl();
-                jq2(".loader-div").hide();
+                
+                getData(insideUri, limit, urlPage, urlOrder);
+                createNewUrl(urlPage, limit,urlOrder);
+                $(".loader-div").hide();
+                $('#actualPageSpan').val(urlPage);
                 return false;
             });
 
-            jq2(document ).delegate( "#orderby", "change", function(e) {            
+            $(document ).delegate( "#orderby", "change", function(e) {            
                 e.preventDefault();
-                jq2(".loader-div").show();
-                orderBy = this.value;
-                if(page > maxPageLimit) {
-                    page = maxPageLimit;
+                $(".loader-div").show();
+                var urlParams = generateUrlParams();
+                var urlPage = urlParams['urlPage'];
+                var urlLimit = urlParams['urlLimit'];
+                var urlOrder = urlParams['urlOrder'];
+                var maxPageLimit = urlParams['maxPageLimit'];
+                var insideUri = urlParams['insideUri'];
+                var orderBy = this.value;
+
+                if(urlPage > maxPageLimit) {
+                    urlPage = maxPageLimit;
                 }
-                getData(insideUri, limit, page, orderBy);
-                createNewUrl();
-                jq2(".loader-div").hide();
+                getData(insideUri, urlLimit, urlPage, orderBy);
+                createNewUrl(urlPage, urlLimit, orderBy );
+                $(".loader-div").hide();
+
                 return false;
             });
 
-            jq2(document ).delegate( "#prev-btn", "click", function(e) {
+            $(document ).delegate( "#prev-btn", "click", function(e) {
                 e.preventDefault();
-                jq2(".loader-div").show();
-                if(page == 1){
-                    jq2(".loader-div").hide();
+                $(".loader-div").show();
+
+                var urlParams = generateUrlParams();
+                var urlPage = urlParams['urlPage'];
+                var urlLimit = urlParams['urlLimit'];
+                var urlOrder = urlParams['urlOrder'];
+                var maxPageLimit = urlParams['maxPageLimit'];
+                var insideUri = urlParams['insideUri'];
+
+                if(urlPage == 1){
+                    $(".loader-div").hide();
                     return false;
                 }
 
-                page = page - 1;
-                if(page < 1){ page = 1; }
-                getData(insideUri, limit, page, orderBy);
-                createNewUrl();
-                jq2(".loader-div").hide();
+                urlPage = urlPage - 1;
+                if(urlPage < 1){ urlPage = 1; }
+                getData(insideUri, urlLimit, urlPage, urlOrder);
+                $('#actualPageSpan').html(urlPage);                
+                createNewUrl(urlPage, urlLimit, urlOrder );
+                $(".loader-div").hide();
                 //to skip the jump to top function
                 return false;
             });
 
-            jq2(document ).delegate( "#last-btn", "click", function(e) {            
+            $(document ).delegate( "#last-btn", "click", function(e) {            
                 e.preventDefault();
-                jq2(".loader-div").show();
-                page = maxPageLimit;
-                getData(insideUri, limit, page, orderBy);
-                createNewUrl();
-                jq2(".loader-div").hide();
+                $(".loader-div").show();
+                var urlParams = generateUrlParams();
+                var urlPage = urlParams['urlPage'];
+                var urlLimit = urlParams['urlLimit'];
+                var urlOrder = urlParams['urlOrder'];
+                var maxPageLimit = urlParams['maxPageLimit'];
+                var maxPage = urlParams['maxPage'];
+                var insideUri = urlParams['insideUri'];
+                urlPage = maxPageLimit;
+                getData(insideUri, urlLimit, urlPage, urlOrder);
+                $('#actualPageSpan').html(urlPage);
+                createNewUrl(urlPage, urlLimit, urlOrder);
+                $(".loader-div").hide();
                 //to skip the jump to top function
                 return false;
             });
 
-            jq2(document ).delegate( "#first-btn", "click", function(e) {            
+            $(document ).delegate( "#first-btn", "click", function(e) {            
                 e.preventDefault();
-                jq2(".loader-div").show();
-                page = 1;
-                getData(insideUri, limit, page, orderBy);
-                createNewUrl();
-                jq2(".loader-div").hide();
+                $(".loader-div").show();
+                var urlParams = generateUrlParams();
+                var urlPage = urlParams['urlPage'];
+                var urlLimit = urlParams['urlLimit'];
+                var urlOrder = urlParams['urlOrder'];
+                var maxPageLimit = urlParams['maxPageLimit'];
+                var insideUri = urlParams['insideUri'];
+
+                urlPage = 1;
+                getData(insideUri, urlLimit, urlPage, urlOrder);
+                $('#actualPageSpan').html(urlPage);
+                createNewUrl(urlPage, urlLimit, urlOrder);
+                $(".loader-div").hide();
                 //to skip the jump to top function
                 return false;
             });
 
-            jq2(document ).delegate( "#next-btn", "click", function(e) {            
-                jq2(".loader-div").show();
+            $(document ).delegate( "#next-btn", "click", function(e) {            
+                $(".loader-div").show();
                 e.preventDefault();
+
+                var urlParams = generateUrlParams();
+                var urlPage = urlParams['urlPage'];
+                var urlLimit = urlParams['urlLimit'];
+                var urlOrder = urlParams['urlOrder'];
+                var maxPageLimit = urlParams['maxPageLimit'];
+                var insideUri = urlParams['insideUri'];
 
                 if ($(this).hasClass('disabled')){
-                    jq2(".loader-div").hide();
+                    $(".loader-div").hide();
                     return false;
                 }
 
-                if(maxPageLimit == parseInt(page) + 1){
-                    page = parseInt(page) + 1;
-                    jq2( "#next-btn" ).addClass('disabled');
-                    getData(insideUri, limit, page, orderBy);
-                }else if (maxPageLimit == page) {
-                    jq2( "#next-btn" ).addClass('disabled');
-                    jq2(".loader-div").hide();
+                if(maxPageLimit == parseInt(urlPage) + 1){
+                    urlPage = parseInt(urlPage) + 1;
+                    $( "#next-btn" ).addClass('disabled');
+                    getData(insideUri, urlLimit, urlPage, urlOrder);
+                }else if (maxPageLimit == urlPage) {
+                    $( "#next-btn" ).addClass('disabled');
+                    $(".loader-div").hide();
                     return false;
                 }else {
-                    jq2( "#next-btn" ).removeClass('disabled');                
-                    page = parseInt(page) + 1;
-                    getData(insideUri, limit, page, orderBy);
+                    $( "#next-btn" ).removeClass('disabled');                
+                    urlPage = parseInt(urlPage) + 1;
+                    getData(insideUri, urlLimit, urlPage, urlOrder);
                 }
-                createNewUrl();
-                jq2(".loader-div").delay(2000).fadeOut("fast");
-                jq2(".loader-div").hide();
+                $('#actualPageSpan').html(urlPage);
+                createNewUrl(urlPage, urlLimit, urlOrder);
+                $(".loader-div").delay(2000).fadeOut("fast");
+                $(".loader-div").hide();
                 //to skip the jump to top function
                 return false;
             });
@@ -270,20 +356,20 @@ jq2(function( $ ) {
             /*  PAGINATION END  */
 
             /* CHILD VIEW SHOW SUMMARY START */
-            
-            jq2(document ).delegate( ".res-act-button-summary", "click", function(e) {
-                if (jq2(this).hasClass('closed')) {
-                    jq2(this).parent().siblings('.res-property-desc').fadeIn(200);
-                    jq2(this).removeClass('closed');
-                    jq2(this).addClass('open');
-                    jq2(this).children('i').text('remove');
-                    jq2(this).children('span').text('Hide Summary');
+
+            $(document ).delegate( ".res-act-button-summary", "click", function(e) {
+                if ($(this).hasClass('closed')) {
+                    $(this).parent().siblings('.res-property-desc').fadeIn(200);
+                    $(this).removeClass('closed');
+                    $(this).addClass('open');
+                    $(this).children('i').text('remove');
+                    $(this).children('span').text('Hide Summary');
                 } else {
-                    jq2(this).parent().siblings('.res-property-desc').fadeOut(200);
-                    jq2(this).removeClass('open');
-                    jq2(this).addClass('closed');
-                    jq2(this).children('i').text('add');
-                    jq2(this).children('span').text('Show Summary');		
+                    $(this).parent().siblings('.res-property-desc').fadeOut(200);
+                    $(this).removeClass('open');
+                    $(this).addClass('closed');
+                    $(this).children('i').text('add');
+                    $(this).children('span').text('Show Summary');		
                 }
             });
             /* CHILD VIEW SHOW SUMMARY END */
@@ -291,18 +377,18 @@ jq2(function( $ ) {
 
             /* SWITCH LIST OR TREE START */
 
-            jq2(document ).delegate( ".res-act-button-treeview", "click", function(e) {
+            $(document ).delegate( ".res-act-button-treeview", "click", function(e) {
 
                 if ($(this).hasClass('basic')) {
-                    jq2('.children-overview-basic').hide();
-                    jq2('.children-overview-tree').fadeIn(200);
-                    jq2(this).removeClass('basic');
-                    jq2(this).addClass('tree');
-                    jq2(this).children('span').text('Switch to List-View');
+                    $('.children-overview-basic').hide();
+                    $('.children-overview-tree').fadeIn(200);
+                    $(this).removeClass('basic');
+                    $(this).addClass('tree');
+                    $(this).children('span').text('Switch to List-View');
                     //get the data
-                    var url = jq2('#insideUri').val();
+                    var url = $('#insideUri').val();
                     if(url){
-                        jq2('#collectionBrowser')
+                        $('#collectionBrowser')
                         .jstree({
                             core : {
                                 data : {
@@ -319,13 +405,16 @@ jq2(function( $ ) {
                         });
                     }
                 } else {
-                    jq2('.children-overview-tree').hide();
-                    jq2('.children-overview-basic').fadeIn(200);
-                    jq2(this).removeClass('tree');
-                    jq2(this).addClass('basic');
-                    jq2(this).children('span').text('Switch to Tree-View');		
+                    $('.children-overview-tree').hide();
+                    $('.children-overview-basic').fadeIn(200);
+                    $(this).removeClass('tree');
+                    $(this).addClass('basic');
+                    $(this).children('span').text('Switch to Tree-View');		
                 }
             });
             /* SWITCH LIST OR TREE END */
-            jq2(".loader-div").hide();
-        });
+            $(".loader-div").hide();
+    
+        }
+    };
+})(jQuery, Drupal);

@@ -192,6 +192,8 @@ oeaw_dl_collection:
         uri: '^[^\?]*$'
         _permission: 'access content'
         _access: 'TRUE'
+    options:
+        no_cache: 'TRUE'        
 
 oeaw_dlc:
     path: '/oeaw_dlc/{uri}'

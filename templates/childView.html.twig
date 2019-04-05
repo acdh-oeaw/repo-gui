@@ -12,7 +12,22 @@
     <!-- if we include a twig view, then it sometimes cant load the 3rd party js files.. so with this we need to check if it is loaded or not -->
     <script src="/browser/modules/oeaw/js/jstree.min.js"></script>
     <script>!window.jQuery && document.write('<script src="/browser/modules/oeaw/js/jstree.min.js"><\/script>')</script>
-
+    <script>
+        jQuery(function($) {
+            "use strict";
+                    $(document).ready(function() {
+                        let searchParams = new URLSearchParams(window.location.href);
+                        var pageValue = 0;
+                        if(searchParams.get('page')) {
+                            pageValue = searchParams.get('page');
+                            $('#actualPageSpan').html(pageValue);
+                        }else {
+                            $('#actualPageSpan').html("1");
+                        }
+                    });
+                });
+    </script>        
+    
     <style type="text/css">
         .collectionBrowser_css {
             width: auto;
@@ -50,6 +65,9 @@
     
     <input type="hidden" id="limit" name="limit" value="10">
     <input type="hidden" id="maxPage" name="maxPage" value="{{ result['maxPage'] }}">
+    <input type="hidden" id="maxPageLimit" name="maxPageLimit" value="{{ result['maxPageLimit'] }}">
+    <input type="hidden" id="actualPage" name="actualPage" value="{{ result['actualPage'] }}">
+    
 
     <div id="ajax-pagination">
         <div class="res-el res-info res-child-info col-block col-lg-12">

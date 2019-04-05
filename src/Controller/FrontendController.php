@@ -1239,13 +1239,13 @@ class FrontendController extends ControllerBase
         //the binary files
         $binaries = array();
         $binaries = json_decode($_POST['jsonData'], true);
-      
+     
         //the main dir
         $tmpDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/';
         //the collection own dir
         $dateID = date("Ymd_his");
         $tmpDirDate = $tmpDir.$dateID;
-        
+     
         //if we have binaries then we continue the process
         if (count($binaries) > 0) {
             //if the main directory is not exists
@@ -1302,10 +1302,13 @@ class FrontendController extends ControllerBase
         
         if (count($dirFiles) > 0) {
             chmod($GLOBALS['resTmpDir'], 0777);
-            $archiveFile = $tmpDirDate.'/collection.tar.gz';
-            $tar = new \PharData($archiveFile);
+            $archiveFile = $tmpDirDate.'/collection.tar';
+        
             try {
+                $tar = new \PharData($archiveFile);
+        
                 foreach ($dirFiles as $d) {
+        
                     if ($d == "." || $d == ".." || $d == 'collection.tar') {
                         continue;
                     } else {
@@ -1324,16 +1327,22 @@ class FrontendController extends ControllerBase
                     }
                 }
                 $tar->compress(\Phar::NONE);
+                
                 unlink($archiveFile);
             } catch (Exception $e) {
                 echo "Exception : " . $e;
+                $response = new Response();
+                $response->headers->set('Content-Type', 'application/json');
+                $response->setContent(json_encode(""));
+                return $response;
             }
+            
             //check the new dir that it is still generating the zip file or not
             $newDir = scandir($tmpDirDate);
                     
             $checkDir = true;
             do {
-                $checkDir = Helper::checkArrayForValue($newDir, "collection.tar.");
+                $checkDir = Helper::checkArrayForValue($newDir, "collection.tar");
                 //delete the files and keep the zip only
                 foreach ($dirFiles as $file) {
                     if (is_file($tmpDir.$dateID.'/'.$file)) {

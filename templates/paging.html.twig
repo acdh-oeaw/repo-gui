@@ -26,24 +26,11 @@
             -webkit-appearance:none; /* Safari and Chrome */
         }
     </style>
-    <script>
-
-        var jq2 = jQuery;
-        jq2(function( $ ) {
-            let searchParams = new URLSearchParams(window.location.href);
-            var pageValue = 0;
-            if(searchParams.get('page')) {
-                pageValue = searchParams.get('page');
-                jq2('#actualPageSpan').html(pageValue);
-            }
-        });
-    </script>        
     
     <div>
         <span class="">
             {% if data is not empty %}
-                
-                <span id="actualPageSpan">1</span>
+                <span id="actualPageSpan"></span>
                 <span> {{ "of"|trans }} </span>
                 <span> {{ data }} {{ "Pages"|trans }}</span>
                 <li class="pagination-item" style="border-left: 1px solid #DDDDDD"> <a href="#" id="first-btn" ><i class="material-icons">first_page</i></a></li>
