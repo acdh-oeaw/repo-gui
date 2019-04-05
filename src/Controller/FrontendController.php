@@ -1308,7 +1308,6 @@ class FrontendController extends ControllerBase
                 $tar = new \PharData($archiveFile);
         
                 foreach ($dirFiles as $d) {
-        
                     if ($d == "." || $d == ".." || $d == 'collection.tar') {
                         continue;
                     } else {
