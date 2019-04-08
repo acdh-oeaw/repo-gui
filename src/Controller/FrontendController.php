@@ -5,7 +5,7 @@ namespace Drupal\oeaw\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Drupal\Core\Link;
-use Drupal\Core\Archiver\Zip;
+use Drupal\Core\Archiver;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Language\LanguageInterface;
@@ -1303,9 +1303,12 @@ class FrontendController extends ControllerBase
         if (count($dirFiles) > 0) {
             chmod($GLOBALS['resTmpDir'], 0777);
             $archiveFile = $tmpDirDate.'/collection.tar';
-        
+            fopen($archiveFile, "w");
+            fclose($archiveFile);
+            chmod($archiveFile, 0777);
+          
             try {
-                $tar = new \PharData($archiveFile);
+                $tar = new \Drupal\Core\Archiver\Tar($archiveFile);
         
                 foreach ($dirFiles as $d) {
                     if ($d == "." || $d == ".." || $d == 'collection.tar') {
@@ -1322,12 +1325,9 @@ class FrontendController extends ControllerBase
                         }
                         //we will add the files into the tar,
                         //with a localname to skip the server directory structure
-                        $tar->addFile($tmpDirDate.'/'.$d, $tarFilename);
+                        $tar->add($tmpDirDate.'/'.$d, $tarFilename);
                     }
                 }
-                $tar->compress(\Phar::NONE);
-                
-                unlink($archiveFile);
             } catch (Exception $e) {
                 echo "Exception : " . $e;
                 $response = new Response();
