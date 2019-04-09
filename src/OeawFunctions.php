@@ -2181,13 +2181,13 @@ class OeawFunctions
     }
     
     
-   /**
-     * 
-     * Create turtle file from the resource
-     * 
-     * @param string $fedoraUrl
-     * @return type
-     */
+    /**
+      *
+      * Create turtle file from the resource
+      *
+      * @param string $fedoraUrl
+      * @return type
+      */
     public function turtleDissService(string $fedoraUrl)
     {
         $result = array();
@@ -2213,14 +2213,15 @@ class OeawFunctions
     
     /**
      * Handle the default shibboleth user for the federated login
-     * 
+     *
      */
-    public function handleShibbolethUser() {
+    public function handleShibbolethUser()
+    {
         //the global drupal shibboleth username
         $shib = user_load_by_name('shibboleth');
         //if we dont have it then we will create it
         if ($shib === false) {
-             $user = \Drupal\user\Entity\User::create();
+            $user = \Drupal\user\Entity\User::create();
             // Mandatory.
             $user->setPassword(RC::get('shibbolethUserPWD'));
             $user->enforceIsNew();
@@ -2230,7 +2231,7 @@ class OeawFunctions
             $user->save();
             $shib = user_load_by_name('shibboleth');
             user_login_finalize($user);
-        }else if ($shib->id() != 0) {
+        } elseif ($shib->id() != 0) {
             $user = \Drupal\User\Entity\User::load($shib->id());
             $user->activate();
             user_login_finalize($user);

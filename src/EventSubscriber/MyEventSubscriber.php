@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\oeaw\OeawFunctions;
 use acdhOeaw\util\RepoConfig as RC;
+
 class MyEventSubscriber implements EventSubscriberInterface
 {
     
@@ -50,12 +51,11 @@ class MyEventSubscriber implements EventSubscriberInterface
                     && $_SERVER['HTTP_EPPN'] != "(null)"
                     && $userid == 0
                     && \Drupal::currentUser()->isAnonymous()) {
-                
-                    $oF = new  \Drupal\oeaw\OeawFunctions();
-                    $oF->handleShibbolethUser();
+                $oF = new  \Drupal\oeaw\OeawFunctions();
+                $oF->handleShibbolethUser();
                     
-                    $host = \Drupal::request()->getSchemeAndHttpHost();
-                    return new TrustedRedirectResponse($host."/browser/federated_login/");
+                $host = \Drupal::request()->getSchemeAndHttpHost();
+                return new TrustedRedirectResponse($host."/browser/federated_login/");
             }
         }
     }
@@ -72,5 +72,4 @@ class MyEventSubscriber implements EventSubscriberInterface
         $events[KernelEvents::REQUEST][] = array('checkForShibboleth', 300);
         return $events;
     }
-    
 }
