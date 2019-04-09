@@ -13,6 +13,9 @@
     var disableChkUrlArray = [];
     var checked_ids = []; 
     var unchecked_ids = []; 
+    
+    var disableChkArray = [];
+    var disableChkIDArray = [];
         
     function bytesToSize(bytes, decimals = 2) {
         if(bytes == 0) return '0 Bytes';
@@ -37,8 +40,32 @@
     });
 */
 
+    function getActualuserRestriction() {
+        var roles = drupalSettings.oeaw.users.roles;
+        var actualUserRestriction = 'public';
+        
+        if (roles !== ''){
+            if (roles.includes('administrator')) {
+                actualUserRestriction = 'admin';
+            }
+            if (roles.includes('academic')) {
+                actualUserRestriction = 'academic';
+            }
+            if (roles.includes('restricted')) {
+                actualUserRestriction = 'restricted';
+            }
+            if (roles.includes('anonymus')) {
+                actualUserRestriction = 'public';
+            }
+        }
+        
+        return actualUserRestriction;
+    }
 
     function generateCollection(url, disabledUrls = [], username = "", password= "") {
+                
+        var actualUserRestriction = getActualuserRestriction();
+        
         var loadedData = [];
         $('#collectionBrowser')
         .jstree({
@@ -170,9 +197,7 @@
         
         /** the collection download jstree js  **/
         var sumSize = 0;
-        var disableChkArray = [];
-        //var disableChkUrlArray = [];
-        var disableChkIDArray = [];
+        
                 
         //handle the node clicking to download the file
         $('#collectionBrowser').on("changed.jstree", function (node, data) {
@@ -401,10 +426,6 @@
         }
         
     });
-    
-   
-    
-    
         
       /*  
         }

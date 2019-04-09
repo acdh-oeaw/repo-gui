@@ -1793,9 +1793,11 @@ class OeawFunctions
                             $v['accessRestriction'] = "public";
                         }
                         $cacheData[$k]['accessRestriction'] = $v['accessRestriction'];
+                        
+                        // DISABLED: CAUSING REALLY BIG PERFORMANCE ISSUE!
                         //we need to check amybe the user already logged with his/her account and then we need to
                         //allow them to reach the restricted resources in his/her permission level
-                        if ($v['accessRestriction'] != "public") {
+                        /*if ($v['accessRestriction'] != "public") {
                             //check the user is already logged in and allowed to dl the file.
                             $fdrBinaryRes = $fedora->getResourceByUri($v['uri']);
                             if (($fdrBinaryRes) && (\acdhOeaw\fedora\acl\CheckAcess::check($fdrBinaryRes) == true)) {
@@ -1803,7 +1805,7 @@ class OeawFunctions
                             } else {
                                 $cacheData[$k]['userAllowedToDL'] = false;
                             }
-                        }
+                        }*/
                     }
 
                     if ($v['identifier']) {
@@ -2179,12 +2181,18 @@ class OeawFunctions
     }
     
     
+   /**
+     * 
+     * Create turtle file from the resource
+     * 
+     * @param string $fedoraUrl
+     * @return type
+     */
     public function turtleDissService(string $fedoraUrl)
     {
         $result = array();
         $client = new \GuzzleHttp\Client();
-        echo $fedoraUrl;
-        //$fedoraUrl = "https://fedora.hephaistos.arz.oeaw.ac.at/rest/b5/14/9f/90/b5149f90-869d-43af-a545-b33683607f10";
+        
         try {
             $request = $client->request('GET', $fedoraUrl.'/fcr:metadata', ['Accept' => ['application/n-triples']]);
             if ($request->getStatusCode() == 200) {
@@ -2200,6 +2208,32 @@ class OeawFunctions
             return array();
         } catch (\Exception $ex) {
             return array();
+        }
+    }
+    
+    /**
+     * Handle the default shibboleth user for the federated login
+     * 
+     */
+    public function handleShibbolethUser() {
+        //the global drupal shibboleth username
+        $shib = user_load_by_name('shibboleth');
+        //if we dont have it then we will create it
+        if ($shib === false) {
+             $user = \Drupal\user\Entity\User::create();
+            // Mandatory.
+            $user->setPassword(RC::get('shibbolethUserPWD'));
+            $user->enforceIsNew();
+            $user->setEmail('sh_guest@acdh.oeaw.ac.at');
+            $user->setUsername('shibboleth');
+            $user->activate();
+            $user->save();
+            $shib = user_load_by_name('shibboleth');
+            user_login_finalize($user);
+        }else if ($shib->id() != 0) {
+            $user = \Drupal\User\Entity\User::load($shib->id());
+            $user->activate();
+            user_login_finalize($user);
         }
     }
 }

@@ -1131,13 +1131,7 @@ class FrontendController extends ControllerBase
                 ) {
             drupal_set_message(t('You are logged in as '.$_SERVER['HTTP_EPPN']), 'status', false);
             //if we already logged in with shibboleth then login the user with the shibboleth account
-            $shib = user_load_by_name('shibboleth');
-
-            if ($shib->id() != 0) {
-                $user = \Drupal\User\Entity\User::load($shib->id());
-                $user->activate();
-                user_login_finalize($user);
-            }
+            $this->oeawFunctions->handleShibbolethUser();
             return $result;
         } else {
             $result =

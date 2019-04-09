@@ -13,7 +13,8 @@ use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 // We'll use this to perform a redirect if necessary.
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\Routing\TrustedRedirectResponse;
-
+use Drupal\oeaw\OeawFunctions;
+use acdhOeaw\util\RepoConfig as RC;
 class MyEventSubscriber implements EventSubscriberInterface
 {
     
@@ -50,20 +51,11 @@ class MyEventSubscriber implements EventSubscriberInterface
                     && $userid == 0
                     && \Drupal::currentUser()->isAnonymous()) {
                 
-                 //the global drupal shibboleth username
-                $shib = user_load_by_name('shibboleth');
-                //if we dont have it then we will create it
-                if ($shib === false) {
-                    $sh = $this->createShibbolethUser();
-                    $shib = user_load_by_name('shibboleth');
-                }
-                if ($shib->id() != 0) {
-                    $user = \Drupal\User\Entity\User::load($shib->id());
-                    $user->activate();
-                    user_login_finalize($user);
+                    $oF = new  \Drupal\oeaw\OeawFunctions();
+                    $oF->handleShibbolethUser();
+                    
                     $host = \Drupal::request()->getSchemeAndHttpHost();
                     return new TrustedRedirectResponse($host."/browser/federated_login/");
-                }
             }
         }
     }
@@ -81,21 +73,4 @@ class MyEventSubscriber implements EventSubscriberInterface
         return $events;
     }
     
-    /**
-     * create the shibb. user inside the drupal DB
-     *
-     * @return type
-     */
-    private function createShibbolethUser()
-    {
-        $user = \Drupal\user\Entity\User::create();
-        // Mandatory.
-        $user->setPassword('ShiBBoLeth');
-        $user->enforceIsNew();
-        $user->setEmail('sh_guest@acdh.oeaw.ac.at');
-        $user->setUsername('shibboleth');
-        $user->activate();
-        $result = $user->save();
-        return $result;
-    }
 }
