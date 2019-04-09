@@ -84,6 +84,8 @@ function oeaw_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
  
     $form['#attached']['library'][] = 'oeaw/mylibrary';
     $form['#attached']['drupalSettings']['oeaw']['users']['id'] = \Drupal::currentUser()->id();
+    $account = \Drupal\user\Entity\User::load(\Drupal::currentUser()->id());
+    $form['#attached']['drupalSettings']['oeaw']['users']['name'] = $account->getUsername();
     $roles = array();
     $roles = \Drupal::currentUser()->getRoles();
     if(count($roles) > 0){ $roles = implode(",", $roles); }

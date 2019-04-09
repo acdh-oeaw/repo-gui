@@ -57,8 +57,10 @@
             if (roles.includes('anonymus')) {
                 actualUserRestriction = 'public';
             }
+        }        
+        if(drupalSettings.oeaw.users.name == "shibboleth") {
+            actualUserRestriction = 'academic';
         }
-        
         return actualUserRestriction;
     }
 
@@ -102,16 +104,16 @@
                     }
                     if(k == 'accessRestriction') {
                         if(  ((v != 'public') &&  v != actualUserRestriction) && actualUserRestriction != 'admin'){
-                            if( userAllowedToDL === false){
-                                disableChkArray.push(key+'_anchor');
-                                disableChkUrlArray.push(value.original.uri);
-                                var obj = {};
-                                obj = {"id": value.id, "url": value.original.uri};
-                                disableChkIDArray.push(obj);
-                                $("#"+value.id).css('color','red');
-                                $("#collectionBrowser").jstree("uncheck_node", value.id);
-                                $("#collectionBrowser").jstree().disable_node(value.id);
-                            }
+                            userAllowedToDL === false;
+                            disableChkArray.push(key+'_anchor');
+                            disableChkUrlArray.push(value.original.uri);
+                            var obj = {};
+                            obj = {"id": value.id, "url": value.original.uri};
+                            disableChkIDArray.push(obj);
+                            $("#"+value.id).css('color','red');
+                            $("#collectionBrowser").jstree("uncheck_node", value.id);
+                            $("#collectionBrowser").jstree().disable_node(value.id);
+                            
                         }
                     }
                     userAllowedToDL = false;
@@ -171,20 +173,7 @@
         var roles = drupalSettings.oeaw.users.roles;
         var actualUserRestriction = 'public';
         
-        if (roles !== ''){
-            if (roles.includes('administrator')) {
-                actualUserRestriction = 'admin';
-            }
-            if (roles.includes('academic')) {
-                actualUserRestriction = 'academic';
-            }
-            if (roles.includes('restricted')) {
-                actualUserRestriction = 'restricted';
-            }
-            if (roles.includes('anonymus')) {
-                actualUserRestriction = 'public';
-            }
-        }
+        actualUserRestriction = getActualuserRestriction();
         
         var url = $('#insideUri').val();
         window.setTimeout( generateCollection(url), 5000 );
@@ -339,7 +328,6 @@
                 },
                 error: function(message) {
                     $("#loader-div").delay(2000).fadeOut("fast");
-                    console.log(message);
                     $("#selected_files_size").html("<p class='size_text_red'>" + Drupal.t('A server error has occurred. ') + " </p> ");
                     return message;
                 }
