@@ -1,12 +1,3 @@
-//var $ = jQuery;
-//jQuery.noConflict(true);
-//$(function( $ ) {
-
-/*
-(function ($, Drupal) {
-    Drupal.behaviors.myModuleBehavior = {
-        attach: function (context, settings) {    
-  */
  jQuery(function($) {
     "use strict";
     var selectedItems = [];
@@ -16,6 +7,8 @@
     
     var disableChkArray = [];
     var disableChkIDArray = [];
+    
+    var resourceGroupsData = {};
         
     function bytesToSize(bytes, decimals = 2) {
         if(bytes == 0) return '0 Bytes';
@@ -94,7 +87,7 @@
             plugins : [ 'checkbox', 'search' ]
         })//treeview before load the data to the ui
         .on("loaded.jstree", function (e, d) {
-
+            
             loadedData = d;
             var userAllowedToDL = false;
             $.each( d.instance._model.data, function( key, value ) {
@@ -108,12 +101,16 @@
                             disableChkArray.push(key+'_anchor');
                             disableChkUrlArray.push(value.original.uri);
                             var obj = {};
-                            obj = {"id": value.id, "url": value.original.uri};
+                            obj = {"id": value.id, "url": value.original.uri, "accessRestriction": v};
+                            //get one url for the permission levels
+                            if(!resourceGroupsData.hasOwnProperty(v)) {
+                                resourceGroupsData[v] = value.original.uri;
+                            }
+                            
                             disableChkIDArray.push(obj);
                             $("#"+value.id).css('color','red');
                             $("#collectionBrowser").jstree("uncheck_node", value.id);
                             $("#collectionBrowser").jstree().disable_node(value.id);
-                            
                         }
                     }
                     userAllowedToDL = false;
@@ -124,40 +121,38 @@
     
     function checkResourceAccess(urls, username, password, callback) {
         var xhr = new XMLHttpRequest();
-
-        let length = urls.length;
+        $("#loader-div").css("display", "block");
+        
+        let length = Object.keys(resourceGroupsData).length;
         var counter = 0;
-
+        var result = [];
         $.each(urls, function(i,u){
             $.when(
-                $.ajax(u.url, 
+                $.ajax(u+'/fcr:metadata', 
                 { 
                     type: 'HEAD',
                     username: username,
-                    password: password
+                    password: password,
+                    error: function(error) {
+                        callback(false);   
+                    }
                 })
-                .error(function() {
-                    callback(false);   
-                })
-                .then(
-                    function (data, textStatus, jqXHR) {
-                        if (jqXHR.status == 200) {
-                            //if the user/pwd was okay then we will remove this id 
-                            //rfom the result
-                            urls = $.grep(urls, function(value) {
-                                return value.id != u.id;
-                            });
-                            counter++;
-                            // last element reached so we will pass back the urls
-                            if (counter == length) {
-                                callback(urls);   
-                            }
+            )
+            .then(
+                function (data, textStatus, jqXHR) {
+                    if (jqXHR.status == 200) {
+                        //if the user/pwd was okay then we will remove this id 
+                        //rfom the result
+                        result.push(i);
+                        counter++;
+                        // last element reached so we will pass back the urls
+                        if (counter == length) {
+                            callback(result);   
                         }
                     }
-                )
+                }
             );
         });
-
     }
 
     $(document).ready(function() {
@@ -219,8 +214,8 @@
             if (disableChkArray.length > 0) {
                 $.each( disableChkArray, function( key, value ) {
                     $("#"+value).css('color','red');
-                    $("#collectionBrowser").jstree("uncheck_node", value);
-                    $("#collectionBrowser").jstree().disable_node(value);
+                    //$("#collectionBrowser").jstree("uncheck_node", value);
+                    //$("#collectionBrowser").jstree().disable_node(value);
                 });
                 $('#not_enough_permission').show();
             }
@@ -234,8 +229,8 @@
             $('#not_enough_permission').hide();
             if (disableChkArray.length > 0) {
                 $.each( disableChkArray, function( key, value ) {
-                    $("#collectionBrowser").jstree("uncheck_node", value.replace('_anchor', ''));
-                    $("#collectionBrowser").jstree().disable_node(value.replace('_anchor', ''));
+                    //$("#collectionBrowser").jstree("uncheck_node", value.replace('_anchor', ''));
+                    //$("#collectionBrowser").jstree().disable_node(value.replace('_anchor', ''));
                 });
                 $('#not_enough_permission').show();
             }
@@ -249,8 +244,9 @@
                 var actualResource = data.instance.get_checked(true);
                 var actualResourcefalse = data.instance.get_checked(false);
                 
-                $.each( actualResource, function( i, res ){
+                $.each( actualResource, function( i, res ){                    
                     if( res ){
+                        
                         var id = res.id;
                         var size = res.original.binarySize;
                         var uri = res.original.uri;
@@ -260,27 +256,32 @@
                         if(res.original.hasOwnProperty("accessRestriction")){
                             resourceRestriction = res.original.accessRestriction;
                         }
-                        $("#collectionBrowser").jstree().enable_node(id);
-                        $("#"+id).css('color','black');
+                        
                         //check the rights
                         if( ((resourceRestriction != 'public') &&  resourceRestriction != actualUserRestriction) && actualUserRestriction != 'admin' ){
+                            
                             //if the user doesnt have any rights on the resource then we will make it unreachable to download
                             $('#not_enough_permission').show();
+                            $("#collectionBrowser").jstree().disable_node(id);
+                            $("#collectionBrowser").jstree("uncheck_node", id);
+                        }else {
+                            $("#collectionBrowser").jstree().enable_node(id);
+                            $("#"+id).css('color','black');
                         }
                         if(size && uri){
-                        //if( ((resourceRestriction == 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
-                            selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
-                            sumSize += Number(size);
-                            if(sumSize > 1599999999){
-                                $("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 1.5GB)</p> ");
-                                $("#getCollectionDiv").hide();
-                            }else {
-                                $("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" ("+Drupal.t('Max tar download limit is') + " 1.5GB) </p> ");   
-                                $("#getCollectionDiv").show();
+                            if( ((resourceRestriction == 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
+                                selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
+                                sumSize += Number(size);
+                                if(sumSize > 1599999999){
+                                    $("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 1.5GB)</p> ");
+                                    $("#getCollectionDiv").hide();
+                                }else {
+                                    $("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" ("+Drupal.t('Max tar download limit is') + " 1.5GB) </p> ");   
+                                    $("#getCollectionDiv").show();
+                                }
                             }
-                        //}
                         }
-                    }else {
+                    } else {
                             sumSize = 0;
                         }
                 });    
@@ -336,60 +337,83 @@
         });
         
     
-        $('#loginToRestrictedResources').on('click', function(e){    
+        $('#loginToRestrictedResources').on('click', function(e) {
             showpopup();
-            $('#dologin').on('click', function(ed){
+            
+            $('#dologin').on('click', function(ed) {
+                $("#loader-div").css("display", "block");
+               
                 var username = $("input#username").val();
                 var password = $("input#password").val();
-                var counter = 0;
-                checkResourceAccess(disableChkIDArray, username, password, function(newData) {
+                
+                //checkResourceAccess(disableChkIDArray, username, password, function(newData) {
+                checkResourceAccess(resourceGroupsData, username, password, function(newData) {
                     
                     if(newData === false){
-                        counter++;
-                        if(counter > 1){
-                            return false;
-                        }else {
-                            $('#error_login_msg').show(0).delay(4000).fadeOut(1000).hide(0);
-                            return false;
-                        }
+                        $("#loader-div").delay(2000).fadeOut("fast");
+                        $('#error_login_msg').show(0).delay(4000).fadeOut(1000).hide(0);
+                        return false;
                     }
+                    
                     var newArray = [];
                     unchecked_ids = [];
+                    var disabledArray = disableChkIDArray;
+                    disableChkIDArray = [];
                     //if we have resources which are still not available for us
                     $.each(newData, function(i,u){ 
+                        $.each(disabledArray, function(ind,val) { 
+                            if(val.accessRestriction == u) { 
+                                 //create the anchor ids 
+                                var ahrefId = val.id+'_anchor';
+                                //the objects
+                                newArray.push(disabledArray[ind]);
+                                unchecked_ids.push(val.id);                                
+                                //var node = $('#collectionBrowser').jstree(true).get_node(val.id);
+                                //node.accessRestriction = true;                                
+                                //$("#collectionBrowser").jstree().enable_node(val.id);
+                                //$('#collectionBrowser').jstree(true).refresh_node(val.id)                                
+                            }else {
+                                disableChkIDArray.push(disabledArray[ind]);
+                            }
+                        });
                         //create the anchor ids
-                        var ahrefId = u.id+'_anchor';
-                        newArray.push(ahrefId);
-                        unchecked_ids.push(u.id);
+                        //var ahrefId = u.id+'_anchor';
+                        //newArray.push(ahrefId);
+                        //unchecked_ids.push(u.id);
                     });
+                   
                     checked_ids = [];
                     
                     var checkedObj = $("#collectionBrowser").jstree("get_checked",true);
+                    
                     $.each(checkedObj,function(k,v){
                         if(v.state.checked === true){
                             checked_ids.push(this.id);
                             $("#"+this.id).css('color','black');
                             //remove the unchecked elements, because the jstree unchecked func not 
                             //working always as we expect.
+                            
                             checked_ids = checked_ids.filter(function(val) {
                                 v.original.userAllowedToDL = true;
                                 return unchecked_ids.indexOf(val) == -1;
                             });
+                            
                         }
                         $("#"+v.id).css('color','black');
                     });
                     
-                    $.each(unchecked_ids,function(k,v){
-                        //remove the unchecked elements, because the jstree unchecked func not 
-                        //working always as we expect.
-                        $("#"+v).css('color','red');
-                        $("#collectionBrowser").jstree("uncheck_node", v);
-                        $("#collectionBrowser").jstree().disable_node(v);
+                    $.each(newArray,function(k,v){
+                        $("#"+v.id+"_anchor").css('color','black');
+                        $("#collectionBrowser").jstree().enable_checkbox(v.id+"_anchor");
+                        $("#collectionBrowser").jstree().enable_node(v.id+"_anchor");
                     });
-                    disableChkArray = newArray;
-                    $('#success_login_msg').show(0).delay(2000).fadeOut(1000).hide(0);
+                    $("#loader-div").delay(2000).fadeOut("fast");
+                        $('#success_login_msg').show(0).delay(2000).fadeOut(1000).hide(0);
+                    
                 });
+                
                 ed.preventDefault();
+                $("#loader-div").delay(2000).fadeOut("fast");
                 hidepopup();
             }); 
            e.preventDefault();
@@ -412,12 +436,5 @@
             $("#dissServLoginform").fadeOut();
             $("#dissServLoginform").css({"visibility":"hidden","display":"none"});
         }
-        
     });
-        
-      /*  
-        }
-    };
-})(jQuery, Drupal);
-*/
 });

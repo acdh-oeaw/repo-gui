@@ -1839,8 +1839,26 @@ class OeawFunctions
     }
     
     /**
+     * This func is generating a child based array from a single array by ID
+     * 
+     * @param type $list
+     * @param type $parent
+     * @return type
+     */
+    public function convertToTreeById(&$list, $parent){
+        $tree = array();
+        foreach ($parent as $k=>$l){
+            if(isset($list[$l['resShortId']])){
+                $l['children'] = $this->convertToTreeById($list, $list[$l['resShortId']]);
+            }
+            $tree[] = $l;
+        } 
+        return $tree;
+    }
+    
+    /**
      *
-     * THis func is generating a child based array from a single array
+     * This func is generating a child based array from a single array
      *
      * @param array $flat
      * @param type $idField
