@@ -20,9 +20,9 @@
                         var pageValue = 0;
                         if(searchParams.get('page')) {
                             pageValue = searchParams.get('page');
-                            $('#actualPageSpan').html(pageValue);
+                            $('.actualPageSpan').html(pageValue);
                         }else {
-                            $('#actualPageSpan').html("1");
+                            $('.actualPageSpan').html("1");
                         }
                     });
                 });
@@ -146,8 +146,13 @@
                 </div>
             {% endfor %}
         </div>
-
-
+        
+        <div id="ajax-pagination">
+            <div class="result-basic-info">
+                    {{ include('/modules/oeaw/templates/paging.html.twig', {'data': result['maxPageLimit'] } ) }}
+            </div>   
+        </div>   
+            
         <div class="children-overview children-overview-tree">
             <div id="content_collection">
                 <div id="collectionBrowser" class="collectionBrowser_css"></div>
