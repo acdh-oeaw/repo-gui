@@ -406,33 +406,33 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
         $query .= " ?main (<".RC::get('fedoraIdProp')."> / ^<".RC::get('fedoraRelProp').">)+ ?uri . ";
         
         $query .= " OPTIONAL {  ";
-            $query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
+        $query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
         $query .= " } ";
       
         $query .= " OPTIONAL {  ";
-            $query .= " ?uri <".RC::get('fedoraIdProp')."> ?identifiers . ";
+        $query .= " ?uri <".RC::get('fedoraIdProp')."> ?identifiers . ";
         $query .= " } ";
         
         $query .= " OPTIONAL {  ";
-            $query .= " ?uri <".RC::get('fedoraRelProp')."> ?isPartOf . ";            
-            $query .= " ?rUri <".RC::get('fedoraIdProp')."> ?isPartOf . ";        
-            $query .= $this->modelFunctions->filterLanguage("rUri", RC::titleProp(), "rootTitle", $lang);
-            $query .=  ' BIND(REPLACE(str(?isPartOf), "https://id.acdh.oeaw.ac.at/uuid/", "", "i") AS ?parentId) . ';
+        $query .= " ?uri <".RC::get('fedoraRelProp')."> ?isPartOf . ";
+        $query .= " ?rUri <".RC::get('fedoraIdProp')."> ?isPartOf . ";
+        $query .= $this->modelFunctions->filterLanguage("rUri", RC::titleProp(), "rootTitle", $lang);
+        $query .=  ' BIND(REPLACE(str(?isPartOf), "https://id.acdh.oeaw.ac.at/uuid/", "", "i") AS ?parentId) . ';
         $query .= " } ";
                 
         $query .= " OPTIONAL {  ";
-            $query .= " ?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . ";
+        $query .= " ?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . ";
         $query .= " } ";
         
         $query .= " OPTIONAL {  ";
-            $query .= " ?uri <".RC::get('fedoraExtentProp')."> ?binarySize .
+        $query .= " ?uri <".RC::get('fedoraExtentProp')."> ?binarySize .
             ?uri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename .  ";
         $query .= " } ";
         
         $query .= " OPTIONAL {  ";
-            $query .= " ?uri <".RC::get('fedoraIdProp')."> ?resOwnId . ";
-            $query .= " FILTER (contains(lcase(str(?resOwnId)), lcase('https://id.acdh.oeaw.ac.at/uuid/' ))) .";
-            $query .= ' BIND(REPLACE(str(?resOwnId), "https://id.acdh.oeaw.ac.at/uuid/", "", "i") AS ?resShortId) .';            
+        $query .= " ?uri <".RC::get('fedoraIdProp')."> ?resOwnId . ";
+        $query .= " FILTER (contains(lcase(str(?resOwnId)), lcase('https://id.acdh.oeaw.ac.at/uuid/' ))) .";
+        $query .= ' BIND(REPLACE(str(?resOwnId), "https://id.acdh.oeaw.ac.at/uuid/", "", "i") AS ?resShortId) .';
         $query .= " } ";
         
         $query .= " } ";

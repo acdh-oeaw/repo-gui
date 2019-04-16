@@ -1208,16 +1208,16 @@ class FrontendController extends ControllerBase
         $result = array();
         //add the main Root element
         $first = array(
-            "uri" => $uri, 
-            "uri_dl" => $resData['fedoraUri'], 
-            "title" => $resData['title'], 
-            "text" => $resData['title'], 
+            "uri" => $uri,
+            "uri_dl" => $resData['fedoraUri'],
+            "title" => $resData['title'],
+            "text" => $resData['title'],
             "filename" => str_replace(" ", "_", $resData['filename']),
-            "resShortId" => str_replace("id.acdh.oeaw.ac.at:uuid:", "", $uri), 
+            "resShortId" => str_replace("id.acdh.oeaw.ac.at:uuid:", "", $uri),
             "parentId" => "");
         
         $new = array();
-        foreach ($resData['binaries'] as $a){
+        foreach ($resData['binaries'] as $a) {
             $new[$a['parentId']][] = $a;
         }
         
