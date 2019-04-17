@@ -171,7 +171,10 @@
         actualUserRestriction = getActualuserRestriction();
         
         var url = $('#insideUri').val();
-        window.setTimeout( generateCollection(url), 5000 );
+        
+        if(!getCookie(url)){
+            window.setTimeout( generateCollection(url), 5000 );
+        }
         
         /**  the collection download input field actions **/
         $("#search-input").keyup(function () {
@@ -180,8 +183,7 @@
         });
         
         /** the collection download jstree js  **/
-        var sumSize = 0;
-        
+        var sumSize = 0;        
                 
         //handle the node clicking to download the file
         $('#collectionBrowser').on("changed.jstree", function (node, data) {
@@ -209,7 +211,6 @@
         })        
         //the tree view before open functions
         .on("before_open.jstree", function (e, d) {
-            
             $('#not_enough_permission').hide();
             if (disableChkArray.length > 0) {
                 $.each( disableChkArray, function( key, value ) {
@@ -218,10 +219,15 @@
                     //$("#collectionBrowser").jstree().disable_node(value);
                 });
                 $('#not_enough_permission').show();
+            }else {
+                $.each( d.instance._model.data, function( key, value ) {
+                    $("#collectionBrowser").jstree().enable_node(value.id);
+                });
             }
         })
         //handle the checkboxes to download the selected files as a zip
         .on("check_node.jstree uncheck_node.jstree", function (node, data) {
+            
             $('#selected_files_size_div').show();
             $('#dl_link').hide();
             $('#dl_link_txt').hide();
@@ -234,17 +240,15 @@
                 });
                 $('#not_enough_permission').show();
             }
-            
-            
             sumSize = 0;
             
             if(data.instance.get_checked(true)) {
                 
                 selectedItems = [];
                 var actualResource = data.instance.get_checked(true);
-                var actualResourcefalse = data.instance.get_checked(false);
                 
-                $.each( actualResource, function( i, res ){                    
+                //check here also the disables array
+                $.each( actualResource, function( i, res ){
                     if( res ){
                         
                         var id = res.id;
@@ -256,25 +260,34 @@
                         if(res.original.hasOwnProperty("accessRestriction")){
                             resourceRestriction = res.original.accessRestriction;
                         }
-                        
+                        var enabled = false;
                         //check the rights
                         if( ((resourceRestriction != 'public') &&  resourceRestriction != actualUserRestriction) && actualUserRestriction != 'admin' ){
-                            
-                            //if the user doesnt have any rights on the resource then we will make it unreachable to download
-                            $('#not_enough_permission').show();
-                            $("#collectionBrowser").jstree().disable_node(id);
-                            $("#collectionBrowser").jstree("uncheck_node", id);
+                            if (disableChkArray.length > 0) {
+                                $.each( disableChkArray, function( key, value ) {
+                                    $("#"+value).css('color','red');
+                                    $("#collectionBrowser").jstree("uncheck_node", id);
+                                    $("#collectionBrowser").jstree().disable_node(id);
+                                });
+                                $('#not_enough_permission').show();
+                            }else {
+                                enabled = true;
+                                $("#collectionBrowser").jstree().enable_node(id);
+                            }
                         }else {
+                            enabled = true;
                             $("#collectionBrowser").jstree().enable_node(id);
                             $("#"+id).css('color','black');
                         }
+                        
                         if(size && uri){
-                            if( ((resourceRestriction == 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
+                           // if( ((resourceRestriction == 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
+                           if(enabled === true) {
                                 selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
                                 sumSize += Number(size);
                                 if(sumSize > 1599999999){
                                     $("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 1.5GB)</p> ");
-                                    $("#getCollectionDiv").hide();
+                                    $("#getCollectionDiv").hide();                                    
                                 }else {
                                     $("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" ("+Drupal.t('Max tar download limit is') + " 1.5GB) </p> ");   
                                     $("#getCollectionDiv").show();
@@ -289,7 +302,6 @@
         });
         
         hidepopup();
-        
         
         
          //prepare the zip file
@@ -339,7 +351,6 @@
     
         $('#loginToRestrictedResources').on('click', function(e) {
             showpopup();
-            
             $('#dologin').on('click', function(ed) {
                 $("#loader-div").css("display", "block");
                
@@ -359,6 +370,7 @@
                     unchecked_ids = [];
                     var disabledArray = disableChkIDArray;
                     disableChkIDArray = [];
+                    disableChkArray = [];
                     //if we have resources which are still not available for us
                     $.each(newData, function(i,u){ 
                         $.each(disabledArray, function(ind,val) { 
@@ -374,6 +386,7 @@
                                 //$('#collectionBrowser').jstree(true).refresh_node(val.id)                                
                             }else {
                                 disableChkIDArray.push(disabledArray[ind]);
+                                disableChkArray.push(val.id+'_anchor');
                             }
                         });
                         //create the anchor ids
@@ -407,8 +420,9 @@
                         $("#collectionBrowser").jstree().enable_checkbox(v.id+"_anchor");
                         $("#collectionBrowser").jstree().enable_node(v.id+"_anchor");
                     });
+                    setCookie(insideUri, disableChkIDArray);
                     $("#loader-div").delay(2000).fadeOut("fast");
-                        $('#success_login_msg').show(0).delay(2000).fadeOut(1000).hide(0);
+                    $('#success_login_msg').show(0).delay(2000).fadeOut(1000).hide(0);
                     
                 });
                 
@@ -437,4 +451,28 @@
             $("#dissServLoginform").css({"visibility":"hidden","display":"none"});
         }
     });
+    
+    function setCookie(cname, cvalue, exdays) {
+        var d = new Date();
+        d.setTime(d.getTime() + (exdays*24*60*60*1000));
+        var expires = "expires="+ d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+    
 });
