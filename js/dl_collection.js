@@ -247,57 +247,67 @@
                 selectedItems = [];
                 var actualResource = data.instance.get_checked(true);
                 
-                //check here also the disables array
-                $.each( actualResource, function( i, res ){
-                    if( res ){
-                        
-                        var id = res.id;
-                        var size = res.original.binarySize;
-                        var uri = res.original.uri;
-                        var uri_dl = res.original.encodedUri;
-                        var filename = res.original.filename;
-                        var resourceRestriction = "public";
-                        if(res.original.hasOwnProperty("accessRestriction")){
-                            resourceRestriction = res.original.accessRestriction;
-                        }
-                        var enabled = false;
-                        //check the rights
-                        if( ((resourceRestriction != 'public') &&  resourceRestriction != actualUserRestriction) && actualUserRestriction != 'admin' ){
-                            if (disableChkArray.length > 0) {
-                                $.each( disableChkArray, function( key, value ) {
-                                    $("#"+value).css('color','red');
-                                    $("#collectionBrowser").jstree("uncheck_node", id);
-                                    $("#collectionBrowser").jstree().disable_node(id);
-                                });
-                                $('#not_enough_permission').show();
+                
+                if(actualResource.length > 100) {
+                    $.each( actualResource, function( i, res ){
+                        $("#collectionBrowser").jstree("uncheck_node", res.id);
+                    });
+                    $("#selected_files_size").html("<p class='size_text_red'> "+Drupal.t('You can select max 100 files!') + "("+ actualResource.length  + " " + Drupal.t('Files') + ") </p> ");
+                    $("#getCollectionDiv").hide();
+                    console.log(actualResource.length);
+                } else {
+                    //check here also the disables array
+                    $.each( actualResource, function( i, res ){
+                        if( res ){
+
+                            var id = res.id;
+                            var size = res.original.binarySize;
+                            var uri = res.original.uri;
+                            var uri_dl = res.original.encodedUri;
+                            var filename = res.original.filename;
+                            var resourceRestriction = "public";
+                            if(res.original.hasOwnProperty("accessRestriction")){
+                                resourceRestriction = res.original.accessRestriction;
+                            }
+                            var enabled = false;
+                            //check the rights
+                            if( ((resourceRestriction != 'public') &&  resourceRestriction != actualUserRestriction) && actualUserRestriction != 'admin' ){
+                                if (disableChkArray.length > 0) {
+                                    $.each( disableChkArray, function( key, value ) {
+                                        $("#"+value).css('color','red');
+                                        $("#collectionBrowser").jstree("uncheck_node", id);
+                                        $("#collectionBrowser").jstree().disable_node(id);
+                                    });
+                                    $('#not_enough_permission').show();
+                                }else {
+                                    enabled = true;
+                                    $("#collectionBrowser").jstree().enable_node(id);
+                                }
                             }else {
                                 enabled = true;
                                 $("#collectionBrowser").jstree().enable_node(id);
+                                $("#"+id).css('color','black');
                             }
-                        }else {
-                            enabled = true;
-                            $("#collectionBrowser").jstree().enable_node(id);
-                            $("#"+id).css('color','black');
-                        }
-                        
-                        if(size && uri){
-                           // if( ((resourceRestriction == 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
-                           if(enabled === true) {
-                                selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
-                                sumSize += Number(size);
-                                if(sumSize > 1599999999){
-                                    $("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 1.5GB)</p> ");
-                                    $("#getCollectionDiv").hide();                                    
-                                }else {
-                                    $("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" ("+Drupal.t('Max tar download limit is') + " 1.5GB) </p> ");   
-                                    $("#getCollectionDiv").show();
+
+                            if(size && uri){
+                               // if( ((resourceRestriction == 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
+                               if(enabled === true) {
+                                    selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
+                                    sumSize += Number(size);
+                                    if(sumSize > 1599999999){
+                                        $("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 1.5GB) ("+ actualResource.length + " " + Drupal.t('Files') + ")</p> ");
+                                        $("#getCollectionDiv").hide();                                    
+                                    }else {
+                                        $("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" ("+Drupal.t('Max tar download limit is') + " 1.5GB) ("+ actualResource.length + " " + Drupal.t('Files') + ")</p> ");   
+                                        $("#getCollectionDiv").show();
+                                    }
                                 }
                             }
-                        }
-                    } else {
+                        } else {
                             sumSize = 0;
                         }
-                });    
+                    });
+                }
             }
         });
         
