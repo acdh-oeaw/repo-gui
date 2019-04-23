@@ -1,4 +1,4 @@
-oeaw_detail_list:
+oeaw_detail:
   path: '/oeaw_detail/{res_data}'
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_detail'
