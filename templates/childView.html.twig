@@ -69,7 +69,7 @@
     <input type="hidden" id="actualPage" name="actualPage" value="{{ result['actualPage'] }}">
     
 
-    <div id="ajax-pagination">
+    <div id="ajax-pagination" >
         <div class="res-el res-info res-child-info col-block col-lg-12">
             <div class="result-basic-info">
                 <span class="results-info-bar">
@@ -80,7 +80,7 @@
                 
         <div class="res-el col-block col-lg-12">
             
-            <div class="result-basic-info" style="">
+            <div class="result-basic-info" >
             {% if result['mainResourceType']|lower == "collection" %}
                     <div class="res-act-button res-act-button-reverse res-act-button-treeview basic" style="text-align:left; margin-bottom:5px;">
                         <i class="material-icons">&#xE335;</i>
@@ -89,7 +89,7 @@
                 {% endif %}
             </div>
             
-            <div class="result-basic-info">
+            <div class="result-basic-info child-ajax-pagination">
                 {{ include('/modules/oeaw/templates/paging.html.twig', {'data': result['maxPageLimit'] } ) }}
             </div>    
         </div>
@@ -147,11 +147,7 @@
             {% endfor %}
         </div>
         
-        <div id="ajax-pagination">
-            <div class="result-basic-info">
-                    {{ include('/modules/oeaw/templates/paging.html.twig', {'data': result['maxPageLimit'] } ) }}
-            </div>   
-        </div>   
+          
             
         <div class="children-overview children-overview-tree">
             <div id="content_collection">
@@ -160,5 +156,11 @@
         </div>
 
     </div>
+        
+    <div id="ajax-pagination" class="child-ajax-pagination">
+        <div class="result-basic-info">
+                {{ include('/modules/oeaw/templates/paging.html.twig', {'data': result['maxPageLimit'] } ) }}
+        </div>   
+    </div> 
     <!-- .children-overview-basic -->
 {% endif %}    

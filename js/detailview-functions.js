@@ -174,7 +174,7 @@
             }
 
             $(document ).delegate( ".getChildView", "click", function(e) {
-            //$( "#getChildView" ).click(function(e) {
+                console.log("dt functionsben");
                 //drupalSettings.oeaw.detailView.insideUri.page = 1;
                 e.preventDefault();     
                 var urlParams = generateUrlParams();
@@ -381,6 +381,7 @@
 
                 if ($(this).hasClass('basic')) {
                     $('.children-overview-basic').hide();
+                    $('.child-ajax-pagination').hide();
                     $('.children-overview-tree').fadeIn(200);
                     $(this).removeClass('basic');
                     $(this).addClass('tree');
@@ -406,6 +407,7 @@
                     }
                 } else {
                     $('.children-overview-tree').hide();
+                    $('.child-ajax-pagination').fadeIn(200);
                     $('.children-overview-basic').fadeIn(200);
                     $(this).removeClass('tree');
                     $(this).addClass('basic');

@@ -252,26 +252,7 @@ jq2(function( $ ) {
    
         //we need the delegate because we are loading the content with ajax, and otherwise
         //the jquery cant find the button inside the new html content
-        jq2( document ).delegate( ".getChildView", "click", function(e) {
-            jq2(".loader-div").show();
-            //drupalSettings.oeaw.detailView.insideUri.page = 1;
-            e.preventDefault();            
-            jq2('#ajax-pagination').show();
-            //if we have a url and page in the URL
-            if(urlPage) { page = urlPage; }
-            if(urlLimit) { limit = urlLimit; }
-            insideUri = makeInsideUriFromUrl();
-            //if we have the handlenet then we need to fetch the insideuri from the html
-            if(insideUri.includes(".handle.net")) {
-                insideUri = jq2('#insideUri').val().replace("id.acdh.oeaw.ac.at/uuid/", "");
-            }
-            getData(insideUri, limit, page, orderBy);
-            //to skip the jump to top function
-            jq2( ".getChildView" ).hide();
-            jq2(".loader-div").hide();
-            createNewUrl();
-            return false;
-        });
+ 
         
         /**
          * create and change the new URL after click events
