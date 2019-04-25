@@ -174,7 +174,6 @@
             }
 
             $(document ).delegate( ".getChildView", "click", function(e) {
-                console.log("dt functionsben");
                 //drupalSettings.oeaw.detailView.insideUri.page = 1;
                 e.preventDefault();     
                 var urlParams = generateUrlParams();
