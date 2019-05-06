@@ -2118,7 +2118,8 @@ class OeawFunctions
     }
     
     /**
-     *
+     * Formats the breadcumb data, delete the duplications.
+     * 
      * @param array $data
      * @return array
      */
@@ -2150,6 +2151,10 @@ class OeawFunctions
         $result[0] = $data[$rootKey];
         //remove the mainroot from out data array
         unset($data[$rootKey]);
+        
+        //remove the duplications from the array
+        $data = Helper::removeDuplicateValuesFromMultiArrayByKey($data, "mainIspartOf");
+                
         //create a recursive call
         $this->makeBreadcrumbFinalData($data, $result);
         $result = $this->formatBreadcrumbInsideUri($result);
@@ -2163,7 +2168,7 @@ class OeawFunctions
      * @param array $result
      */
     private function makeBreadcrumbFinalData(array &$data, array &$result)
-    {
+    {        
         foreach ($data as $k => $v) {
             $count = count($result);
             if ($count > 0) {
@@ -2171,6 +2176,9 @@ class OeawFunctions
             }
             if ($result[$count]['rootId'] == $v['rootsRoot']) {
                 $result[] = $v;
+                unset($data[$k]);
+            } else if ( empty($v['rootsRoot'])) {
+                //because sometimes we have multiple ispartof values...
                 unset($data[$k]);
             }
         }
