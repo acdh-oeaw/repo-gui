@@ -241,6 +241,42 @@ class OeawStorage implements OeawStorageInterface
         }
     }
     
+    /**
+     * Use the special identifiers to get the acdh uuid
+     * 
+     * @param string $identifier
+     * @return array
+     * @throws Exception
+     * @throws \InvalidArgumentException
+     */
+    public function getUUIDBySpecialIdentifier(string $identifier): array
+    {
+        $getResult = array();
+        
+        try {
+           
+             $select = " SELECT ?id WHERE { ";
+            
+            $where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";
+            $where .= "?uri <".RC::get('fedoraIdProp')."> ?id . ";
+            $where .= ' FILTER (regex(str(?id),"id.acdh.oeaw.ac.at/uuid/","i")) .';
+            $where .= " } ";
+            
+            $query = $select.$where;
+            $result = $this->fedora->runSparql($query);
+            
+            $fields = $result->getFields();
+            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
+            return $getResult;
+        } catch (\Exception $ex) {
+            throw new Exception($ex->getMessage());
+        } catch (\InvalidArgumentException $ex) {
+            throw new \InvalidArgumentException($ex->getMessage());
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            throw new Exception($ex->getMessage());
+        }
+    }
+    
     public function getTypeByIdentifier(string $identifier, string $lang = "en"): array
     {
         $getResult = array();

@@ -2,24 +2,10 @@
 
 namespace Drupal\oeaw;
 
-use Drupal\Core\Url;
 use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\ChangedCommand;
-use Drupal\Core\Ajax\CssCommand;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Entity\Exception;
 use Drupal\Core\Ajax\InvokeCommand;
-use Drupal\Component\Render\MarkupInterface;
-use Drupal\Core\Cache\CacheBackendInterface;
-
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-
 
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawResource;
@@ -57,7 +43,6 @@ class OeawFunctions
             \acdhOeaw\util\RepoConfig::init($cfg);
         }
         $this->langConf = \Drupal::config('oeaw.settings');
-        //$this->langConf = \Drupal::service('config.factory')->getEditable('oeaw.settings');
     }
         
     /**
@@ -98,12 +83,7 @@ class OeawFunctions
                 //the id contains the acdh uuid
                 if (strpos($id, RC::get('fedoraUuidNamespace')) !== false) {
                     return $id;
-                    //$uuid = $id;
-                    //if the identifier is the normal acdh identifier then return it
                 }
-                /*else if (strpos($id, RC::get('fedoraIdNamespace')) !== false) {
-                    return $id;
-                }*/
             }
         }
         
@@ -153,29 +133,38 @@ class OeawFunctions
         
         if ($code == 0) {
             $data = explode(":", $data);
-            $page = 0;
-            $limit = 0;
             $identifier = "";
 
             foreach ($data as $ra) {
                 if (strpos($ra, '&') !== false) {
                     $pos = strpos($ra, '&');
                     $ra = substr($ra, 0, $pos);
-                    //$page = str_replace("page=", "", $ra);
                     $identifier .= $ra."/";
                 } else {
                     $identifier .= $ra."/";
                 }
             }
             
-            if (strpos($identifier, 'hdl.handle.net') !== false) {
-                $identifier = "http://".$identifier;
-            } else {
-                $identifier = "https://".$identifier;
-            }
-            
-            if (substr($identifier, -1) == "/") {
-                $identifier = substr_replace($identifier, "", -1);
+            switch (true){
+                case strpos($identifier, 'id.acdh.oeaw.ac.at/uuid/') !== false:
+                    $identifier = str_replace('id.acdh.oeaw.ac.at/uuid/', RC::get('fedoraUuidNamespace'), $identifier);
+                    $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
+                    break;
+                case strpos($identifier, 'hdl.handle.net') !== false:
+                    $identifier = str_replace('hdl.handle.net/', RC::get('epicResolver'), $identifier);
+                    $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
+                    $identifier = $this->specialIdentifierToUUID($identifier);
+                    break;
+                case strpos($identifier, 'geonames.org') !== false:
+                    $identifier = str_replace('geonames.org/', RC::get('geonamesUrl'), $identifier);
+                    $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
+                    $identifier = $this->specialIdentifierToUUID($identifier);
+                    break;
+                case strpos($identifier, 'd-nb.info') !== false:
+                    $identifier = str_replace('d-nb.info/', RC::get('dnbUrl'), $identifier);
+                    $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
+                    $identifier = $this->specialIdentifierToUUID($identifier);
+                    break;
             }
             return $identifier;
         }
@@ -189,7 +178,6 @@ class OeawFunctions
                 $data = str_replace("http://", "", $data);
             }
             return $data;
-            //return array($data['identifier']);
         }
     }
     
@@ -201,13 +189,13 @@ class OeawFunctions
      * @param string $identifier
      * @return string
      */
-    public function pidToAcdhIdentifier(string $identifier): string
+    private function specialIdentifierToUUID(string $identifier): string
     {
         $return = "";
         $oeawStorage = new OeawStorage();
         
         try {
-            $idsByPid = $oeawStorage->getACDHIdByPid($identifier);
+            $idsByPid = $oeawStorage->getUUIDBySpecialIdentifier($identifier);
         } catch (Exception $ex) {
             drupal_set_message($ex->getMessage(), 'error');
             return "";

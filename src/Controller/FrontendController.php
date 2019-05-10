@@ -3,10 +3,6 @@
 namespace Drupal\oeaw\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use Drupal\Core\Url;
-use Drupal\Core\Link;
-use Drupal\Core\Archiver;
-use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Language\LanguageInterface;
 
@@ -31,7 +27,6 @@ use EasyRdf\Graph;
 use EasyRdf\Resource;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Drupal\Core\Render\HtmlResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -296,9 +291,7 @@ class FrontendController extends ControllerBase
     {
         drupal_get_messages('error', true);
         $rules = array();
-        $ACL = array();
         $fedoraRes = array();
-        $breadcumb = array();
         $response = "html";
         
         //we have the url and limit page data in the string
@@ -317,14 +310,16 @@ class FrontendController extends ControllerBase
         $identifier = "";
         //transform the url from the browser to readable uri
         $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);
+        
         if (empty($identifier)) {
             drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist', 'error');
             return array();
         }
+        
         $limitAndPage = $this->oeawFunctions->getLimitAndPageFromUrl($res_data);
         $page = 1;
         $limit = 10;
-        
+                
         if (count($limitAndPage) > 0) {
             if (isset($limitAndPage['page'])) {
                 $page = $limitAndPage['page'];
@@ -333,12 +328,7 @@ class FrontendController extends ControllerBase
                 $limit = $limitAndPage['limit'];
             }
         }
-        
-        //if the browser url contains handle url then we need to get the acdh:hasIdentifier
-        if (strpos($identifier, 'hdl.handle.net') !== false) {
-            $identifier = $this->oeawFunctions->pidToAcdhIdentifier($identifier);
-        }
-        
+                
         $fedora = $this->oeawFunctions->initFedora();
         $uid = \Drupal::currentUser()->id();
         
@@ -346,11 +336,6 @@ class FrontendController extends ControllerBase
         try {
             $fedoraRes = $fedora->getResourceById($identifier);
             $rootMeta = $fedoraRes->getMetadata();
-            /*if($rootMeta->getUri()) {
-                $turtle = $this->oeawFunctions->turtleDissService($rootMeta->getUri());
-
-            }*/
-            //
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
             drupal_set_message(
                 $this->langConf->get('errmsg_fedora_exception') ? $this->langConf->get('errmsg_fedora_exception').' :getMetadata function' : 'Fedora Exception : getMetadata function',

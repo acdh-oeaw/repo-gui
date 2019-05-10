@@ -8,6 +8,7 @@ interface OeawStorageInterface
     
     public function checkValueToAutocomplete(string $string, string $property): array;
     public function getACDHIdByPid(string $pid): array;
+    public function getUUIDBySpecialIdentifier(string $identifier): array;
     public function getACDHTypes(bool $count = false, bool $searchBox = false) :array;
     public function getParentTitle(string $id): array;
     public function getResourceTitle(string $uri): array;
