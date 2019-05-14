@@ -145,7 +145,7 @@ class OeawFunctions
                 }
             }
             
-            switch (true){
+            switch (true) {
                 case strpos($identifier, 'id.acdh.oeaw.ac.at/uuid/') !== false:
                     $identifier = str_replace('id.acdh.oeaw.ac.at/uuid/', RC::get('fedoraUuidNamespace'), $identifier);
                     $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
@@ -2112,7 +2112,7 @@ class OeawFunctions
      * @return array
      */
     public function formatBreadcrumbData(array $data): array
-    {      
+    {
         $result = array();
         
         if (count($data) <= 0) {
