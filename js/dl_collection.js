@@ -248,11 +248,11 @@
                 var actualResource = data.instance.get_checked(true);
                 
                 
-                if(actualResource.length > 100) {
+                if(actualResource.length > 4000) {
                     $.each( actualResource, function( i, res ){
                         $("#collectionBrowser").jstree("uncheck_node", res.id);
                     });
-                    $("#selected_files_size").html("<p class='size_text_red'> "+Drupal.t('You can select max 100 files!') + "("+ actualResource.length  + " " + Drupal.t('Files') + ") </p> ");
+                    $("#selected_files_size").html("<p class='size_text_red'> "+Drupal.t('You can select max 4000 files!') + "("+ actualResource.length  + " " + Drupal.t('Files') + ") </p> ");
                     $("#getCollectionDiv").hide();
                     console.log(actualResource.length);
                 } else {
@@ -294,11 +294,11 @@
                                if(enabled === true) {
                                     selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
                                     sumSize += Number(size);
-                                    if(sumSize > 1599999999){
-                                        $("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 1.5GB) ("+ actualResource.length + " " + Drupal.t('Files') + ")</p> ");
+                                    if(sumSize > 6299999999){
+                                        $("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 6GB) ("+ actualResource.length + " " + Drupal.t('Files') + ")</p> ");
                                         $("#getCollectionDiv").hide();                                    
                                     }else {
-                                        $("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" ("+Drupal.t('Max tar download limit is') + " 1.5GB) ("+ actualResource.length + " " + Drupal.t('Files') + ")</p> ");   
+                                        $("#selected_files_size").html("<p class='size_text'>" + bytesToSize(sumSize)+" ("+Drupal.t('Max tar download limit is') + " 6GB) ("+ actualResource.length + " " + Drupal.t('Files') + ")</p> ");   
                                         $("#getCollectionDiv").show();
                                     }
                                 }
