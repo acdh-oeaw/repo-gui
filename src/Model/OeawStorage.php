@@ -37,7 +37,7 @@ class OeawStorage implements OeawStorageInterface
             . 'PREFIX foaf: <http://xmlns.com/foaf/0.1/>';
     
     private static $sparqlPref = array(
-        'foafImage' => 'http://xmlns.com/foaf/0.1/Image',        
+        'foafImage' => 'http://xmlns.com/foaf/0.1/Image',
         'rdfsDomain' => 'http://www.w3.org/2000/01/rdf-schema#domain'
     );
         
@@ -231,7 +231,7 @@ class OeawStorage implements OeawStorageInterface
     
     /**
      * Use the special identifiers to get the acdh uuid
-     * 
+     *
      * @param string $identifier
      * @return array
      * @throws Exception
@@ -242,8 +242,7 @@ class OeawStorage implements OeawStorageInterface
         $getResult = array();
         
         try {
-           
-             $select = " SELECT ?id WHERE { ";
+            $select = " SELECT ?id WHERE { ";
             
             $where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";
             $where .= "?uri <".RC::get('fedoraIdProp')."> ?id . ";
