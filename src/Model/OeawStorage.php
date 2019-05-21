@@ -243,7 +243,7 @@ class OeawStorage implements OeawStorageInterface
     
     /**
      * Use the special identifiers to get the acdh uuid
-     *
+     * 
      * @param string $identifier
      * @return array
      * @throws Exception
@@ -254,7 +254,8 @@ class OeawStorage implements OeawStorageInterface
         $getResult = array();
         
         try {
-            $select = " SELECT ?id WHERE { ";
+           
+             $select = " SELECT ?id WHERE { ";
             
             $where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";
             $where .= "?uri <".RC::get('fedoraIdProp')."> ?id . ";
@@ -725,7 +726,7 @@ class OeawStorage implements OeawStorageInterface
                     ?subUri owl:maxCardinality ?maxCardinality .
                 }
                 OPTIONAL {
-                    ?subUri owl:minxCardinality ?minCardinality .
+                    ?subUri owl:minCardinality ?minCardinality .
                 }
                 OPTIONAL {
                     ?subUri owl:cardinality ?cardinality .
