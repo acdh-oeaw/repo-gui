@@ -37,20 +37,8 @@ class OeawStorage implements OeawStorageInterface
             . 'PREFIX foaf: <http://xmlns.com/foaf/0.1/>';
     
     private static $sparqlPref = array(
-        'rdfType' => 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
-        'rdfsLabel' => 'http://www.w3.org/2000/01/rdf-schema#label',
-        'foafName' => 'http://xmlns.com/foaf/0.1/name',
-        'foafImage' => 'http://xmlns.com/foaf/0.1/Image',
-        'foafThumbnail' => 'http://xmlns.com/foaf/0.1/thumbnail',
-        'rdfsSubClass' => 'http://www.w3.org/2000/01/rdf-schema#subClassOf',
-        'rdfsSubPropertyOf' => 'http://www.w3.org/2000/01/rdf-schema#subPropertyOf',
-        'owlClass' => 'http://www.w3.org/2002/07/owl#Class',
-        'rdfsDomain' => 'http://www.w3.org/2000/01/rdf-schema#domain',
-        'dctLabel' => 'http://purl.org/dc/terms/label',
-        'owlOnProperty' => 'http://www.w3.org/2002/07/owl#onProperty',
-        'owlCardinality' => 'http://www.w3.org/2002/07/owl#cardinality',
-        'owlMinCardinality' => 'http://www.w3.org/2002/07/owl#minCardinality',
-        'owlMaxCardinality' => 'http://www.w3.org/2002/07/owl#maxCardinality'
+        'foafImage' => 'http://xmlns.com/foaf/0.1/Image',        
+        'rdfsDomain' => 'http://www.w3.org/2000/01/rdf-schema#domain'
     );
         
     
@@ -723,13 +711,13 @@ class OeawStorage implements OeawStorageInterface
         $optionals .= "OPTIONAL {
   		?subUri owl:onProperty ?propID .
                 OPTIONAL {
-                    ?subUri owl:maxCardinality ?maxCardinality .
+                    ?subUri <".RC::get('drupalOwlMaxCardinality')."> ?maxCardinality .
                 }
                 OPTIONAL {
-                    ?subUri owl:minCardinality ?minCardinality .
+                    ?subUri <".RC::get('drupalOwlMinCardinality')."> ?minCardinality .
                 }
                 OPTIONAL {
-                    ?subUri owl:cardinality ?cardinality .
+                    ?subUri <".RC::get('drupalOwlCardinality')."> ?cardinality .
                 }
         }";
         
@@ -1403,8 +1391,7 @@ class OeawStorage implements OeawStorageInterface
                 'error'
             );
         }
-                
-        $rdfsLabel = self::$sparqlPref["rdfsLabel"];
+        
         $getResult = array();
         
         //we need to extend the Filter options in the DB class, to we can use the
