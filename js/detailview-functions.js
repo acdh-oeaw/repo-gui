@@ -379,6 +379,7 @@
             $(document ).delegate( ".res-act-button-treeview", "click", function(e) {
 
                 if ($(this).hasClass('basic')) {
+                    console.log("tree view begin");
                     $('.children-overview-basic').hide();
                     $('.child-ajax-pagination').hide();
                     $('.children-overview-tree').fadeIn(200);
@@ -388,19 +389,35 @@
                     //get the data
                     var url = $('#insideUri').val();
                     if(url){
+                        
                         $('#collectionBrowser')
                         .jstree({
                             core : {
+                                'check_callback': false,
                                 data : {
                                     "url" : '/browser/get_collection_data/'+url,
-                                    "dataType" : "json" 
-                                }
-                            }
-                        })
+                                    "dataType" : "json"
+                                },
+                                themes : { stripes : true },
+                                error : function (jqXHR, textStatus, errorThrown) { 
+                                    $('#collectionBrowser').html("<h3>Error: </h3><p>" + jqXHR.reason +"</p>");
+                                } 
+                            },
+                            search: {
+                                case_sensitive: false,
+                                show_only_matches: true
+                            },
+                            plugins : [ 'search' ]
+                        });
+                        
+                        $('#collectionBrowser')
                         //handle the node clicking to download the file
-                        .on("changed.jstree", function (node, data) {
-                            if(data.instance.get_node(data.selected[0]).original.encodedUri) {
-                                window.location.href = "/browser/oeaw_detail/"+data.instance.get_node(data.selected[0]).original.encodedUri;
+                        .bind("click.jstree", function (node, data) {
+                            if(node.originalEvent.target.id) {
+                                var node = $('#collectionBrowser').jstree(true).get_node(node.originalEvent.target.id);
+                                if(node.original.encodedUri){
+                                    window.location.href = "/browser/oeaw_detail/"+node.original.encodedUri;
+                                }
                             }
                         });
                     }
