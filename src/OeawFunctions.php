@@ -153,7 +153,7 @@ class OeawFunctions
                 case strpos($identifier, 'hdl.handle.net') !== false:
                     $identifier = str_replace('hdl.handle.net/', RC::get('epicResolver'), $identifier);
                     $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
-                    $identifier = $this->specialIdentifierToUUID($identifier);
+                    $identifier = $this->specialIdentifierToUUID($identifier, true);
                     break;
                 case strpos($identifier, 'geonames.org') !== false:
                     $identifier = str_replace('geonames.org/', RC::get('geonamesUrl'), $identifier);
@@ -189,13 +189,17 @@ class OeawFunctions
      * @param string $identifier
      * @return string
      */
-    private function specialIdentifierToUUID(string $identifier): string
+    private function specialIdentifierToUUID(string $identifier, bool $pid = false): string
     {
         $return = "";
         $oeawStorage = new OeawStorage();
         
         try {
-            $idsByPid = $oeawStorage->getUUIDBySpecialIdentifier($identifier);
+            if($pid === true) {
+                $idsByPid = $oeawStorage->getACDHIdByPid($identifier);
+            }else {
+                $idsByPid = $oeawStorage->getUUIDBySpecialIdentifier($identifier);
+            }
         } catch (Exception $ex) {
             drupal_set_message($ex->getMessage(), 'error');
             return "";
@@ -1763,7 +1767,8 @@ class OeawFunctions
             //check the cache
             $cacheData = array();
             $cache = new CollectionCache();
-            
+            $cacheData = $cache->setCacheData($uri);
+
             if ($cache->getCachedData($uri)) {
                 $cacheData = $cache->getCachedData($uri);
             } else {
