@@ -195,9 +195,9 @@ class OeawFunctions
         $oeawStorage = new OeawStorage();
         
         try {
-            if($pid === true) {
+            if ($pid === true) {
                 $idsByPid = $oeawStorage->getACDHIdByPid($identifier);
-            }else {
+            } else {
                 $idsByPid = $oeawStorage->getUUIDBySpecialIdentifier($identifier);
             }
         } catch (Exception $ex) {
