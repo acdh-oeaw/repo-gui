@@ -165,6 +165,31 @@ class OeawFunctions
                     $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
                     $identifier = $this->specialIdentifierToUUID($identifier);
                     break;
+                case strpos($identifier, 'viaf.org/') !== false:
+                    $identifier = str_replace('viaf.org/', RC::get('viafUrl'), $identifier);
+                    $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
+                    $identifier = $this->specialIdentifierToUUID($identifier);
+                    break;
+                case strpos($identifier, 'orcid.org/') !== false:
+                    $identifier = str_replace('orcid.org/', RC::get('orcidUrl'), $identifier);
+                    $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
+                    $identifier = $this->specialIdentifierToUUID($identifier);
+                    break;
+                case strpos($identifier, 'pleiades.stoa.org/') !== false:
+                    $identifier = str_replace('pleiades.stoa.org/', RC::get('pelagiosUrl'), $identifier);
+                    $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
+                    $identifier = $this->specialIdentifierToUUID($identifier);
+                    break;
+                case strpos($identifier, 'gazetteer.dainst.org/') !== false:
+                    $identifier = str_replace('gazetteer.dainst.org/', RC::get('gazetteerUrl'), $identifier);
+                    $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
+                    $identifier = $this->specialIdentifierToUUID($identifier);
+                    break;
+                case strpos($identifier, 'doi.org/') !== false:
+                    $identifier = str_replace('doi.org/', RC::get('doiUrl'), $identifier);
+                    $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
+                    $identifier = $this->specialIdentifierToUUID($identifier);
+                    break;
             }
             return $identifier;
         }

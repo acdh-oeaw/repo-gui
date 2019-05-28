@@ -240,11 +240,14 @@ class OeawStorage implements OeawStorageInterface
     public function getUUIDBySpecialIdentifier(string $identifier): array
     {
         $getResult = array();
+        $identifier = (strpos($identifier, 'https://') !== false) ? str_replace('https://', "", $identifier) : str_replace('http://', "", $identifier);
         
         try {
             $select = " SELECT ?id WHERE { ";
             
-            $where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";
+            #$where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";
+            $where = "?uri <".RC::get('fedoraIdProp')."> ?sid . ";
+            $where .= ' FILTER (regex(str(?sid),"'.$identifier.'","i")) .';
             $where .= "?uri <".RC::get('fedoraIdProp')."> ?id . ";
             $where .= ' FILTER (regex(str(?id),"id.acdh.oeaw.ac.at/uuid/","i")) .';
             $where .= " } ";
