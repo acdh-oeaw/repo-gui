@@ -16,14 +16,6 @@ oeaw_detail_list:
     _permission: 'access content'
     _access: 'TRUE'
 
-oeaw_revoke:
-  path: '/oeaw_revoke/{uri}/{user}'
-  defaults:
-    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_revoke'
-  requirements:
-    _role: 'authenticated+admin'
-    _access: 'TRUE'
-
 oeaw_complexsearch:
   path: '/discover/{metavalue}/{order}/{limit}/{page}'
   defaults:
@@ -36,14 +28,6 @@ oeaw_complexsearch:
     _permission: 'access content'
     _access: 'TRUE'
 
-oeaw_admin_form:
-    path: '/admin/config/system/oeaw-admin'
-    defaults:
-        _form: 'Drupal\oeaw\Form\AdminForm'
-        _title: 'OEAW ADMIN'
-    requirements:
-        _permission: 'access administration pages'
-
 oeaw.settings_form:
   path: '/admin/config/oeaw'
   defaults:
@@ -51,71 +35,6 @@ oeaw.settings_form:
     _form: '\Drupal\oeaw\Form\OeawTranslateConfigForm'
   requirements:
     _permission: 'access administration pages'
-
-oeaw_query:
-  path: '/oeaw_query/{uri}'
-  defaults:
-    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_query'
-  requirements:
-    _permission: 'access content'
-    _access: 'TRUE'
-
-
-oeaw_form_success:
-  path: '/oeaw_form_success/{url}'
-  defaults:
-    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_form_success'
-  requirements:
-    _permission: 'access content'
-    _access: 'TRUE'
-
-oeaw_depagree_base:
-  path: '/deposition-agreement-base/{formid}'
-  defaults:
-    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_depagree_base'
-    formid: 'new'
-  requirements:
-    _permission: 'access content'
-    _access: 'TRUE'
-    
-oeaw_depagree_one:
-  path: '/deposition-agreement-one/{formid}'
-  defaults:
-    _form: '\Drupal\oeaw\Form\DepAgreeOneForm'
-    _title: 'Deposition agreement, Step 1'
-    formid: 'new'
-  requirements:
-    _permission: 'access content'    
-    
-oeaw_depagree_two:
-  path: '/deposition-agreement-two/{formid}'
-  defaults:
-    _form: '\Drupal\oeaw\Form\DepAgreeTwoForm'
-    _title: 'Deposition agreement, Step 2'
-    formid: 'new'
-  requirements:
-    _permission: 'access content'
-    _access: 'TRUE'
-
-oeaw_depagree_three:
-  path: '/deposition-agreement-three/{formid}'
-  defaults:
-    _form: '\Drupal\oeaw\Form\DepAgreeThreeForm'
-    _title: 'Deposition agreement, Step 3'
-    formid: 'new'
-  requirements:
-    _permission: 'access content'
-    _access: 'TRUE'
-
-oeaw_depagree_four:
-    path: '/deposition-agreement-four/{formid}'
-    defaults:
-        _form: '\Drupal\oeaw\Form\DepAgreeFourForm'
-        _title: 'Deposition agreement, Step 4'
-        formid: 'new'
-    requirements:
-        _permission: 'access content'
-        _access: 'TRUE'
 
 oeaw_inverse_result:    
     path: '/oeaw_inverse_result/{data}'
@@ -148,7 +67,6 @@ oeaw_turtle_api:
         data: '^[^\?]*$'
         _permission: 'access content'
         _access: 'TRUE'
-
         
 oeaw_ismember_result:
     path: '/oeaw_ismember_result/{data}'
