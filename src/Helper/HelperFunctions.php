@@ -2,22 +2,12 @@
 
 namespace Drupal\oeaw\Helper;
 
-use Drupal\Core\Url;
-use Drupal\Core\Ajax\AjaxResponse;
-use Drupal\Core\Ajax\ChangedCommand;
-use Drupal\Component\Render\MarkupInterface;
-
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\ConfigConstants;
 use Drupal\oeaw\Model\OeawCustomSparql;
-
-use acdhOeaw\fedora\Fedora;
-use acdhOeaw\fedora\FedoraResource;
 use acdhOeaw\util\RepoConfig as RC;
-use EasyRdf\Graph;
-use EasyRdf\Resource;
 
-class Helper
+class HelperFunctions
 {
     public function __construct()
     {

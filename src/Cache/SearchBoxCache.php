@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\oeaw;
+namespace Drupal\oeaw\Cache;
 
 use Drupal\oeaw\Model\OeawStorage;
 use acdhOeaw\util\RepoConfig as RC;
@@ -13,16 +13,6 @@ use Drupal\Core\Cache\CacheBackendInterface;
  */
 class SearchBoxCache
 {
-    
-    //\Drupal\Core\Cache\Cache::PERMANENT means cacheable forever,
-    //\Drupal::cache()->set('cache_demo_posts', $posts, CacheBackendInterface::CACHE_PERMANENT);
-    /**
-     * Types: 1/acdhTypes. 2/entities. 3/formats
-     *
-     *
-     */
-    
-    
     /**
      * Get the actually cached data by the type
      *

@@ -211,12 +211,23 @@
                     {% endif %}    
                 </div>
             {% endfor %} 
+            
             <div class="res-act-button">
                 <a href="/browser/oeaw_turtle_api/{{ result.insideUri }}" class="dissServAhref" >
                     <span>Turtle File</span>
                 </a>        
             </div>
-                
+            
+            {% if result.getType == "Collection" %}
+                {% set fedoraUrl = result.getFedoraUri %}
+                {% if fedoraUrl %}
+                    <div class="res-act-button">
+                        <a href="/browser/oeaw_coll_dl_script/{{ fedoraUrl|replace({'https://': ""}) }}" class="dissServAhref" >
+                            <span>Collection Download Script</span>
+                        </a>
+                    </div>
+                {% endif %}
+            {% endif %}
         </div>
                     
         <div id="shibboleth_login_info" class="shibboleth_login_info" style="display:none"></div>

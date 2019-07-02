@@ -3,7 +3,7 @@
 namespace Drupal\oeaw\Model;
 
 use Drupal\oeaw\Model\OeawStorage;
-use Drupal\oeaw\Model\ModelFunctions as MC;
+use Drupal\oeaw\Helper\ModelFunctions as MF;
 use Drupal\oeaw\ConfigConstants;
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
@@ -21,14 +21,15 @@ use EasyRdf\Resource;
 class OeawCustomSparql implements OeawCustomSparqlInterface
 {
     private $modelFunctions;
+    private $cfg;
 
     /**
      * Set up the necessary properties
      */
-    public function __construct()
+    public function __construct($cfg = null)
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-        $this->modelFunctions = new MC();
+        $cfg ? $this->cfg = $cfg : $this->cfg = \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        $this->modelFunctions = new MF();
     }
     
     /**
@@ -399,7 +400,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
         $query = "";
         $lang = strtolower($lang);
         
-        $query = ' select ?uri ?title ?rootTitle ?binarySize ?filename ?accessRestriction ?parentId ?resShortId (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)  where { ';
+        $query = ' select ?uri ?title ?rootTitle ?binarySize ?filename ?path ?accessRestriction ?parentId ?resShortId (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier)  where { ';
         //get the child elements with inverse link
         $query .= " <".$url."> ( <".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* ?main . ";
         //create a uri to we can work on with the child elements, to get their data/properties
@@ -426,7 +427,8 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
         
         $query .= " OPTIONAL {  ";
         $query .= " ?uri <".RC::get('fedoraExtentProp')."> ?binarySize .
-            ?uri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename .  ";
+            ?uri <http://www.ebu.ch/metadata/ontologies/ebucore/ebucore#filename> ?filename .  
+            ?uri <".RC::get('fedoraLocProp')."> ?path . ";
         $query .= " } ";
         
         $query .= " OPTIONAL {  ";
@@ -437,7 +439,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
         
         $query .= " } ";
         $query .= "
-            GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename ?accessRestriction ?parentId ?resShortId
+            GROUP BY ?uri ?title ?rootTitle ?binarySize ?filename ?path ?accessRestriction ?parentId ?resShortId
             ORDER BY ?rootTitle ?isPartOf ?filename ?title 
         ";
 

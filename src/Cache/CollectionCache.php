@@ -1,15 +1,9 @@
 <?php
 
-namespace Drupal\oeaw;
+namespace Drupal\oeaw\Cache;
 
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawCustomSparql;
-use Drupal\oeaw\ConnData;
-use acdhOeaw\fedora\Fedora;
-use acdhOeaw\fedora\FedoraResource;
-use acdhOeaw\util\RepoConfig as RC;
-use EasyRdf\Graph;
-use EasyRdf\Resource;
 use Drupal\Core\Cache\CacheBackendInterface;
 
 /**
@@ -19,9 +13,6 @@ use Drupal\Core\Cache\CacheBackendInterface;
  */
 class CollectionCache
 {
-    
-    //\Drupal\Core\Cache\Cache::PERMANENT means cacheable forever,
-    //\Drupal::cache()->set('cache_demo_posts', $posts, CacheBackendInterface::CACHE_PERMANENT);
     
     /**
      * Get the actually cached property data by the expert view table array

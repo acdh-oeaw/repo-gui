@@ -1,6 +1,6 @@
 services:
     oeaw:
-        class: '\Drupal\oeaw\EventSubscriber\MyEventSubscriber'
+        class: '\Drupal\oeaw\EventSubscriber\OeawEventSubscriber'
         tags:
             - { name: 'event_subscriber', priority: 350 }
     oeaw.path_processor:

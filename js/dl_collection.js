@@ -254,7 +254,7 @@
                     });
                     $("#selected_files_size").html("<p class='size_text_red'> "+Drupal.t('You can select max 4000 files!') + "("+ actualResource.length  + " " + Drupal.t('Files') + ") </p> ");
                     $("#getCollectionDiv").hide();
-                    console.log(actualResource.length);
+                    
                 } else {
                     //check here also the disables array
                     $.each( actualResource, function( i, res ){
@@ -265,6 +265,7 @@
                             var uri = res.original.uri;
                             var uri_dl = res.original.encodedUri;
                             var filename = res.original.filename;
+                            var path = res.original.path;
                             var resourceRestriction = "public";
                             if(res.original.hasOwnProperty("accessRestriction")){
                                 resourceRestriction = res.original.accessRestriction;
@@ -292,7 +293,7 @@
                             if(size && uri){
                                // if( ((resourceRestriction == 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
                                if(enabled === true) {
-                                    selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename});
+                                    selectedItems.push({id: id, size: size, uri: uri, uri_dl: uri_dl, filename: filename, path: path});
                                     sumSize += Number(size);
                                     if(sumSize > 6299999999){
                                         $("#selected_files_size").html("<p class='size_text_red'>" + bytesToSize(sumSize) + " ("+Drupal.t('Max tar download limit is') + " 6GB) ("+ actualResource.length + " " + Drupal.t('Files') + ")</p> ");
@@ -310,9 +311,7 @@
                 }
             }
         });
-        
         hidepopup();
-        
         
          //prepare the zip file
         $('#getCollectionData').on('click', function(e){
@@ -328,18 +327,20 @@
 
             $.each(selectedItems, function(index, value) {
                 uriStr += value.uri_dl+"__";
-
+                
                 var resArr = {};
                 resArr['uri'] = value.uri;
                 resArr['filename'] = value.filename;
+                resArr['path'] = value.path;
                 myObj[index] = resArr;
             });
             
             $.ajax({
                 url: '/browser/oeaw_dlc/'+insideUri,
                 type: "POST",
+                async: false,
                 data: {jsonData : JSON.stringify(myObj)},
-                tiemout: 1800,
+                timeout: 3600,
                 success: function(data, status) {
                     $('#dl_link_a').html('<a href="'+data+'" target="_blank">'+Drupal.t("Download Collection")+'</a>');
                     $('#dl_link').show();
@@ -347,12 +348,10 @@
                     $("#loader-div").delay(2000).fadeOut("fast");
                     $("#getCollectionDiv").hide();
                     return data;
-
                 },
-                error: function(message) {
+                error: function(xhr,status,error) {
                     $("#loader-div").delay(2000).fadeOut("fast");
-                    $("#selected_files_size").html("<p class='size_text_red'>" + Drupal.t('A server error has occurred. ') + " </p> ");
-                    return message;
+                    $("#selected_files_size").html("<p class='size_text_red'>" + Drupal.t('A server error has occurred... '+status) + " </p> ");
                 }
             });
 

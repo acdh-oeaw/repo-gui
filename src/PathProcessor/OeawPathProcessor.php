@@ -77,6 +77,13 @@ class OeawPathProcessor implements InboundPathProcessorInterface
             return "/iiif_viewer/$names";
         }
         
+        if (strpos($path, '/oeaw_coll_dl_script/') === 0) {
+            $names = preg_replace('|^\/oeaw_coll_dl_script\/|', '', $path);
+            $names = str_replace('/', ':', $names);
+            return "/oeaw_coll_dl_script/$names";
+        }
+        
+        
         return $path;
     }
 }

@@ -10,7 +10,8 @@ jq2(function( $ ) {
         
         /** check the restriction for the dissemination services  START */
         
-        jq2("#cancelLogin").click(function(){
+        jq2("#cancelLogin").click(function(e){
+            e.preventDefault();
             hidepopup();
         });
     
@@ -109,7 +110,8 @@ jq2(function( $ ) {
         /** check the restriction for the dissemination services END */
         
         //the JS for the inverse table
-        jq2( "#showInverse" ).click(function() {
+        jq2( "#showInverse" ).click(function(e) {
+            e.preventDefault();
             //show the table
             jq2('#inverseTableDiv').show("slow");
             //hide the button
@@ -128,7 +130,8 @@ jq2(function( $ ) {
         });
         
         //the JS for the isMember table
-        jq2( "#showIsMember" ).click(function() {
+        jq2( "#showIsMember" ).click(function(e) {
+            e.preventDefault();
             //show the table
             jq2('#isMemberTableDiv').show("slow");
             //hide the button

@@ -140,4 +140,12 @@ oeaw_shibboleth_login:
         _permission: 'access content'
     options:
         no_cache: 'TRUE'
-        
+
+oeaw_dlc_script:
+    path: '/oeaw_coll_dl_script/{url}'
+    defaults:
+        _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_get_collection_dl_script'
+    requirements:
+        uri: '^[^\?]*$'
+        _permission: 'access content'
+        _access: 'TRUE'

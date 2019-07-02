@@ -5,8 +5,7 @@ namespace Drupal\oeaw\Model;
 interface OeawStorageInterface
 {
     public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc"): array;
-    
-    public function checkValueToAutocomplete(string $string, string $property): array;
+        
     public function getACDHIdByPid(string $pid): array;
     public function getUUIDBySpecialIdentifier(string $identifier): array;
     public function getACDHTypes(bool $count = false, bool $searchBox = false) :array;
@@ -44,13 +43,13 @@ interface OeawStorageInterface
     public function getImageByIdentifier(string $string): string;
     public function getImage(string $value, string $property = null): string;
     public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false): array;
-    public function getDigitalResources(): array;
     public function getInverseViewDataByURL(string $url): array;
     public function getIsMembers(string $uri): array;
     public function getMetaInverseData(string $uri): array;
     public function getMimeTypes(): array;
     public function getPropDataToExpertTable(array $data): array;
     public function getPropertyValueByUri(string $uri, string $property): string;
+    public function getResourceModifyDateById(string $uuid): string;
     
     //cache sql
     public function getOntologyForCache(string $lang = "en"): array;

@@ -11,8 +11,9 @@ use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawResource;
 use Drupal\oeaw\Model\OeawResourceChildren;
 use Drupal\oeaw\ConfigConstants as CC;
-use Drupal\oeaw\Helper\Helper;
+use Drupal\oeaw\Helper\HelperFunctions as HF;
 use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Cache\CollectionCache;
 
 use acdhOeaw\fedora\dissemination\Service;
 use acdhOeaw\fedora\Fedora;
@@ -89,33 +90,7 @@ class OeawFunctions
         
         return "";
     }
-    
-    /**
-     * Get the actual child page and limit from the actual url
-     *
-     * @param string $data
-     * @return array
-     */
-    public function getLimitAndPageFromUrl(string $data): array
-    {
-        if (empty($data)) {
-            return array();
-        }
-        
-        $data = explode("&", $data);
-        $page = 0;
-        $limit = 10;
-        foreach ($data as $d) {
-            if (strpos($d, 'page') !== false) {
-                $page = str_replace("page=", "", $d);
-            }
-            if (strpos($d, 'limit') !== false) {
-                $limit = str_replace("limit=", "", $d);
-            }
-        }
-        
-        return array("page" => $page, "limit" => $limit);
-    }
+  
     
     /**
      *
@@ -303,7 +278,7 @@ class OeawFunctions
                         //get the titles fro the diss services.
                         $titles = $oeawStorage->getTitleByIdentifierArray($processed, true);
                         //remove the duplicates
-                        $titles = Helper::removeDuplicateValuesFromMultiArrayByKey($titles, "title");
+                        $titles = HF::removeDuplicateValuesFromMultiArrayByKey($titles, "title");
                         if (count($titles) > 0) {
                             //merge the available diss.serv and the guiUrls
                             foreach ($titles as $key => $val) {
@@ -790,51 +765,7 @@ class OeawFunctions
         }
         return $result;
     }
-    
-    
-    /**
-     * This functions create the Project template data for the basic view
-     *
-     * @param OeawResource $data
-     * @param string $type
-     * @return \Drupal\oeaw\Model\OeawResourceCustomData
-     * @throws \ErrorException
-     */
-    public function createCustomDetailViewTemplateData(\Drupal\oeaw\Model\OeawResource $data, string $type): \Drupal\oeaw\Model\OeawResourceCustomData
-    {
         
-        //check the table data in the object that we have enough data :)
-        if (count($data->getTable()) > 0) {
-            //set the data for the resource custom data object
-            $arrayObject = new \ArrayObject();
-            $arrayObject->offsetSet('uri', $data->getUri());
-            $arrayObject->offsetSet('insideUri', $data->getInsideUri());
-            $arrayObject->offsetSet('fedoraUri', $data->getFedoraUri());
-            $arrayObject->offsetSet('identifiers', $data->getIdentifiers());
-            $arrayObject->offsetSet('title', $data->getTitle());
-            $arrayObject->offsetSet('type', $data->getType());
-            $arrayObject->offsetSet('typeUri', $data->getTypeUri());
-            if (!empty($data->getPID())) {
-                $arrayObject->offsetSet('pid', $data->getPID());
-            }
-            if (!empty($data->getAccessRestriction())) {
-                $arrayObject->offsetSet('accessRestriction', $data->getAccessRestriction());
-            }
-            
-            if (!empty($data->getType())) {
-                $arrayObject->offsetSet('acdh_rdf:type', $data->getType());
-            }
-            
-            try {
-                //get the obj
-                $obj = new \Drupal\oeaw\Model\OeawResourceCustomData($arrayObject);
-                $obj->setupBasicExtendedData($data);
-            } catch (\ErrorException $ex) {
-                throw new \ErrorException($ex->getMessage());
-            }
-        }
-        return $obj;
-    }
     
     /**
      *
@@ -1375,203 +1306,7 @@ class OeawFunctions
     }
     
 
-    /**
-     *
-     * this will generate an array with the Resource data.
-     * The Table will contains the resource properties with the values in array.
-     *
-     * There will be also some additional data:
-     * - resourceTitle -> the Main Resource Title
-     * - uri -> the Main Resource Uri
-     * - insideUri -> the base64_encoded uri to the gui browsing
-     *
-     * @param Resource $data
-     * @return array
-     */
-    public function createDetailViewTable(\EasyRdf\Resource $data): \Drupal\oeaw\Model\OeawResource
-    {
-        $result = array();
-        $arrayObject = new \ArrayObject();
-        $OeawStorage = new OeawStorage();
-
-        if (empty($data)) {
-            return drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
-        }
-        
-        //get the resource Title
-        $resourceTitle = $data->get(RC::get('fedoraTitleProp'));
-        $resourceUri = $data->getUri();
-        $resourceIdentifiers = $data->all(RC::get('fedoraIdProp'));
-        $resourceIdentifier = Helper::getAcdhIdentifier($resourceIdentifiers);
-        
-        $rsId = array();
-        $uuid = "";
-        if (count($resourceIdentifiers) > 0) {
-            foreach ($resourceIdentifiers as $ids) {
-                if (strpos($ids->getUri(), RC::get('fedoraUuidNamespace')) !== false) {
-                    $uuid =  $ids->getUri();
-                }
-                $rsId[] = $ids->getUri();
-            }
-        }
-        //get the resources and remove fedora properties
-        $properties = array();
-        $properties = $data->propertyUris();
-        foreach ($properties as $key => $val) {
-            if (strpos($val, 'fedora.info') !== false) {
-                unset($properties[$key]);
-            }
-        }
-        //reorder the array because have missing keys
-        $properties = array_values($properties);
-        $searchTitle = array();
-        
-        foreach ($properties as $p) {
-            $propertyShortcut = $this->createPrefixesFromString($p);
-            //get the properties data from the easyrdf resource object
-            foreach ($data->all($p) as $key => $val) {
-                if (get_class($val) == "EasyRdf\Resource") {
-                    $classUri = $val->getUri();
-                    if ($p == RC::get("drupalRdfType")) {
-                        if ((strpos($val->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false)
-                                &&
-                                $val->localName()) {
-                            $result['acdh_rdf:type']['title'] = $val->localName();
-                            $result['acdh_rdf:type']['insideUri'] = $this->detailViewUrlDecodeEncode($val->__toString(), 1);
-                            $result['acdh_rdf:type']['uri'] = $val->__toString();
-                        }
-                    }
-                    $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
-                    
-                    //we will skip the title for the resource identifier
-                    if ($p != RC::idProp()) {
-                        //this will be the proper
-                        $searchTitle[] = $classUri;
-                    }
-                    //if the acdhImage is available or the ebucore MIME
-                    if ($p == RC::get("drupalRdfType")) {
-                        if ($val == RC::get('drupalHasTitleImage')) {
-                            $result['image'] = $resourceUri;
-                        }
-                        //check that the resource has Binary or not
-                        if ($val == RC::get('drupalFedoraBinary')) {
-                            $result['hasBinary'] = $resourceUri;
-                        }
-                        
-                        if ($val == RC::get('drupalMetadata')) {
-                            $invMeta = $OeawStorage->getMetaInverseData($resourceUri);
-                            if (count($invMeta) > 0) {
-                                $result['isMetadata'] = $invMeta;
-                            }
-                        }
-                    }
-                    //simply check the acdh:hasTitleImage for the root resources too.
-                    if ($p == RC::get('drupalHasTitleImage')) {
-                        $imgUrl = "";
-                        $imgUrl = $OeawStorage->getImageByIdentifier($val->getUri());
-                        if ($imgUrl) {
-                            $result['image'] = $imgUrl;
-                        }
-                    }
-                }
-                if ((get_class($val) == "EasyRdf\Literal") ||
-                        (get_class($val) == "EasyRdf\Literal\DateTime") ||
-                        (get_class($val) == "EasyRdf\Literal\Integer")) {
-                    if (get_class($val) == "EasyRdf\Literal\DateTime") {
-                        $dt = $val->__toString();
-                        $time = strtotime($dt);
-                        $result['table'][$propertyShortcut][$key]  = date('Y-m-d', $time);
-                    } else {
-                        $result['table'][$propertyShortcut][$key] = $val->getValue();
-                    }
-                    
-                    //we dont have the image yet but we have a MIME
-                    if (($p == RC::get('drupalEbucoreHasMime')) && (!isset($result['image'])) && (strpos($val, 'image') !== false)) {
-                        //if we have image/tiff then we need to use the loris
-                        if ($val == "image/tiff") {
-                            $lorisImg = array();
-                            $lorisImg = Helper::generateLorisUrl(base64_encode($resourceUri), true);
-                            if (count($lorisImg) > 0) {
-                                $result['image'] = $lorisImg['imageUrl'];
-                            }
-                        } else {
-                            $result['image'] = $resourceUri;
-                        }
-                    }
-                    if ($p == RC::get('fedoraExtentProp')) {
-                        if ($val->getValue()) {
-                            $result['table'][$propertyShortcut][$key] = Helper::formatSizeUnits($val->getValue());
-                        }
-                    }
-                }
-            }
-        }
-        
-        if (count($searchTitle) > 0) {
-            //get the not literal propertys TITLE
-            $existinTitles = array();
-            $existinTitles = $OeawStorage->getTitleAndBasicInfoByIdentifierArray($searchTitle);
-            
-            if (count($existinTitles) > 0) {
-                $resKeys = array_keys($result['table']);
-                //change the titles
-                foreach ($resKeys as $k) {
-                    foreach ($result['table'][$k] as $key => $val) {
-                        if (is_array($val)) {
-                            foreach ($existinTitles as $t) {
-                                if ($t['identifier'] == $val['uri'] || $t['pid'] == $val['uri'] || $t['uuid'] == $val['uri']) {
-                                    $result['table'][$k][$key]['title'] = $t['title'];
-
-                                    $decodId = "";
-                                    if (isset($t['pid']) && !empty($t['pid'])) {
-                                        $decodId = $t['pid'];
-                                    } elseif (isset($t['uuid']) && !empty($t['uuid'])) {
-                                        $decodId = $t['uuid'];
-                                    } elseif (isset($t['identifier']) && !empty($t['identifier'])) {
-                                        $decodId = $t['identifier'];
-                                    }
-
-                                    if (!empty($decodId)) {
-                                        $result['table'][$k][$key]['insideUri'] = $this->detailViewUrlDecodeEncode($decodId, 1);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        if (empty($result['acdh_rdf:type']['title']) || !isset($result['acdh_rdf:type']['title'])) {
-            throw new \ErrorException(t("Empty").': ACDH RDF TYPE', 0);
-        }
-        $result['resourceTitle'] = $resourceTitle;
-        $result['uri'] = $resourceUri;
-        $result['insideUri'] = $this->detailViewUrlDecodeEncode($resourceIdentifier, 1);
-        
-        $arrayObject->offsetSet('table', $result['table']);
-        $arrayObject->offsetSet('title', $resourceTitle->__toString());
-        $arrayObject->offsetSet('uri', $this->detailViewUrlDecodeEncode($resourceIdentifier, 0));
-        $arrayObject->offsetSet('type', $result['acdh_rdf:type']['title']);
-        $arrayObject->offsetSet('typeUri', $result['acdh_rdf:type']['uri']);
-        $arrayObject->offsetSet('acdh_rdf:type', array("title" => $result['acdh_rdf:type']['title'], "insideUri" => $result['acdh_rdf:type']['insideUri']));
-        $arrayObject->offsetSet('fedoraUri', $resourceUri);
-        $arrayObject->offsetSet('identifiers', $rsId);
-        if (isset($result['table']['acdh:hasAccessRestriction']) && !empty($result['table']['acdh:hasAccessRestriction'][0])) {
-            $arrayObject->offsetSet('accessRestriction', $result['table']['acdh:hasAccessRestriction'][0]);
-        }
-        $arrayObject->offsetSet('insideUri', $this->detailViewUrlDecodeEncode($uuid, 1));
-        if (isset($result['image'])) {
-            $arrayObject->offsetSet('imageUrl', $result['image']);
-        }
-        
-        try {
-            $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
-        } catch (ErrorException $ex) {
-            throw new \ErrorException(t('Init').' '.t('Error').' : OeawResource', 0);
-        }
-        return $obj;
-    }
+    
     
     
     /**
@@ -1694,167 +1429,7 @@ class OeawFunctions
         return false;
     }
     
-    /**
-     * Generate the collection data for the download view
-     *
-     * @param string $id
-     * @return array
-     */
-    public function generateCollectionData(string $id): array
-    {
-        $fedora = $this->initFedora();
-        $fedoraRes = array();
-        $rootMeta = array();
-        $resData = array();
-        
-        //if the id is not an acdh id
-        if (strpos($id, RC::get('fedoraIdNamespace')) === false) {
-            return $resData;
-        }
-
-        try {
-            //get the resource data
-            $fedoraRes = $fedora->getResourceById($id);
-            $rootMeta = $fedoraRes->getMetadata();
-            $uri = $rootMeta->getUri();
-            //get title
-            $title = $rootMeta->get(RC::get('fedoraTitleProp'));
-            //get number of files
-            $filesNum = $rootMeta->get(RC::get('fedoraCountProp'));
-            //get the sum binary size of the collection
-            $binarySize = $rootMeta->get(RC::get('fedoraExtentProp'));
-            $license = $rootMeta->get(RC::get('fedoraVocabsNamespace').'hasLicense');
-            $isPartOf = $rootMeta->get(RC::get('fedoraRelProp'));
-            $accessRestriction = $rootMeta->get(RC::get('fedoraAccessRestrictionProp'));
-            
-            if (isset($title) && $title->getValue()) {
-                $resData['title'] = $title->getValue();
-            }
-            if (isset($accessRestriction) && $accessRestriction->getValue()) {
-                $resData['accessRestriction'] = $accessRestriction->getValue();
-            }
-            if (isset($filesNum) && $filesNum->getValue()) {
-                $resData['filesNum'] = $filesNum->getValue();
-            }
-            if (isset($license)) {
-                $objClass = get_class($license);
-                if ($objClass == "EasyRdf\Resource") {
-                    $resData['license'] = $license->getUri();
-                } elseif ($objClass == "EasyRdf\Literal") {
-                    $resData['license'] = $license->__toString();
-                }
-            }
-            if (isset($isPartOf) && $isPartOf->getUri()) {
-                $OeawStorage = new OeawStorage();
-                $isPartTitle = $OeawStorage->getParentTitle($isPartOf->getUri());
-                if (count($isPartTitle) > 0) {
-                    if ($isPartTitle[0]["title"]) {
-                        $resData['isPartOf'] = $isPartTitle[0]["title"];
-                    }
-                }
-            }
-            
-            //if we have binary size
-            if (isset($binarySize) && $binarySize->getValue()) {
-                $bs = 0;
-                $bs = $binarySize->getValue();
-                $resData['binarySize'] = $bs;
-                //formatted binary size for the gui
-                $resData['formattedSize'] = Helper::formatSizeUnits($bs);
-
-                //the estimated download time
-                $estDLTime = Helper::estDLTime($bs);
-                if ($estDLTime > 0) {
-                    $resData['estDLTime'] = $estDLTime;
-                }
-
-                $freeSpace = 0;
-                if (!file_exists($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/')) {
-                    mkdir($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/', 0777);
-                }
-                //get the free space to we can calculate the zipping will be okay or not?!
-                $freeSpace = disk_free_space($_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/');
-
-                if ($freeSpace) {
-                    $resData['freeSpace'] = $freeSpace;
-                    $resData['formattedFreeSpace'] = Helper::formatSizeUnits((string)$freeSpace);
-
-                    if ($freeSpace > 1499999999 * 2.2) {
-                        //if there is no enough free space then we will not allow to DL the collection
-                        $resData['dl'] = true;
-                    }
-                }
-            }
-
-            $resData["uri"] = $id;
-            $resData["fedoraUri"] = $uri;
-            
-            //check the cache
-            $cacheData = array();
-            $cache = new CollectionCache();
-            $cacheData = $cache->setCacheData($uri);
-
-            if ($cache->getCachedData($uri)) {
-                $cacheData = $cache->getCachedData($uri);
-            } else {
-                $cacheData = $cache->setCacheData($uri);
-            }
-            
-            if (count($cacheData) > 0) {
-                foreach ($cacheData as $k => $v) {
-                    $cacheData[$k]['userAllowedToDL'] = true;
-                    if ($v['binarySize']) {
-                        $cacheData[$k]['formSize'] = Helper::formatSizeUnits((string)$v['binarySize']);
-                    }
-                    if (isset($v['accessRestriction'])) {
-                        if (empty($v['accessRestriction'])) {
-                            $v['accessRestriction'] = "public";
-                        }
-                        $cacheData[$k]['accessRestriction'] = $v['accessRestriction'];
-                        
-                        // DISABLED: CAUSING REALLY BIG PERFORMANCE ISSUE!
-                        //we need to check amybe the user already logged with his/her account and then we need to
-                        //allow them to reach the restricted resources in his/her permission level
-                        /*if ($v['accessRestriction'] != "public") {
-                            //check the user is already logged in and allowed to dl the file.
-                            $fdrBinaryRes = $fedora->getResourceByUri($v['uri']);
-                            if (($fdrBinaryRes) && (\acdhOeaw\fedora\acl\CheckAcess::check($fdrBinaryRes) == true)) {
-                                $cacheData[$k]['userAllowedToDL'] = true;
-                            } else {
-                                $cacheData[$k]['userAllowedToDL'] = false;
-                            }
-                        }*/
-                    }
-
-                    if ($v['identifier']) {
-                        $dtUri = $this->createDetailViewUrl($v);
-                        $dtUri = $this->detailViewUrlDecodeEncode($dtUri, 1);
-                        $cacheData[$k]['encodedUri'] = $dtUri;
-                    }
-
-                    if (!empty($v['filename']) && $v['binarySize'] > 0) {
-                        $cacheData[$k]['text'] = $v['filename']." | ".$cacheData[$k]['formSize'];
-                        $cacheData[$k]['dir'] = false;
-                        $cacheData[$k]['icon'] = "jstree-file";
-                    } else {
-                        $cacheData[$k]['text'] = $v['title'];
-                        $cacheData[$k]['dir'] = true;
-                    }
-                    //if there is no text then it could be a wrong binary
-                    //so we will remove it from the list
-                    if (empty($cacheData[$k]['text'])) {
-                        unset($cacheData[$k]);
-                    }
-                }
-                $resData['binaries'] = $cacheData;
-            }
-        } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
-            return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            return array();
-        }
-        return $resData;
-    }
+  
     
     /**
      * This func is generating a child based array from a single array by ID
@@ -2171,7 +1746,7 @@ class OeawFunctions
         unset($data[$rootKey]);
                 
         //remove the duplications from the array
-        $data = Helper::removeDuplicateValuesFromMultiArrayByKey($data, "rootId");
+        $data = HF::removeDuplicateValuesFromMultiArrayByKey($data, "rootId");
                 
         //create a recursive call
         $this->makeBreadcrumbFinalData($data, $result);

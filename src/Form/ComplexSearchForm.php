@@ -4,14 +4,12 @@ namespace Drupal\oeaw\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
-use Drupal\Core\Link;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\Core\Session\SessionManagerInterface;
 use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
-use Drupal\oeaw\SearchBoxCache;
+use Drupal\oeaw\Cache\SearchBoxCache;
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\OeawFunctions;
 use acdhOeaw\util\RepoConfig as RC;

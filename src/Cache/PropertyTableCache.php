@@ -1,13 +1,9 @@
 <?php
 
-namespace Drupal\oeaw;
+namespace Drupal\oeaw\Cache;
 
 use Drupal\oeaw\Model\OeawStorage;
-use acdhOeaw\fedora\Fedora;
-use acdhOeaw\fedora\FedoraResource;
-use acdhOeaw\util\RepoConfig as RC;
-use EasyRdf\Graph;
-use EasyRdf\Resource;
+use Drupal\oeaw\OeawFunctions;
 use Drupal\Core\Cache\CacheBackendInterface;
 
 /**

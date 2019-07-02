@@ -1,9 +1,9 @@
 <?php
 
-namespace Drupal\oeaw;
+namespace Drupal\oeaw\Cache;
 
 use Drupal\oeaw\Model\OeawStorage;
-use acdhOeaw\util\RepoConfig as RC;
+use Drupal\oeaw\OeawFunctions;
 use Drupal\Core\Cache\CacheBackendInterface;
 
 /**
@@ -40,12 +40,13 @@ class BreadcrumbCache
      */
     public function setCacheData(string $identifier): array
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $oeawStorage = new OeawStorage();
+        $oeawFunctions = new OeawFunctions();
         $result = array();
         $cacheData = array();
         $result = $oeawStorage->createBreadcrumbData($identifier);
         if (count($result) > 0) {
+            $result = $oeawFunctions->formatBreadcrumbData($result);
             $cacheData = array($identifier => $result);
             \Drupal::cache()->set('breadcrumbs', $cacheData, CacheBackendInterface::CACHE_PERMANENT);
         }

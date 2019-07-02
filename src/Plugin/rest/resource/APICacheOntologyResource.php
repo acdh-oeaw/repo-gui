@@ -39,7 +39,7 @@ class APICacheOntologyResource extends ResourceBase
     {
         $response = array();
                  
-        $PTC = new \Drupal\oeaw\PropertyTableCache();
+        $PTC = new \Drupal\oeaw\Cache\PropertyTableCache();
         if ($PTC->setCacheData() == true) {
             $response = json_encode("cache updated succesfully!");
         } else {

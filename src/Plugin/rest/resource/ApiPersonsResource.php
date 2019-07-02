@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 // our drupal custom libraries
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawCustomSparql;
-use Drupal\oeaw\Helper\Helper;
+use Drupal\oeaw\Helper\HelperFunctions as HF;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
@@ -64,7 +64,7 @@ class ApiPersonsResource extends ResourceBase
             $spRes = $OeawStorage->runUserSparql($sparql, true);
             
             if (count($spRes) > 0) {
-                $spRes = Helper::formatApiSparqlResult($spRes);
+                $spRes = HF::formatApiSparqlResult($spRes);
                 
                 for ($x = 0; $x < count($spRes); $x++) {
                     $ids = array();

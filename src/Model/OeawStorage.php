@@ -3,9 +3,9 @@
 namespace Drupal\oeaw\Model;
 
 use Drupal\oeaw\OeawFunctions;
-use Drupal\oeaw\Model\ModelFunctions as MC;
+use Drupal\oeaw\Helper\ModelFunctions as MF;
 use Drupal\oeaw\ConfigConstants;
-use Drupal\oeaw\Helper\Helper;
+use Drupal\oeaw\Helper\HelperFunctions as HF;
 
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\FedoraResource;
@@ -45,18 +45,19 @@ class OeawStorage implements OeawStorageInterface
     private $oeawFunctions;
     private $modelFunctions;
     private $fedora;
+    private $cfg;
     private static $instance;
     
     /**
      * Set up the necessary properties, variables
      * @return type
      */
-    public function __construct()
+    public function __construct($cfg = null  )
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        $cfg ? $this->cfg = $cfg : $this->cfg = \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
                 
         $this->oeawFunctions = new OeawFunctions();
-        $this->modelFunctions = new MC();
+        $this->modelFunctions = new MF();
         $this->fedora = new Fedora();
         
         //blazegraph bugfix. Add missing namespace
@@ -326,6 +327,36 @@ class OeawStorage implements OeawStorageInterface
     }
     
     /**
+     * Get the actual resource last modified date for the cache
+     * 
+     * @param string $uuid
+     * @return string
+     */
+    public function getResourceModifyDateById(string $uuid): string {
+        $getResult = array();
+                
+        try {
+            $select = " SELECT ?modify";
+                        
+            $where  = " WHERE { ";
+            $where .= " ?uri <".RC::get('fedoraIdProp')."> <".$uuid."> . ";
+            $where .= " ?uri <".RC::get('oaiDateProp')."> ?modify . ";
+            $where .= " } ";
+            
+            $query = $select.$where;
+            $result = $this->fedora->runSparql($query);
+            $fields = $result->getFields();
+            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
+            $date = strtotime($getResult[0]['modify']);
+            return date('Ymd_his', $date);
+        } catch (\Exception $ex) {
+            return "";
+        } catch (\InvalidArgumentException $ex) {
+            return "";
+        }
+    }
+    
+    /**
      * Create the property data for the expert view
      *
      * @param array $data
@@ -536,7 +567,7 @@ class OeawStorage implements OeawStorageInterface
         }
        
         if (!filter_var($property, FILTER_VALIDATE_URL)) {
-            $property = Helper::createUriFromPrefix($property);
+            $property = HF::createUriFromPrefix($property);
             if ($property === false) {
                 return drupal_set_message(
                     t('Error').':'.__FUNCTION__,
@@ -548,7 +579,7 @@ class OeawStorage implements OeawStorageInterface
         }
         
         if (!filter_var($value, FILTER_VALIDATE_URL)) {
-            $value = Helper::createUriFromPrefix($value);
+            $value = HF::createUriFromPrefix($value);
             if ($value === false) {
                 return drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
             }
@@ -572,10 +603,8 @@ class OeawStorage implements OeawStorageInterface
                         WHERE { ';
             
                 $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, true);
-                //$where .= " OPTIONAL { ?uri <".RC::get('fedoraTitleProp')."> ?title . } ";
                 $where .= " OPTIONAL { ?uri <".RC::get('drupalHasAuthor')."> ?author . } ";
                 $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true);
-                //$where .= " OPTIONAL { ?uri <".RC::get('drupalHasDescription')."> ?descriptions . } ";
                 $where .= " OPTIONAL { ?uri <".RC::get('drupalRdfsLabel')."> ?label . } ";
                 $where .= " OPTIONAL { ?uri <".RC::get('drupalHasContributor')."> ?contributor . } ";
                 $where .= " OPTIONAL { ?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
@@ -1377,47 +1406,7 @@ class OeawStorage implements OeawStorageInterface
             return $result;
         }
     }
-    
-    /**
-     *  Check labels for the autocomplete input fields
-     *
-     * @param string $string
-     * @param string $property
-     * @return array
-     */
-    public function checkValueToAutocomplete(string $string, string $property): array
-    {
-        if (empty($string) || empty($property)) {
-            return drupal_set_message(
-                t('Empty').' '.t('Values').' -->'.__FUNCTION__,
-                'error'
-            );
-        }
         
-        $getResult = array();
-        
-        //we need to extend the Filter options in the DB class, to we can use the
-        // Filter =  value
-        try {
-            $q = new Query();
-            $q->setSelect(array('?res'));
-            $q->setDistinct(true);
-            $q->addParameter((new HasValue(RC::get("drupalRdfType"), $property))->setSubVar('?res'));
-            $q->addParameter(new MatchesRegEx(RC::titleProp(), $string), 'i');
-            $query = $q->getQuery();
-          
-            $result = $this->fedora->runSparql($query);
-           
-            $fields = $result->getFields();
-            $getResult = $this->oeawFunctions->createSparqlResult($result, $fields);
-           
-            return $getResult;
-        } catch (\Exception $ex) {
-            return array();
-        } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            return array();
-        }
-    }
     
     /**
      * Get the MIME infos
@@ -2062,4 +2051,35 @@ class OeawStorage implements OeawStorageInterface
         }
         return $result;
     }
+    
+    /**
+     * Get the last modify date
+     * 
+     * @return string
+     */
+    public function getFDLastModifDate(): string
+    {        
+        $result = array();
+        $select = 'SELECT ?time WHERE { ';
+            $where = " ?uri <".RC::get('doorkeeperModTimeProp')."> ?time . ";
+        $where .= " } ";
+         
+        $queryStr = $select.$where;
+        
+        try {
+            $q = new SimpleQuery($queryStr);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+
+            $fields = $res->getFields();
+            $result = $this->oeawFunctions->createSparqlResult($res, $fields);
+            return $result[0]["time"];
+        } catch (\Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return $result;
+        }
+        return $result;
+    }
+    
 }

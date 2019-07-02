@@ -19,7 +19,6 @@ use Drupal\Core\Block\BlockBase;
  */
 class ClassBlock extends BlockBase
 {
-
     /**
      * Class block
      *

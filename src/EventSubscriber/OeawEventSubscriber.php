@@ -16,9 +16,9 @@ use Drupal\Core\Routing\TrustedRedirectResponse;
 use Drupal\oeaw\OeawFunctions;
 use acdhOeaw\util\RepoConfig as RC;
 
-class MyEventSubscriber implements EventSubscriberInterface
+class OeawEventSubscriber implements EventSubscriberInterface
 {
-    
+    public function setupMainClasses(){}
     /**
      * Check the shibboleth user logins
      *
@@ -68,6 +68,7 @@ class MyEventSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
+        
         $events = [];
         $events[KernelEvents::REQUEST][] = array('checkForShibboleth', 300);
         return $events;

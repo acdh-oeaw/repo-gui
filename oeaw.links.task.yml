@@ -1,5 +1,0 @@
-oeaw_admin_form:
-    title: 'OEAW ADMIN FORM'
-    parent: system.admin_config_development
-    route_name: oeaw_admin_form
-    weight: 10

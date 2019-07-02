@@ -1,7 +1,0 @@
-oeaw.logo:
-    type: config_object
-    label: 'Custom header logo settings'
-    mapping:
-        title:
-            type: text
-            label: 'Simple Text field'

@@ -57,14 +57,14 @@
                 <br/><br/>
             </div>
         {% endif %}    
-        {%  if resourceData['title'] %}
-            <h2>{{ resourceData['title'] }} </h2>
+        {%  if  resourceData['metadata'].data.title  %}
+            <h2>{{ resourceData['metadata'].data.title }} </h2>
         {% endif %}
         
     </div>
     
     <input type="hidden" id="insideUri" name="insideUri" value="{{ url }}">
-    <input type="hidden" id="estDLTime" name="estDLTime" value="{{ resourceData['estDLTime'] }}">
+    <input type="hidden" id="estDLTime" name="estDLTime" value="{{ resourceData['metadata'].data.estDLTime }}">
     
     <div id="content_collection">
         <div class="single-res-overview single-res-overview-basic">
@@ -72,8 +72,8 @@
                 <i class="material-icons">&#xE54E;</i>
                 <span class="res-prop-label">{{ "Name"|trans }}:</span> 
                 <span class="res-prop-value">
-                    {% if resourceData['title'] %}
-                        {{ resourceData['title'] }}
+                    {% if resourceData['metadata'].data.title %}
+                        {{ resourceData['metadata'].data.title }}
                     {% else %}    
                         {{ "Empty"|trans }}
                     {% endif %}
@@ -81,22 +81,22 @@
             </div>
             
                 
-            {% if resourceData['isPartOf'] %}     
+            {% if resourceData['metadata'].data.isPartOf %}     
             <div class="res-property">
                 <i class="material-icons">device_hub</i>
                 <span class="res-prop-label">{{ "Part of"|trans }}:</span> 
                 <span class="res-prop-value">
-                    {{ resourceData['isPartOf'] }}
+                    {{ resourceData['metadata'].data.isPartOf }}
                 </span>
             </div>
             {% endif %}
             
-            {% if resourceData['license'] %} 
+            {% if resourceData['metadata'].data.license %} 
                 <div class="res-property">
                     <i class="material-icons">copyright</i>
                     <span class="res-prop-label">{{ "License"|trans }}:</span> 
                     <span class="res-prop-value">
-                        {{ resourceData['license'] }}
+                        {{ resourceData['metadata'].data.license }}
                     </span>
                 </div>
             {% endif %}
@@ -105,27 +105,26 @@
                 <i class="material-icons">&#xE54E;</i>
                 <span class="res-prop-label">{{ "Number of files"|trans }}:</span> 
                 <span class="res-prop-value">
-                     {% if resourceData['filesNum'] %}
-                        {{ resourceData['filesNum'] }}
+                     {% if resourceData['metadata'].data.filesNum %}
+                        {{ resourceData['metadata'].data.filesNum }}
                     {% else %}    
                        {{ "Empty"|trans }}
                     {% endif %}
                 </span>
             </div>
             
-            
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
                 <span class="res-prop-label">{{ " Summary"|trans }} {{ "Size"|trans }}:</span> 
                 <span class="res-prop-value">
-                    {% if resourceData['formattedSize'] %}
-                        {{ resourceData['formattedSize'] }}
+                    {% if resourceData['metadata'].data.formattedSize %}
+                        {{ resourceData['metadata'].data.formattedSize }}
                     {% else %}    
                         {{ "Empty"|trans }}
                     {% endif %}
                 </span>
             </div>
-            {% if resourceData['estDLTime'] %}                
+            {% if resourceData['metadata'].data.estDLTime %}                
             <div class="res-property">
                 <i class="material-icons">&#xE54E;</i>
                 <span class="res-prop-label">{{ "Est. Download Time"|trans }}:</span> 

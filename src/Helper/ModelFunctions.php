@@ -1,13 +1,6 @@
 <?php
 
-namespace Drupal\oeaw\Model;
-
-use Drupal\oeaw\OeawFunctions;
-use Drupal\oeaw\ConfigConstants;
-use Drupal\oeaw\Helper\Helper;
-
-use acdhOeaw\fedora\Fedora;
-use acdhOeaw\fedora\FedoraResource;
+namespace Drupal\oeaw\Helper;
 
 use acdhOeaw\util\RepoConfig as RC;
 

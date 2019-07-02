@@ -11,7 +11,7 @@ use acdhOeaw\util\RepoConfig as RC;
  * create their own data
  *
  */
-class OeawResource
+class OeawResource implements \JsonSerializable
 {
     private $uri = "";
     private $insideUri = "";
@@ -73,6 +73,16 @@ class OeawResource
                 t('Init').' '.t('Error').' : OeawResource.'.' '.t(' Empty').' '.t('Data').': '.print_r($this->errors, true)
             );
         }
+    }
+    
+    public function jsonSerialize() {
+        return get_object_vars($this);
+        /*
+        return [
+            'something' => $this-&gt;something,
+            'protected' => $this-&gt;get_protected(),
+            'private' => $this-&gt;get_private()
+        ];*/
     }
     
     /**

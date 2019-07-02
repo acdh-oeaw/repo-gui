@@ -8,7 +8,7 @@ use Drupal\rest\ResourceResponse;
 // our drupal custom libraries
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawCustomSparql;
-use Drupal\oeaw\Helper\Helper;
+use Drupal\oeaw\Helper\HelperFunctions as HF;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -59,7 +59,7 @@ class ApiPublicationsResource extends ResourceBase
             $spRes = $OeawStorage->runUserSparql($sparql, true);
             
             if (count($spRes) > 0) {
-                $spRes = Helper::formatApiSparqlResult($spRes);
+                $spRes = HF::formatApiSparqlResult($spRes);
                 
                 for ($x = 0; $x < count($spRes); $x++) {
                     $ids = array();
