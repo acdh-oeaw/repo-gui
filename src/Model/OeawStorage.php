@@ -52,7 +52,7 @@ class OeawStorage implements OeawStorageInterface
      * Set up the necessary properties, variables
      * @return type
      */
-    public function __construct($cfg = null  )
+    public function __construct($cfg = null)
     {
         $cfg ? $this->cfg = $cfg : $this->cfg = \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
                 
@@ -328,11 +328,12 @@ class OeawStorage implements OeawStorageInterface
     
     /**
      * Get the actual resource last modified date for the cache
-     * 
+     *
      * @param string $uuid
      * @return string
      */
-    public function getResourceModifyDateById(string $uuid): string {
+    public function getResourceModifyDateById(string $uuid): string
+    {
         $getResult = array();
                 
         try {
@@ -2054,14 +2055,14 @@ class OeawStorage implements OeawStorageInterface
     
     /**
      * Get the last modify date
-     * 
+     *
      * @return string
      */
     public function getFDLastModifDate(): string
-    {        
+    {
         $result = array();
         $select = 'SELECT ?time WHERE { ';
-            $where = " ?uri <".RC::get('doorkeeperModTimeProp')."> ?time . ";
+        $where = " ?uri <".RC::get('doorkeeperModTimeProp')."> ?time . ";
         $where .= " } ";
          
         $queryStr = $select.$where;
@@ -2081,5 +2082,4 @@ class OeawStorage implements OeawStorageInterface
         }
         return $result;
     }
-    
 }

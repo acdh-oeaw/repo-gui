@@ -18,7 +18,9 @@ use acdhOeaw\util\RepoConfig as RC;
 
 class OeawEventSubscriber implements EventSubscriberInterface
 {
-    public function setupMainClasses(){}
+    public function setupMainClasses()
+    {
+    }
     /**
      * Check the shibboleth user logins
      *
@@ -68,7 +70,6 @@ class OeawEventSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        
         $events = [];
         $events[KernelEvents::REQUEST][] = array('checkForShibboleth', 300);
         return $events;

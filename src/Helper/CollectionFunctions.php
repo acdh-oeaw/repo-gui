@@ -14,8 +14,8 @@ use GuzzleHttp\Psr7\Response;
  *
  * @author nczirjak
  */
-class CollectionFunctions {
-    
+class CollectionFunctions
+{
     private $fedora;
     private $cfg;
     private $oeawFunctions;
@@ -27,7 +27,8 @@ class CollectionFunctions {
     private $cacheModel;
     private $oeawStorage;
     
-    public function __construct(\acdhOeaw\fedora\Fedora $fedora, $cfg, \Drupal\oeaw\OeawFunctions $oeawFunctions, string $fedoraGlobalModDate, \Drupal\oeaw\Model\CacheModel $cacheModel, \Drupal\oeaw\Model\OeawStorage $oeawStorage ) {
+    public function __construct(\acdhOeaw\fedora\Fedora $fedora, $cfg, \Drupal\oeaw\OeawFunctions $oeawFunctions, string $fedoraGlobalModDate, \Drupal\oeaw\Model\CacheModel $cacheModel, \Drupal\oeaw\Model\OeawStorage $oeawStorage)
+    {
         $this->fedora = $fedora;
         $this->cfg = $cfg;
         $this->oeawFunctions = $oeawFunctions;
@@ -39,74 +40,75 @@ class CollectionFunctions {
     
     /**
      * Get the collections metadata and binary list
-     * 
+     *
      * @param string $id
      * @param bool $binaries
      * @return array
      */
-    public function getCollectionData(string $id, bool $binaries = false): array {
-        if(empty($id)) {
+    public function getCollectionData(string $id, bool $binaries = false): array
+    {
+        if (empty($id)) {
             return array();
         }
         $result = array();
         $this->id = $id;
         
-        if(!$this->cacheModel) {
+        if (!$this->cacheModel) {
             return array();
         }
         
         //get the metadata
-        if(!$this->generateCollectionMetaData($id)){
+        if (!$this->generateCollectionMetaData($id)) {
             return array();
         }
         
-        if($this->metadata) {
+        if ($this->metadata) {
             $this->setUpCollectionMetaData();
         }
         
         $actualCacheObj = new \stdClass();
         $actualCacheObj = $this->cacheModel->getCacheByUUID($this->id, "C");
-        if($binaries) {
+        if ($binaries) {
             $actualCacheBinaries = $this->cacheModel->getCacheByUUID($this->id, "B");
         }
         
         $fdDate = strtotime($this->fedoraGlobalModDate);
         
-        $needsToCache = FALSE;
-        if(isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
-            $needsToCache = TRUE;
-        }else if(count((array)$actualCacheObj) == 0) {
-            $needsToCache = TRUE;
+        $needsToCache = false;
+        if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
+            $needsToCache = true;
+        } elseif (count((array)$actualCacheObj) == 0) {
+            $needsToCache = true;
         }
         
-        if($needsToCache === TRUE) {
-            if($binaries) {
-                if($this->setUpCollectionBinaries() === false) {
+        if ($needsToCache === true) {
+            if ($binaries) {
+                if ($this->setUpCollectionBinaries() === false) {
                     return array();
                 }
                 
-                if(!$this->cacheModel->addCacheToDB($this->id, serialize($this->binaries), "B", $fdDate)){
+                if (!$this->cacheModel->addCacheToDB($this->id, serialize($this->binaries), "B", $fdDate)) {
                     return array();
                 }
             }
-            if(!$this->cacheModel->addCacheToDB($this->id, serialize($this->resData), "C", $fdDate)){
+            if (!$this->cacheModel->addCacheToDB($this->id, serialize($this->resData), "C", $fdDate)) {
                 return array();
             }
             $actualCacheObj = new \stdClass();
             $actualCacheObj = $this->cacheModel->getCacheByUUID($this->id, "C");
-            if($binaries) {
+            if ($binaries) {
                 $actualCacheBinaries = $this->cacheModel->getCacheByUUID($this->id, "B");
             }
         }
 
-        if(count((array)$actualCacheObj) > 0){
+        if (count((array)$actualCacheObj) > 0) {
             $result['metadata'] = $actualCacheObj;
             $result['metadata']->data = unserialize($actualCacheObj->data);
         }
-        if( isset($actualCacheBinaries->data) 
-                && 
-            (count((array)$actualCacheBinaries->data) > 0 )
-        ){
+        if (isset($actualCacheBinaries->data)
+                &&
+            (count((array)$actualCacheBinaries->data) > 0)
+        ) {
             $result['binaries'] = unserialize($actualCacheBinaries->data);
         }
         return $result;
@@ -116,13 +118,12 @@ class CollectionFunctions {
      * Setup the collection binary files list
      * @return bool
      */
-    private function setUpCollectionBinaries(): bool {
-        
+    private function setUpCollectionBinaries(): bool
+    {
         $oeawCustSparql = new OeawCustomSparql();
         $collBinSql = $oeawCustSparql->getCollectionBinaries($this->resData['fedoraUri']);
         
         if (!empty($collBinSql)) {
-            
             $cacheData = $this->oeawStorage->runUserSparql($collBinSql);
                  
             if (count($cacheData) > 0) {
@@ -138,7 +139,7 @@ class CollectionFunctions {
                         $cacheData[$k]['accessRestriction'] = $v['accessRestriction'];
                     }
                     
-                    if(isset( $v['path']) && !empty($v['path'])){
+                    if (isset($v['path']) && !empty($v['path'])) {
                         $cacheData[$k]['path'] = $v['path'];
                     }
 
@@ -166,14 +167,15 @@ class CollectionFunctions {
                 return true;
             }
             return false;
-        } 
+        }
         return false;
     }
     
     /**
      * Setup the collection metadata
      */
-    private function setUpCollectionMetaData() {
+    private function setUpCollectionMetaData()
+    {
         $uri                = $this->metadata->getUri();
         //get title
         $title              = $this->getStringData(RC::get('fedoraTitleProp'), "title");
@@ -188,11 +190,11 @@ class CollectionFunctions {
         
         $this->resData["uri"] = $this->id;
         $this->resData["fedoraUri"] = $uri;
-        if(isset($locationPath)) {
+        if (isset($locationPath)) {
             $this->resData["locationPath"] = $locationPath;
         }
         
-        if(isset($this->resData['binarySize']) && $this->resData['binarySize'] > 0) {
+        if (isset($this->resData['binarySize']) && $this->resData['binarySize'] > 0) {
             $this->resData['formattedSize'] = \Drupal\oeaw\Helper\HelperFunctions::formatSizeUnits($this->resData['binarySize']);
             $estDLTime = \Drupal\oeaw\Helper\HelperFunctions::estDLTime($this->resData['binarySize']);
             if ($estDLTime > 0) {
@@ -231,25 +233,25 @@ class CollectionFunctions {
     
     /**
      * Get the string/uri value from the Easyrdf content
-     * 
+     *
      * @param string $prop
      * @param string $arrName
      * @return string
      */
-    private function getStringData(string $prop, string $arrName = ""): string {
+    private function getStringData(string $prop, string $arrName = ""): string
+    {
         $str = $this->metadata->get($prop);
         
-        if($str) {
+        if ($str) {
             $objClass = get_class($str);
             if ($objClass == "EasyRdf\Resource") {
-                    if($arrName) {
-                        $this->resData[$arrName] = $str->getUri();
-                    }
-                    return $str->getUri();
-
-            } elseif ( ($objClass == "EasyRdf\Literal") || ( strpos($objClass, "EasyRdf\Literal") !== false )) {
+                if ($arrName) {
+                    $this->resData[$arrName] = $str->getUri();
+                }
+                return $str->getUri();
+            } elseif (($objClass == "EasyRdf\Literal") || (strpos($objClass, "EasyRdf\Literal") !== false)) {
                 if (isset($str) && $str->getValue()) {
-                    if($arrName) {
+                    if ($arrName) {
                         $this->resData[$arrName] = $str->getValue();
                     }
                     return $str->getValue();
@@ -268,7 +270,7 @@ class CollectionFunctions {
      * @return array
      */
     private function generateCollectionMetaData(string $id): bool
-    {        
+    {
         if (strpos($id, RC::get('fedoraIdNamespace')) === false) {
             return false;
         }
@@ -287,11 +289,12 @@ class CollectionFunctions {
     
     /**
      * Setup the collection directory for the downloads
-     * 
+     *
      * @param string $dateID
      * @return string
      */
-    public function setupDirForCollDL(string $dateID): string {
+    public function setupDirForCollDL(string $dateID): string
+    {
         //the main dir
         $tmpDir = $_SERVER['DOCUMENT_ROOT'].'/sites/default/files/collections/';
         //the collection own dir
@@ -313,16 +316,16 @@ class CollectionFunctions {
     
     /**
      * Download collection selected files
-     * 
+     *
      * @param array $binaries
      */
-    public function downloadFiles(array $binaries) 
+    public function downloadFiles(array $binaries)
     {
         $client = new \GuzzleHttp\Client(['auth' => [RC::get('fedoraUser'), RC::get('fedoraPswd')], 'verify' => false]);
         ini_set('max_execution_time', 1800);
         
         foreach ($binaries as $b) {
-            if (isset($b['path']) && isset($b['filename']) ) {
+            if (isset($b['path']) && isset($b['filename'])) {
                 $exp = explode("/", $b['path']);
                 $last = end($exp);
                 $filename = "";
@@ -330,9 +333,9 @@ class CollectionFunctions {
                 $dir = "";
 
                 if (strpos($last, '.') !== false) {
-                    $filename = ltrim($last); 
+                    $filename = ltrim($last);
                     $filename = str_replace(' ', "_", $filename);
-                }else {
+                } else {
                     $filename = ltrim($b['filename']);
                     $filename = str_replace(' ', "_", $filename);
                 }
@@ -344,7 +347,7 @@ class CollectionFunctions {
                     $dir = $GLOBALS['resTmpDir'];
                 }
 
-                if($path) {
+                if ($path) {
                     $path = preg_replace('/\s+/', '_', $path);
                     mkdir($GLOBALS['resTmpDir'].'/'.$path, 0777, true);
                     $dir = $GLOBALS['resTmpDir'].'/'.$path;
@@ -354,17 +357,15 @@ class CollectionFunctions {
                     $resource = fopen($GLOBALS['resTmpDir'].'/'.$path.'/'.$filename, 'w');
                     $client->request('GET', $b['uri'], ['save_to' => $resource]);
                     chmod($GLOBALS['resTmpDir'].'/'.$path.'/'.$filename, 0777);
-
                 } catch (\GuzzleHttp\Exception\ClientException $ex) {
                     continue;
-                } catch(\GuzzleHttp\Exception\ServerException $ex) {
+                } catch (\GuzzleHttp\Exception\ServerException $ex) {
                     //the file is empty
                     continue;
-                } catch(\RuntimeException $ex) {
+                } catch (\RuntimeException $ex) {
                     //the file is empty
                     continue;
                 }
-
             } elseif (isset($b['path'])) {
                 mkdir($GLOBALS['resTmpDir'].'/'.$b['path'], 0777);
             }
@@ -373,20 +374,21 @@ class CollectionFunctions {
     
     /**
      * Remove the directory files/directories and keep the collection.tar
-     * 
+     *
      * @param string $dir
      */
-    public function removeDirContent(string $dir) {
+    public function removeDirContent(string $dir)
+    {
         if (is_dir($dir)) {
             $objects = scandir($dir);
             foreach ($objects as $object) {
                 if ($object != "." && $object != "..") {
                     if (filetype($dir."/".$object) == "dir") {
-                        $this->removeDirContent($dir."/".$object); 
-                    }else if (strpos($object, 'collection.tar') !== false) {
+                        $this->removeDirContent($dir."/".$object);
+                    } elseif (strpos($object, 'collection.tar') !== false) {
                         continue;
                     } else {
-                        if(file_exists($dir."/".$object) && is_writable($dir."/".$object)){
+                        if (file_exists($dir."/".$object) && is_writable($dir."/".$object)) {
                             @unlink($dir."/".$object);
                         }
                     }

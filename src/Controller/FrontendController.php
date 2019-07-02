@@ -6,9 +6,13 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Language\LanguageInterface;
 
-use Drupal\oeaw\Model\{OeawStorage, OeawResource, OeawResourceDetails, OeawCustomSparql, CacheModel};
+use Drupal\oeaw\Model\OeawStorage;
+use Drupal\oeaw\Model\OeawResource;
+use Drupal\oeaw\Model\OeawResourceDetails;
+use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Model\CacheModel;
 
-use Drupal\oeaw\Helper\HelperFunctions; 
+use Drupal\oeaw\Helper\HelperFunctions;
 use Drupal\oeaw\Helper\DetailViewFunctions;
 use Drupal\oeaw\Helper\CollectionFunctions;
 use Drupal\oeaw\OeawFunctions;
@@ -61,7 +65,7 @@ class FrontendController extends ControllerBase
      * Set up the necessary properties and config
      */
     public function __construct()
-    {        
+    {
         $this->cfg = \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->langConf = $this->config('oeaw.settings');
         $this->userid = \Drupal::currentUser()->id();
@@ -70,7 +74,7 @@ class FrontendController extends ControllerBase
         $this->oeawFunctions = new OeawFunctions($this->cfg);
         $this->oeawStorage = new OeawStorage($this->cfg);
         $this->oeawCustomSparql = new OeawCustomSparql($this->cfg);
-        $this->oeawDVFunctions = new DetailViewFunctions($this->langConf, $this->oeawFunctions, $this->oeawStorage, $this->propertyTableCache);        
+        $this->oeawDVFunctions = new DetailViewFunctions($this->langConf, $this->oeawFunctions, $this->oeawStorage, $this->propertyTableCache);
         $this->fedora = $this->oeawFunctions->initFedora();
         
         try {
@@ -104,13 +108,12 @@ class FrontendController extends ControllerBase
      */
     public function roots_list(string $limit = "10", string $page = "1", string $order = "datedesc"): array
     {
-
         drupal_get_messages('error', true);
         // get the root resources
         // sparql result fields - uri, title
         $result = array();
         $datatable = array();
-        $res = array();        
+        $res = array();
         $limit = (int)$limit;
         $page = (int)$page;
         $page = $page-1;
@@ -263,7 +266,7 @@ class FrontendController extends ControllerBase
      */
     public function oeaw_detail(string $res_data)
     {
-        drupal_get_messages('error', true);        
+        drupal_get_messages('error', true);
         $result = new \stdClass();
         $response = "html";
                 
@@ -290,11 +293,11 @@ class FrontendController extends ControllerBase
         }
         
         $limitAndPage = $this->oeawDVFunctions->getLimitAndPageFromUrl($res_data);
-        ( isset($limitAndPage['page']) && !empty($limitAndPage['page']) ) ? $page = $limitAndPage['page'] : $page = 1;
-        ( isset($limitAndPage['limit']) && !empty($limitAndPage['page']) ) ? $limit = $limitAndPage['limit'] : $limit = 10;
+        (isset($limitAndPage['page']) && !empty($limitAndPage['page'])) ? $page = $limitAndPage['page'] : $page = 1;
+        (isset($limitAndPage['limit']) && !empty($limitAndPage['page'])) ? $limit = $limitAndPage['limit'] : $limit = 10;
         
         //then the cache
-        if(!$this->cacheModel) {
+        if (!$this->cacheModel) {
             drupal_set_message($this->langConf->get('errmsg_external_database_error') ? $this->langConf->get('errmsg_external_database_error') : 'External database is not exists!', 'error');
             return array();
         }
@@ -302,34 +305,32 @@ class FrontendController extends ControllerBase
         $actualCacheObj = $this->cacheModel->getCacheByUUID($this->uuid);
         $fdDate = strtotime($this->fedoraGlobalModDate);
         
-        $needsToCache = FALSE;
-        if(isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
-            $needsToCache = TRUE;
+        $needsToCache = false;
+        if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
+            $needsToCache = true;
         }
         //if the file with this date is exists
-        if( (count((array)$actualCacheObj) > 0) && $needsToCache === FALSE) {
-            if(!empty($actualCacheObj->data)){
+        if ((count((array)$actualCacheObj) > 0) && $needsToCache === false) {
+            if (!empty($actualCacheObj->data)) {
                 $result = unserialize($actualCacheObj->data);
-                if(!is_object($result)){
+                if (!is_object($result)) {
                     drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist', 'error');
                     return array();
                 }
-            }else {
+            } else {
                 drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist', 'error');
                 return array();
             }
-            
-        }else {
+        } else {
             //run the generation scripts
             $result = $this->oeawDVFunctions->generateDetailViewMainData($this->fedora, $this->uuid);
-            if(isset($result->error)) {
+            if (isset($result->error)) {
                 drupal_set_message($result->error, 'error');
                 return array();
             }
             
-            if(!$this->cacheModel->addCacheToDB($this->uuid, serialize($result), "R", $fdDate)){
+            if (!$this->cacheModel->addCacheToDB($this->uuid, serialize($result), "R", $fdDate)) {
                 drupal_set_message($this->langConf->get('errmsg_db_cache_problems') ? $this->langConf->get('errmsg_db_cache_problems') : 'Database cache wasnt successful', 'error');
-                
             }
         }
         
@@ -611,7 +612,7 @@ class FrontendController extends ControllerBase
     
     /**
      * Cache the acdh ontology inside drupal
-     * 
+     *
      * @return Response
      */
     public function oeaw_cache_ontology(): Response
@@ -631,12 +632,12 @@ class FrontendController extends ControllerBase
     
     /**
      * Download Whole Collection python script
-     * 
+     *
      * @param string $url
      * @return Response
      */
-    public function oeaw_get_collection_dl_script(string $url): Response 
-    {        
+    public function oeaw_get_collection_dl_script(string $url): Response
+    {
         $url = str_replace(":", "/", $url);
         $url = "https://".$url;
         $result = $this->oeawDVFunctions->changeCollDLScript($url);
@@ -984,7 +985,6 @@ class FrontendController extends ControllerBase
         if (empty($uri)) {
             $errorMSG = "There is no valid URL";
         } else {
-        
             $resData = $this->oeawCollectionFunc->getCollectionData($uri, true);
         
             if (count($resData) == 0) {
@@ -1068,7 +1068,7 @@ class FrontendController extends ControllerBase
      */
     public function oeaw_dl_collection(string $uri): Response
     {
-        $result = array();        
+        $result = array();
         $GLOBALS['resTmpDir'] = "";
         $dateID = date("Ymd_his");
         $response = new Response();
@@ -1123,5 +1123,4 @@ class FrontendController extends ControllerBase
         $response->setContent(json_encode($hasTar));
         return $response;
     }
-  
 }

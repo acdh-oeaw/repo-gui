@@ -21,9 +21,12 @@ class DetailViewFunctions
     private $breadcrumbCache;
     private $propertyTableCache;
     
-    public function __construct($langConf, \Drupal\oeaw\OeawFunctions $oeawFunctions, 
-            \Drupal\oeaw\Model\OeawStorage $oeawStorage, \Drupal\oeaw\Cache\PropertyTableCache $propertyTableCache)
-    {
+    public function __construct(
+        $langConf,
+        \Drupal\oeaw\OeawFunctions $oeawFunctions,
+        \Drupal\oeaw\Model\OeawStorage $oeawStorage,
+        \Drupal\oeaw\Cache\PropertyTableCache $propertyTableCache
+    ) {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->langConf = $langConf;
         $this->oeawFunctions = $oeawFunctions;
@@ -32,7 +35,7 @@ class DetailViewFunctions
         $this->propertyTableCache = $propertyTableCache;
     }
     
-      /**
+    /**
      * Get the actual child page and limit from the actual url
      *
      * @param string $data
@@ -60,7 +63,8 @@ class DetailViewFunctions
     }
     
     
-    private function getResouceDataById(string $uuid, \acdhOeaw\fedora\Fedora $fedora): object {
+    private function getResouceDataById(string $uuid, \acdhOeaw\fedora\Fedora $fedora): object
+    {
         $result = new \stdClass();
         //get the resource metadata
         try {
@@ -72,8 +76,7 @@ class DetailViewFunctions
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
             $result->error = t($ex->getMessage());
             return $result;
-        }        
-        
+        }
     }
     
     /**
@@ -317,14 +320,14 @@ class DetailViewFunctions
         return $obj;
     }
     
-    public function generateDetailViewMainData(&$fedora, &$uuid): object {
-        
+    public function generateDetailViewMainData(&$fedora, &$uuid): object
+    {
         $result = new \stdClass();
         //get the basic resource data
         $this->fedoraResource = $this->getResouceDataById($uuid, $fedora);
-        if(isset($this->fedoraResource->error) && !empty($this->fedoraResource->error)) {
+        if (isset($this->fedoraResource->error) && !empty($this->fedoraResource->error)) {
             return $this->fedoraResource->error;
-        }else {
+        } else {
             $this->fedoraMetadata = $this->fedoraResource->getMetadata();
         }
                 
@@ -376,7 +379,7 @@ class DetailViewFunctions
         try {
             $dissServices = $this->oeawFunctions->getResourceDissServ($this->fedoraResource);
         } catch (Exception $ex) {
-           return $result->error = $ex->getMessage();
+            return $result->error = $ex->getMessage();
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
             return $result->error = $ex->getMessage();
         }
@@ -461,23 +464,22 @@ class DetailViewFunctions
         
         $result->mainData = $resultsObj;
         $result->extraData = $extras;
-        return $result;        
+        return $result;
     }
     
     /**
      * Extend the collection download python script with the url
-     * 
+     *
      * @param string $fdUrl
      * @return string
      */
-    public function changeCollDLScript(string $fdUrl) {
-        
+    public function changeCollDLScript(string $fdUrl)
+    {
         $text = "";
-        try
-        {
+        try {
             $fileName = $_SERVER["DOCUMENT_ROOT"].'/sites/default/files/coll_dl_script/collection_download.py';
             
-            if ( !file_exists($fileName) ) {
+            if (!file_exists($fileName)) {
                 return $text;
             }
             
@@ -488,8 +490,7 @@ class DetailViewFunctions
             }
             
             return $text;
-            
-        } catch ( \Exception $e ) {
+        } catch (\Exception $e) {
             return;
         }
         return $text;
