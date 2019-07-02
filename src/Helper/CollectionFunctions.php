@@ -27,10 +27,10 @@ class CollectionFunctions
     private $cacheModel;
     private $oeawStorage;
     
-    public function __construct(\acdhOeaw\fedora\Fedora $fedora, $cfg, \Drupal\oeaw\OeawFunctions $oeawFunctions, string $fedoraGlobalModDate, \Drupal\oeaw\Model\CacheModel $cacheModel, \Drupal\oeaw\Model\OeawStorage $oeawStorage)
+    public function __construct(\acdhOeaw\fedora\Fedora $fedora, \Drupal\oeaw\OeawFunctions $oeawFunctions, string $fedoraGlobalModDate, \Drupal\oeaw\Model\CacheModel $cacheModel, \Drupal\oeaw\Model\OeawStorage $oeawStorage)
     {
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->fedora = $fedora;
-        $this->cfg = $cfg;
         $this->oeawFunctions = $oeawFunctions;
         $this->resData = array();
         $this->fedoraGlobalModDate = $fedoraGlobalModDate;

@@ -36,13 +36,9 @@ class OeawFunctions
      * Set up the config file
      * @param type $cfg
      */
-    public function __construct($cfg = null)
+    public function __construct()
     {
-        if ($cfg == null) {
-            \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-        } else {
-            \acdhOeaw\util\RepoConfig::init($cfg);
-        }
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->langConf = \Drupal::config('oeaw.settings');
     }
         

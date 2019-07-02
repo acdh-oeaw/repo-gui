@@ -42,8 +42,7 @@ use GuzzleHttp\Client;
 class FrontendController extends ControllerBase
 {
     use StringTranslationTrait;
-    /* the main config file*/
-    private $cfg;
+    
     /* plugin main DB class */
     private $oeawStorage;
     /* plugin main functions */
@@ -66,23 +65,23 @@ class FrontendController extends ControllerBase
      */
     public function __construct()
     {
-        $this->cfg = \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->langConf = $this->config('oeaw.settings');
         $this->userid = \Drupal::currentUser()->id();
         
         $this->propertyTableCache = new PropertyTableCache();
-        $this->oeawFunctions = new OeawFunctions($this->cfg);
-        $this->oeawStorage = new OeawStorage($this->cfg);
-        $this->oeawCustomSparql = new OeawCustomSparql($this->cfg);
+        $this->oeawFunctions = new OeawFunctions();
+        $this->oeawStorage = new OeawStorage();
+        $this->oeawCustomSparql = new OeawCustomSparql();
         $this->oeawDVFunctions = new DetailViewFunctions($this->langConf, $this->oeawFunctions, $this->oeawStorage, $this->propertyTableCache);
         $this->fedora = $this->oeawFunctions->initFedora();
         
         try {
-            $this->cacheModel = new CacheModel($this->cfg);
+            $this->cacheModel = new CacheModel();
         } catch (Exception $ex) {
-            $this->cacheModel = "";
+            die("Cache DB is missing!");
         } catch (\Drupal\Core\Database\ConnectionNotDefinedException $ex) {
-            $this->cacheModel = "";
+            die("Cache DB Connection is not definied");
         }
         
         try {
@@ -93,7 +92,7 @@ class FrontendController extends ControllerBase
             $this->fedoraGlobalModDate = "";
         }
         
-        $this->oeawCollectionFunc = new CollectionFunctions($this->fedora, $this->cfg, $this->oeawFunctions, $this->fedoraGlobalModDate, $this->cacheModel, $this->oeawStorage);
+        $this->oeawCollectionFunc = new CollectionFunctions($this->fedora, $this->oeawFunctions, $this->fedoraGlobalModDate, $this->cacheModel, $this->oeawStorage);
     }
 
     /**

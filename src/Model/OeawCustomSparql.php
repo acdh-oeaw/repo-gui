@@ -21,14 +21,13 @@ use EasyRdf\Resource;
 class OeawCustomSparql implements OeawCustomSparqlInterface
 {
     private $modelFunctions;
-    private $cfg;
 
     /**
      * Set up the necessary properties
      */
-    public function __construct($cfg = null)
+    public function __construct()
     {
-        $cfg ? $this->cfg = $cfg : $this->cfg = \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->modelFunctions = new MF();
     }
     
