@@ -51,9 +51,9 @@
     </div>
    
     <div>
-        {%  if resourceData['insideUri'] %}
+        {%  if resourceData['metadata'].data.insideUri %}
             <div>
-                <a href="/browser/oeaw_detail/{{ resourceData['insideUri'] }}"><span>{{ "Back to the resource"|trans }}</span></a>
+                <a href="/browser/oeaw_detail/{{ resourceData['metadata'].data.insideUri }}"><span>{{ "Back to the resource"|trans }}</span></a>
                 <br/><br/>
             </div>
         {% endif %}    
@@ -63,7 +63,7 @@
         
     </div>
     
-    <input type="hidden" id="insideUri" name="insideUri" value="{{ url }}">
+    <input type="hidden" id="insideUri" name="insideUri" value="{{ resourceData['metadata'].data.insideUri }}">
     <input type="hidden" id="estDLTime" name="estDLTime" value="{{ resourceData['metadata'].data.estDLTime }}">
     
     <div id="content_collection">

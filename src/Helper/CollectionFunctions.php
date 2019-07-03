@@ -190,9 +190,10 @@ class CollectionFunctions
         
         $this->resData["uri"] = $this->id;
         $this->resData["fedoraUri"] = $uri;
-        if (isset($locationPath)) {
-            $this->resData["locationPath"] = $locationPath;
-        }
+        $this->resData["insideUri"] = $this->oeawFunctions->detailViewUrlDecodeEncode($this->id, 1);
+        
+        (isset($locationPath)) ? $this->resData["locationPath"] = $locationPath : $this->resData["locationPath"] = "";
+        (isset($isPartOf)) ? $this->resData["isPartOf"] = $isPartOf : $this->resData["isPartOf"];
         
         if (isset($this->resData['binarySize']) && $this->resData['binarySize'] > 0) {
             $this->resData['formattedSize'] = \Drupal\oeaw\Helper\HelperFunctions::formatSizeUnits($this->resData['binarySize']);
@@ -218,17 +219,6 @@ class CollectionFunctions
                 }
             }
         }
-        
-        /*
-        if (isset($this->resData['isPartOfUrl'])) {
-            $OeawStorage = new OeawStorage();
-            $isPartTitle = $OeawStorage->getParentTitle($isPartOf->getUri());
-            if (count($isPartTitle) > 0) {
-                if ($isPartTitle[0]["title"]) {
-                    $resData['isPartOf'] = $isPartTitle[0]["title"];
-                }
-            }
-        }*/
     }
     
     /**
