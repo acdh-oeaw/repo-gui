@@ -46,6 +46,7 @@ class OeawStorage implements OeawStorageInterface
     private $modelFunctions;
     private $fedora;
     private static $instance;
+    private $siteLang;
     
     /**
      * Set up the necessary properties, variables
@@ -75,6 +76,15 @@ class OeawStorage implements OeawStorageInterface
         } else {
             return self::$instance;
         }
+        $this->getSiteLang();
+    }
+    
+    /**
+     * If the request is not coming from the API, we need to use the site language
+     * 
+     */
+    private function getSiteLang() {
+        (isset($GLOBALS['language']) && !empty($GLOBALS['language'])) ? $this->siteLang = $GLOBALS['language'] : $this->siteLang = "en";
     }
 
     /**
@@ -89,7 +99,7 @@ class OeawStorage implements OeawStorageInterface
      * @throws \Exception
      * @throws \InvalidArgumentException
      */
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc", string $lang = "en"): array
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc", string $lang = ""): array
     {
         //Let's process the order argument
         switch ($order) {
@@ -112,9 +122,10 @@ class OeawStorage implements OeawStorageInterface
         if ($offset < 0) {
             $offset = 0;
         }
+        echo $lang;
         
         $getResult = array();
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         
         try {
             $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
@@ -179,7 +190,6 @@ class OeawStorage implements OeawStorageInterface
             }
 
             $query = $prefix.$select.$where.$groupby.$orderby.$limitOffset;
-          
             $result = $this->fedora->runSparql($query);
             if (count($result) > 0) {
                 $fields = $result->getFields();
@@ -267,10 +277,10 @@ class OeawStorage implements OeawStorageInterface
         }
     }
     
-    public function getTypeByIdentifier(string $identifier, string $lang = "en"): array
+    public function getTypeByIdentifier(string $identifier, string $lang = ""): array
     {
         $getResult = array();
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         
         try {
             $select = " SELECT ?uri ?type WHERE { ";
@@ -301,10 +311,10 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getTitleByIdentifier(string $string, string $lang = "en"): array
+    public function getTitleByIdentifier(string $string, string $lang = ""): array
     {
         $getResult = array();
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         
         try {
             $select = " SELECT * WHERE { ";
@@ -363,10 +373,10 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getPropDataToExpertTable(array $data, string $lang = "en"): array
+    public function getPropDataToExpertTable(array $data, string $lang = ""): array
     {
         $result = array();
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         if (count($data) > 0) {
             $where = "";
             $i = 0;
@@ -413,10 +423,10 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getResourceTitle(string $uri, string $lang = "en"): array
+    public function getResourceTitle(string $uri, string $lang = ""): array
     {
         $getResult = array();
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         
         try {
             $q = new Query();
@@ -553,7 +563,7 @@ class OeawStorage implements OeawStorageInterface
      * @return array
      * @throws \Exception
      */
-    public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false, $lang = "en"): array
+    public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false, $lang = ""): array
     {
         if (empty($value) || empty($property)) {
             return drupal_set_message(
@@ -561,7 +571,7 @@ class OeawStorage implements OeawStorageInterface
                 'error'
             );
         }
-        $lanf = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         if ($offset < 0) {
             $offset = 0;
         }
@@ -696,13 +706,13 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getClassMetaForApi(string $classString, string $lang = "en"): array
+    public function getClassMetaForApi(string $classString, string $lang = ""): array
     {
         if (empty($classString)) {
             return drupal_set_message(t('Empty').' '.t('Values').' -->'.__FUNCTION__, 'error');
         }
         
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         
         $prefix = "prefix owl: <http://www.w3.org/2002/07/owl#> "
                 . "prefix skos: <http://www.w3.org/2004/02/skos/core#> ";
@@ -819,7 +829,7 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getClassMeta(string $classURI, string $lang = "en"): array
+    public function getClassMeta(string $classURI, string $lang = ""): array
     {
         if (empty($classURI)) {
             return drupal_set_message(
@@ -827,7 +837,7 @@ class OeawStorage implements OeawStorageInterface
                 'error'
             );
         }
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         
         $rdfsDomain = self::$sparqlPref["rdfsDomain"];
         
@@ -981,7 +991,7 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getIsMembers(string $uri, string $lang = "en"): array
+    public function getIsMembers(string $uri, string $lang = ""): array
     {
         if (empty($uri)) {
             return drupal_set_message(
@@ -989,7 +999,7 @@ class OeawStorage implements OeawStorageInterface
                 'error'
             );
         }
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         
         $result = array();
         $select = "";
@@ -1055,7 +1065,7 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getChildResourcesByProperty(string $uri, string $limit, string $offset, bool $count, array $property, string $lang = "en"): array
+    public function getChildResourcesByProperty(string $uri, string $limit, string $offset, bool $count, array $property, string $lang = ""): array
     {
         if (empty($uri)) {
             return drupal_set_message(
@@ -1063,7 +1073,7 @@ class OeawStorage implements OeawStorageInterface
                 'error'
             );
         }
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         if ($offset < 0) {
             $offset = 0;
         }
@@ -1124,7 +1134,7 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "en", string $order = "asc"): array
+    public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false, string $lang = "", string $order = "asc"): array
     {
         if (count($ids) < 0) {
             return array();
@@ -1132,7 +1142,7 @@ class OeawStorage implements OeawStorageInterface
         if ($offset < 0) {
             $offset = 0;
         }
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         $result = array();
         $select = "";
         $where = "";
@@ -1561,10 +1571,10 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getParentTitle(string $id, string $lang = "en"): array
+    public function getParentTitle(string $id, string $lang = ""): array
     {
         $result = array();
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         if ($id) {
             $where = "";
             $where .= " WHERE { ";
@@ -1602,11 +1612,11 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getTitleByIdentifierArray(array $data, bool $dissemination = false, string $lang = "en"): array
+    public function getTitleByIdentifierArray(array $data, bool $dissemination = false, string $lang = ""): array
     {
         $result = array();
         if (count($data) > 0) {
-            $lang = strtolower($lang);
+            (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
             $where = "";
             
             $where .= " { ";
@@ -1679,17 +1689,15 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getTitleAndBasicInfoByIdentifier(string $data, bool $dissemination = false, string $lang = "en"): array
+    public function getTitleAndBasicInfoByIdentifier(string $data, bool $dissemination = false, string $lang = ""): array
     {
         $result = array();
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         $where = "";
         $select = "";
 
         $where .= " { ";
         $where .= "?uri <".RC::get('fedoraIdProp')."> <".$data."> . ";
-        //$where .= "?uri <".RC::get('fedoraIdProp')."> ?identifier . ";
-        //$where .= "?uri <".RC::titleProp()."> ?title . ";
         $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false);
         $where .=" OPTIONAL {"
                 . " ?uri <".RC::get('fedoraIdProp')."> ?identifier . "
@@ -1711,7 +1719,6 @@ class OeawStorage implements OeawStorageInterface
         if ($dissemination == true) {
             $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
             $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true);
-            //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
             $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
         }
 
@@ -1750,10 +1757,10 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getTitleAndBasicInfoByIdentifierArray(array $data, bool $dissemination = false, string $lang = "en"): array
+    public function getTitleAndBasicInfoByIdentifierArray(array $data, bool $dissemination = false, string $lang = ""): array
     {
         $result = array();
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         $where = "";
         $select = "";
         
@@ -1792,7 +1799,6 @@ class OeawStorage implements OeawStorageInterface
         if ($dissemination == true) {
             $where .= "OPTIONAL {?uri <".RC::get('fedoraServiceRetFormatProp')."> ?returnType . } ";
             $where .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "description", $lang, true);
-            //$where .= "OPTIONAL {?uri <".RC::get('drupalHasDescription')."> ?description . } ";
             $where .= "FILTER (!regex(str(?identifier),'.at/uuid/','i')) .";
         }
 
@@ -1834,12 +1840,12 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en", string $orderby = 'asc'): array
+    public function getSpecialDetailViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "", string $orderby = 'asc'): array
     {
         if ($offset < 0) {
             $offset = 0;
         }
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         $result = array();
         $select = "";
         $where = "";
@@ -1911,12 +1917,12 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getSpecialChildrenViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = "en"): array
+    public function getSpecialChildrenViewData(string $uri, string $limit, string $offset, bool $count = false, array $property, string $lang = ""): array
     {
         if ($offset < 0) {
             $offset = 0;
         }
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         $result = array();
         $select = "";
         $where = "";
@@ -1976,9 +1982,9 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function getOntologyForCache(string $lang = "en"): array
+    public function getOntologyForCache(string $lang = ""): array
     {
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         $result = array();
         
         $select = 'prefix skos: <http://www.w3.org/2004/02/skos/core#> '
@@ -2017,9 +2023,10 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function createBreadcrumbData(string $identifier, string $lang = "en"): array
+    public function createBreadcrumbData(string $identifier, string $lang = ""): array
     {
-        $lang = strtolower($lang);
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
+        
         $result = array();
         $select = 'SELECT ?roots ?mainIspartOf ?rootId ?rootTitle ?rootsRoot WHERE { ';
         $where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";

@@ -17,7 +17,6 @@ use GuzzleHttp\Psr7\Response;
 class CollectionFunctions
 {
     private $fedora;
-    private $cfg;
     private $oeawFunctions;
     private $metadata;
     private $resData;
@@ -26,6 +25,7 @@ class CollectionFunctions
     private $fedoraGlobalModDate;
     private $cacheModel;
     private $oeawStorage;
+    private $siteLang;
     
     public function __construct(\acdhOeaw\fedora\Fedora $fedora, \Drupal\oeaw\OeawFunctions $oeawFunctions, string $fedoraGlobalModDate, \Drupal\oeaw\Model\CacheModel $cacheModel, \Drupal\oeaw\Model\OeawStorage $oeawStorage)
     {
@@ -36,8 +36,17 @@ class CollectionFunctions
         $this->fedoraGlobalModDate = $fedoraGlobalModDate;
         $this->cacheModel = $cacheModel;
         $this->oeawStorage = $oeawStorage;
+        
+        $this->getSiteLang();
     }
     
+    /**
+     * If the request is not coming from the API, we need to use the site language
+     * 
+     */
+    private function getSiteLang() {
+        (isset($GLOBALS['language']) && !empty($GLOBALS['language'])) ? $this->siteLang = $GLOBALS['language'] : $this->siteLang = "en";
+    }
     /**
      * Get the collections metadata and binary list
      *
@@ -67,9 +76,9 @@ class CollectionFunctions
         }
         
         $actualCacheObj = new \stdClass();
-        $actualCacheObj = $this->cacheModel->getCacheByUUID($this->id, "C");
+        $actualCacheObj = $this->cacheModel->getCacheByUUID($this->id, $this->siteLang, "C");
         if ($binaries) {
-            $actualCacheBinaries = $this->cacheModel->getCacheByUUID($this->id, "B");
+            $actualCacheBinaries = $this->cacheModel->getCacheByUUID($this->id, $this->siteLang, "B");
         }
         
         $fdDate = strtotime($this->fedoraGlobalModDate);
@@ -95,9 +104,9 @@ class CollectionFunctions
                 return array();
             }
             $actualCacheObj = new \stdClass();
-            $actualCacheObj = $this->cacheModel->getCacheByUUID($this->id, "C");
+            $actualCacheObj = $this->cacheModel->getCacheByUUID($this->id, $this->siteLang, "C");
             if ($binaries) {
-                $actualCacheBinaries = $this->cacheModel->getCacheByUUID($this->id, "B");
+                $actualCacheBinaries = $this->cacheModel->getCacheByUUID($this->id, $this->siteLang, "B");
             }
         }
 

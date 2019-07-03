@@ -325,12 +325,14 @@ class DetailViewFunctions
         $result = new \stdClass();
         //get the basic resource data
         $this->fedoraResource = $this->getResouceDataById($uuid, $fedora);
+        
+
         if (isset($this->fedoraResource->error) && !empty($this->fedoraResource->error)) {
             return $this->fedoraResource->error;
         } else {
             $this->fedoraMetadata = $this->fedoraResource->getMetadata();
         }
-                
+        
         if (count((array)$this->fedoraMetadata)) {
             //create the OEAW resource Object for the GUI data
             try {

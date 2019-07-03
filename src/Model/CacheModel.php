@@ -45,7 +45,7 @@ class CacheModel
      * @param string $uuid
      * @return stdClass
      */
-    public function getCacheByUUID(string $uuid, string $type = "R"): \stdClass
+    public function getCacheByUUID(string $uuid, string $lang, string $type = "R"): \stdClass
     {
         $uuid = $this->convertUUID($uuid);
         $result = new \stdClass();

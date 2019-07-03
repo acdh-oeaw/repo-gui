@@ -59,6 +59,7 @@ class FrontendController extends ControllerBase
     private $cacheModel;
     private $fedoraGlobalModDate;
     private $oeawCollectionFunc;
+    private $siteLang;
     
     /**
      * Set up the necessary properties and config
@@ -68,7 +69,6 @@ class FrontendController extends ControllerBase
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->langConf = $this->config('oeaw.settings');
         $this->userid = \Drupal::currentUser()->id();
-        
         $this->propertyTableCache = new PropertyTableCache();
         $this->oeawFunctions = new OeawFunctions();
         $this->oeawStorage = new OeawStorage();
@@ -93,6 +93,9 @@ class FrontendController extends ControllerBase
         }
         
         $this->oeawCollectionFunc = new CollectionFunctions($this->fedora, $this->oeawFunctions, $this->fedoraGlobalModDate, $this->cacheModel, $this->oeawStorage);
+        
+        ($_SESSION['language']) ? $this->siteLang = strtolower($_SESSION['language'])  : $this->siteLang = "en";
+        $GLOBALS['language'] = $this->siteLang;
     }
 
     /**
@@ -119,7 +122,7 @@ class FrontendController extends ControllerBase
         
         //count all root resource for the pagination
         try {
-            $countRes = $this->oeawStorage->getRootFromDB(0, 0, true);
+            $countRes = $this->oeawStorage->getRootFromDB(0, 0, true, $order, $this->siteLang);
         } catch (\Exception $ex) {
             drupal_set_message($ex->getMessage(), 'error');
             return array();
@@ -153,7 +156,7 @@ class FrontendController extends ControllerBase
         }
 
         try {
-            $result = $this->oeawStorage->getRootFromDB($limit, $offsetRoot, false, $order);
+            $result = $this->oeawStorage->getRootFromDB($limit, $offsetRoot, false, $order, $this->siteLang);
         } catch (Exception $ex) {
             drupal_set_message($ex->getMessage(), 'error');
             return array();
@@ -301,13 +304,14 @@ class FrontendController extends ControllerBase
             return array();
         }
         
-        $actualCacheObj = $this->cacheModel->getCacheByUUID($this->uuid);
+        $actualCacheObj = $this->cacheModel->getCacheByUUID($this->uuid, $this->siteLang);
         $fdDate = strtotime($this->fedoraGlobalModDate);
         
         $needsToCache = false;
         if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
             $needsToCache = true;
         }
+        
         //if the file with this date is exists
         if ((count((array)$actualCacheObj) > 0) && $needsToCache === false) {
             if (!empty($actualCacheObj->data)) {
@@ -328,7 +332,7 @@ class FrontendController extends ControllerBase
                 return array();
             }
             
-            if (!$this->cacheModel->addCacheToDB($this->uuid, serialize($result), "R", $fdDate)) {
+            if (!$this->cacheModel->addCacheToDB($this->uuid, serialize($result), "R", $fdDate, $this->siteLang)) {
                 drupal_set_message($this->langConf->get('errmsg_db_cache_problems') ? $this->langConf->get('errmsg_db_cache_problems') : 'Database cache wasnt successful', 'error');
             }
         }
