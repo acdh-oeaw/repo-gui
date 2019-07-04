@@ -42,9 +42,10 @@ class CollectionFunctions
     
     /**
      * If the request is not coming from the API, we need to use the site language
-     * 
+     *
      */
-    private function getSiteLang() {
+    private function getSiteLang()
+    {
         (isset($GLOBALS['language']) && !empty($GLOBALS['language'])) ? $this->siteLang = $GLOBALS['language'] : $this->siteLang = "en";
     }
     /**
