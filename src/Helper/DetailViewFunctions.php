@@ -20,6 +20,9 @@ class DetailViewFunctions
     private $oeawStorage;
     private $breadcrumbCache;
     private $propertyTableCache;
+    private $searchTitle;
+    private $dvResult;
+    private $literals;
     
     public function __construct(
         $langConf,
@@ -79,6 +82,157 @@ class DetailViewFunctions
         }
     }
     
+    private function checkLorisImage(\EasyRdf\Resource $d): string {
+        if(strpos($d->__toString(), 'image') !== false) {
+            if ($d->__toString() == "image/tiff") {
+                $lorisImg = array();
+                $lorisImg = HF::generateLorisUrl(base64_encode($d->getUri()), true);
+                if (count($lorisImg) > 0) {
+                    $this->dvResult['image'] = $lorisImg['imageUrl'];
+                }
+            } else {
+                $this->dvResult['image'] = $d->getUri();
+            }
+            return "";
+        }else {
+            return $d->__toString();
+        }
+    }
+    
+    
+    private function getLiteralValuesByLangFromResource(\EasyRdf\Resource &$data, string $prop, string $lang) {
+        
+        ($prop == RC::get('fedoraExtentProp')) ? $extent = true : $extent = false;
+        ($prop == RC::get('drupalEbucoreHasMime') && (!isset($this->dvResult['image']))) ? $image = true : $image = false;
+        ($data->allLiterals($prop, $lang)) ? $value = $data->allLiterals($prop, $lang) : $value = $data->allLiterals($prop);
+        
+        $result = array();
+        foreach($value as $d) {
+            if (get_class($d) == "EasyRdf\Literal\DateTime") {
+                $dt = $d->__toString();
+                $time = strtotime($dt);
+                $result[] = date('Y-m-d', $time);
+            } else if($extent) {
+                $result[] = HF::formatSizeUnits($d->__toString());
+            }else if($image) {
+                if(!empty($this->checkLorisImage($d))) {
+                    $result[] = $this->checkLorisImage($d);
+                }
+            } else {
+                $result[] = $d->__toString();
+            }
+        }
+        return $result;
+    }
+                
+    private function getLiteralValuesByLangFromLiteral(\EasyRdf\Literal &$data, string $lang): string {
+       
+        if($data->getValue()) {
+            if($data->getLang() == $lang) {
+            return $data->getValue();
+            } else {
+                return $data->getValue();
+            }
+        }
+        return "";
+    }
+    
+    
+    private function formatResourceValues(array $data, string $p, string $propertyShortcut) {
+        
+        foreach($data as $d) {
+            //we will skip the title for the resource identifier
+            if ($p != RC::idProp()) {
+                //this will be the proper
+                $this->searchTitle[] = $d->getUri();
+            }
+            
+            //$this->dvResult['table'][$propertyShortcut][]['uri'] = $d->getUri();
+            
+            $classUri = $d->getUri();
+            if ($p == RC::get("drupalRdfType")) {
+                if ((strpos($d->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false)
+                    &&
+                $d->localName()) {
+                    $this->dvResult['acdh_rdf:type']['title'] = $d->localName();
+                    $this->dvResult['acdh_rdf:type']['insideUri'] = $this->oeawFunctions->detailViewUrlDecodeEncode($d->__toString(), 1);
+                    $this->dvResult['acdh_rdf:type']['uri'] = $d->__toString();
+                }
+            }
+            $this->dvResult['table'][$propertyShortcut][]['uri'] = $classUri;
+            
+            //if the acdhImage is available or the ebucore MIME
+            if ($p == RC::get("drupalRdfType")) {
+                if ($d == RC::get('drupalHasTitleImage')) {
+                    $this->dvResult['image'] = $d->getUri();
+                }
+                //check that the resource has Binary or not
+                if ($d == RC::get('drupalFedoraBinary')) {
+                    $this->dvResult['hasBinary'] = $d->getUri();
+                }
+                        
+                if ($d == RC::get('drupalMetadata')) {
+                    $invMeta = $this->oeawStorage->getMetaInverseData($d->getUri());
+                    if (count($invMeta) > 0) {
+                        $this->dvResult['isMetadata'] = $invMeta;
+                    }
+                }
+            }
+            //simply check the acdh:hasTitleImage for the root resources too.
+            if ($p == RC::get('drupalHasTitleImage')) {
+                $imgUrl = "";
+                $imgUrl = $this->oeawStorage->getImageByIdentifier($d->getUri());
+                if ($imgUrl) {
+                    $this->dvResult['image'] = $imgUrl;
+                }
+            }
+        }
+       
+    }
+    
+    /**
+     * Get the literal and resource values from the easyrdf resource object
+     * 
+     * @param \EasyRdf\Resource $data
+     * @param string $lang
+     * @return array
+     */
+    private function getLiteralsResourcesByLang(\EasyRdf\Resource $data, string $lang) {
+        
+        $result = array();
+        //get the resources and remove fedora properties
+        $properties = array();
+        $properties = $data->propertyUris();
+        
+        foreach ($properties as $key => $val) {
+            if (strpos($val, 'fedora.info') !== false) {
+                unset($properties[$key]);
+            }
+        }
+        
+        //reorder the array because have missing keys
+        $properties = array_values($properties);
+        
+        //loop through the properties
+        foreach ($properties as $p) {
+            //create the property shortcuts for the array
+            $propertyShortcut = $this->oeawFunctions->createPrefixesFromString($p);
+            //if it is a liteal
+            
+            //LITERALS
+            if($data->getLiteral($p)) {
+                $val = $this->getLiteralValuesByLangFromResource($data, $p, $lang);
+                $this->dvResult['table'][$propertyShortcut] = $val;
+            }
+            
+            //// RESOURCES
+            if($data->getResource($p)) {
+                ($data->allResources($p)) ? $val = $data->allResources($p) : $val = array();
+                if(empty($val)) { continue; }
+                $this->formatResourceValues($val, $p, $propertyShortcut);
+            }
+        }
+    }
     /**
      *
      * this will generate an array with the Resource data.
@@ -92,7 +246,7 @@ class DetailViewFunctions
      * @param Resource $data
      * @return array
      */
-    private function createDetailViewTable(\EasyRdf\Resource $data): \Drupal\oeaw\Model\OeawResource
+    private function createDetailViewTable(\EasyRdf\Resource $data, string $lang): \Drupal\oeaw\Model\OeawResource
     {
         $result = array();
         $arrayObject = new \ArrayObject();
@@ -102,7 +256,7 @@ class DetailViewFunctions
         }
         
         //get the resource Title
-        $resourceTitle = $data->get(RC::get('fedoraTitleProp'));
+        $resourceTitle = $this->getLiteralValuesByLangFromResource($data, RC::get('fedoraTitleProp'), $lang)[0];
         $resourceUri = $data->getUri();
         $resourceIdentifiers = $data->all(RC::get('fedoraIdProp'));
         $resourceIdentifier = HF::getAcdhIdentifier($resourceIdentifiers);
@@ -117,113 +271,26 @@ class DetailViewFunctions
                 $rsId[] = $ids->getUri();
             }
         }
-        //get the resources and remove fedora properties
-        $properties = array();
-        $properties = $data->propertyUris();
-        foreach ($properties as $key => $val) {
-            if (strpos($val, 'fedora.info') !== false) {
-                unset($properties[$key]);
-            }
-        }
-        //reorder the array because have missing keys
-        $properties = array_values($properties);
-        $searchTitle = array();
-        
-        foreach ($properties as $p) {
-            $propertyShortcut = $this->oeawFunctions->createPrefixesFromString($p);
-            //get the properties data from the easyrdf resource object
-            foreach ($data->all($p) as $key => $val) {
-                if (get_class($val) == "EasyRdf\Resource") {
-                    $classUri = $val->getUri();
-                    if ($p == RC::get("drupalRdfType")) {
-                        if ((strpos($val->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false)
-                                &&
-                                $val->localName()) {
-                            $result['acdh_rdf:type']['title'] = $val->localName();
-                            $result['acdh_rdf:type']['insideUri'] = $this->oeawFunctions->detailViewUrlDecodeEncode($val->__toString(), 1);
-                            $result['acdh_rdf:type']['uri'] = $val->__toString();
-                        }
-                    }
-                    $result['table'][$propertyShortcut][$key]['uri'] = $classUri;
-                    
-                    //we will skip the title for the resource identifier
-                    if ($p != RC::idProp()) {
-                        //this will be the proper
-                        $searchTitle[] = $classUri;
-                    }
-                    //if the acdhImage is available or the ebucore MIME
-                    if ($p == RC::get("drupalRdfType")) {
-                        if ($val == RC::get('drupalHasTitleImage')) {
-                            $result['image'] = $resourceUri;
-                        }
-                        //check that the resource has Binary or not
-                        if ($val == RC::get('drupalFedoraBinary')) {
-                            $result['hasBinary'] = $resourceUri;
-                        }
-                        
-                        if ($val == RC::get('drupalMetadata')) {
-                            $invMeta = $this->oeawStorage->getMetaInverseData($resourceUri);
-                            if (count($invMeta) > 0) {
-                                $result['isMetadata'] = $invMeta;
-                            }
-                        }
-                    }
-                    //simply check the acdh:hasTitleImage for the root resources too.
-                    if ($p == RC::get('drupalHasTitleImage')) {
-                        $imgUrl = "";
-                        $imgUrl = $this->oeawStorage->getImageByIdentifier($val->getUri());
-                        if ($imgUrl) {
-                            $result['image'] = $imgUrl;
-                        }
-                    }
-                }
-                if ((get_class($val) == "EasyRdf\Literal") ||
-                        (get_class($val) == "EasyRdf\Literal\DateTime") ||
-                        (get_class($val) == "EasyRdf\Literal\Integer")) {
-                    if (get_class($val) == "EasyRdf\Literal\DateTime") {
-                        $dt = $val->__toString();
-                        $time = strtotime($dt);
-                        $result['table'][$propertyShortcut][$key]  = date('Y-m-d', $time);
-                    } else {
-                        $result['table'][$propertyShortcut][$key] = $val->getValue();
-                    }
-                    
-                    //we dont have the image yet but we have a MIME
-                    if (($p == RC::get('drupalEbucoreHasMime')) && (!isset($result['image'])) && (strpos($val, 'image') !== false)) {
-                        //if we have image/tiff then we need to use the loris
-                        if ($val == "image/tiff") {
-                            $lorisImg = array();
-                            $lorisImg = HF::generateLorisUrl(base64_encode($resourceUri), true);
-                            if (count($lorisImg) > 0) {
-                                $result['image'] = $lorisImg['imageUrl'];
-                            }
-                        } else {
-                            $result['image'] = $resourceUri;
-                        }
-                    }
-                    if ($p == RC::get('fedoraExtentProp')) {
-                        if ($val->getValue()) {
-                            $result['table'][$propertyShortcut][$key] = HF::formatSizeUnits($val->getValue());
-                        }
-                    }
-                }
-            }
-        }
-        
-        if (count($searchTitle) > 0) {
+       
+        $this->getLiteralsResourcesByLang($data, $lang);
+
+/***** ****/        
+      
+
+        if (count($this->searchTitle) > 0) {
             //get the not literal propertys TITLE
             $existinTitles = array();
-            $existinTitles = $this->oeawStorage->getTitleAndBasicInfoByIdentifierArray($searchTitle);
+            $existinTitles = $this->oeawStorage->getTitleAndBasicInfoByIdentifierArray($this->searchTitle);
             
             if (count($existinTitles) > 0) {
-                $resKeys = array_keys($result['table']);
+                $resKeys = array_keys($this->dvResult['table']);
                 //change the titles
                 foreach ($resKeys as $k) {
-                    foreach ($result['table'][$k] as $key => $val) {
+                    foreach ($this->dvResult['table'][$k] as $key => $val) {
                         if (is_array($val)) {
                             foreach ($existinTitles as $t) {
                                 if ($t['identifier'] == $val['uri'] || $t['pid'] == $val['uri'] || $t['uuid'] == $val['uri']) {
-                                    $result['table'][$k][$key]['title'] = $t['title'];
+                                    $this->dvResult['table'][$k][$key]['title'] = $t['title'];
 
                                     $decodId = "";
                                     if (isset($t['pid']) && !empty($t['pid'])) {
@@ -235,7 +302,7 @@ class DetailViewFunctions
                                     }
 
                                     if (!empty($decodId)) {
-                                        $result['table'][$k][$key]['insideUri'] = $this->oeawFunctions->detailViewUrlDecodeEncode($decodId, 1);
+                                        $this->dvResult['table'][$k][$key]['insideUri'] = $this->oeawFunctions->detailViewUrlDecodeEncode($decodId, 1);
                                     }
                                 }
                             }
@@ -245,27 +312,28 @@ class DetailViewFunctions
             }
         }
         
-        if (empty($result['acdh_rdf:type']['title']) || !isset($result['acdh_rdf:type']['title'])) {
+        if (empty($this->dvResult['acdh_rdf:type']['title']) || !isset($this->dvResult['acdh_rdf:type']['title'])) {
             throw new \ErrorException(t("Empty").': ACDH RDF TYPE', 0);
         }
-        $result['resourceTitle'] = $resourceTitle;
-        $result['uri'] = $resourceUri;
-        $result['insideUri'] = $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 1);
         
-        $arrayObject->offsetSet('table', $result['table']);
-        $arrayObject->offsetSet('title', $resourceTitle->__toString());
+        $this->dvResult['resourceTitle'] = $resourceTitle;
+        $this->dvResult['uri'] = $resourceUri;
+        $this->dvResult['insideUri'] = $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 1);
+        
+        $arrayObject->offsetSet('table', $this->dvResult['table']);
+        $arrayObject->offsetSet('title', $resourceTitle);
         $arrayObject->offsetSet('uri', $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 0));
-        $arrayObject->offsetSet('type', $result['acdh_rdf:type']['title']);
-        $arrayObject->offsetSet('typeUri', $result['acdh_rdf:type']['uri']);
-        $arrayObject->offsetSet('acdh_rdf:type', array("title" => $result['acdh_rdf:type']['title'], "insideUri" => $result['acdh_rdf:type']['insideUri']));
+        $arrayObject->offsetSet('type', $this->dvResult['acdh_rdf:type']['title']);
+        $arrayObject->offsetSet('typeUri', $this->dvResult['acdh_rdf:type']['uri']);
+        $arrayObject->offsetSet('acdh_rdf:type', array("title" => $this->dvResult['acdh_rdf:type']['title'], "insideUri" => $this->dvResult['acdh_rdf:type']['insideUri']));
         $arrayObject->offsetSet('fedoraUri', $resourceUri);
         $arrayObject->offsetSet('identifiers', $rsId);
-        if (isset($result['table']['acdh:hasAccessRestriction']) && !empty($result['table']['acdh:hasAccessRestriction'][0])) {
-            $arrayObject->offsetSet('accessRestriction', $result['table']['acdh:hasAccessRestriction'][0]);
+        if (isset($this->dvResult['table']['acdh:hasAccessRestriction']) && !empty($this->dvResult['table']['acdh:hasAccessRestriction'][0])) {
+            $arrayObject->offsetSet('accessRestriction', $this->dvResult['table']['acdh:hasAccessRestriction'][0]);
         }
         $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($uuid, 1));
-        if (isset($result['image'])) {
-            $arrayObject->offsetSet('imageUrl', $result['image']);
+        if (isset($this->dvResult['image'])) {
+            $arrayObject->offsetSet('imageUrl', $this->dvResult['image']);
         }
         
         try {
@@ -320,23 +388,22 @@ class DetailViewFunctions
         return $obj;
     }
     
-    public function generateDetailViewMainData(&$fedora, &$uuid): object
+    public function generateDetailViewMainData(&$fedora, &$uuid, string $lang = ""): object
     {
         $result = new \stdClass();
         //get the basic resource data
         $this->fedoraResource = $this->getResouceDataById($uuid, $fedora);
         
-
         if (isset($this->fedoraResource->error) && !empty($this->fedoraResource->error)) {
             return $this->fedoraResource->error;
         } else {
             $this->fedoraMetadata = $this->fedoraResource->getMetadata();
         }
-        
-        if (count((array)$this->fedoraMetadata)) {
+       
+        if (count((array)$this->fedoraMetadata) > 0) {
             //create the OEAW resource Object for the GUI data
             try {
-                $resultsObj = $this->createDetailViewTable($this->fedoraMetadata);
+                $resultsObj = $this->createDetailViewTable($this->fedoraMetadata, $lang);
             } catch (\ErrorException $ex) {
                 drupal_set_message(t("Error").' : '.$ex->getMessage(), 'error');
                 return array();

@@ -326,7 +326,7 @@ class FrontendController extends ControllerBase
             }
         } else {
             //run the generation scripts
-            $result = $this->oeawDVFunctions->generateDetailViewMainData($this->fedora, $this->uuid);
+            $result = $this->oeawDVFunctions->generateDetailViewMainData($this->fedora, $this->uuid, $this->siteLang);
             if (isset($result->error)) {
                 drupal_set_message($result->error, 'error');
                 return array();
@@ -493,8 +493,10 @@ class FrontendController extends ControllerBase
                 $solrData = $this->oeawFunctions->getDataFromSolr($searchStr['words']);
             }
             
+            
             try {
                 $countSparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, 0, 0, true);
+                $countSparql;
             } catch (\ErrorException $ex) {
                 drupal_set_message($ex->getMessage(), 'error');
                 return array();

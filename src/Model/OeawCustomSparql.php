@@ -300,7 +300,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
                 foreach ($td as $dtype) {
                     foreach ($acdhTypes as $t) {
                         $val = explode(RC::get('fedoraVocabsNamespace'), $t["type"]);
-                        $val = strtolower($val[1]);
+                        $val = $val[1];
                         
                         if ($dtype == "or") {
                             $or = true;
@@ -310,8 +310,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
                         if (($dtype == "not") || ($dtype == "and")) {
                             continue;
                         }
-                        
-                        if (strpos(strtolower($dtype), $val) !== false) {
+                        if($dtype == $val) {
                             if ($or == true) {
                                 $query .= " UNION ";
                                 $or = false;

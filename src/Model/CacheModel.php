@@ -45,12 +45,14 @@ class CacheModel
      * @param string $uuid
      * @return stdClass
      */
-    public function getCacheByUUID(string $uuid, string $lang, string $type = "R"): \stdClass
+    public function getCacheByUUID(string $uuid, string $lang = "en", string $type = "R"): \stdClass
     {
         $uuid = $this->convertUUID($uuid);
         $result = new \stdClass();
+        $lang = strtolower($lang);
         try {
-            $this->query = $this->db->query("SELECT * FROM {".$this->table."} where uuid = '".$uuid."' and type = '".$type."'");
+            $sql = "SELECT * FROM {".$this->table."} where uuid = :uuid and type = :type and language = :language ";
+            $this->query = $this->db->query($sql, [':uuid' => $uuid, ':type' => $type, ':language' => $lang]);
             $result = $this->query->fetchObject();
             if ($result === false) {
                 $result = new \stdClass();
@@ -77,7 +79,8 @@ class CacheModel
         $uuid = $this->convertUUID($uuid);
         $result = false;
         try {
-            $this->query = $this->db->query("DELETE FROM {".$this->table."} where uuid = '".$uuid."' and type = '".$type."'");
+            $sql = "DELETE FROM {".$this->table."} where uuid = :uuid and type = :type ";
+            $this->query = $this->db->query($sql, [':uuid' => $uuid, ':type' => $type]);
             $result = true;
             $this->changeBackDBConnection();
         } catch (Exception $ex) {
@@ -99,10 +102,10 @@ class CacheModel
      * @param int $modifydate
      * @return bool
      */
-    public function addCacheToDB(string $uuid, string $data, string $type = "R", int $modifydate): bool
+    public function addCacheToDB(string $uuid, string $data, string $type = "R", int $modifydate, string $lang = "en"): bool
     {
         $exists = $this->getCacheByUUID($uuid, $type);
-        
+        $lang = strtolower($lang);
         if (count((array)$exists) > 0) {
             if (!$this->deleteCacheByUUID($uuid, $type)) {
                 return false;
@@ -117,7 +120,8 @@ class CacheModel
                         'uuid' => $uuid,
                         'type' => $type,
                         'data' => $data,
-                        'modify_date' => $modifydate
+                        'modify_date' => $modifydate,
+                        'language' => $lang
                     )
                 )->execute();
             return true;

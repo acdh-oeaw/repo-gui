@@ -123,7 +123,6 @@ class OeawStorage implements OeawStorageInterface
         if ($offset < 0) {
             $offset = 0;
         }
-        echo $lang;
         
         $getResult = array();
         (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
