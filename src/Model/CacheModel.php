@@ -50,6 +50,8 @@ class CacheModel
         $uuid = $this->convertUUID($uuid);
         $result = new \stdClass();
         $lang = strtolower($lang);
+        $type = strtoupper($type);
+        
         try {
             $sql = "SELECT * FROM {".$this->table."} where uuid = :uuid and type = :type and language = :language ";
             $this->query = $this->db->query($sql, [':uuid' => $uuid, ':type' => $type, ':language' => $lang]);
@@ -74,13 +76,15 @@ class CacheModel
      * @param string $uuid
      * @return bool
      */
-    private function deleteCacheByUUID(string $uuid, string $type = "R"): bool
+    private function deleteCacheByUUID(string $uuid, string $type = "R", string $lang = "en"): bool
     {
         $uuid = $this->convertUUID($uuid);
+        $lang = strtolower($lang);
+        $type = strtoupper($type);
         $result = false;
         try {
-            $sql = "DELETE FROM {".$this->table."} where uuid = :uuid and type = :type ";
-            $this->query = $this->db->query($sql, [':uuid' => $uuid, ':type' => $type]);
+            $sql = "DELETE FROM {".$this->table."} where uuid = :uuid and type = :type language = :language";
+            $this->query = $this->db->query($sql, [':uuid' => $uuid, ':type' => $type, ':language' => $lang]);
             $result = true;
             $this->changeBackDBConnection();
         } catch (Exception $ex) {
@@ -104,10 +108,12 @@ class CacheModel
      */
     public function addCacheToDB(string $uuid, string $data, string $type = "R", int $modifydate, string $lang = "en"): bool
     {
-        $exists = $this->getCacheByUUID($uuid, $type);
         $lang = strtolower($lang);
+        $type = strtoupper($type);
+        $exists = $this->getCacheByUUID($uuid, $type, $lang);
+        
         if (count((array)$exists) > 0) {
-            if (!$this->deleteCacheByUUID($uuid, $type)) {
+            if (!$this->deleteCacheByUUID($uuid, $type, $lang)) {
                 return false;
             }
         }

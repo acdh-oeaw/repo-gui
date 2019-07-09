@@ -123,7 +123,7 @@ class OeawResourceCustomData
                 //if we have the basic prop tin our object then we will add it to the new arrobj
                 if ((($data->getTableData($bP) !== null)) && (count($data->getTableData($bP)) > 0)) {
                     foreach ($data->getTableData($bP) as $val) {
-                        $this->basicProperties[$bP] =  $val;
+                        $this->basicProperties[$bP][] =  $val;
                     }
                 }
             }
