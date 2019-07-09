@@ -310,7 +310,7 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
                         if (($dtype == "not") || ($dtype == "and")) {
                             continue;
                         }
-                        if($dtype == $val) {
+                        if ($dtype == $val) {
                             if ($or == true) {
                                 $query .= " UNION ";
                                 $or = false;

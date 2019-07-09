@@ -82,8 +82,9 @@ class DetailViewFunctions
         }
     }
     
-    private function checkLorisImage(\EasyRdf\Resource $d): string {
-        if(strpos($d->__toString(), 'image') !== false) {
+    private function checkLorisImage(\EasyRdf\Resource $d): string
+    {
+        if (strpos($d->__toString(), 'image') !== false) {
             if ($d->__toString() == "image/tiff") {
                 $lorisImg = array();
                 $lorisImg = HF::generateLorisUrl(base64_encode($d->getUri()), true);
@@ -94,28 +95,28 @@ class DetailViewFunctions
                 $this->dvResult['image'] = $d->getUri();
             }
             return "";
-        }else {
+        } else {
             return $d->__toString();
         }
     }
     
     
-    private function getLiteralValuesByLangFromResource(\EasyRdf\Resource &$data, string $prop, string $lang) {
-        
+    private function getLiteralValuesByLangFromResource(\EasyRdf\Resource &$data, string $prop, string $lang)
+    {
         ($prop == RC::get('fedoraExtentProp')) ? $extent = true : $extent = false;
         ($prop == RC::get('drupalEbucoreHasMime') && (!isset($this->dvResult['image']))) ? $image = true : $image = false;
         ($data->allLiterals($prop, $lang)) ? $value = $data->allLiterals($prop, $lang) : $value = $data->allLiterals($prop);
         
         $result = array();
-        foreach($value as $d) {
+        foreach ($value as $d) {
             if (get_class($d) == "EasyRdf\Literal\DateTime") {
                 $dt = $d->__toString();
                 $time = strtotime($dt);
                 $result[] = date('Y-m-d', $time);
-            } else if($extent) {
+            } elseif ($extent) {
                 $result[] = HF::formatSizeUnits($d->__toString());
-            }else if($image) {
-                if(!empty($this->checkLorisImage($d))) {
+            } elseif ($image) {
+                if (!empty($this->checkLorisImage($d))) {
                     $result[] = $this->checkLorisImage($d);
                 }
             } else {
@@ -125,11 +126,11 @@ class DetailViewFunctions
         return $result;
     }
                 
-    private function getLiteralValuesByLangFromLiteral(\EasyRdf\Literal &$data, string $lang): string {
-       
-        if($data->getValue()) {
-            if($data->getLang() == $lang) {
-            return $data->getValue();
+    private function getLiteralValuesByLangFromLiteral(\EasyRdf\Literal &$data, string $lang): string
+    {
+        if ($data->getValue()) {
+            if ($data->getLang() == $lang) {
+                return $data->getValue();
             } else {
                 return $data->getValue();
             }
@@ -138,9 +139,9 @@ class DetailViewFunctions
     }
     
     
-    private function formatResourceValues(array $data, string $p, string $propertyShortcut) {
-        
-        foreach($data as $d) {
+    private function formatResourceValues(array $data, string $p, string $propertyShortcut)
+    {
+        foreach ($data as $d) {
             //we will skip the title for the resource identifier
             if ($p != RC::idProp()) {
                 //this will be the proper
@@ -187,18 +188,17 @@ class DetailViewFunctions
                 }
             }
         }
-       
     }
     
     /**
      * Get the literal and resource values from the easyrdf resource object
-     * 
+     *
      * @param \EasyRdf\Resource $data
      * @param string $lang
      * @return array
      */
-    private function getLiteralsResourcesByLang(\EasyRdf\Resource $data, string $lang) {
-        
+    private function getLiteralsResourcesByLang(\EasyRdf\Resource $data, string $lang)
+    {
         $result = array();
         //get the resources and remove fedora properties
         $properties = array();
@@ -220,15 +220,17 @@ class DetailViewFunctions
             //if it is a liteal
             
             //LITERALS
-            if($data->getLiteral($p)) {
+            if ($data->getLiteral($p)) {
                 $val = $this->getLiteralValuesByLangFromResource($data, $p, $lang);
                 $this->dvResult['table'][$propertyShortcut] = $val;
             }
             
             //// RESOURCES
-            if($data->getResource($p)) {
+            if ($data->getResource($p)) {
                 ($data->allResources($p)) ? $val = $data->allResources($p) : $val = array();
-                if(empty($val)) { continue; }
+                if (empty($val)) {
+                    continue;
+                }
                 $this->formatResourceValues($val, $p, $propertyShortcut);
             }
         }
@@ -274,7 +276,7 @@ class DetailViewFunctions
        
         $this->getLiteralsResourcesByLang($data, $lang);
 
-/***** ****/        
+        /***** ****/
       
 
         if (count($this->searchTitle) > 0) {
