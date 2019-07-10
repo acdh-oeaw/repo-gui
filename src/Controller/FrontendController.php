@@ -94,7 +94,7 @@ class FrontendController extends ControllerBase
         
         $this->oeawCollectionFunc = new CollectionFunctions($this->fedora, $this->oeawFunctions, $this->fedoraGlobalModDate, $this->cacheModel, $this->oeawStorage);
         
-        ($_SESSION['language']) ? $this->siteLang = strtolower($_SESSION['language'])  : $this->siteLang = "en";
+        (isset($_SESSION['language'])) ? $this->siteLang = strtolower($_SESSION['language'])  : $this->siteLang = "en";
         $GLOBALS['language'] = $this->siteLang;
     }
 
@@ -311,7 +311,7 @@ class FrontendController extends ControllerBase
         if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
             $needsToCache = true;
         }
-        
+        $needsToCache = true;
         //if the file with this date is exists
         if ((count((array)$actualCacheObj) > 0) && $needsToCache === false) {
             if (!empty($actualCacheObj->data)) {
