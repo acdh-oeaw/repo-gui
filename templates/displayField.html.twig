@@ -1,4 +1,7 @@
 
+{%  if (delimiter is not defined) %}
+     {% set delimiter = ',' %}
+{% endif%}
  
 {%  if data %}
     <div class="res-property">
@@ -40,8 +43,8 @@
                             {% else %}
                                 {{ value|nl2br }}
                             {% endif%}
-                        {% endif%}
-                        <span class="res-prop-delimiter">,</span>
+                        {% endif%}                        
+                        <span class="res-prop-delimiter">{{ delimiter|raw }}</span>
                     {% endfor %}
                 {% endif %}
             {% else %}

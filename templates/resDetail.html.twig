@@ -111,16 +111,27 @@
                             {% endif %}
                         </td>
                         <td width='60%'>
+                            
+                            {% if ( (key == "acdh:hasDescription") or (key == "acdh:hasAppliedMethodDescription") or (key == "acdh:hasTechnicalInfo") )  %}
+                                {% set separator = '<br/>' %}
+                            {% else  %}
+                                {% set separator = ', ' %}
+                            {% endif %}
+                            
                             {% for val in value %}
+                                {% if (loop.length <= loop.index)  %}
+                                    {% set separator = '' %}
+                                {% endif %}
                                 {% if (val['title']) and (val['insideUri']) %}
-                                    <a href="/browser/oeaw_detail/{{ val['insideUri'] }}">{{ val['title'] }} </a> <br>
+                                    <a href="/browser/oeaw_detail/{{ val['insideUri'] }}">{{ val['title'] }} </a>  {{ separator|raw }}
                                 {% elseif val['title'] %}
-                                    <a href="{{ val['uri'] }}">{{ val['title'] }}</a> <br>
+                                    <a href="{{ val['uri'] }}">{{ val['title'] }}</a> {{ separator|raw }}
                                 {% elseif val['uri'] %}
-                                    <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> <br>
+                                    <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> {{ separator|raw }}
                                 {% else %}
                                     {{ val }}
                                 {% endif %}
+                                
                            {% endfor %}
                         </td>
                     </tr>
@@ -261,15 +272,16 @@
                 <i class="material-icons">info_outline</i>
                 <span class="res-prop-label">{{ "Spatial Coverage"|trans }}:&nbsp;&nbsp;</span>
                 {% if result.table['acdh:hasSpatialCoverage'] is iterable and result.table['acdh:hasSpatialCoverage']|length > 1 %}
-                    <ul>
                     {% for spatial in result.table['acdh:hasSpatialCoverage'] %}
                         {% if spatial['insideUri'] and spatial['title'] %}
-                            <li>
-                                <span class="res-prop-value"><a href="/browser/oeaw_detail/{{spatial['insideUri'] }}">{{ spatial['title'] }}</a></span>
-                            </li>
+                            {% if (loop.length <= loop.index)  %}
+                                {% set separator = '' %}
+                            {% else %}    
+                                {% set separator = ',' %}
+                            {% endif %}
+                                <span class="res-prop-value"><a href="/browser/oeaw_detail/{{spatial['insideUri'] }}">{{ spatial['title'] }}</a></span> {{ separator|raw }}
                         {% endif %}
                     {% endfor %}
-                    </ul>
                 {% else %}
                     {% if result.table['acdh:hasSpatialCoverage'][0]['insideUri'] %}
                         <span class="res-prop-value"><a href="/browser/oeaw_detail/{{ result.table['acdh:hasSpatialCoverage'][0]['insideUri'] }}">{{ result.table['acdh:hasSpatialCoverage'][0]['title'] }}</a></span>
