@@ -82,9 +82,10 @@ class CacheModel
         $lang = strtolower($lang);
         $type = strtoupper($type);
         $result = false;
+            
         try {
-            $sql = "DELETE FROM {".$this->table."} where uuid = :uuid and type = :type language = :language";
-            $this->query = $this->db->query($sql, [':uuid' => $uuid, ':type' => $type, ':language' => $lang]);
+            $sql = "DELETE FROM {".$this->table."} where uuid = :uuid and type = :type and language = :language";
+            $res = $this->query = $this->db->query($sql, [':uuid' => $uuid, ':type' => $type, ':language' => $lang]);
             $result = true;
             $this->changeBackDBConnection();
         } catch (Exception $ex) {
@@ -92,7 +93,6 @@ class CacheModel
         } catch (\Drupal\Core\Database\DatabaseExceptionWrapper $ex) {
             $result = false;
         }
-        
         return $result;
     }
     
@@ -110,15 +110,16 @@ class CacheModel
     {
         $lang = strtolower($lang);
         $type = strtoupper($type);
-        $exists = $this->getCacheByUUID($uuid, $type, $lang);
+        $exists = $this->getCacheByUUID($uuid, $lang, $type);      
         
         if (count((array)$exists) > 0) {
             if (!$this->deleteCacheByUUID($uuid, $type, $lang)) {
                 return false;
             }
         }
-        
+       
         $uuid = $this->convertUUID($uuid);
+        
         try {
             $result = $this->db->insert($this->table)
                 ->fields(
