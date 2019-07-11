@@ -110,7 +110,7 @@ class CacheModel
     {
         $lang = strtolower($lang);
         $type = strtoupper($type);
-        $exists = $this->getCacheByUUID($uuid, $lang, $type);      
+        $exists = $this->getCacheByUUID($uuid, $lang, $type);
         
         if (count((array)$exists) > 0) {
             if (!$this->deleteCacheByUUID($uuid, $type, $lang)) {
