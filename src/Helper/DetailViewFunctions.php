@@ -82,7 +82,7 @@ class DetailViewFunctions
         }
     }
     
-    private function checkLorisImage(\EasyRdf\Resource $d): string
+    private function checkLorisImage(\EasyRdf\Literal $d): string
     {
         if (strpos($d->__toString(), 'image') !== false) {
             if ($d->__toString() == "image/tiff") {
@@ -115,27 +115,15 @@ class DetailViewFunctions
                 $result[] = date('Y-m-d', $time);
             } elseif ($extent) {
                 $result[] = HF::formatSizeUnits($d->__toString());
-            } elseif ($image) {
+            /*} elseif ($image && get_class($d) == "EasyRdf\Literal") {
                 if (!empty($this->checkLorisImage($d))) {
                     $result[] = $this->checkLorisImage($d);
-                }
+                }*/
             } else {
                 $result[] = $d->__toString();
             }
         }
         return $result;
-    }
-                
-    private function getLiteralValuesByLangFromLiteral(\EasyRdf\Literal &$data, string $lang): string
-    {
-        if ($data->getValue()) {
-            if ($data->getLang() == $lang) {
-                return $data->getValue();
-            } else {
-                return $data->getValue();
-            }
-        }
-        return "";
     }
     
     
@@ -215,6 +203,7 @@ class DetailViewFunctions
         
         //loop through the properties
         foreach ($properties as $p) {
+            
             //create the property shortcuts for the array
             $propertyShortcut = $this->oeawFunctions->createPrefixesFromString($p);
             //if it is a liteal
@@ -276,13 +265,10 @@ class DetailViewFunctions
        
         $this->getLiteralsResourcesByLang($data, $lang);
 
-        /***** ****/
-      
-
         if (count($this->searchTitle) > 0) {
             //get the not literal propertys TITLE
             $existinTitles = array();
-            $existinTitles = $this->oeawStorage->getTitleAndBasicInfoByIdentifierArray($this->searchTitle);
+            $existinTitles = $this->oeawStorage->getTitleAndBasicInfoByIdentifierArray($this->searchTitle, false, $lang);
             
             if (count($existinTitles) > 0) {
                 $resKeys = array_keys($this->dvResult['table']);
