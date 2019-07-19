@@ -1,9 +1,12 @@
+
 {%  if data %}
-    {%  if data == 'public' %}
+    {% set acr = data|split('/') %}
+    
+    {%  if acr|last == 'public' %}
         <span class="green-dot" title="public"></span>
-    {%  elseif data == 'academic' %}
+    {%  elseif acr|last == 'academic' %}
         <span class="orange-dot" title="academic"></span>
-    {%  elseif data == 'restricted' %}
+    {%  elseif acr|last == 'restricted' %}
         <span class="red-dot" title="restricted"></span>
     {% endif%} 
 {% endif%}
