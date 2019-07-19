@@ -96,15 +96,20 @@
                         if ( v == true ) { userAllowedToDL = true; } 
                     }
                     if(k == 'accessRestriction') {
-                        if(  ((v != 'public') &&  v != actualUserRestriction) && actualUserRestriction != 'admin'){
+                        
+                        var result = v.split('/');
+                        var resRestriction = result.slice(-1)[0];
+                        if(!resRestriction) { resRestriction = "public"; }
+                        
+                        if(  ((resRestriction != 'public') &&  resRestriction != actualUserRestriction) && actualUserRestriction != 'admin'){
                             userAllowedToDL === false;
                             disableChkArray.push(key+'_anchor');
                             disableChkUrlArray.push(value.original.uri);
                             var obj = {};
-                            obj = {"id": value.id, "url": value.original.uri, "accessRestriction": v};
+                            obj = {"id": value.id, "url": value.original.uri, "accessRestriction": resRestriction};
                             //get one url for the permission levels
-                            if(!resourceGroupsData.hasOwnProperty(v)) {
-                                resourceGroupsData[v] = value.original.uri;
+                            if(!resourceGroupsData.hasOwnProperty(resRestriction)) {
+                                resourceGroupsData[resRestriction] = value.original.uri;
                             }
                             
                             disableChkIDArray.push(obj);
@@ -196,8 +201,9 @@
                 if(data.node.original.dir === false){
                     let id = data.instance.get_node(data.selected[0]).id;
                     //check the permissions for the file download
-                    var resourceRestriction = data.instance.get_node(data.selected[0]).original.accessRestriction;
-                    if( ((resourceRestriction != 'public') &&  resourceRestriction == actualUserRestriction) || actualUserRestriction == 'admin' ){
+                    var resourceRestriction = data.instance.get_node(data.selected[0]).original.accessRestriction;                    
+                    if( ((resourceRestriction.indexOf('public') == -1) && resourceRestriction.indexOf(actualUserRestriction) == -1 ) 
+                            || actualUserRestriction == 'admin' ){
                         $('#not_enough_permission').hide();
                         window.location.href = data.instance.get_node(data.selected[0]).original.uri;
                     } else if( resourceRestriction == 'public'){

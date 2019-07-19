@@ -28,8 +28,9 @@ jq2(function( $ ) {
         }
             
         var accessRestriction = jq2('#accessRestriction').val();
+        
         if(accessRestriction){
-            if(accessRestriction != "public"){
+            if(accessRestriction.indexOf('public') == -1){
                 jq2( ".dissServAhref" ).click(function(e) {
                     
                     let urlValue = jq2(this).attr("href");
