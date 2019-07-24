@@ -8,7 +8,6 @@ use Drupal\oeaw\Helper\HelperFunctions as HF;
 use Drupal\oeaw\Model\OeawResourceCustomData;
 use acdhOeaw\util\RepoConfig as RC;
 use Drupal\oeaw\Cache\BreadcrumbCache;
-use Drupal\oeaw\Cache\PropertyTableCache;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class DetailViewFunctions
@@ -19,23 +18,20 @@ class DetailViewFunctions
     private $oeawFunctions;
     private $oeawStorage;
     private $breadcrumbCache;
-    private $propertyTableCache;
     private $searchTitle;
     private $dvResult;
-    private $literals;
+    
     
     public function __construct(
         $langConf,
         \Drupal\oeaw\OeawFunctions $oeawFunctions,
-        \Drupal\oeaw\Model\OeawStorage $oeawStorage,
-        \Drupal\oeaw\Cache\PropertyTableCache $propertyTableCache
+        \Drupal\oeaw\Model\OeawStorage $oeawStorage
     ) {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->langConf = $langConf;
         $this->oeawFunctions = $oeawFunctions;
         $this->oeawStorage = $oeawStorage;
         $this->breadcrumbCache = new BreadcrumbCache();
-        $this->propertyTableCache = $propertyTableCache;
     }
     
     /**
@@ -490,12 +486,6 @@ class DetailViewFunctions
         if (!empty($resultsObj->getType()) && in_array(strtolower($resultsObj->getType()), $typesToBeCited)) {
             //pass $rootMeta for rdf object
             $extras["CiteThisWidget"] = $this->oeawFunctions->createCiteThisWidget($resultsObj);
-        }
-        
-        //get the tooltip from cache
-        $cachedTooltip = $this->propertyTableCache->getCachedData($resultsObj->getTable());
-        if (count($cachedTooltip) > 0) {
-            $extras["tooltip"] = $cachedTooltip;
         }
         
         //if it is a resource then we need to check the 3dContent

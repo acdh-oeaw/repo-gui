@@ -17,7 +17,6 @@ use Drupal\oeaw\Helper\DetailViewFunctions;
 use Drupal\oeaw\Helper\CollectionFunctions;
 use Drupal\oeaw\OeawFunctions;
 
-use Drupal\oeaw\Cache\PropertyTableCache;
 use Drupal\Core\CacheBackendInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 
@@ -49,7 +48,6 @@ class FrontendController extends ControllerBase
     private $oeawFunctions;
         
     private $oeawCustomSparql;
-    private $propertyTableCache;
     private $uriFor3DObj;
     private $langConf;
     private $uuid;
@@ -69,11 +67,10 @@ class FrontendController extends ControllerBase
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->langConf = $this->config('oeaw.settings');
         $this->userid = \Drupal::currentUser()->id();
-        $this->propertyTableCache = new PropertyTableCache();
         $this->oeawFunctions = new OeawFunctions();
         $this->oeawStorage = new OeawStorage();
         $this->oeawCustomSparql = new OeawCustomSparql();
-        $this->oeawDVFunctions = new DetailViewFunctions($this->langConf, $this->oeawFunctions, $this->oeawStorage, $this->propertyTableCache);
+        $this->oeawDVFunctions = new DetailViewFunctions($this->langConf, $this->oeawFunctions, $this->oeawStorage);
         $this->fedora = $this->oeawFunctions->initFedora();
         
         try {
@@ -304,7 +301,7 @@ class FrontendController extends ControllerBase
             return array();
         }
         
-        $actualCacheObj = $this->cacheModel->getCacheByUUID($this->uuid, $this->siteLang);
+        $actualCacheObj = $this->cacheModel->getCacheByUUID($this->uuid, $this->siteLang, "R");
         $fdDate = strtotime($this->fedoraGlobalModDate);
         
         $needsToCache = false;
@@ -335,6 +332,12 @@ class FrontendController extends ControllerBase
             if (!$this->cacheModel->addCacheToDB($this->uuid, serialize($result), "R", $fdDate, $this->siteLang)) {
                 drupal_set_message($this->langConf->get('errmsg_db_cache_problems') ? $this->langConf->get('errmsg_db_cache_problems') : 'Database cache wasnt successful', 'error');
             }
+        }
+        
+        //get the tooltip from cache
+        $cachedTooltip = $this->cacheModel->getCacheByUUID('ontology', $this->siteLang, "O");
+        if (count((array)$cachedTooltip) > 0) {
+            $result->extraData["tooltip"] = unserialize($cachedTooltip->data);
         }
         
         $datatable = array(
@@ -623,14 +626,45 @@ class FrontendController extends ControllerBase
     public function oeaw_cache_ontology(): Response
     {
         $result = array();
-        if ($this->propertyTableCache->setCacheData() == true) {
-            $result = "cache updated succesfully!";
-        } else {
-            $result = "there is no ontology data to cache!";
+        $responseTXT = "";
+        $langs = array("en", "de");
+        $fdDate = strtotime($this->fedoraGlobalModDate);
+        
+        foreach($langs as $lng) {
+            $actualCacheObj = $this->cacheModel->getCacheByUUID('ontology', $lng, "O");
+            $needsToCache = false;
+            if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
+                $needsToCache = true;
+            }
+            if ((count((array)$actualCacheObj) > 0) && $needsToCache === false) {
+                $responseTXT .= "Ontology - ".$lng." - Cache ready! ";
+            } else {
+                $data = $this->oeawStorage->getOntologyForCache($lng);
+                if (count($data) > 0) {
+                    foreach ($data as $d) {
+                        $shortcut = "";
+                        $shortcut = $this->oeawFunctions->createPrefixesFromString($d["id"]);
+                        if ($shortcut) {
+                            $result[$shortcut] = array("title" => $d["title"], "desc" => $d["comment"]);
+                        }
+                    }
+                }
+
+                if(count($result) > 0) {
+                    if (!$this->cacheModel->addCacheToDB('ontology', serialize($result), "O", $fdDate, $this->siteLang)) {
+                        $responseTXT .= $lng.":";                        
+                        $responseTXT .= ($this->langConf->get('errmsg_db_cache_problems') ? $this->langConf->get('errmsg_db_cache_problems') : 'Database cache wasnt successful');
+                    }else {
+                        $responseTXT .= "Ontology - ".$lng." - Cache ready! ";
+                    }
+                }else {
+                    $responseTXT .= "No data - ".$lng;
+                }
+            }
         }
         
         $response = new Response();
-        $response->setContent(json_encode($result));
+        $response->setContent(json_encode($responseTXT));
         $response->headers->set('Content-Type', 'application/json');
         return $response;
     }
