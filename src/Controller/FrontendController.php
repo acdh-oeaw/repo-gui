@@ -630,7 +630,7 @@ class FrontendController extends ControllerBase
         $langs = array("en", "de");
         $fdDate = strtotime($this->fedoraGlobalModDate);
         
-        foreach($langs as $lng) {
+        foreach ($langs as $lng) {
             $actualCacheObj = $this->cacheModel->getCacheByUUID('ontology', $lng, "O");
             $needsToCache = false;
             if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
@@ -650,14 +650,14 @@ class FrontendController extends ControllerBase
                     }
                 }
 
-                if(count($result) > 0) {
+                if (count($result) > 0) {
                     if (!$this->cacheModel->addCacheToDB('ontology', serialize($result), "O", $fdDate, $this->siteLang)) {
-                        $responseTXT .= $lng.":";                        
+                        $responseTXT .= $lng.":";
                         $responseTXT .= ($this->langConf->get('errmsg_db_cache_problems') ? $this->langConf->get('errmsg_db_cache_problems') : 'Database cache wasnt successful');
-                    }else {
+                    } else {
                         $responseTXT .= "Ontology - ".$lng." - Cache ready! ";
                     }
-                }else {
+                } else {
                     $responseTXT .= "No data - ".$lng;
                 }
             }
