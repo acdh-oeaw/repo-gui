@@ -630,8 +630,7 @@ class FrontendController extends ControllerBase
         $langs = array("en", "de");
         $fdDate = strtotime($this->fedoraGlobalModDate);
         
-        foreach($langs as $lng) {
-            
+        foreach ($langs as $lng) {
             $data = $this->oeawStorage->getOntologyForCache($lng);
             if (count($data) > 0) {
                 foreach ($data as $d) {
@@ -643,17 +642,16 @@ class FrontendController extends ControllerBase
                 }
             }
 
-            if(count($result) > 0) {
+            if (count($result) > 0) {
                 if (!$this->cacheModel->addCacheToDB('ontology', serialize($result), "O", $fdDate, $lng)) {
-                    $responseTXT .= $lng.":";                        
+                    $responseTXT .= $lng.":";
                     $responseTXT .= ($this->langConf->get('errmsg_db_cache_problems') ? $this->langConf->get('errmsg_db_cache_problems') : 'Database cache wasnt successful');
-                }else {
+                } else {
                     $responseTXT .= "Ontology - ".$lng." - Cache ready! ";
                 }
-            }else {
+            } else {
                 $responseTXT .= "No data - ".$lng;
             }
-            
         }
         
         $response = new Response();
