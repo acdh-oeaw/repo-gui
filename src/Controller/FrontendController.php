@@ -339,7 +339,7 @@ class FrontendController extends ControllerBase
         if (count((array)$cachedTooltip) > 0) {
             $result->extraData["tooltip"] = unserialize($cachedTooltip->data);
         }
-        
+
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => (isset($result->mainData)) ? $result->mainData : array(),
@@ -630,37 +630,30 @@ class FrontendController extends ControllerBase
         $langs = array("en", "de");
         $fdDate = strtotime($this->fedoraGlobalModDate);
         
-        foreach ($langs as $lng) {
-            $actualCacheObj = $this->cacheModel->getCacheByUUID('ontology', $lng, "O");
-            $needsToCache = false;
-            if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
-                $needsToCache = true;
-            }
-            if ((count((array)$actualCacheObj) > 0) && $needsToCache === false) {
-                $responseTXT .= "Ontology - ".$lng." - Cache ready! ";
-            } else {
-                $data = $this->oeawStorage->getOntologyForCache($lng);
-                if (count($data) > 0) {
-                    foreach ($data as $d) {
-                        $shortcut = "";
-                        $shortcut = $this->oeawFunctions->createPrefixesFromString($d["id"]);
-                        if ($shortcut) {
-                            $result[$shortcut] = array("title" => $d["title"], "desc" => $d["comment"]);
-                        }
+        foreach($langs as $lng) {
+            
+            $data = $this->oeawStorage->getOntologyForCache($lng);
+            if (count($data) > 0) {
+                foreach ($data as $d) {
+                    $shortcut = "";
+                    $shortcut = $this->oeawFunctions->createPrefixesFromString($d["id"]);
+                    if ($shortcut) {
+                        $result[$shortcut] = array("title" => $d["title"], "desc" => $d["comment"]);
                     }
                 }
+            }
 
-                if (count($result) > 0) {
-                    if (!$this->cacheModel->addCacheToDB('ontology', serialize($result), "O", $fdDate, $this->siteLang)) {
-                        $responseTXT .= $lng.":";
-                        $responseTXT .= ($this->langConf->get('errmsg_db_cache_problems') ? $this->langConf->get('errmsg_db_cache_problems') : 'Database cache wasnt successful');
-                    } else {
-                        $responseTXT .= "Ontology - ".$lng." - Cache ready! ";
-                    }
-                } else {
-                    $responseTXT .= "No data - ".$lng;
+            if(count($result) > 0) {
+                if (!$this->cacheModel->addCacheToDB('ontology', serialize($result), "O", $fdDate, $lng)) {
+                    $responseTXT .= $lng.":";                        
+                    $responseTXT .= ($this->langConf->get('errmsg_db_cache_problems') ? $this->langConf->get('errmsg_db_cache_problems') : 'Database cache wasnt successful');
+                }else {
+                    $responseTXT .= "Ontology - ".$lng." - Cache ready! ";
                 }
+            }else {
+                $responseTXT .= "No data - ".$lng;
             }
+            
         }
         
         $response = new Response();
