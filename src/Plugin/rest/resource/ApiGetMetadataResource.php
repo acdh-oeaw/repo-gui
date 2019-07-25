@@ -144,13 +144,6 @@ class ApiGetMetadataResource extends ResourceBase
                     if (isset($prop['minCardinality']) && $prop['minCardinality'] >= 1) {
                         $required[] = $propID;
                     }
-                    
-                    if (isset($prop['cardinality'])) {
-                        $result[$propID]['cardinality'] = $prop['cardinality'];
-                        $result[$propID]['minItems'] = (int)$prop['cardinality'];
-                        $result[$propID]['maxItems'] = (int)$prop['cardinality'];
-                    }
-                    
                                         
                     if (isset($prop['range']) && $prop['range']) {
                         if ($result[$propID]['type'] == "array") {
@@ -158,13 +151,9 @@ class ApiGetMetadataResource extends ResourceBase
                             $result[$propID]['items']['range'] = $prop['range'];
                             continue;
                         }
-                        $propType = explode('#', $prop['range']);
-                        if(is_array($propType) && !empty(end($propType))){
-                            $result[$propID]['type'] = end($propType);
+                        if ($result[$propID]['type'] == "string") {
+                            $result[$propID]['range'] = $prop['range'];
                         }
-                        $result[$propID]['range'] = $prop['range'];
-                    }else {
-                        $result[$propID]['type'] = "string";
                     }
                     if (isset($prop['vocabs']) && $prop['vocabs']) {
                         $result[$propID]['vocabs'] = $prop['vocabs'];

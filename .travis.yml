@@ -4,7 +4,7 @@ sudo: true
 
 php:
   - 7.2
-    
+
 env:
   global:
     - MODULE_NAME='oeaw'
