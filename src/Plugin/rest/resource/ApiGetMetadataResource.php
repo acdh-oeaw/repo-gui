@@ -159,11 +159,11 @@ class ApiGetMetadataResource extends ResourceBase
                             continue;
                         }
                         $propType = explode('#', $prop['range']);
-                        if(is_array($propType) && !empty(end($propType))){
+                        if (is_array($propType) && !empty(end($propType))) {
                             $result[$propID]['type'] = end($propType);
                         }
                         $result[$propID]['range'] = $prop['range'];
-                    }else {
+                    } else {
                         $result[$propID]['type'] = "string";
                     }
                     if (isset($prop['vocabs']) && $prop['vocabs']) {
