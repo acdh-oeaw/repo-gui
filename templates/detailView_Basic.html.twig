@@ -44,21 +44,16 @@
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasCreator'], 'icon': "people", 'label': "Creator(s)" } ) }}
     {% endif%}	
     
-    <!---- CURATOR --->
-    {% if result.table['acdh:hasCurator'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasCurator'], 'icon': "people", 'label': "Curator(s)" } ) }}
-    {% endif%}
-    
     <!---- CONTRIBUTOR --->
     {% if result.table['acdh:hasContributor'] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasContributor'], 'icon': "person", 'label': "Contributor(s)" } ) }}
     {% endif%}
-
+    
     <!---- CREATED DATE --->
     {% if result.table['acdh:hasCreatedDate'][0] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasCreatedDate'], 'icon': "today", 'label': "Created Date" } ) }}
     {% endif%}
-
+        
     <!---- CREATION START --->
     {% if result.table['acdh:hasCreationStartDate'][0] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasCreationStartDate'], 'icon': "today", 'label': "Creation Start Date" } ) }}
@@ -94,12 +89,16 @@
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasCategory'], 'icon': "sort", 'label': "Category" } ) }}
     {% endif%}
     
+     <!---- LICENSOR --->
+    {%  if result.table['acdh:hasLicensor'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasLicensor'], 'icon': "copyright", 'label': "Licensor" } ) }}
+    {% endif%}
     <!---- LICENSE --->
     {%  if result.table['acdh:hasLicense'] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasLicense'], 'icon': "copyright", 'label': "License" } ) }}
     {% endif%}
-
-     <!---- ACCESS RESTRICTION --->
+    
+    <!---- ACCESS RESTRICTION --->
     {%  if result.getAccessRestriction() %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.getAccessRestriction(), 'icon': "verified_user", 'label': "Access Restriction" } ) }}
     {% endif%}
@@ -128,12 +127,11 @@
     {% if result.table['acdh:hasRelatedProject'] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasRelatedProject'], 'icon': "track_changes", 'label': "Related Project(s)" } ) }}
     {% endif%}
-    
+        
     <!---- is part of--->
     {% if result.table['acdh:isPartOf'] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:isPartOf'], 'icon': "device_hub", 'label': "Part of" } ) }}
     {% endif%}
-
     
     <!---- IS DERIVED FROM --->
     {% if result.table['acdh:isderivedFrom'] %}
@@ -144,6 +142,17 @@
     {% if result.table['rdfs:seeAlso'] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:seeAlso'], 'icon': "library_books", 'label': "See Also" } ) }}
     {% endif%}
+    
+    <!---- hasPrincipalInvestigator  --->
+    {% if result.table['acdh:hasPrincipalInvestigator'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasPrincipalInvestigator'], 'icon': "device_hub", 'label': "Principal Investigator" } ) }}
+    {% endif%}
+        
+    <!---- CURATOR --->
+    {% if result.table['acdh:hasCurator'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasCurator'], 'icon': "people", 'label': "Curator(s)" } ) }}
+    {% endif%}
+        
 
 {% if result.imageUrl %}</div>{% endif%}
 

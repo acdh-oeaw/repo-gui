@@ -14,9 +14,7 @@
     
     {%  if result.basicProperties['acdh:hasAlternativeTitle'] %}
         <div class="res-property">
-            <i class="material-icons">&#xE264;</i>
-            <span class="res-prop-label">{{ "Alternative Title"|trans }}:</span> 
-            <span class="res-title">{{ result.basicProperties['acdh:hasAlternativeTitle'] }}</span>
+            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasAlternativeTitle'], 'icon': "", 'label': "Alternative Title" } ) }}
         </div>
     {% endif%}
     

@@ -379,7 +379,7 @@ class DetailViewFunctions
         $this->fedoraResource = $this->getResouceDataById($uuid, $fedora);
         
         if (isset($this->fedoraResource->error) && !empty($this->fedoraResource->error)) {
-            return $this->fedoraResource->error;
+            return $result->error = $this->fedoraResource->error;
         } else {
             $this->fedoraMetadata = $this->fedoraResource->getMetadata();
         }
