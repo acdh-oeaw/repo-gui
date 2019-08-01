@@ -1112,8 +1112,22 @@ class FrontendController extends ControllerBase
             return $response;
         }
         
+        $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
+        $fedoraUrl = $this->oeawStorage->getFedoraUrlByIdentifierOrPid($identifier);
+        
         $tmpDirDate = $this->oeawCollectionFunc->setupDirForCollDL($dateID);
         $this->oeawCollectionFunc->downloadFiles($binaries);
+        
+        $ttl = "";
+        if (!empty($fedoraUrl)) {
+            $ttl = $this->oeawFunctions->turtleDissService($fedoraUrl);
+            if(!empty($ttl)) {
+                $turtleFile = fopen($tmpDirDate.'/turtle.ttl', "w");
+                fwrite($turtleFile, $ttl);
+                fclose($turtleFile);
+                chmod($tmpDirDate.'/turtle.ttl', 0777);
+            }
+        }
         
         //if we have files in the directory
         $dirFiles = scandir($tmpDirDate);

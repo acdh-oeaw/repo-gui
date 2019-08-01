@@ -783,11 +783,14 @@ class OeawStorage implements OeawStorageInterface
     
     /**
      * Get the fedora url by the id or pid
-     *
+     * 
+     * type: false = uri, true = pid 
+     * 
      * @param string $id
+     * @param bool $type 
      * @return string
      */
-    public function getFedoraUrlByIdentifierOrPid(string $id): string
+    public function getFedoraUrlByIdentifierOrPid(string $id, bool $type = false): string
     {
         $result = "";
         
@@ -806,7 +809,7 @@ class OeawStorage implements OeawStorageInterface
             $fields = $res->getFields();
             $data = $this->oeawFunctions->createSparqlResult($res, $fields);
             if (count($data) > 0) {
-                if (isset($data[0]['pid']) && !empty($data[0]['pid'])) {
+                if($type === true && (isset($data[0]['pid']) && !empty($data[0]['pid'])) ) {
                     $result = $data[0]['pid'];
                 } elseif (isset($data[0]['uri']) && !empty($data[0]['uri'])) {
                     $result = $data[0]['uri'];
