@@ -1121,7 +1121,7 @@ class FrontendController extends ControllerBase
         $ttl = "";
         if (!empty($fedoraUrl)) {
             $ttl = $this->oeawFunctions->turtleDissService($fedoraUrl);
-            if(!empty($ttl)) {
+            if (!empty($ttl)) {
                 $turtleFile = fopen($tmpDirDate.'/turtle.ttl', "w");
                 fwrite($turtleFile, $ttl);
                 fclose($turtleFile);
