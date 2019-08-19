@@ -61,7 +61,7 @@ class ApiPlacesResource extends ResourceBase
                 
                 for ($x = 0; $x < count($spRes); $x++) {
                     $ids = array();
-                    if(is_array($spRes[$x]['identifiers'])){
+                    if (is_array($spRes[$x]['identifiers'])) {
                         $ids = explode(",", $spRes[$x]['identifiers']);
                     }
                     //set the flag to false
