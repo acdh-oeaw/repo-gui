@@ -781,6 +781,70 @@ class OeawStorage implements OeawStorageInterface
         }
     }
     
+    public function getMetadataForGuiTable(string $classString, string $lang = ""): array
+    {
+        if (empty($classString)) {
+            return drupal_set_message(t('Empty').' '.t('Values').' -->'.__FUNCTION__, 'error');
+        }
+        
+        (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
+        
+        $prefix = "prefix owl: <http://www.w3.org/2002/07/owl#> "
+                . "prefix skos: <http://www.w3.org/2004/02/skos/core#> ";
+                
+        $select = "select ?uri ?property ?machine_name ?ordering ?maxCardinality ?minCardinality ?cardinality "
+                . "where { ";
+        
+        $where = " ?mainURI <".RC::get('fedoraIdProp').">  <".RC::get('fedoraVocabsNamespace').$classString."> . ";
+        $where .= "?mainURI (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . ";
+        $where .= " ?uri rdfs:domain ?class . ";
+        
+        $where .= " ?uri <".RC::get('fedoraIdProp')."> ?propID . ";        
+        
+        $where .= $this->modelFunctions->filterLanguage("uri", "http://www.w3.org/2004/02/skos/core#altLabel", "property", $lang, false);
+        
+        $optionals = "OPTIONAL {
+            ?uri <".RC::get('fedoraTitleProp')."> ?machine_name .
+        }";
+        
+        $optionals .= "Optional {
+            ?uri <".RC::get('fedoraVocabsNamespace')."ordering> ?ordering .
+        }";
+        
+        $optionals .= "OPTIONAL {
+  		?uriProp owl:onProperty ?propID .
+                OPTIONAL {
+                    ?uriProp <".RC::get('drupalOwlMaxCardinality')."> ?maxCardinality .
+                }
+                OPTIONAL {
+                    ?uriProp <".RC::get('drupalOwlMinCardinality')."> ?minCardinality .
+                }
+                OPTIONAL {
+                    ?uriProp <".RC::get('drupalOwlCardinality')."> ?cardinality .
+                }
+        }";
+        
+        
+        $groupby = " GROUP BY ?uri ?property ?machine_name ?ordering ?maxCardinality ?minCardinality ?cardinality ";
+        $orderby = " ORDER BY ?ordering ";
+        
+        $string = $prefix.$select.$where.$optionals." } ".$groupby.$orderby;
+        
+        try {
+            $q = new SimpleQuery($string);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields();
+            $result = $this->oeawFunctions->createSparqlResult($res, $fields);
+            return $result;
+        } catch (\Exception $ex) {
+            return array();
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return array();
+        }
+    }
+    
     /**
      * Get the fedora url by the id or pid
      *
