@@ -64,7 +64,7 @@ class DetailViewFunctions
     
     /**
      * Get the resource by identifier
-     * 
+     *
      * @param string $uuid
      * @param \acdhOeaw\fedora\Fedora $fedora
      * @return object
@@ -87,7 +87,7 @@ class DetailViewFunctions
     
     /**
      * check if the image is loris image
-     * 
+     *
      * @param \EasyRdf\Literal $d
      * @return string
      */
@@ -112,7 +112,7 @@ class DetailViewFunctions
    
     /**
      * Get the Literal values from the easyrdf obj
-     * 
+     *
      * @param \EasyRdf\Resource $data
      * @param string $prop
      * @param string $lang
@@ -145,7 +145,7 @@ class DetailViewFunctions
     
     /**
      * Format the resource values
-     * 
+     *
      * @param array $data
      * @param string $p
      * @param string $propertyShortcut
@@ -401,7 +401,7 @@ class DetailViewFunctions
     
     /**
      * The main view data for the oeaw_detail page
-     * 
+     *
      * @param type $fedora
      * @param type $uuid
      * @param string $lang
