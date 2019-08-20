@@ -29,7 +29,7 @@ use EasyRdf\Resource;
  * )
  */
 class ApiGetOntologyJSPluginDataResource extends ResourceBase
-{    
+{
     /*
      * Usage:
      * https://domain.com/browser/api/getOntologyJSPluginData/Language?_format=json
@@ -64,19 +64,23 @@ class ApiGetOntologyJSPluginDataResource extends ResourceBase
         $result = array();
         $result['$schema'] = "http://json-schema.org/draft-07/schema#";
         
-        if ( count($data) > 0 ) {
+        if (count($data) > 0) {
             $files = "";
             $collections = "";
-            foreach($data as $d) {
-                if( isset($d['collections']) && !empty($d['collections']) ) {
+            foreach ($data as $d) {
+                if (isset($d['collections']) && !empty($d['collections'])) {
                     $collections = $d['collections']." ".t("collections");
                 }
-                if( isset($d['resources']) && !empty($d['resources']) ) {
+                if (isset($d['resources']) && !empty($d['resources'])) {
                     $files = $d['resources']." ".t("files");
                 }
             }
-            if(empty($files)) { $files = "0";}
-            if(empty($collections)) { $collections = "0";}
+            if (empty($files)) {
+                $files = "0";
+            }
+            if (empty($collections)) {
+                $collections = "0";
+            }
             
             $result['text'] = $collections. " ".t("with")." ".$files;
             $response = new Response();
