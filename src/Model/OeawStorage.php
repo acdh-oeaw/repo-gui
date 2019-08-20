@@ -799,7 +799,7 @@ class OeawStorage implements OeawStorageInterface
         $where .= "?mainURI (rdfs:subClassOf / ^<".RC::get('fedoraIdProp').">)* / rdfs:subClassOf ?class . ";
         $where .= " ?uri rdfs:domain ?class . ";
         
-        $where .= " ?uri <".RC::get('fedoraIdProp')."> ?propID . ";        
+        $where .= " ?uri <".RC::get('fedoraIdProp')."> ?propID . ";
         
         $where .= $this->modelFunctions->filterLanguage("uri", "http://www.w3.org/2004/02/skos/core#altLabel", "property", $lang, false);
         

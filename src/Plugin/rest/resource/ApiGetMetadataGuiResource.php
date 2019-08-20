@@ -31,7 +31,6 @@ use EasyRdf\Resource;
  */
 class ApiGetMetadataGuiResource extends ResourceBase
 {
-    
     private $data;
     /*
      * Usage:
@@ -74,7 +73,7 @@ class ApiGetMetadataGuiResource extends ResourceBase
         $result = array();
         $result['$schema'] = "http://json-schema.org/draft-07/schema#";
         
-        if ( count($projectData) > 0 || count($collectionData) > 0 || count($resourceData) > 0 ) {
+        if (count($projectData) > 0 || count($collectionData) > 0 || count($resourceData) > 0) {
             $this->summarizeData($projectData, "project");
             $this->summarizeData($collectionData, "collection");
             $this->summarizeData($resourceData, "resource");
@@ -93,13 +92,14 @@ class ApiGetMetadataGuiResource extends ResourceBase
     
     /**
      * Merge the data arrays
-     * 
+     *
      * @param array $resData
      * @param string $class
      */
-    private function summarizeData(array $resData, string $class) {
-        if(count($resData) > 0) {
-            foreach($resData as $data) {
+    private function summarizeData(array $resData, string $class)
+    {
+        if (count($resData) > 0) {
+            foreach ($resData as $data) {
                 $this->data[$data['property']]['basic_info'] = array("property" => $data['property'],
                     "machine_name" => $data['machine_name'],
                     "ordering" => $data['ordering']);
@@ -110,28 +110,28 @@ class ApiGetMetadataGuiResource extends ResourceBase
     
     /**
      * Check the property cardinalities
-     * 
+     *
      * @param array $data
      * @return string
      */
-    private function checkCardinality(array $data): string {
+    private function checkCardinality(array $data): string
+    {
         $cardinalities = "";
         
         //mandatory
-        ( isset($data['cardinality']) && !empty($data['cardinality']) ) ? $cardinalities .= "m" : "";
+        (isset($data['cardinality']) && !empty($data['cardinality'])) ? $cardinalities .= "m" : "";
         
         //optional
-        ( (isset($data['minCardinality']) && empty($data['minCardinality'])) 
-            && (isset($data['maxCardinality']) && empty($data['maxCardinality']) ) 
-            && (isset($data['cardinality']) && empty($data['cardinality'])) ) ? $cardinalities .= "o" : "";
+        ((isset($data['minCardinality']) && empty($data['minCardinality']))
+            && (isset($data['maxCardinality']) && empty($data['maxCardinality']))
+            && (isset($data['cardinality']) && empty($data['cardinality']))) ? $cardinalities .= "o" : "";
         
         //recommended
-        ( (isset($data['minCardinality']) && !empty($data['minCardinality']) ) ) ? $cardinalities .= "r" : "";
-        ( (isset($data['minCardinality']) && !empty($data['minCardinality']) && (int)$data['minCardinality'] > 1 ) ) ? $cardinalities .= "*" : "";
-        ( (isset($data['maxCardinality']) && !empty($data['maxCardinality']) )) ? $cardinalities .= "r" : "";
-        ( (isset($data['maxCardinality']) && !empty($data['maxCardinality']) && (int)$data['maxCardinality'] > 1 )) ? $cardinalities .= "*" : "";
+        ((isset($data['minCardinality']) && !empty($data['minCardinality']))) ? $cardinalities .= "r" : "";
+        ((isset($data['minCardinality']) && !empty($data['minCardinality']) && (int)$data['minCardinality'] > 1)) ? $cardinalities .= "*" : "";
+        ((isset($data['maxCardinality']) && !empty($data['maxCardinality']))) ? $cardinalities .= "r" : "";
+        ((isset($data['maxCardinality']) && !empty($data['maxCardinality']) && (int)$data['maxCardinality'] > 1)) ? $cardinalities .= "*" : "";
         
         return $cardinalities;
     }
-   
 }
