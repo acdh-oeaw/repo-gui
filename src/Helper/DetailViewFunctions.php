@@ -62,6 +62,13 @@ class DetailViewFunctions
     }
     
     
+    /**
+     * Get the resource by identifier
+     * 
+     * @param string $uuid
+     * @param \acdhOeaw\fedora\Fedora $fedora
+     * @return object
+     */
     private function getResouceDataById(string $uuid, \acdhOeaw\fedora\Fedora $fedora): object
     {
         $result = new \stdClass();
@@ -78,6 +85,12 @@ class DetailViewFunctions
         }
     }
     
+    /**
+     * check if the image is loris image
+     * 
+     * @param \EasyRdf\Literal $d
+     * @return string
+     */
     private function checkLorisImage(\EasyRdf\Literal $d): string
     {
         if (strpos($d->__toString(), 'image') !== false) {
@@ -96,7 +109,15 @@ class DetailViewFunctions
         }
     }
     
-    
+   
+    /**
+     * Get the Literal values from the easyrdf obj
+     * 
+     * @param \EasyRdf\Resource $data
+     * @param string $prop
+     * @param string $lang
+     * @return type
+     */
     private function getLiteralValuesByLangFromResource(\EasyRdf\Resource &$data, string $prop, string $lang)
     {
         ($prop == RC::get('fedoraExtentProp')) ? $extent = true : $extent = false;
@@ -122,7 +143,13 @@ class DetailViewFunctions
         return $result;
     }
     
-    
+    /**
+     * Format the resource values
+     * 
+     * @param array $data
+     * @param string $p
+     * @param string $propertyShortcut
+     */
     private function formatResourceValues(array $data, string $p, string $propertyShortcut)
     {
         foreach ($data as $d) {
@@ -372,6 +399,14 @@ class DetailViewFunctions
         return $obj;
     }
     
+    /**
+     * The main view data for the oeaw_detail page
+     * 
+     * @param type $fedora
+     * @param type $uuid
+     * @param string $lang
+     * @return object
+     */
     public function generateDetailViewMainData(&$fedora, &$uuid, string $lang = ""): object
     {
         $result = new \stdClass();
@@ -389,8 +424,7 @@ class DetailViewFunctions
             try {
                 $resultsObj = $this->createDetailViewTable($this->fedoraMetadata, $lang);
             } catch (\ErrorException $ex) {
-                drupal_set_message(t("Error").' : '.$ex->getMessage(), 'error');
-                return array();
+                return $result->error = t("Error").' : '.$ex->getMessage();
             }
             
             //check the acdh:hasIdentifier data to the child view

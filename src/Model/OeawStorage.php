@@ -873,10 +873,10 @@ class OeawStorage implements OeawStorageInterface
             $fields = $res->getFields();
             $data = $this->oeawFunctions->createSparqlResult($res, $fields);
             if (count($data) > 0) {
-                if ($type === true && (isset($data[0]['pid']) && !empty($data[0]['pid']))) {
-                    $result = $data[0]['pid'];
-                } elseif (isset($data[0]['uri']) && !empty($data[0]['uri'])) {
+                if ($type === true && (isset($data[0]['uri']) && !empty($data[0]['uri']))) {
                     $result = $data[0]['uri'];
+                } elseif (isset($data[0]['pid']) && !empty($data[0]['pid'])) {
+                    $result = $data[0]['pid'];
                 }
             }
             return $result;
