@@ -64,6 +64,7 @@ gui_creation_end: 'Creation end'
 # main page translation start 
 gui_switch_tree_view : 'Switch to Tree-View'
 gui_switch_expert_view: 'Switch to Expert-View'
+gui_switch_basic_view: 'Switch to Basic-View'
 gui_copy_resource_link: 'Copy Resource Link'
 gui_show_inv_table: 'Show Inverse Table'
 gui_cite : 'Cite Resource'

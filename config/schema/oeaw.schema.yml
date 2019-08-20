@@ -166,6 +166,9 @@ oeaw.settings:
     gui_switch_expert_view: 
         type: text
         label: 'Switch to Expert-View'        
+    gui_switch_basic_view: 
+        type: text
+        label: 'Switch to Basic-View'                
     gui_copy_resource_link: 
         type: text
         label: 'Copy Resource Link'        
