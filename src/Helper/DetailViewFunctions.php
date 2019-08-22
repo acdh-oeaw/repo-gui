@@ -77,7 +77,7 @@ class DetailViewFunctions
             return $fedora->getResourceById($uuid);
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
             $result->error =
-                $this->langConf->get('errmsg_fedora_exception') ? $this->langConf->get('errmsg_fedora_exception').' :getMetadata function' : 'Fedora Exception : getMetadata function';
+                $this->langConf->get('errmsg_fedora_exception') ? $this->langConf->get('errmsg_fedora_exception').' :getMetadata function -> uuid not found!' : 'Fedora Exception : getMetadata function -> uuid not found!';
             return $result;
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
             $result->error = t($ex->getMessage());
@@ -414,7 +414,8 @@ class DetailViewFunctions
         $this->fedoraResource = $this->getResouceDataById($uuid, $fedora);
         
         if (isset($this->fedoraResource->error) && !empty($this->fedoraResource->error)) {
-            return $result->error = $this->fedoraResource->error;
+            $result->error = $this->fedoraResource->error;
+            return $result;
         } else {
             $this->fedoraMetadata = $this->fedoraResource->getMetadata();
         }
@@ -424,7 +425,8 @@ class DetailViewFunctions
             try {
                 $resultsObj = $this->createDetailViewTable($this->fedoraMetadata, $lang);
             } catch (\ErrorException $ex) {
-                return $result->error = t("Error").' : '.$ex->getMessage();
+                $result->error = t("Error").' : '.$ex->getMessage();
+                return $result;
             }
             
             //check the acdh:hasIdentifier data to the child view
@@ -466,9 +468,11 @@ class DetailViewFunctions
         try {
             $dissServices = $this->oeawFunctions->getResourceDissServ($this->fedoraResource);
         } catch (Exception $ex) {
-            return $result->error = $ex->getMessage();
+            $result->error = $ex->getMessage();
+            return $result;
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
-            return $result->error = $ex->getMessage();
+            $result->error = $ex->getMessage();
+            return $result;
         }
         if (count($dissServices) > 0 && $this->fedoraResource->getId()) {
             //we need to remove the raw from the list if it is a collection
@@ -496,14 +500,16 @@ class DetailViewFunctions
                 $time = strtotime($avDate);
                 $newTime = date('Y-m-d', $time);
                 if ($resultsObj->setTableData("acdh:hasAvailableDate", array($newTime)) == false || empty($newTime)) {
-                    return $result->error = t('Error').' : Available date format';
+                    $result->error = t('Error').' : Available date format';
+                    return $result;
                 }
             }
             //if we dont have a real date just a year
             if (\DateTime::createFromFormat('Y', $avDate) !== false) {
                 $year = \DateTime::createFromFormat('Y', $avDate);
                 if ($resultsObj->setTableData("acdh:hasAvailableDate", array($year->format('Y'))) == false || empty($year->format('Y'))) {
-                    return $result->error = t('Error').' : Available date format';
+                    $result->error = t('Error').' : Available date format';
+                    return $result;
                 }
             }
         }

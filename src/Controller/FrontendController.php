@@ -286,9 +286,8 @@ class FrontendController extends ControllerBase
         //transform the url from the browser to readable uri
         $this->uuid = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);
         
-        if (empty($this->uuid)) {
-            drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist', 'error');
-            return array();
+        if (empty($this->uuid) || (strpos($this->uuid, 'http') === false)) {
+            return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid );
         }
         
         $limitAndPage = $this->oeawDVFunctions->getLimitAndPageFromUrl($res_data);
@@ -297,8 +296,7 @@ class FrontendController extends ControllerBase
         
         //then the cache
         if (!$this->cacheModel) {
-            drupal_set_message($this->langConf->get('errmsg_external_database_error') ? $this->langConf->get('errmsg_external_database_error') : 'External database is not exists!', 'error');
-            return array();
+            return $this->oeawFunctions->detailViewGuiErrosMsg($response, "External database is not exists", "errmsg_external_database_error", $this->uuid );
         }
         
         $actualCacheObj = $this->cacheModel->getCacheByUUID($this->uuid, $this->siteLang, "R");
@@ -308,29 +306,26 @@ class FrontendController extends ControllerBase
         if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
             $needsToCache = true;
         }
-        
+                
         //if the file with this date is exists
         if ((count((array)$actualCacheObj) > 0) && $needsToCache === false) {
             if (!empty($actualCacheObj->data)) {
                 $result = unserialize($actualCacheObj->data);
                 if (!is_object($result)) {
-                    drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist', 'error');
-                    return array();
+                    return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid );
                 }
             } else {
-                drupal_set_message($this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist', 'error');
-                return array();
+                return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid );
             }
         } else {
             //run the generation scripts
             $result = $this->oeawDVFunctions->generateDetailViewMainData($this->fedora, $this->uuid, $this->siteLang);
             if (isset($result->error)) {
-                drupal_set_message($result->error, 'error');
-                return array();
+                return $this->oeawFunctions->detailViewGuiErrosMsg($response, $result->error, "", $this->uuid );
             }
             
             if (!$this->cacheModel->addCacheToDB($this->uuid, serialize($result), "R", $fdDate, $this->siteLang)) {
-                drupal_set_message($this->langConf->get('errmsg_db_cache_problems') ? $this->langConf->get('errmsg_db_cache_problems') : 'Database cache wasnt successful', 'error');
+                return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Database cache wasnt successful", "errmsg_db_cache_problems", $this->uuid );
             }
         }
         
