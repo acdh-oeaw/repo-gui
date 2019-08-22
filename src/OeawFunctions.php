@@ -24,7 +24,6 @@ use EasyRdf\Graph;
 use EasyRdf\Resource;
 use Symfony\Component\HttpFoundation\Response;
 
-
 /**
  * Description of OeawFunctions
  *
@@ -1858,16 +1857,17 @@ class OeawFunctions
     
     /**
      * The error message generating for the detail view
-     * 
+     *
      * @param string $response
      * @param string $msg_translation
      * @param string $message
      * @param string $uuid
      * @return Response/array
      */
-    public function detailViewGuiErrosMsg(string $response = "html", string $msg_translation, string $message, string $uuid) {
+    public function detailViewGuiErrosMsg(string $response = "html", string $msg_translation, string $message, string $uuid)
+    {
         $result = drupal_set_message($this->langConf->get($message) ? $this->langConf->get($message).' identifier: '.$uuid : $msg_translation.' identifier: '.$uuid, 'error');
-        if($response == "html") {
+        if ($response == "html") {
             return array();
         }
         $result = ($this->langConf->get($message)) ? $this->langConf->get($message).' identifier: '.$uuid : $msg_translation.' identifier: '.$uuid;

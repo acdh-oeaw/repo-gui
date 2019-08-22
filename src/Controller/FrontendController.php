@@ -287,7 +287,7 @@ class FrontendController extends ControllerBase
         $this->uuid = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);
         
         if (empty($this->uuid) || (strpos($this->uuid, 'http') === false)) {
-            return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid );
+            return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid);
         }
         
         $limitAndPage = $this->oeawDVFunctions->getLimitAndPageFromUrl($res_data);
@@ -296,7 +296,7 @@ class FrontendController extends ControllerBase
         
         //then the cache
         if (!$this->cacheModel) {
-            return $this->oeawFunctions->detailViewGuiErrosMsg($response, "External database is not exists", "errmsg_external_database_error", $this->uuid );
+            return $this->oeawFunctions->detailViewGuiErrosMsg($response, "External database is not exists", "errmsg_external_database_error", $this->uuid);
         }
         
         $actualCacheObj = $this->cacheModel->getCacheByUUID($this->uuid, $this->siteLang, "R");
@@ -312,20 +312,20 @@ class FrontendController extends ControllerBase
             if (!empty($actualCacheObj->data)) {
                 $result = unserialize($actualCacheObj->data);
                 if (!is_object($result)) {
-                    return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid );
+                    return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid);
                 }
             } else {
-                return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid );
+                return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid);
             }
         } else {
             //run the generation scripts
             $result = $this->oeawDVFunctions->generateDetailViewMainData($this->fedora, $this->uuid, $this->siteLang);
             if (isset($result->error)) {
-                return $this->oeawFunctions->detailViewGuiErrosMsg($response, $result->error, "", $this->uuid );
+                return $this->oeawFunctions->detailViewGuiErrosMsg($response, $result->error, "", $this->uuid);
             }
             
             if (!$this->cacheModel->addCacheToDB($this->uuid, serialize($result), "R", $fdDate, $this->siteLang)) {
-                return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Database cache wasnt successful", "errmsg_db_cache_problems", $this->uuid );
+                return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Database cache wasnt successful", "errmsg_db_cache_problems", $this->uuid);
             }
         }
         
