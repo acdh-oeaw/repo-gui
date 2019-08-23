@@ -1102,7 +1102,6 @@ class OeawStorage implements OeawStorageInterface
         
         $queryStr = $prefix.$select.$where.$groupBy;
         
-
         try {
             $q = new SimpleQuery($queryStr);
             $query = $q->getQuery();

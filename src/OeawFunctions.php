@@ -122,6 +122,10 @@ class OeawFunctions
                     $identifier = str_replace('id.acdh.oeaw.ac.at/uuid/', RC::get('fedoraUuidNamespace'), $identifier);
                     $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
                     break;
+                case strpos($identifier, 'id.acdh.oeaw.ac.at/') !== false:
+                    $identifier = str_replace('id.acdh.oeaw.ac.at/', RC::get('fedoraIdNamespace'), $identifier);
+                    $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
+                    break;
                 case strpos($identifier, 'hdl.handle.net') !== false:
                     $identifier = str_replace('hdl.handle.net/', RC::get('epicResolver'), $identifier);
                     $identifier = (substr($identifier, -1) == "/") ? substr_replace($identifier, "", -1) : $identifier;
@@ -1866,7 +1870,12 @@ class OeawFunctions
      */
     public function detailViewGuiErrosMsg(string $response = "html", string $msg_translation, string $message, string $uuid)
     {
-        $result = drupal_set_message($this->langConf->get($message) ? $this->langConf->get($message).' identifier: '.$uuid : $msg_translation.' identifier: '.$uuid, 'error');
+        if(!empty($message)) {
+            $result = drupal_set_message($this->langConf->get($message).' identifier: '.$uuid, 'error');    
+        }else {
+            $result = drupal_set_message($msg_translation.' identifier: '.$uuid,'error');    
+        }
+        
         if ($response == "html") {
             return array();
         }

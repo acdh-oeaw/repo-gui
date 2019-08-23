@@ -286,7 +286,7 @@ class FrontendController extends ControllerBase
         //transform the url from the browser to readable uri
         $this->uuid = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);
         
-        if (empty($this->uuid) || (strpos($this->uuid, 'http') === false)) {
+        if (empty($this->uuid)) {
             return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid);
         }
         
@@ -733,15 +733,15 @@ class FrontendController extends ControllerBase
     public function oeaw_ismember_result(string $data): Response
     {
         $memberData = array();
-        
+                
         if (!empty($data)) {
             $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($data, 0);
             $fdUrlArr = array();
-            $fdUrlArr = $this->oeawStorage->getTitleByIdentifier($identifier);
+            $fdUrlArr = $this->oeawStorage->getTitleByIdentifier($identifier, $this->siteLang);
             if (count($fdUrlArr) > 0) {
                 if (isset($fdUrlArr[0]['uri'])) {
                     $uri = $fdUrlArr[0]['uri'];
-                    $res = $this->oeawStorage->getIsMembers($uri);
+                    $res = $this->oeawStorage->getIsMembers($uri, $this->siteLang);
                 }
              
                 if (count($res) <= 0) {
