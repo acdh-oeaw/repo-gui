@@ -1870,10 +1870,10 @@ class OeawFunctions
      */
     public function detailViewGuiErrosMsg(string $response = "html", string $msg_translation, string $message, string $uuid)
     {
-        if(!empty($message)) {
-            $result = drupal_set_message($this->langConf->get($message).' identifier: '.$uuid, 'error');    
-        }else {
-            $result = drupal_set_message($msg_translation.' identifier: '.$uuid,'error');    
+        if (!empty($message)) {
+            $result = drupal_set_message($this->langConf->get($message).' identifier: '.$uuid, 'error');
+        } else {
+            $result = drupal_set_message($msg_translation.' identifier: '.$uuid, 'error');
         }
         
         if ($response == "html") {
