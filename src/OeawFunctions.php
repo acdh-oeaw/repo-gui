@@ -1826,9 +1826,9 @@ class OeawFunctions
                 }
             }
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            return array();
+            return "";
         } catch (\Exception $ex) {
-            return array();
+            return "";
         }
     }
     
