@@ -123,9 +123,10 @@ class ApiGetMetadataResource extends ResourceBase
                         $result[$propID]['title'] = $prop['propTitle'];
                     }
                     
+                    //if we have a min cardinality which is 1 or bigger, then the type will be an array
                     if (isset($prop['minCardinality'])) {
                         $result[$propID]['minItems'] = (int)$prop['minCardinality'];
-                        if ($prop['minCardinality'] > 1) {
+                        if ($prop['minCardinality'] >= 1) {
                             $result[$propID]['type'] = "array";
                         }
                         if ($prop['minCardinality'] == 1) {
@@ -150,21 +151,19 @@ class ApiGetMetadataResource extends ResourceBase
                         $result[$propID]['minItems'] = (int)$prop['cardinality'];
                         $result[$propID]['maxItems'] = (int)$prop['cardinality'];
                     }
-                    
                                         
                     if (isset($prop['range']) && $prop['range']) {
-                        if ($result[$propID]['type'] == "array") {
+                        $result[$propID]['items']['range'] = $prop['range'];
+                        if (strpos($prop['range'], 'string') !== false) {
                             $result[$propID]['items']['type'] = "string";
-                            $result[$propID]['items']['range'] = $prop['range'];
-                            continue;
+                            $result[$propID]['type'] = "string";
                         }
-                        $propType = explode('#', $prop['range']);
-                        if (is_array($propType) && !empty(end($propType))) {
-                            $result[$propID]['type'] = end($propType);
+                        if (strpos($prop['range'], 'array') !== false) {
+                            $result[$propID]['items']['type'] = "array";
+                            $result[$propID]['type'] = "array";
                         }
-                        $result[$propID]['range'] = $prop['range'];
                     } else {
-                        $result[$propID]['type'] = "string";
+                        //$result[$propID]['type'] = "string";
                     }
                     if (isset($prop['vocabs']) && $prop['vocabs']) {
                         $result[$propID]['vocabs'] = $prop['vocabs'];

@@ -117,22 +117,33 @@
                             {% else  %}
                                 {% set separator = ', ' %}
                             {% endif %}
-                            
-                            {% for val in value %}
-                                {% if (loop.length <= loop.index)  %}
-                                    {% set separator = '' %}
-                                {% endif %}
-                                {% if (val['title']) and (val['insideUri']) %}
-                                    <a href="/browser/oeaw_detail/{{ val['insideUri'] }}">{{ val['title'] }} </a>  {{ separator|raw }}
-                                {% elseif val['title'] %}
-                                    <a href="{{ val['uri'] }}">{{ val['title'] }}</a> {{ separator|raw }}
-                                {% elseif val['uri'] %}
-                                    <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> {{ separator|raw }}
-                                {% else %}
-                                    {{ val }}
-                                {% endif %}
+                            {% if ( (key == "acdh:hasIdentifier") )  %}
                                 
-                           {% endfor %}
+                                {% for val in result.getIdentifiers() %}
+                                    {% set brtag = '<br/>' %}
+                                    {% if (loop.length <= loop.index)  %}
+                                        {% set separator = '' %}
+                                        {% set brtag = '' %}
+                                    {% endif %}
+                                    <a href="{{ val }}">{{ val }}</a> {{ separator|raw }} {{ brtag|raw }}
+                                {% endfor %}
+                                    
+                            {% else  %}
+                                {% for val in value %}
+                                    {% if (loop.length <= loop.index)  %}
+                                        {% set separator = '' %}
+                                    {% endif %}
+                                    {% if (val['title']) and (val['insideUri']) %}
+                                        <a href="/browser/oeaw_detail/{{ val['insideUri'] }}">{{ val['title'] }} </a>  {{ separator|raw }}
+                                    {% elseif val['title'] %}
+                                        <a href="{{ val['uri'] }}">{{ val['title'] }}</a> {{ separator|raw }}
+                                    {% elseif val['uri'] %}
+                                        <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> {{ separator|raw }}
+                                    {% else %}
+                                        {{ val }}
+                                    {% endif %}
+                               {% endfor %}
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

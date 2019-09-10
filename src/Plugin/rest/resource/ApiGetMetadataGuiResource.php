@@ -118,20 +118,20 @@ class ApiGetMetadataGuiResource extends ResourceBase
     {
         $cardinalities = "";
         
-        //mandatory
-        (isset($data['cardinality']) && !empty($data['cardinality'])) ? $cardinalities .= "m" : "";
-        
-        //optional
+        //Mandatory: min cardinality is at least one
+        (isset($data['minCardinality']) && !empty($data['minCardinality']) && ($data['minCardinality'] >= 1)) ? $cardinalities = "m" : "";
+                
+        //Optional: no min cardinality set
         ((isset($data['minCardinality']) && empty($data['minCardinality']))
-            && (isset($data['maxCardinality']) && empty($data['maxCardinality']))
-            && (isset($data['cardinality']) && empty($data['cardinality']))) ? $cardinalities .= "o" : "";
+            || ((!isset($data['minCardinality']))) ) ? $cardinalities = "o" : "";
         
         //recommended
-        ((isset($data['minCardinality']) && !empty($data['minCardinality']))) ? $cardinalities .= "r" : "";
-        ((isset($data['minCardinality']) && !empty($data['minCardinality']) && (int)$data['minCardinality'] > 1)) ? $cardinalities .= "*" : "";
-        ((isset($data['maxCardinality']) && !empty($data['maxCardinality']))) ? $cardinalities .= "r" : "";
-        ((isset($data['maxCardinality']) && !empty($data['maxCardinality']) && (int)$data['maxCardinality'] > 1)) ? $cardinalities .= "*" : "";
+        ((isset($data['recommendedClass']) && !empty($data['recommendedClass']))) ? $cardinalities = "r" : "";
         
+        //Multiple (*): no max cardinality set
+        ((isset($data['maxCardinality']) && empty($data['maxCardinality']))
+            || ((!isset($data['minCardinality']) ))) ? $cardinalities .= "*" : "";
+                
         return $cardinalities;
     }
 }

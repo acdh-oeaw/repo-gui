@@ -781,6 +781,12 @@ class OeawStorage implements OeawStorageInterface
         }
     }
     
+    /**
+     * 
+     * @param string $classString
+     * @param string $lang
+     * @return array
+     */
     public function getMetadataForGuiTable(string $classString, string $lang = ""): array
     {
         if (empty($classString)) {
@@ -793,6 +799,7 @@ class OeawStorage implements OeawStorageInterface
                 . "prefix skos: <http://www.w3.org/2004/02/skos/core#> ";
                 
         $select = "select ?uri ?property ?machine_name ?ordering ?maxCardinality ?minCardinality ?cardinality "
+                . "(GROUP_CONCAT(DISTINCT ?recommendedClasses;separator=',') AS ?recommendedClass)  "
                 . "where { ";
         
         $where = " ?mainURI <".RC::get('fedoraIdProp').">  <".RC::get('fedoraVocabsNamespace').$classString."> . ";
@@ -810,6 +817,11 @@ class OeawStorage implements OeawStorageInterface
         $optionals .= "Optional {
             ?uri <".RC::get('fedoraVocabsNamespace')."ordering> ?ordering .
         }";
+        $optionals .= "
+            OPTIONAL {
+                ?uri <".RC::get('fedoraVocabsNamespace')."recommendedClass> ?recommendedClasses .
+            }
+        ";
         
         $optionals .= "OPTIONAL {
   		?uriProp owl:onProperty ?propID .
@@ -1335,7 +1347,7 @@ class OeawStorage implements OeawStorageInterface
         $where .=  ' ?uri ?prop ?obj . ';
         $where .= ' MINUS { ?uri <'.RC::get("fedoraIdProp").'> ?obj  } . ';
         $where .= ' MINUS { ?uri <'.RC::get("fedoraRelProp").'> ?obj  } . ';
-        $where .= ' ?propUri <'.RC::get("fedoraIdProp").'> ?prop . ';
+        #$where .= ' ?propUri <'.RC::get("fedoraIdProp").'> ?prop . ';
         $where .= ' ?propUri <'.RC::get("drupalOwlInverseOf").'> ?inverse . ';
         $where .= ' OPTIONAL { '
                 . ' ?uri  <'.RC::get("fedoraIdProp").'> ?childId . '
