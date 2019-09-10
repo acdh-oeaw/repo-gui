@@ -201,12 +201,12 @@
                 if(data.node.original.dir === false){
                     let id = data.instance.get_node(data.selected[0]).id;
                     //check the permissions for the file download
-                    var resourceRestriction = data.instance.get_node(data.selected[0]).original.accessRestriction;                    
-                    if( ((resourceRestriction.indexOf('public') == -1) && resourceRestriction.indexOf(actualUserRestriction) == -1 ) 
-                            || actualUserRestriction == 'admin' ){
+                    var resourceRestriction = data.instance.get_node(data.selected[0]).original.accessRestriction;
+                    if( ((resourceRestriction.search('public') == -1) && resourceRestriction.indexOf(actualUserRestriction) == -1 ) 
+                            || actualUserRestriction == 'admin' ) {
                         $('#not_enough_permission').hide();
                         window.location.href = data.instance.get_node(data.selected[0]).original.uri;
-                    } else if( resourceRestriction == 'public'){
+                    } else if( resourceRestriction.search('public') != -1 ){
                         $('#not_enough_permission').hide();
                         window.location.href = data.instance.get_node(data.selected[0]).original.uri;
                     }else {

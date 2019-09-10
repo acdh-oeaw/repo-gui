@@ -48,7 +48,11 @@
                     {% endfor %}
                 {% endif %}
             {% else %}
-                {{ data }}
+                {% if 'http' in data %}
+                    <a href="{{ data }}">{{ data }}</a>
+                {% else %}
+                    {{ data }}
+                {% endif%}
             {% endif %}
         </span>
     </div>
