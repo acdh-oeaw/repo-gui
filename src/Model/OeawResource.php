@@ -209,8 +209,8 @@ class OeawResource implements \JsonSerializable
             (strtolower($this->getType()) == "resource") ||
             (strtolower($this->getType()) == "metadata")) {
             if (isset($this->accessRestriction['title'])) {
-                return $this->accessRestriction['title']; 
-            } else if (isset($this->accessRestriction['uri'])) {
+                return $this->accessRestriction['title'];
+            } elseif (isset($this->accessRestriction['uri'])) {
                 return $this->accessRestriction['uri'];
             } else {
                 return $this->accessRestriction;

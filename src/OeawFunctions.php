@@ -993,7 +993,7 @@ class OeawFunctions
             return drupal_set_message(
                 $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!',
                 'error'
-                );
+            );
         }
         
         $meta = array();
@@ -1005,7 +1005,7 @@ class OeawFunctions
         } catch (\acdhOeaw\fedora\exceptions\NotFound $ex) {
             throw new \acdhOeaw\fedora\exceptions\NotFound(
                 $this->langConf->get('errmsg_resource_not_exists') ? $this->langConf->get('errmsg_resource_not_exists') : 'Resource does not exist!'
-                );
+            );
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
             throw new \GuzzleHttp\Exception\ClientException($ex->getMessage());
         }
@@ -1281,7 +1281,7 @@ class OeawFunctions
         if (count($data) == 0) {
             throw new \ErrorException(
                 $this->langConf->get('errmsg_no_child_resources') ? $this->langConf->get('errmsg_no_child_resources') : 'There is no any children data'
-                );
+            );
         }
         
         foreach ($data as $d) {

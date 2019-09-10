@@ -487,7 +487,7 @@ class OeawStorage implements OeawStorageInterface
             return drupal_set_message(
                 t('Empty').' '.t('Values').' -->'.__FUNCTION__,
                 'error'
-                );
+            );
         }
         
         $getResult = array();
