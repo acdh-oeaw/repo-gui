@@ -123,14 +123,14 @@ class ApiGetMetadataGuiResource extends ResourceBase
                 
         //Optional: no min cardinality set
         ((isset($data['minCardinality']) && empty($data['minCardinality']))
-            || ((!isset($data['minCardinality']))) ) ? $cardinalities = "o" : "";
+            || ((!isset($data['minCardinality'])))) ? $cardinalities = "o" : "";
         
         //recommended
         ((isset($data['recommendedClass']) && !empty($data['recommendedClass']))) ? $cardinalities = "r" : "";
         
         //Multiple (*): no max cardinality set
         ((isset($data['maxCardinality']) && empty($data['maxCardinality']))
-            || ((!isset($data['minCardinality']) ))) ? $cardinalities .= "*" : "";
+            || ((!isset($data['minCardinality'])))) ? $cardinalities .= "*" : "";
                 
         return $cardinalities;
     }

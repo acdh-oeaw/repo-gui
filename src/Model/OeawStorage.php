@@ -782,7 +782,7 @@ class OeawStorage implements OeawStorageInterface
     }
     
     /**
-     * 
+     *
      * @param string $classString
      * @param string $lang
      * @return array
