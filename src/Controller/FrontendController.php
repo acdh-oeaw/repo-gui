@@ -209,7 +209,7 @@ class FrontendController extends ControllerBase
                 $arrayObject->offsetSet('table', $tblArray);
            
                 try {
-                    $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
+                    $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, $this->siteLang);
                     $res[] = $obj;
                 } catch (\ErrorException $ex) {
                     throw new \ErrorException(t('Error message').':  FrontendController -> OeawResource Exception ');
@@ -306,7 +306,7 @@ class FrontendController extends ControllerBase
         if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
             $needsToCache = true;
         }
-                
+            $needsToCache = true;
         //if the file with this date is exists
         if ((count((array)$actualCacheObj) > 0) && $needsToCache === false) {
             if (!empty($actualCacheObj->data)) {
@@ -579,7 +579,7 @@ class FrontendController extends ControllerBase
                         }
                         $arrayObject->offsetSet('table', $tblArray);
                         try {
-                            $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
+                            $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, $this->siteLang);
                             $result[] = $obj;
                         } catch (ErrorException $ex) {
                             throw new \ErrorException(t('Error').':'.__FUNCTION__, 'error');

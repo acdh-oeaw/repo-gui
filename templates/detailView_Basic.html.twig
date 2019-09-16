@@ -97,10 +97,10 @@
     {%  if result.table['acdh:hasLicense'] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasLicense'], 'icon': "copyright", 'label': "License" } ) }}
     {% endif%}
-    
+        
     <!---- ACCESS RESTRICTION --->
-    {%  if result.getAccessRestriction() %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.getAccessRestriction(), 'icon': "verified_user", 'label': "Access Restriction" } ) }}
+    {%  if result.getAccessRestrictionUrlFormat() %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.getAccessRestrictionUrlFormat(), 'icon': "verified_user", 'label': "Access Restriction" } ) }}
     {% endif%}
    
     <!---- schema --->

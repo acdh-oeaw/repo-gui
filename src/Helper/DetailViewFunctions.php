@@ -348,7 +348,7 @@ class DetailViewFunctions
         }
         
         try {
-            $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject);
+            $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, $lang);
         } catch (ErrorException $ex) {
             throw new \ErrorException(t('Init').' '.t('Error').' : OeawResource', 0);
         }
@@ -363,7 +363,7 @@ class DetailViewFunctions
      * @return \Drupal\oeaw\Model\OeawResourceCustomData
      * @throws \ErrorException
      */
-    private function createCustomDetailViewTemplateData(\Drupal\oeaw\Model\OeawResource $data, string $type): \Drupal\oeaw\Model\OeawResourceCustomData
+    private function createCustomDetailViewTemplateData(\Drupal\oeaw\Model\OeawResource $data, string $type, string $lang = "en"): \Drupal\oeaw\Model\OeawResourceCustomData
     {
         
         //check the table data in the object that we have enough data :)
@@ -390,7 +390,7 @@ class DetailViewFunctions
             
             try {
                 //get the obj
-                $obj = new \Drupal\oeaw\Model\OeawResourceCustomData($arrayObject);
+                $obj = new \Drupal\oeaw\Model\OeawResourceCustomData($arrayObject, $lang);
                 $obj->setupBasicExtendedData($data);
             } catch (\ErrorException $ex) {
                 throw new \ErrorException($ex->getMessage());
