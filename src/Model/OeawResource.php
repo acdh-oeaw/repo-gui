@@ -31,7 +31,7 @@ class OeawResource implements \JsonSerializable
     private $table = array();
     private $lng;
     public $errors = array();
-    public $restrictionStrings = array();    
+    public $restrictionStrings = array();
     
     /**
      * Set up the properties and init the obj
@@ -83,24 +83,23 @@ class OeawResource implements \JsonSerializable
         $this->getRestrictionsString();
     }
     
-    private function getRestrictionsString() {
-        
+    private function getRestrictionsString()
+    {
         try {
             $graph = new \EasyRdf\Graph();
-            if($graph->parse(file_get_contents('https://vocabs.acdh.oeaw.ac.at/download/archeaccessrestrictions.rdf'))) {
-                foreach($graph->allOfType('http://www.w3.org/2004/02/skos/core#Concept') as $i) {
+            if ($graph->parse(file_get_contents('https://vocabs.acdh.oeaw.ac.at/download/archeaccessrestrictions.rdf'))) {
+                foreach ($graph->allOfType('http://www.w3.org/2004/02/skos/core#Concept') as $i) {
                     $uri = $i->getUri();
                     $label = $i->getLiteral('http://www.w3.org/2004/02/skos/core#prefLabel', $this->lng);
-                    if( (isset($label) && !empty($label))
-                            && 
-                        (isset($uri) && !empty($uri)) ) {
-                            $label = (string)$label;
-                            $uri = (string)$uri;
-                            $this->restrictionStrings[$label] = $uri;
+                    if ((isset($label) && !empty($label))
+                            &&
+                        (isset($uri) && !empty($uri))) {
+                        $label = (string)$label;
+                        $uri = (string)$uri;
+                        $this->restrictionStrings[$label] = $uri;
                     }
                 }
             }
-            
         } catch (Exception $ex) {
             $this->restrictionStrings = array();
         } catch (\EasyRdf\Exception $ex) {
@@ -172,7 +171,7 @@ class OeawResource implements \JsonSerializable
     
     /**
      * Get the ACDH identifier string
-     * 
+     *
      * @return string
      */
     public function getAcdhIdentifier(): string
@@ -237,11 +236,11 @@ class OeawResource implements \JsonSerializable
     
     /**
      * Get the accesres as a string
-     * 
+     *
      * @return string
      */
     public function getAccessRestriction(): string
-    {   
+    {
         if ((strtolower($this->getType()) == "collection") ||
             (strtolower($this->getType()) == "resource") ||
             (strtolower($this->getType()) == "metadata")) {
@@ -256,18 +255,18 @@ class OeawResource implements \JsonSerializable
     
     /**
      * Get the actual restriction and if we have a translation for that, than we will display that
-     * 
+     *
      * @return array
      */
     public function getAccessRestrictionUrlFormat(): array
-    {   
+    {
         $val = "";
         if (isset($this->accessRestriction['uri'])) {
             $val = $this->accessRestriction['uri'];
         }
         
-        if( count($this->restrictionStrings) > 0) {
-            foreach($this->restrictionStrings as $k => $v) {
+        if (count($this->restrictionStrings) > 0) {
+            foreach ($this->restrictionStrings as $k => $v) {
                 if (strpos($v, $val) !== false) {
                     $this->accessRestrictionUrlFormat = array('title' => $k, 'uri' => $v);
                     return $this->accessRestrictionUrlFormat;
@@ -289,9 +288,9 @@ class OeawResource implements \JsonSerializable
     public function getTableData(string $prop)
     {
         if (isset($this->table[$prop])) {
-            if( ($prop == "acdh:hasAccessRestriction") & count($this->restrictionStrings) > 0) {
-                foreach($this->restrictionStrings as $k => $v) {
-                    if($v == $this->table[$prop]) {
+            if (($prop == "acdh:hasAccessRestriction") & count($this->restrictionStrings) > 0) {
+                foreach ($this->restrictionStrings as $k => $v) {
+                    if ($v == $this->table[$prop]) {
                         return $return = array('uri' => $v, 'title' => $k);
                     }
                 }
@@ -302,7 +301,7 @@ class OeawResource implements \JsonSerializable
     
     /**
      * Change the actual table data for the gui
-     * 
+     *
      * @param string $prop
      * @param array $data
      * @return bool
@@ -318,9 +317,9 @@ class OeawResource implements \JsonSerializable
     }
     
     /**
-     * 
+     *
      * Get SOLR highlight text
-     * 
+     *
      * @return array
      */
     public function getHighlighting(): array

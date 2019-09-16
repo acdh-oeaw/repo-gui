@@ -39,7 +39,7 @@ class OeawResourceCustomData
      * @throws \ErrorException
      */
     public function __construct(\ArrayObject $arrayObj, $cfg = null, string $lang = "en")
-    {        
+    {
         if ($cfg == null) {
             \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         } else {
