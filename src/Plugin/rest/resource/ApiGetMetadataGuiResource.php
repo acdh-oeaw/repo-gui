@@ -99,16 +99,20 @@ class ApiGetMetadataGuiResource extends ResourceBase
     private function summarizeData(array $resData, string $class)
     {
         if (count($resData) > 0) {
-            
-                
             foreach ($resData as $data) {
                 $this->data[$data['property']]['basic_info'] = array("property" => $data['property'],
                     "machine_name" => $data['machine_name'],
                     "ordering" => $data['ordering']);
                 
-                if(!isset($this->data[$data['property']]['Project'])) { $this->data[$data['property']]['Project'] = "-" ; }
-                if(!isset($this->data[$data['property']]['Collection'])) { $this->data[$data['property']]['Collection'] = "-" ; }
-                if(!isset($this->data[$data['property']]['Resource'])) { $this->data[$data['property']]['Resource'] = "-" ; }
+                if (!isset($this->data[$data['property']]['Project'])) {
+                    $this->data[$data['property']]['Project'] = "-" ;
+                }
+                if (!isset($this->data[$data['property']]['Collection'])) {
+                    $this->data[$data['property']]['Collection'] = "-" ;
+                }
+                if (!isset($this->data[$data['property']]['Resource'])) {
+                    $this->data[$data['property']]['Resource'] = "-" ;
+                }
                 
                 (!empty($data['maxCardinality'])) ? $this->data[$data['property']]['cardinalities'][$class]['maxCardinality'] = $data['maxCardinality'] : $this->data[$data['property']]['cardinalities'][$class]['maxCardinality'] = "-";
                 (!empty($data['minCardinality'])) ? $this->data[$data['property']]['cardinalities'][$class]['minCardinality'] = $data['minCardinality'] : $this->data[$data['property']]['cardinalities'][$class]['minCardinality'] = "-";
@@ -135,29 +139,29 @@ class ApiGetMetadataGuiResource extends ResourceBase
         (isset($data['minCardinality']) && !empty($data['minCardinality']) && ($data['minCardinality'] >= 1)) ? $cardinalities = "m" : "";
                 
         //Optional: no min cardinality set
-        ((isset($data['minCardinality']) && ( empty($data['minCardinality']) || $data['minCardinality'] == 0 ) )
+        ((isset($data['minCardinality']) && (empty($data['minCardinality']) || $data['minCardinality'] == 0))
             || ((!isset($data['minCardinality'])))) ? $cardinalities = "o" : "";
         
           
-         //Mandatory: cardinality is at least one
-        (isset($data['cardinality']) && (!empty($data['cardinality']) && ($data['cardinality'] == 1)) )? $cardinalities = "m" : "";
+        //Mandatory: cardinality is at least one
+        (isset($data['cardinality']) && (!empty($data['cardinality']) && ($data['cardinality'] == 1)))? $cardinalities = "m" : "";
         
         //recommended
-        if( isset($data['recommendedClass']) && !empty($data['recommendedClass'])) {
-            if(!empty($class)) {
+        if (isset($data['recommendedClass']) && !empty($data['recommendedClass'])) {
+            if (!empty($class)) {
                 if (strpos($data['recommendedClass'], $class) !== false) {
                     $cardinalities = "r";
                 }
-            } 
+            }
         }
         
         //recommended
-        if( isset($data['recommendedClass']) && !empty($data['recommendedClass'])) {
-            if(!empty($class)) {
+        if (isset($data['recommendedClass']) && !empty($data['recommendedClass'])) {
+            if (!empty($class)) {
                 if (strpos($data['recommendedClass'], $class) !== false) {
                     $cardinalities = "r";
                 }
-            } 
+            }
         }
         
         //Multiple (*): no max cardinality set
