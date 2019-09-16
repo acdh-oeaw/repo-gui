@@ -114,7 +114,6 @@ class ApiGetMetadataGuiResource extends ResourceBase
                 (!empty($data['minCardinality'])) ? $this->data[$data['property']]['cardinalities'][$class]['minCardinality'] = $data['minCardinality'] : $this->data[$data['property']]['cardinalities'][$class]['minCardinality'] = "-";
                 (!empty($data['cardinality'])) ? $this->data[$data['property']]['cardinalities'][$class]['cardinality'] = $data['cardinality'] : $this->data[$data['property']]['cardinalities'][$class]['cardinality'] = "-";
                 (!empty($data['recommendedClass'])) ? $this->data[$data['property']]['cardinalities'][$class]['recommendedClass'] = $data['recommendedClass'] : $this->data[$data['property']]['cardinalities'][$class]['recommendedClass'] = "-";
-                //(!empty($data['recommendedClass'])) ? $this->data[$data['property']][$class]['recommendedClass'] = $data['recommendedClass'] : $this->data[$data['property']]['cardinalities'][$class]['recommendedClass'] = "-";
                 
                 $this->data[$data['property']][ucfirst($class)] = (!empty($this->checkCardinality($data, ucfirst($class)))) ? $this->checkCardinality($data, ucfirst($class)) : "-";
             }
@@ -141,15 +140,6 @@ class ApiGetMetadataGuiResource extends ResourceBase
           
          //Mandatory: cardinality is at least one
         (isset($data['cardinality']) && (!empty($data['cardinality']) && ($data['cardinality'] == 1)) )? $cardinalities = "m" : "";
-        
-        //recommended
-        if( isset($data['recommendedClass']) && !empty($data['recommendedClass'])) {
-            if(!empty($class)) {
-                if (strpos($data['recommendedClass'], $class) !== false) {
-                    $cardinalities = "r";
-                }
-            } 
-        }
         
         //recommended
         if( isset($data['recommendedClass']) && !empty($data['recommendedClass'])) {
