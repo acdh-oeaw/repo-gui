@@ -40,9 +40,14 @@ class OeawResource implements \JsonSerializable
      * @param type $cfg
      * @throws \ErrorException
      */
-    public function __construct(\ArrayObject $arrayObj, $lng = "en")
+    public function __construct(\ArrayObject $arrayObj, $cfg = null, string $lng = "en")
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        if ($cfg == null) {
+            \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        } else {
+            \acdhOeaw\util\RepoConfig::init($cfg);
+        }
+        
         $this->lng = $lng;
         
         if (is_object($arrayObj) || !empty($arrayObj)) {
