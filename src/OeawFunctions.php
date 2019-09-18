@@ -1763,6 +1763,9 @@ class OeawFunctions
      */
     private function makeBreadcrumbFinalData(array &$data, array &$result)
     {
+        //if it is using too much memory, then we will skip it 
+        if((memory_get_usage() / 1024 /1024) < 70) { return; }
+        
         foreach ($data as $k => $v) {
             $count = count($result);
             if ($count > 0) {
