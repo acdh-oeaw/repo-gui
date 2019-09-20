@@ -132,8 +132,10 @@
                                 {% for val in value %}
                                     {% if (loop.length <= loop.index)  %}
                                         {% set separator = '' %}
-                                    {% endif %}
-                                    {% if (val['title']) and (val['insideUri']) %}
+                                    {% endif %}                                    
+                                    {% if ( (key == "acdh:hasPid") )  %}
+                                        <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> {{ separator|raw }}
+                                    {% elseif (val['title']) and (val['insideUri']) %}
                                         <a href="/browser/oeaw_detail/{{ val['insideUri'] }}">{{ val['title'] }} </a>  {{ separator|raw }}
                                     {% elseif val['title'] %}
                                         <a href="{{ val['uri'] }}">{{ val['title'] }}</a> {{ separator|raw }}

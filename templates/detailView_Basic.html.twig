@@ -120,7 +120,7 @@
     
     <!---- HAS PID --->
     {% if result.table['acdh:hasPid'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasPid'], 'icon': "fingerprint", 'label': "PID" } ) }}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasPid'], 'icon': "fingerprint", 'label': "PID", 'onlyurl': true } ) }}
     {% endif%}
 
     <!---- RELATED PROJECT --->
