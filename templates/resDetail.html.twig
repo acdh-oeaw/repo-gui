@@ -35,12 +35,6 @@
         </div>
         {% if extras.niceURI %}
         <div class="res-act-button res-act-button-copy-url" id="res-act-button-copy-url" data-copyuri="{{ extras.niceURI }}">
-                
-            <!--
-            <span href="javascript://" id="copy-url-tooltip" data-toggle="copy-url-tooltip"  data-placement="bottom" data-html="true" data-trigger="manual" title="Copied to Clipboard! URL: {{ extras.niceURI }}">
-                    Copy Resource Link
-            </span>
-            -->
             <span id="copy-url-button">
                 <i class="material-icons">&#xE157;</i>
                 {{ "Copy Resource Link"|trans }}
@@ -132,8 +126,10 @@
                                 {% for val in value %}
                                     {% if (loop.length <= loop.index)  %}
                                         {% set separator = '' %}
-                                    {% endif %}                                    
-                                    {% if ( (key == "acdh:hasPid") )  %}
+                                    {% endif %}
+                                    
+                                    {% if ( (key == "acdh:hasPid") or (key == "acdh:hasAccessRestriction") 
+                                        or (key == "acdh:hasLifeCycleStatus") or (key == "acdh:hasCategory")  )  %}
                                         <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> {{ separator|raw }}
                                     {% elseif (val['title']) and (val['insideUri']) %}
                                         <a href="/browser/oeaw_detail/{{ val['insideUri'] }}">{{ val['title'] }} </a>  {{ separator|raw }}
@@ -144,6 +140,7 @@
                                     {% else %}
                                         {{ val }}
                                     {% endif %}
+                                        
                                {% endfor %}
                             {% endif %}
                         </td>

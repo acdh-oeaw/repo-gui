@@ -8,7 +8,6 @@ use Drupal\Core\Language\LanguageInterface;
 
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawResource;
-use Drupal\oeaw\Model\OeawResourceDetails;
 use Drupal\oeaw\Model\OeawCustomSparql;
 use Drupal\oeaw\Model\CacheModel;
 
@@ -17,15 +16,7 @@ use Drupal\oeaw\Helper\DetailViewFunctions;
 use Drupal\oeaw\Helper\CollectionFunctions;
 use Drupal\oeaw\OeawFunctions;
 
-use Drupal\Core\CacheBackendInterface;
-use Drupal\Core\Ajax\AjaxResponse;
-
-
-use acdhOeaw\fedora\dissemination\Service as Service;
 use acdhOeaw\util\RepoConfig as RC;
-use Drupal\oeaw\ConfigConstants as CC;
-use EasyRdf\Graph;
-use EasyRdf\Resource;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -305,8 +296,10 @@ class FrontendController extends ControllerBase
         $needsToCache = false;
         if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
             $needsToCache = true;
+        }elseif (!isset($actualCacheObj->modify_date)) {
+            $needsToCache = true;
         }
-        
+        $needsToCache = true;
         //if the file with this date is exists
         if ((count((array)$actualCacheObj) > 0) && $needsToCache === false) {
             if (!empty($actualCacheObj->data)) {
@@ -327,14 +320,12 @@ class FrontendController extends ControllerBase
             if (!$this->cacheModel->addCacheToDB($this->uuid, serialize($result), "R", $fdDate, $this->siteLang)) {
                 return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Database cache wasnt successful", "errmsg_db_cache_problems", $this->uuid);
             }
-        }
-        
+        }      
         //get the tooltip from cache
         $cachedTooltip = $this->cacheModel->getCacheByUUID('ontology', $this->siteLang, "O");
         if (count((array)$cachedTooltip) > 0) {
             $result->extraData["tooltip"] = unserialize($cachedTooltip->data);
         }
-
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => (isset($result->mainData)) ? $result->mainData : array(),

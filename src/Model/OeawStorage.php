@@ -1347,7 +1347,7 @@ class OeawStorage implements OeawStorageInterface
         $where .=  ' ?uri ?prop ?obj . ';
         $where .= ' MINUS { ?uri <'.RC::get("fedoraIdProp").'> ?obj  } . ';
         $where .= ' MINUS { ?uri <'.RC::get("fedoraRelProp").'> ?obj  } . ';
-        #$where .= ' ?propUri <'.RC::get("fedoraIdProp").'> ?prop . ';
+        $where .= ' ?propUri <'.RC::get("fedoraIdProp").'> ?prop . ';
         $where .= ' ?propUri <'.RC::get("drupalOwlInverseOf").'> ?inverse . ';
         $where .= ' OPTIONAL { '
                 . ' ?uri  <'.RC::get("fedoraIdProp").'> ?childId . '
@@ -1372,7 +1372,6 @@ class OeawStorage implements OeawStorageInterface
         $groupBy = ' GROUP BY ?uri ?prop ?obj ?inverse ?childId ?childUUID ?externalId  ORDER BY ASC( fn:lower-case(?uri)) ';
         
         $string = $select.$where.$end.$groupBy;
-        
         try {
             $q = new SimpleQuery($string);
             $query = $q->getQuery();

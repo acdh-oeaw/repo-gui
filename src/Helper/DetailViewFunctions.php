@@ -20,7 +20,8 @@ class DetailViewFunctions
     private $breadcrumbCache;
     private $searchTitle;
     private $dvResult;
-    
+    private $cacheVocabsModel;
+    private $customCache;
     
     public function __construct(
         $langConf,
@@ -247,6 +248,31 @@ class DetailViewFunctions
             }
         }
     }
+    
+    /**
+     *  Get the actual vocabs translations for the special properties
+     * @param string $lang
+     */
+    private function getVocabsForDetailViewTable(string $lang) {
+        $vf = new \Drupal\oeaw\Helper\CacheVocabsFunctions();
+        $vocabs = array();
+        $vocabs = $vf->getVocabsTitle($lang);
+        
+        if(count((array)$vocabs[$lang]) > 0) {
+            foreach($vocabs[$lang] as $k => $v) {
+                if(isset($this->dvResult['table'][$k][0]['uri'])) {
+                    foreach($v as $vocab) {
+                        if( ($vocab->uri) && ($vocab->uri == $this->dvResult['table'][$k][0]['uri']) ) {
+                            $this->dvResult['table'][$k][0]['uri'] = $vocab->uri;
+                            $this->dvResult['table'][$k][0]['title'] = $vocab->label;
+                            $this->dvResult['table'][$k][0]['lang'] = $vocab->language;
+                        }
+                    }
+                }    
+            }
+        }
+    }
+    
     /**
      *
      * this will generate an array with the Resource data.
@@ -261,13 +287,12 @@ class DetailViewFunctions
      * @return array
      */
     private function createDetailViewTable(\EasyRdf\Resource $data, string $lang): \Drupal\oeaw\Model\OeawResource
-    {
-        $result = array();
-        $arrayObject = new \ArrayObject();
-
+    {   
         if (empty($data)) {
             return drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
         }
+        
+        $arrayObject = new \ArrayObject();
         
         //get the resource Title
         $resourceTitle = $this->getLiteralValuesByLangFromResource($data, RC::get('fedoraTitleProp'), $lang)[0];
@@ -327,26 +352,32 @@ class DetailViewFunctions
             throw new \ErrorException(t("Empty").': ACDH RDF TYPE', 0);
         }
         
+        
+         //update the data with the vocabs translated values
+        $this->getVocabsForDetailViewTable($lang);
+        
         $this->dvResult['resourceTitle'] = $resourceTitle;
         $this->dvResult['uri'] = $resourceUri;
+        $this->dvResult['uuid'] = $uuid;
         $this->dvResult['insideUri'] = $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 1);
-        
+        //get the vocabs cache!
+       
         $arrayObject->offsetSet('table', $this->dvResult['table']);
-        $arrayObject->offsetSet('title', $resourceTitle);
+        $arrayObject->offsetSet('title', $this->dvResult['resourceTitle']);
         $arrayObject->offsetSet('uri', $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 0));
         $arrayObject->offsetSet('type', $this->dvResult['acdh_rdf:type']['title']);
         $arrayObject->offsetSet('typeUri', $this->dvResult['acdh_rdf:type']['uri']);
         $arrayObject->offsetSet('acdh_rdf:type', array("title" => $this->dvResult['acdh_rdf:type']['title'], "insideUri" => $this->dvResult['acdh_rdf:type']['insideUri']));
-        $arrayObject->offsetSet('fedoraUri', $resourceUri);
+        $arrayObject->offsetSet('fedoraUri', $this->dvResult['uri']);
         $arrayObject->offsetSet('identifiers', $rsId);
         if (isset($this->dvResult['table']['acdh:hasAccessRestriction']) && !empty($this->dvResult['table']['acdh:hasAccessRestriction'][0])) {
             $arrayObject->offsetSet('accessRestriction', $this->dvResult['table']['acdh:hasAccessRestriction'][0]);
         }
-        $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($uuid, 1));
+        $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($this->dvResult['uuid'], 1));
         if (isset($this->dvResult['image'])) {
             $arrayObject->offsetSet('imageUrl', $this->dvResult['image']);
         }
-        
+       
         try {
             $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, null, $lang);
         } catch (ErrorException $ex) {
@@ -419,7 +450,7 @@ class DetailViewFunctions
         } else {
             $this->fedoraMetadata = $this->fedoraResource->getMetadata();
         }
-       
+        
         if (count((array)$this->fedoraMetadata) > 0) {
             //create the OEAW resource Object for the GUI data
             try {
@@ -450,7 +481,6 @@ class DetailViewFunctions
         if ($resultsObj->getType() == "Collection" || $resultsObj->getType() == "Resource"
                 || $resultsObj->getType() == "Metadata") {
             $breadcrumbs = array();
-            
            
             //we have cached breadcrumbs with this identifier
             if (count($this->breadcrumbCache->getCachedData($uuid)) > 0) {

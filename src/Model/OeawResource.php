@@ -13,7 +13,7 @@ use EasyRdf\Resource;
  * create their own data
  *
  */
-class OeawResource implements \JsonSerializable
+class OeawResource
 {
     private $uri = "";
     private $insideUri = "";
@@ -31,8 +31,8 @@ class OeawResource implements \JsonSerializable
     private $table = array();
     private $lng;
     public $errors = array();
-    public $restrictionStrings = array();
     
+     
     /**
      * Set up the properties and init the obj
      *
@@ -79,31 +79,6 @@ class OeawResource implements \JsonSerializable
             throw new \ErrorException(
                 t('Init').' '.t('Error').' : OeawResource.'.' '.t(' Empty').' '.t('Data').': '.print_r($this->errors, true)
             );
-        }
-        $this->getRestrictionsString();
-    }
-    
-    private function getRestrictionsString()
-    {
-        try {
-            $graph = new \EasyRdf\Graph();
-            if ($graph->parse(file_get_contents('https://vocabs.acdh.oeaw.ac.at/download/archeaccessrestrictions.rdf'))) {
-                foreach ($graph->allOfType('http://www.w3.org/2004/02/skos/core#Concept') as $i) {
-                    $uri = $i->getUri();
-                    $label = $i->getLiteral('http://www.w3.org/2004/02/skos/core#prefLabel', $this->lng);
-                    if ((isset($label) && !empty($label))
-                            &&
-                        (isset($uri) && !empty($uri))) {
-                        $label = (string)$label;
-                        $uri = (string)$uri;
-                        $this->restrictionStrings[$label] = $uri;
-                    }
-                }
-            }
-        } catch (Exception $ex) {
-            $this->restrictionStrings = array();
-        } catch (\EasyRdf\Exception $ex) {
-            $this->restrictionStrings = array();
         }
     }
     
@@ -260,20 +235,16 @@ class OeawResource implements \JsonSerializable
      */
     public function getAccessRestrictionUrlFormat(): array
     {
-        $val = "";
-        if (isset($this->accessRestriction['uri'])) {
-            $val = $this->accessRestriction['uri'];
-        }
-        
-        if (count($this->restrictionStrings) > 0) {
-            foreach ($this->restrictionStrings as $k => $v) {
-                if (strpos($v, $val) !== false) {
-                    $this->accessRestrictionUrlFormat = array('title' => $k, 'uri' => $v);
-                    return $this->accessRestrictionUrlFormat;
-                }
+        if (isset($this->accessRestriction['uri']) ) {
+            if (isset($this->accessRestriction['title']) ) {
+                $this->accessRestrictionUrlFormat = $this->accessRestriction;
+            }else {
+                $this->accessRestrictionUrlFormat = array('uri' => $this->accessRestriction['uri']);
             }
+        }else {
+            $this->accessRestrictionUrlFormat = array('uri' => $this->accessRestriction);
         }
-        return array("uri" => $this->accessRestriction);
+        return $this->accessRestrictionUrlFormat;
     }
     
     /**
@@ -288,13 +259,6 @@ class OeawResource implements \JsonSerializable
     public function getTableData(string $prop)
     {
         if (isset($this->table[$prop])) {
-            if (($prop == "acdh:hasAccessRestriction") & count($this->restrictionStrings) > 0) {
-                foreach ($this->restrictionStrings as $k => $v) {
-                    if ($v == $this->table[$prop]) {
-                        return $return = array('uri' => $v, 'title' => $k);
-                    }
-                }
-            }
             return $this->table[$prop];
         }
     }
