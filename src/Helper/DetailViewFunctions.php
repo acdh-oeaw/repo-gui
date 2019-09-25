@@ -253,22 +253,23 @@ class DetailViewFunctions
      *  Get the actual vocabs translations for the special properties
      * @param string $lang
      */
-    private function getVocabsForDetailViewTable(string $lang) {
+    private function getVocabsForDetailViewTable(string $lang)
+    {
         $vf = new \Drupal\oeaw\Helper\CacheVocabsFunctions();
         $vocabs = array();
         $vocabs = $vf->getVocabsTitle($lang);
         
-        if(count((array)$vocabs[$lang]) > 0) {
-            foreach($vocabs[$lang] as $k => $v) {
-                if(isset($this->dvResult['table'][$k][0]['uri'])) {
-                    foreach($v as $vocab) {
-                        if( ($vocab->uri) && ($vocab->uri == $this->dvResult['table'][$k][0]['uri']) ) {
+        if (count((array)$vocabs[$lang]) > 0) {
+            foreach ($vocabs[$lang] as $k => $v) {
+                if (isset($this->dvResult['table'][$k][0]['uri'])) {
+                    foreach ($v as $vocab) {
+                        if (($vocab->uri) && ($vocab->uri == $this->dvResult['table'][$k][0]['uri'])) {
                             $this->dvResult['table'][$k][0]['uri'] = $vocab->uri;
                             $this->dvResult['table'][$k][0]['title'] = $vocab->label;
                             $this->dvResult['table'][$k][0]['lang'] = $vocab->language;
                         }
                     }
-                }    
+                }
             }
         }
     }
@@ -287,7 +288,7 @@ class DetailViewFunctions
      * @return array
      */
     private function createDetailViewTable(\EasyRdf\Resource $data, string $lang): \Drupal\oeaw\Model\OeawResource
-    {   
+    {
         if (empty($data)) {
             return drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
         }
@@ -353,7 +354,7 @@ class DetailViewFunctions
         }
         
         
-         //update the data with the vocabs translated values
+        //update the data with the vocabs translated values
         $this->getVocabsForDetailViewTable($lang);
         
         $this->dvResult['resourceTitle'] = $resourceTitle;

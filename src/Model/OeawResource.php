@@ -235,13 +235,13 @@ class OeawResource
      */
     public function getAccessRestrictionUrlFormat(): array
     {
-        if (isset($this->accessRestriction['uri']) ) {
-            if (isset($this->accessRestriction['title']) ) {
+        if (isset($this->accessRestriction['uri'])) {
+            if (isset($this->accessRestriction['title'])) {
                 $this->accessRestrictionUrlFormat = $this->accessRestriction;
-            }else {
+            } else {
                 $this->accessRestrictionUrlFormat = array('uri' => $this->accessRestriction['uri']);
             }
-        }else {
+        } else {
             $this->accessRestrictionUrlFormat = array('uri' => $this->accessRestriction);
         }
         return $this->accessRestrictionUrlFormat;

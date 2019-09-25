@@ -53,7 +53,7 @@ class CacheVocabsModel
      * @return stdClass
      */
     public function getCacheByPropUri(string $prop, string $label, string $uri, string $lang = "en"): \stdClass
-    {        
+    {
         $result = new \stdClass();
         $lang = strtolower($lang);
         $uri = strtolower($uri);

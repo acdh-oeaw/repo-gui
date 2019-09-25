@@ -296,7 +296,7 @@ class FrontendController extends ControllerBase
         $needsToCache = false;
         if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
             $needsToCache = true;
-        }elseif (!isset($actualCacheObj->modify_date)) {
+        } elseif (!isset($actualCacheObj->modify_date)) {
             $needsToCache = true;
         }
         $needsToCache = true;
@@ -320,7 +320,7 @@ class FrontendController extends ControllerBase
             if (!$this->cacheModel->addCacheToDB($this->uuid, serialize($result), "R", $fdDate, $this->siteLang)) {
                 return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Database cache wasnt successful", "errmsg_db_cache_problems", $this->uuid);
             }
-        }      
+        }
         //get the tooltip from cache
         $cachedTooltip = $this->cacheModel->getCacheByUUID('ontology', $this->siteLang, "O");
         if (count((array)$cachedTooltip) > 0) {
