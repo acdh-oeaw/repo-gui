@@ -9,8 +9,8 @@ use Drupal\oeaw\Model\CacheVocabsModel;
  *
  * @author nczirjak
  */
-class CacheVocabsFunctions {
-    
+class CacheVocabsFunctions
+{
     public $customCache = array();
     private $cacheVocabs;
     private $vocabs = array(
@@ -20,22 +20,23 @@ class CacheVocabsFunctions {
     );
     
     
-    public function __construct() {
+    public function __construct()
+    {
         $this->cacheVocabs = new \Drupal\oeaw\Model\CacheVocabsModel();
     }
     
-    public function getVocabsTitle(string $lang = "en"): array {
+    public function getVocabsTitle(string $lang = "en"): array
+    {
         $lang = strtolower($lang);
         $this->getVocabsFromDB($lang);
         
-        if(count((array)$this->customCache) < 1) {
+        if (count((array)$this->customCache) < 1) {
             //get the actual and save them
             $this->getControlledVocabStrings($lang);
         }
         
         
         return $this->customCache;
-        
     }
     
     /**
@@ -47,7 +48,7 @@ class CacheVocabsFunctions {
         
         try {
             $graph = new \EasyRdf\Graph();
-            foreach($this->vocabs as $k => $v){
+            foreach ($this->vocabs as $k => $v) {
                 if ($graph->parse(file_get_contents($v))) {
                     foreach ($graph->allOfType('http://www.w3.org/2004/02/skos/core#Concept') as $i) {
                         $uri = $i->getUri();
@@ -66,7 +67,7 @@ class CacheVocabsFunctions {
                         }
                     }
                 }
-            }       
+            }
         } catch (Exception $ex) {
             $this->customCache = array();
         } catch (\EasyRdf\Exception $ex) {
@@ -76,15 +77,15 @@ class CacheVocabsFunctions {
     
     /**
      * Get ALL vocabs cache from db
-     * 
+     *
      * @param type $lang
      */
-    private function getVocabsFromDB($lang) {
-        
+    private function getVocabsFromDB($lang)
+    {
         try {
-            foreach($this->vocabs as $key => $vocab) {
+            foreach ($this->vocabs as $key => $vocab) {
                 $val = $this->cacheVocabs->getAllCacheByProperty($key, $lang);
-                if(count($val) > 0) {
+                if (count($val) > 0) {
                     $this->customCache[$lang][$key] = $val;
                 }
             }
@@ -96,5 +97,4 @@ class CacheVocabsFunctions {
             $this->customCache = array();
         }
     }
-    
 }
