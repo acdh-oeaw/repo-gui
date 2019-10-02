@@ -1730,8 +1730,8 @@ class OeawFunctions
         
         //get the first element
         $firstkey = 0;
-        foreach($rootsRootArray as $k => $v) {
-            if(empty($v)) {
+        foreach ($rootsRootArray as $k => $v) {
+            if (empty($v)) {
                 $firstkey = $k;
             }
         }
@@ -1743,15 +1743,15 @@ class OeawFunctions
         $result[0] = $data[$firstkey];
         unset($data[$firstkey]);
         //get the second level
-        $key = array_search ($result[0]['rootId'], $rootsRootArray);
+        $key = array_search($result[0]['rootId'], $rootsRootArray);
         //count how many levels we have
         $count = count($rootsRootArray);
         //go through on the levels
-        for($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; $i++) {
             $id = $result[$i]['rootId'];
-            if($id) {
-                $rootID = array_search ($id, $rootsRootArray);
-                if(isset($data[$rootID])) {
+            if ($id) {
+                $rootID = array_search($id, $rootsRootArray);
+                if (isset($data[$rootID])) {
                     $result[] = $data[$rootID];
                     unset($data[$rootID]);
                 }
