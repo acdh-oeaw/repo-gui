@@ -35,7 +35,7 @@
                             <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                         {% elseif (value['insideUri']) and (value['title'])  %}
                             <a href="/browser/oeaw_detail/{{ value['insideUri'] }}">{{ value['title']|nl2br }}</a>
-                        {% elseif value['title'] %}
+                        {% elseif value['title'] and value['uri'] %}
                             <a href="{{ value['uri'] }}">{{ value['title']|nl2br }}</a>
                         {% elseif value['uri'] %}
                             <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>

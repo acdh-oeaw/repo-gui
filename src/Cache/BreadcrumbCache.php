@@ -46,7 +46,6 @@ class BreadcrumbCache
         $cacheData = array();
         $result = $oeawStorage->createBreadcrumbData($identifier);
         if (count($result) > 0) {
-            $result = $oeawFunctions->formatBreadcrumbData($result);
             $cacheData = array($identifier => $result);
             \Drupal::cache()->set('breadcrumbs', $cacheData, CacheBackendInterface::CACHE_PERMANENT);
         }

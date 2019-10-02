@@ -329,7 +329,7 @@ class DetailViewFunctions
                                     $this->dvResult['table'][$k][$key]['title'] = $t['title'];
 
                                     $decodId = "";
-                                    if (isset($t['pid']) && !empty($t['pid'])) {
+                                    if (isset($t['pid']) && !empty($t['pid']) && (strpos($t['pid'], 'http') !== false) ) {
                                         $decodId = $t['pid'];
                                     } elseif (isset($t['uuid']) && !empty($t['uuid'])) {
                                         $decodId = $t['uuid'];
@@ -459,7 +459,7 @@ class DetailViewFunctions
                 $result->error = t("Error").' : '.$ex->getMessage();
                 return $result;
             }
-            
+
             //check the acdh:hasIdentifier data to the child view
             if (count($resultsObj->getIdentifiers()) > 0) {
                 $customDetailView = array();
@@ -481,7 +481,6 @@ class DetailViewFunctions
         if ($resultsObj->getType() == "Collection" || $resultsObj->getType() == "Resource"
                 || $resultsObj->getType() == "Metadata") {
             $breadcrumbs = array();
-           
             //we have cached breadcrumbs with this identifier
             if (count($this->breadcrumbCache->getCachedData($uuid)) > 0) {
                 $extras['breadcrumb'] = $this->breadcrumbCache->getCachedData($uuid);

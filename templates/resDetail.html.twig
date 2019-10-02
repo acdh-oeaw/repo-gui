@@ -20,7 +20,7 @@
                     {% set breadcrumbTitle = value["rootTitle"]  %}
                 {% endif %} 
                 <a href='/browser/oeaw_detail/{{value["insideUri"]}}' title='{{ value["rootTitle"] }}'>{{  breadcrumbTitle }}</a> 
-                {% if breadcrumbLength -1 > key %}
+                {% if breadcrumbLength -1 >= key %}
                     /  
                 {% endif %}
             {% endif %}

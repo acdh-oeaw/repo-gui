@@ -1719,38 +1719,33 @@ class OeawFunctions
      */
     public function formatBreadcrumbData(array $data): array
     {
-        $result = array();
-        
         if (count($data) <= 0) {
-            return $result;
+            return array();
         }
-        
-        //we will get the main root, becuase there the "rootsRoot" value is empty
-        $rootsIDArray = array_column($data, 'rootsRoot');
-        //we will get the id of the main root
-        $rootKey = array_filter($rootsIDArray, function ($v, $k) {
-            if ($v == '') {
-                return $k;
+       
+        $rootsRootArray = array_column($data, 'rootsRoot');
+        $rootsIDArray = array_column($data, 'rootId');
+        $last = array();
+        $result = array();
+        $mainIspart = "";
+        foreach($rootsIDArray as $k => $v) {
+            //check the last element
+            if(empty($mainIspart) && !empty($data[$k]['mainIspartOf'])) {
+                $mainIspart = $data[$k]['mainIspartOf'];
             }
-        }, ARRAY_FILTER_USE_BOTH);
-        
-        if (count($rootKey) > 0) {
-            $rootKey = array_keys($rootKey)[0];
-        } else {
-            //if the resource has only one root then it will be 0
-            $rootKey = 0;
+            if( (!empty($mainIspart)) && ($data[$k]['rootId'] == $mainIspart) ) {
+                $last = $data[$k];
+            }
+            foreach($rootsRootArray as $rk => $rv) {
+                if($rv == $v) {
+                    $result[$k] = $data[$k];
+                }
+            }
         }
-        
-        //add the main root as the first element
-        $result[0] = $data[$rootKey];
-        //remove the mainroot from out data array
-        unset($data[$rootKey]);
-                
-        //remove the duplications from the array
-        $data = HF::removeDuplicateValuesFromMultiArrayByKey($data, "rootId");
-                
-        //create a recursive call
-        $this->makeBreadcrumbFinalData($data, $result);
+        if(count($last) > 0) {
+            $result[] = $last;
+        }
+       
         $result = $this->formatBreadcrumbInsideUri($result);
         return $result;
     }
