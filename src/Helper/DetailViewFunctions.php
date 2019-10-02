@@ -330,7 +330,7 @@ class DetailViewFunctions
                                     $this->dvResult['table'][$k][$key]['title'] = $t['title'];
 
                                     $decodId = "";
-                                    if (isset($t['pid']) && !empty($t['pid']) && (strpos($t['pid'], 'http') !== false) ) {
+                                    if (isset($t['pid']) && !empty($t['pid']) && (strpos($t['pid'], 'http') !== false)) {
                                         $decodId = $t['pid'];
                                     } elseif (isset($t['uuid']) && !empty($t['uuid'])) {
                                         $decodId = $t['uuid'];

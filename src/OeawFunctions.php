@@ -1728,21 +1728,21 @@ class OeawFunctions
         $last = array();
         $result = array();
         $mainIspart = "";
-        foreach($rootsIDArray as $k => $v) {
+        foreach ($rootsIDArray as $k => $v) {
             //check the last element
-            if(empty($mainIspart) && !empty($data[$k]['mainIspartOf'])) {
+            if (empty($mainIspart) && !empty($data[$k]['mainIspartOf'])) {
                 $mainIspart = $data[$k]['mainIspartOf'];
             }
-            if( (!empty($mainIspart)) && ($data[$k]['rootId'] == $mainIspart) ) {
+            if ((!empty($mainIspart)) && ($data[$k]['rootId'] == $mainIspart)) {
                 $last = $data[$k];
             }
-            foreach($rootsRootArray as $rk => $rv) {
-                if($rv == $v) {
+            foreach ($rootsRootArray as $rk => $rv) {
+                if ($rv == $v) {
                     $result[$k] = $data[$k];
                 }
             }
         }
-        if(count($last) > 0) {
+        if (count($last) > 0) {
             $result[] = $last;
         }
        
