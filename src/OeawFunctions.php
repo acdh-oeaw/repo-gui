@@ -1748,12 +1748,12 @@ class OeawFunctions
         $count = count($rootsRootArray);
         //go through on the levels
 
-        for($i = 0; $i < $count; $i++) {
-            if(isset($result[$i]['rootId'])) {
+        for ($i = 0; $i < $count; $i++) {
+            if (isset($result[$i]['rootId'])) {
                 $id = $result[$i]['rootId'];
-                if($id) {
-                    $rootID = array_search ($id, $rootsRootArray);
-                    if(isset($data[$rootID])) {
+                if ($id) {
+                    $rootID = array_search($id, $rootsRootArray);
+                    if (isset($data[$rootID])) {
                         $result[] = $data[$rootID];
                         unset($data[$rootID]);
                     }
