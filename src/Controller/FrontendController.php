@@ -143,7 +143,7 @@ class FrontendController extends ControllerBase
      
         $rootResources = array();
         if (count($result) > 0) {
-           $rootResources = $this->rootViewHelper->createRootViewObject($result);
+            $rootResources = $this->rootViewHelper->createRootViewObject($result);
         } else {
             drupal_set_message(
                 $this->langConf->get('errmsg_no_root_resources') ? $this->langConf->get('errmsg_no_root_resources') : 'You have no Root resources',
@@ -153,7 +153,7 @@ class FrontendController extends ControllerBase
             return array();
         }
         
-        if(count($rootResources) <= 0) {
+        if (count($rootResources) <= 0) {
             drupal_set_message(
                 $this->langConf->get('errmsg_no_root_resources') ? $this->langConf->get('errmsg_no_root_resources') : 'You have no Root resources',
                 'error',
@@ -406,7 +406,7 @@ class FrontendController extends ControllerBase
             
             $result = $this->complexSearchViewHelper->search($metavalue, $page, $limit, $order);
             
-            if(count((array)$result) <= 0) {
+            if (count((array)$result) <= 0) {
                 drupal_set_message(t("Your search yielded no results."), 'error');
                 return array();
             }
@@ -473,7 +473,7 @@ class FrontendController extends ControllerBase
             
             $result = $this->complexSearchViewHelper->search($metavalue, $page, $limit, $order, true);
             
-            if(count((array)$result) <= 0) {
+            if (count((array)$result) <= 0) {
                 drupal_set_message(t("Your search yielded no results."), 'error');
                 return array();
             }

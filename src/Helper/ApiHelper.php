@@ -5,17 +5,19 @@ namespace Drupal\oeaw\Helper;
 use acdhOeaw\fedora\Fedora;
 use acdhOeaw\fedora\metadataQuery\SimpleQuery;
 use Drupal\oeaw\Helper\ModelFunctions;
+
 /**
  * Description of ApiHelper
  *
  * @author nczirjak
  */
-class ApiHelper {
-    
+class ApiHelper
+{
     private $fedora;
     private $modelFunctions;
     
-    public function __construct() {
+    public function __construct()
+    {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->fedora = new Fedora();
         $this->modelFunctions = new ModelFunctions();
@@ -43,8 +45,4 @@ class ApiHelper {
             return $result;
         }
     }
-    
-    
-            
-            
 }

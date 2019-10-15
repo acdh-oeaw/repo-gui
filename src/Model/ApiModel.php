@@ -13,24 +13,26 @@ use acdhOeaw\fedora\metadataQuery\SimpleQuery;
  *
  * @author nczirjak
  */
-class ApiModel {
+class ApiModel
+{
     private $modelFunctions;
     private $fedora;
         
-    public function __construct() {
+    public function __construct()
+    {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->modelFunctions = new ModelFunctions();
         $this->fedora = new Fedora();
     }
     
-     /**
-     * This function creates a sparql query for the Basic API calls by type
-     *
-     * @param string $str
-     * @param string $type
-     * @param array $filters
-     * @return string
-     */
+    /**
+    * This function creates a sparql query for the Basic API calls by type
+    *
+    * @param string $str
+    * @param string $type
+    * @param array $filters
+    * @return string
+    */
     public function createBasicApiSparql(string $str, string $type, array $filters = array()): string
     {
         $query = "";
@@ -196,12 +198,12 @@ class ApiModel {
         return $query;
     }
     
-     /**
-     *
-     * @param string $classString
-     * @param string $lang
-     * @return array
-     */
+    /**
+    *
+    * @param string $classString
+    * @param string $lang
+    * @return array
+    */
     public function getMetadataForGuiTable(string $classString, string $lang = "en"): array
     {
         if (empty($classString)) {
@@ -353,7 +355,4 @@ class ApiModel {
             return array();
         }
     }
-    
-   
-    
 }

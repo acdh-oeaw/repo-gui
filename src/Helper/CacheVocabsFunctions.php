@@ -28,7 +28,7 @@ class CacheVocabsFunctions
     
     /**
      * Get the vocabs title
-     * 
+     *
      * @param string $lang
      * @return array
      */

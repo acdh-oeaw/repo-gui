@@ -13,7 +13,6 @@ use Drupal\oeaw\Model\ApiModel;
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
 
-
 /**
  * Provides Metadata by Class
  *

@@ -16,29 +16,30 @@ use Drupal\oeaw\Helper\ModelFunctions;
  *
  * @author nczirjak
  */
-class RootViewModel {
-    
+class RootViewModel
+{
     private $modelFunctions;
     private $fedora;
     
-    public function __construct($fedora) {
+    public function __construct($fedora)
+    {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->modelFunctions = new ModelFunctions();
         $this->fedora = $fedora;
     }
     
-     /**
-     * Get the root elements from fedora
-     *
-     * @param int $limit
-     * @param int $offset
-     * @param bool $count
-     * @param string $order
-     * @param string $lang
-     * @return array
-     * @throws \Exception
-     * @throws \InvalidArgumentException
-     */
+    /**
+    * Get the root elements from fedora
+    *
+    * @param int $limit
+    * @param int $offset
+    * @param bool $count
+    * @param string $order
+    * @param string $lang
+    * @return array
+    * @throws \Exception
+    * @throws \InvalidArgumentException
+    */
     public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc", string $lang = ""): array
     {
         //Let's process the order argument
@@ -144,5 +145,4 @@ class RootViewModel {
             throw new \Exception($ex->getMessage());
         }
     }
-    
 }

@@ -13,6 +13,7 @@ namespace Drupal\oeaw\Model;
  *
  * @author nczirjak
  */
-class DetailViewModel {
+class DetailViewModel
+{
     //put your code here
 }

@@ -12,7 +12,8 @@ use Drupal\oeaw\Model\OeawCustomSparql;
  *
  * @author nczirjak
  */
-class ComplexSearchHelper {
+class ComplexSearchHelper
+{
     private $siteLang;
     private $oeawFunctions;
     private $oeawStorage;
@@ -39,28 +40,33 @@ class ComplexSearchHelper {
         $this->oeawCustomSparql = new OeawCustomSparql();
     }
     
-    public function getCurrentPage(): int {
+    public function getCurrentPage(): int
+    {
         return $this->currentPage;
     }
     
-    public function getPagination(): string {
+    public function getPagination(): string
+    {
         return $this->pagination;
     }
     
-    public function getTotal(): int {
+    public function getTotal(): int
+    {
         return $this->total;
     }
     
-    public function getPageData() {
+    public function getPageData()
+    {
         return $this->pageData;
     }
     
     /**
      * create the searchstring
-     * 
+     *
      * @param type $metadata
      */
-    private function setUpMetadata($metadata) {
+    private function setUpMetadata($metadata)
+    {
         $this->metadata = urldecode($metadata);
         $this->metadata = str_replace(' ', '+', $this->metadata);
         $this->searchStr = $this->oeawFunctions->explodeSearchString($this->metadata);
@@ -68,12 +74,13 @@ class ComplexSearchHelper {
     
     /**
      * paging html for the gui
-     * 
+     *
      * @param int $limit
      * @param int $page
      * @param int $total
      */
-    public function handlePaging(int $limit, int $page, int $total) {
+    public function handlePaging(int $limit, int $page, int $total)
+    {
         //get the current page for the pagination
         $this->currentPage = $this->oeawFunctions->getCurrentPageForPagination();
         
@@ -87,17 +94,18 @@ class ComplexSearchHelper {
     
     /**
      * run the search sparql
-     * 
+     *
      * @param int $limit
      * @param int $page
      * @param string $order
      * @return array
      */
-    private function runSparql(int $limit, int $page, string $order, bool $blazegraph = false): array {
+    private function runSparql(int $limit, int $page, string $order, bool $blazegraph = false): array
+    {
         try {
             if (!$blazegraph) {
                 $sparql = $this->oeawCustomSparql->createFullTextSparql($this->searchStr, $limit, $this->pageData['end'], false, $order);
-            }else {
+            } else {
                 $sparql = $this->oeawCustomSparql->createBGFullTextSparql($this->searchStr, $limit, $this->pageData['end'], false, $order);
             }
             $this->sparqlData = $this->oeawStorage->runUserSparql($sparql);
@@ -110,10 +118,11 @@ class ComplexSearchHelper {
     
     /**
      * Create the object from the search result
-     * 
+     *
      * @return type
      */
-    private function createComplexSearchObject() {
+    private function createComplexSearchObject()
+    {
         if (count($this->sparqlData) > 0) {
             foreach ($this->sparqlData as $r) {
                 if ((isset($r['title']) && !empty($r['title']))
@@ -183,18 +192,18 @@ class ComplexSearchHelper {
     
     /**
      * Run the actual search
-     * 
+     *
      * @param string $metavalue
      * @param int $page
      * @param int $limit
      * @param string $order
      * @return array
      */
-    public function search(string $metavalue, int $page, int $limit, string $order, bool $blazegraph = false): array {
-        
+    public function search(string $metavalue, int $page, int $limit, string $order, bool $blazegraph = false): array
+    {
         $this->setUpMetadata($metavalue);
         
-        if(count((array)$this->searchStr) <= 0) {
+        if (count((array)$this->searchStr) <= 0) {
             return array();
         }
         
@@ -202,14 +211,14 @@ class ComplexSearchHelper {
         $this->getSolrData();
         //get the total resources
         $this->total = $this->getTotalResources();
-        if($this->total < 1) {
+        if ($this->total < 1) {
             return array();
         }
-        //do the paging stuff        
+        //do the paging stuff
         $this->handlePaging($limit, $page, $this->total);
         //execute the sparql
         $this->runSparql($limit, $page, $order, $blazegraph);
-        //if we have solrdata then we will merge        
+        //if we have solrdata then we will merge
         if (count((array)$this->solrData) > 0) {
             $this->sparqlData = array_merge($this->sparqlData, $this->solrData);
         }
@@ -221,11 +230,12 @@ class ComplexSearchHelper {
     
     /**
      * Count the sparql resources
-     * 
+     *
      * @return int
      */
-    private function countSparqlResources(): int {
-        //custom sparql search            
+    private function countSparqlResources(): int
+    {
+        //custom sparql search
         try {
             $countSparql = $this->oeawCustomSparql->createFullTextSparql($this->searchStr, 0, 0, true);
         } catch (\ErrorException $ex) {
@@ -233,15 +243,15 @@ class ComplexSearchHelper {
         }
         $count = $this->oeawStorage->runUserSparql($countSparql);
         return (int)count($count);
-            
     }
     
     /**
      * Sum the sparql and solr resources
-     * 
+     *
      * @return int
      */
-    private function getTotalResources(): int {
+    private function getTotalResources(): int
+    {
         $solrCount = count((array)$this->solrData);
         $count = $this->countSparqlResources();
         return (int)$count + (int)$solrCount;
@@ -249,11 +259,12 @@ class ComplexSearchHelper {
     
     /**
      * get the data from the solr, based on the search metadata
-     * 
+     *
      * @return type
      */
-    private function getSolrData() {
-         //solr search
+    private function getSolrData()
+    {
+        //solr search
         if (!in_array("", $this->searchStr) === false) {
             drupal_set_message(t("Your search yielded no results."), 'error');
             return array();
@@ -270,5 +281,4 @@ class ComplexSearchHelper {
             $this->solrData = $this->oeawFunctions->getDataFromSolr($this->searchStr['words']);
         }
     }
-    
 }

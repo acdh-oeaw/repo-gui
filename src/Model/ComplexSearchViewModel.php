@@ -10,12 +10,13 @@ use Drupal\oeaw\Helper\ModelFunctions;
  *
  * @author nczirjak
  */
-class ComplexSearchViewModel {
-    
+class ComplexSearchViewModel
+{
     private $modelFunctions;
     private $fedora;
     
-    public function __construct($fedora) {
+    public function __construct($fedora)
+    {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->modelFunctions = new ModelFunctions();
         $this->fedora = $fedora;
@@ -70,7 +71,7 @@ class ComplexSearchViewModel {
         
         //the main part
         
-	$query .= " ?uri <".RC::idProp()."> ?identifiers .  ";
+        $query .= " ?uri <".RC::idProp()."> ?identifiers .  ";
         
         //$query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
         $not = "";
@@ -80,13 +81,12 @@ class ComplexSearchViewModel {
             $wd = explode('+', $data["words"]);
             $not = "";
             foreach ($wd as $k => $w) {
-                
-                if(!empty($not) && ( $not == $w )) {
+                if (!empty($not) && ($not == $w)) {
                     continue;
                 }
                 
                 if ($w == "not") {
-                    if(isset($wd[$k+1])) {
+                    if (isset($wd[$k+1])) {
                         $not = $wd[$k+1];
                     }
                     continue;
@@ -95,24 +95,24 @@ class ComplexSearchViewModel {
                 if ($w == "and") {
                     $query .="  UNION  ";
                     continue;
-                }else {
+                } else {
                     $query .= " { ";
                 
-                        $query .= ' SERVICE <http://www.bigdata.com/rdf/search#search> { '
+                    $query .= ' SERVICE <http://www.bigdata.com/rdf/search#search> { '
                                     . ' ?label bds:search "*'.$w.'*".  '
                                     . ' ?label bds:matchAllTerms "true". '
                                 . ' } ';
                 }
                 //filter the language
-                //$query .= " FILTER contains(lang(?label), '".$lang."') . "; 
+                //$query .= " FILTER contains(lang(?label), '".$lang."') . ";
                 
                 $query .= " } ";
             }
         }
         
         //if the words have a not
-        if(!empty($not)) {
-            $query .= ' FILTER (!contains(lcase(?label), lcase("'.$not.'") )) . '; 
+        if (!empty($not)) {
+            $query .= ' FILTER (!contains(lcase(?label), lcase("'.$not.'") )) . ';
         }
         
         //get the title

@@ -56,7 +56,7 @@ class ApiPersonsResource extends ResourceBase
         $spRes = array();
         $result = array();
         
-        $model = new ApiModel();        
+        $model = new ApiModel();
         $sparql = $model->createPersonsApiSparql($data);
         $helper = new ApiHelper();
 

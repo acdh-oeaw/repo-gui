@@ -24,7 +24,6 @@ use acdhOeaw\util\RepoConfig as RC;
 
 class OeawStorage implements OeawStorageInterface
 {
-   
     private static $sparqlPref = array(
         'foafImage' => 'http://xmlns.com/foaf/0.1/Image',
         'rdfsDomain' => 'http://www.w3.org/2000/01/rdf-schema#domain'

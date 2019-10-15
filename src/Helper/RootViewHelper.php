@@ -12,8 +12,8 @@ use acdhOeaw\util\RepoConfig as RC;
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\Model\RootViewModel;
 
-class RootViewHelper {
-    
+class RootViewHelper
+{
     private $siteLang;
     private $oeawFunctions;
     private $oeawStorage;
@@ -24,7 +24,7 @@ class RootViewHelper {
         $siteLang,
         \Drupal\oeaw\OeawFunctions $oeawFunctions,
         \Drupal\oeaw\Model\OeawStorage $oeawStorage,
-            $fedora
+        $fedora
     ) {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->siteLang = $siteLang;
@@ -32,16 +32,16 @@ class RootViewHelper {
         $this->oeawStorage = $oeawStorage;
         $this->fedora = $fedora;
         $this->model = new RootViewModel($this->fedora);
-        
     }
     
     
     /**
      * Count the actual root elements from the database
-     * 
+     *
      * @return type
      */
-    public function countRoots() {
+    public function countRoots()
+    {
         //count all root resource for the pagination
         try {
             return $this->model->getRootFromDB(0, 0, true, "datedesc", $this->siteLang);
@@ -56,14 +56,15 @@ class RootViewHelper {
     
     /**
      * Get the actual root resources
-     * 
+     *
      * @param string $limit
      * @param string $offsetRoot
      * @param string $order
      * @return type
      */
-    public function getRoots(string $limit, string $offsetRoot, string $order) {
-         try {
+    public function getRoots(string $limit, string $offsetRoot, string $order)
+    {
+        try {
             return $this->model->getRootFromDB($limit, $offsetRoot, false, $order, $this->siteLang);
         } catch (Exception $ex) {
             drupal_set_message($ex->getMessage(), 'error');
@@ -77,13 +78,13 @@ class RootViewHelper {
 
     /**
      * Create the oeawresource object with data
-     * 
+     *
      * @param array $data
      * @return \Drupal\oeaw\Model\OeawResource
      * @throws \ErrorException
      */
-    public function createRootViewObject(array $data) {
-    
+    public function createRootViewObject(array $data)
+    {
         $result = array();
         foreach ($data as $value) {
             $tblArray = array();

@@ -158,5 +158,4 @@ class ModelFunctions
         }
         return $res;
     }
-    
 }

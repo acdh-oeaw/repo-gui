@@ -4,7 +4,6 @@ namespace Drupal\oeaw\Model;
 
 interface OeawStorageInterface
 {
-            
     public function getACDHIdByPid(string $pid): array;
     public function getUUIDBySpecialIdentifier(string $identifier): array;
     public function getACDHTypes(bool $count = false, bool $searchBox = false) :array;
@@ -55,5 +54,4 @@ interface OeawStorageInterface
     public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false): array;
     public function getImageByIdentifier(string $string): string;
     public function getImage(string $value, string $property = null): string;
-    
 }
