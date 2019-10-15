@@ -20,8 +20,6 @@ class DetailViewFunctions
     private $breadcrumbCache;
     private $searchTitle;
     private $dvResult;
-    private $cacheVocabsModel;
-    private $customCache;
     
     public function __construct(
         $langConf,

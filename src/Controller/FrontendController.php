@@ -8,10 +8,11 @@ use Drupal\Core\Language\LanguageInterface;
 
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\OeawResource;
-use Drupal\oeaw\Model\OeawCustomSparql;
 use Drupal\oeaw\Model\CacheModel;
 
 use Drupal\oeaw\Helper\HelperFunctions;
+use Drupal\oeaw\Helper\RootViewHelper;
+use Drupal\oeaw\Helper\ComplexSearchViewHelper;
 use Drupal\oeaw\Helper\DetailViewFunctions;
 use Drupal\oeaw\Helper\CollectionFunctions;
 use Drupal\oeaw\OeawFunctions;
@@ -37,12 +38,14 @@ class FrontendController extends ControllerBase
     private $oeawStorage;
     /* plugin main functions */
     private $oeawFunctions;
-        
-    private $oeawCustomSparql;
+    
     private $uriFor3DObj;
     private $langConf;
     private $uuid;
     private $oeawDVFunctions;
+    private $rootViewHelper;
+    private $detailViewHelper;
+    private $complexSearchViewHelper;
     private $fedora;
     private $userid;
     private $cacheModel;
@@ -60,9 +63,10 @@ class FrontendController extends ControllerBase
         $this->userid = \Drupal::currentUser()->id();
         $this->oeawFunctions = new OeawFunctions();
         $this->oeawStorage = new OeawStorage();
-        $this->oeawCustomSparql = new OeawCustomSparql();
         $this->oeawDVFunctions = new DetailViewFunctions($this->langConf, $this->oeawFunctions, $this->oeawStorage);
         $this->fedora = $this->oeawFunctions->initFedora();
+        (isset($_SESSION['language'])) ? $this->siteLang = strtolower($_SESSION['language'])  : $this->siteLang = "en";
+        $GLOBALS['language'] = $this->siteLang;
         
         try {
             $this->cacheModel = new CacheModel();
@@ -81,9 +85,9 @@ class FrontendController extends ControllerBase
         }
         
         $this->oeawCollectionFunc = new CollectionFunctions($this->fedora, $this->oeawFunctions, $this->fedoraGlobalModDate, $this->cacheModel, $this->oeawStorage);
-        
-        (isset($_SESSION['language'])) ? $this->siteLang = strtolower($_SESSION['language'])  : $this->siteLang = "en";
-        $GLOBALS['language'] = $this->siteLang;
+        $this->rootViewHelper = new RootViewHelper($this->siteLang, $this->oeawFunctions, $this->oeawStorage, $this->fedora);
+        $this->detailViewHelper = new RootViewHelper($this->siteLang, $this->oeawFunctions, $this->oeawStorage, $this->fedora);
+        $this->complexSearchViewHelper = new ComplexSearchViewHelper($this->siteLang, $this->oeawFunctions, $this->oeawStorage, $this->fedora);
     }
 
     /**
@@ -108,16 +112,8 @@ class FrontendController extends ControllerBase
         $page = (int)$page;
         $page = $page-1;
         
-        //count all root resource for the pagination
-        try {
-            $countRes = $this->oeawStorage->getRootFromDB(0, 0, true, $order, $this->siteLang);
-        } catch (\Exception $ex) {
-            drupal_set_message($ex->getMessage(), 'error');
-            return array();
-        } catch (\InvalidArgumentException $ex) {
-            drupal_set_message($ex->getMessage(), 'error');
-            return array();
-        }
+        //count the root elements
+        $countRes = $this->rootViewHelper->countRoots();
         
         $countRes = $countRes[0]["count"];
         if ($countRes == 0) {
@@ -142,71 +138,22 @@ class FrontendController extends ControllerBase
         } else {
             $offsetRoot = 0;
         }
-
-        try {
-            $result = $this->oeawStorage->getRootFromDB($limit, $offsetRoot, false, $order, $this->siteLang);
-        } catch (Exception $ex) {
-            drupal_set_message($ex->getMessage(), 'error');
-            return array();
-        } catch (\InvalidArgumentException $ex) {
-            drupal_set_message($ex->getMessage(), 'error');
+        
+        $result = $this->rootViewHelper->getRoots($limit, $offsetRoot, false, $order);
+     
+        $rootResources = array();
+        if (count($result) > 0) {
+           $rootResources = $this->rootViewHelper->createRootViewObject($result);
+        } else {
+            drupal_set_message(
+                $this->langConf->get('errmsg_no_root_resources') ? $this->langConf->get('errmsg_no_root_resources') : 'You have no Root resources',
+                'error',
+                false
+            );
             return array();
         }
         
-        if (count($result) > 0) {
-            foreach ($result as $value) {
-                $tblArray = array();
-                
-                $arrayObject = new \ArrayObject();
-                $arrayObject->offsetSet('title', $value['title']);
-                
-                $resourceIdentifier = $this->oeawFunctions->createDetailViewUrl($value);
-                $arrayObject->offsetSet('uri', $resourceIdentifier);
-                $arrayObject->offsetSet('fedoraUri', $value['uri']);
-                $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 1));
-                $arrayObject->offsetSet('identifiers', $value['identifier']);
-                $arrayObject->offsetSet('pid', $value['pid']);
-                $arrayObject->offsetSet('type', str_replace(RC::get('fedoraVocabsNamespace'), '', $value['acdhType']));
-                $arrayObject->offsetSet('typeUri', $value['acdhType']);
-                $arrayObject->offsetSet('availableDate', $value['availableDate']);
-                $arrayObject->offsetSet('accessRestriction', $value['accessRestriction']);
-                
-                if (isset($value['contributor']) && !empty($value['contributor'])) {
-                    $contrArr = explode(',', $value['contributor']);
-                    $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
-                }
-                if (isset($value['author']) && !empty($value['author'])) {
-                    $authArr = explode(',', $value['author']);
-                    $tblArray['authors'] = $this->oeawFunctions->createContribAuthorData($authArr);
-                }
-                
-                if (isset($value['image']) && !empty($value['image'])) {
-                    $arrayObject->offsetSet('imageUrl', $value['image']);
-                } elseif (isset($value['hasTitleImage']) && !empty($value['hasTitleImage'])) {
-                    $imageUrl = $this->oeawStorage->getImageByIdentifier($value['hasTitleImage']);
-                    if ($imageUrl) {
-                        $arrayObject->offsetSet('imageUrl', $imageUrl);
-                    }
-                }
-                
-                if (isset($value['description']) && !empty($value['description'])) {
-                    $tblArray['description'] = $value['description'];
-                }
-                
-                if (count($tblArray) == 0) {
-                    $tblArray['title'] = $value['title'];
-                }
-                
-                $arrayObject->offsetSet('table', $tblArray);
-           
-                try {
-                    $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, null, $this->siteLang);
-                    $res[] = $obj;
-                } catch (\ErrorException $ex) {
-                    throw new \ErrorException(t('Error message').':  FrontendController -> OeawResource Exception ');
-                }
-            }
-        } else {
+        if(count($rootResources) <= 0) {
             drupal_set_message(
                 $this->langConf->get('errmsg_no_root_resources') ? $this->langConf->get('errmsg_no_root_resources') : 'You have no Root resources',
                 'error',
@@ -225,10 +172,10 @@ class FrontendController extends ControllerBase
             ]
         );
         
-        if (count((array)$res) > 0) {
+        if (count((array)$rootResources) > 0) {
             //$header = array_keys($res[0]);
             $datatable['#theme'] = 'oeaw_complex_search_res';
-            $datatable['#result'] = $res;
+            $datatable['#result'] = $rootResources;
             $datatable['#search'] = $search;
             $datatable['#pagination'] = $pagination;
             //$datatable['#searchedValues'] = $i . ' top-level elements have been found.';
@@ -450,142 +397,98 @@ class FrontendController extends ControllerBase
             }
             return $this->roots_list($limit, $page, $order);
         } else {
-            $res = array();
-            $errorMSG = array();
+            
             //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
             $page = (int)$page - 1;
             $limit = (int)$limit;
             $result = array();
-            $solrData = array();
-            $pagination = "";
-            //get the current page for the pagination
-            $currentPage = $this->oeawFunctions->getCurrentPageForPagination();
-
-            $metavalue = urldecode($metavalue);
-            $metavalue = str_replace(' ', '+', $metavalue);
-
-            $searchStr = $this->oeawFunctions->explodeSearchString($metavalue);
+            $total = 0;
             
-            if (!in_array("", $searchStr) === false) {
+            $result = $this->complexSearchViewHelper->search($metavalue, $page, $limit, $order);
+            
+            if(count((array)$result) <= 0) {
                 drupal_set_message(t("Your search yielded no results."), 'error');
                 return array();
             }
-            /** Check the the of the search, it is necessary for the solr search **/
-            if (
-                isset($searchStr['words']) &&
-                (
-                    (!isset($searchStr['type']))
-                        ||
-                    (isset($searchStr['type']) && strtolower($searchStr['type']) == "resource")
-                )
-            ) {
-                $solrData = $this->oeawFunctions->getDataFromSolr($searchStr['words']);
-            }
-            
-            
-            try {
-                $countSparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, 0, 0, true);
-                $countSparql;
-            } catch (\ErrorException $ex) {
-                drupal_set_message($ex->getMessage(), 'error');
-                return array();
-            }
-            $solrCount = count($solrData);
-            $count = $this->oeawStorage->runUserSparql($countSparql);
-
-            $total = (int)count($count) + $solrCount;
-            if ($total < 1) {
-                drupal_set_message(t("Your search yielded no results."), 'error');
-            }
-            //create data for the pagination
-            $pageData = $this->oeawFunctions->createPaginationData($limit, $page, $total);
-
-            if ($pageData['totalPages'] > 1) {
-                $pagination =  $this->oeawFunctions->createPaginationHTML($currentPage, $pageData['page'], $pageData['totalPages'], $limit);
-            }
-            try {
-                $sparql = $this->oeawCustomSparql->createFullTextSparql($searchStr, $limit, $pageData['end'], false, $order);
-                $res = $this->oeawStorage->runUserSparql($sparql);
-            } catch (\ErrorException $ex) {
-                drupal_set_message($ex->getMessage(), 'error');
-                return array();
-            }
+                        
+            $pagination = $this->complexSearchViewHelper->getPagination();
+            $total = $this->complexSearchViewHelper->getTotal();
+            $pageData = $this->complexSearchViewHelper->getPageData();
            
-            if ($solrCount > 0) {
-                $res = array_merge($res, $solrData);
-            }
-
-            if (count($res) > 0) {
-                foreach ($res as $r) {
-                    if ((isset($r['title']) && !empty($r['title']))
-                            && (isset($r['uri']) && !empty($r['uri']))
-                            && (isset($r['identifier']) && !empty($r['identifier']))
-                            && (isset($r['acdhType']) && !empty($r['acdhType']))) {
-                        $tblArray = array();
-
-                        $arrayObject = new \ArrayObject();
-                        $arrayObject->offsetSet('title', $r['title']);
-                        $resourceIdentifier = $this->oeawFunctions->createDetailViewUrl($r);
-                        $arrayObject->offsetSet('uri', $resourceIdentifier);
-                        $arrayObject->offsetSet('fedoraUri', $r['uri']);
-                        $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($resourceIdentifier, 1));
-                        $arrayObject->offsetSet('identifiers', $r['identifier']);
-                        $arrayObject->offsetSet('pid', (isset($r['pid'])) ? $r['pid'] : "");
-                        $arrayObject->offsetSet('type', str_replace(RC::get('fedoraVocabsNamespace'), '', $r['acdhType']));
-                        $arrayObject->offsetSet('typeUri', $r['acdhType']);
-
-                        if (isset($r['availableDate']) && !empty($r['availableDate'])) {
-                            $arrayObject->offsetSet('availableDate', $r['availableDate']);
-                        }
-                        if (isset($r['accessRestriction']) && !empty($r['accessRestriction'])) {
-                            $arrayObject->offsetSet('accessRestriction', $r['accessRestriction']);
-                        }
-                        if (isset($r['authors']) && !empty($r['authors'])) {
-                            $authArr = explode(',', $r['authors']);
-                            $tblArray['authors'] = $this->oeawFunctions->createContribAuthorData($authArr);
-                        }
-                        if (isset($r['contribs']) && !empty($r['contribs'])) {
-                            $contrArr = explode(',', $r['contribs']);
-                            $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
-                        }
-                        
-                        if (isset($r['highlighting']) && !empty($r['highlighting'])) {
-                            $arrayObject->offsetSet('highlighting', $r['highlighting']);
-                        }
-                        
-                        if (count($tblArray) == 0) {
-                            $tblArray['title'] = $r['title'];
-                        }
-                        if (isset($r['image']) && !empty($r['image'])) {
-                            $arrayObject->offsetSet('imageUrl', $r['image']);
-                        } elseif (isset($r['hasTitleImage']) && !empty($r['hasTitleImage'])) {
-                            $imageUrl = $this->oeawStorage->getImageByIdentifier($r['hasTitleImage']);
-                            if ($imageUrl) {
-                                $arrayObject->offsetSet('imageUrl', $imageUrl);
-                            }
-                        }
-                        
-                        if (isset($r['description']) && !empty($r['description'])) {
-                            $tblArray['description'] = $r['description'];
-                        }
-                        $arrayObject->offsetSet('table', $tblArray);
-                        try {
-                            $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, null, $this->siteLang);
-                            $result[] = $obj;
-                        } catch (ErrorException $ex) {
-                            throw new \ErrorException(t('Error').':'.__FUNCTION__, 'error');
-                        }
-                    }
-                }
-            }
             if (count($result) == 0) {
                 return array();
             }
-            
+         
             $datatable['#theme'] = 'oeaw_complex_search_res';
             $datatable['#userid'] = $this->userid;
             $datatable['#pagination'] = $pagination;
-            $datatable['#errorMSG'] = $errorMSG;
+            $datatable['#result'] = $result;
+            //$datatable['#searchedValues'] = $total . ' elements containing "' . $metavalue . '" have been found.';
+            $datatable['#totalResultAmount'] = $total;
+
+            if (empty($pageData['page']) or $pageData['page'] == 0) {
+                $datatable['#currentPage'] = 1;
+            } else {
+                $datatable['#currentPage'] = $pageData['page'] + 1;
+            }
+            if (empty($pageData) or $pageData['totalPages'] == 0) {
+                $datatable['#totalPages'] = 1;
+            } else {
+                $datatable['#totalPages'] = $pageData['totalPages'];
+            }
+           
+            return $datatable;
+        }
+    }
+    
+    
+    public function oeaw_search(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "datedesc"): array
+    {
+        drupal_get_messages('error', true);
+       
+        if (empty($metavalue)) {
+            $metavalue = "root";
+        }
+        
+        //If the discover page calls the root resources forward to the root_list method
+        if ($metavalue == 'root') {
+            //If a cookie setting exists and the query is coming without a specific parameter
+            if ((isset($_COOKIE["resultsPerPage"]) && !empty($_COOKIE["resultsPerPage"])) && empty($limit)) {
+                $limit = $_COOKIE["resultsPerPage"];
+            }
+            if ((isset($_COOKIE["resultsOrder"]) && !empty($_COOKIE["resultsOrder"])) && empty($order)) {
+                $order = $_COOKIE["resultsOrder"];
+            }
+            if (empty($page)) {
+                $page = "1";
+            }
+            return $this->roots_list($limit, $page, $order);
+        } else {
+            
+            //Deduct 1 from the page since the backend works with 0 and the frontend 1 for the initial page
+            $page = (int)$page - 1;
+            $limit = (int)$limit;
+            $result = array();
+            $total = 0;
+            
+            $result = $this->complexSearchViewHelper->search($metavalue, $page, $limit, $order, true);
+            
+            if(count((array)$result) <= 0) {
+                drupal_set_message(t("Your search yielded no results."), 'error');
+                return array();
+            }
+                        
+            $pagination = $this->complexSearchViewHelper->getPagination();
+            $total = $this->complexSearchViewHelper->getTotal();
+            $pageData = $this->complexSearchViewHelper->getPageData();
+           
+            if (count($result) == 0) {
+                return array();
+            }
+         
+            $datatable['#theme'] = 'oeaw_complex_search_res';
+            $datatable['#userid'] = $this->userid;
+            $datatable['#pagination'] = $pagination;
             $datatable['#result'] = $result;
             //$datatable['#searchedValues'] = $total . ' elements containing "' . $metavalue . '" have been found.';
             $datatable['#totalResultAmount'] = $total;

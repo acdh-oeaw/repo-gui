@@ -28,6 +28,18 @@ oeaw_complexsearch:
     _permission: 'access content'
     _access: 'TRUE'
 
+oeaw_bgsearch:
+  path: '/search/{metavalue}/{order}/{limit}/{page}'
+  defaults:
+    _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_search'
+    metavalue: ""
+    order: "datedesc"
+    limit: "10"
+    page: "1"
+  requirements:
+    _permission: 'access content'
+    _access: 'TRUE'    
+
 oeaw.settings_form:
   path: '/admin/config/oeaw'
   defaults:

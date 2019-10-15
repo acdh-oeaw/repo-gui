@@ -6,8 +6,8 @@ use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 
 // our drupal custom libraries
-use Drupal\oeaw\Model\OeawStorage;
-use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Model\ApiModel;
+use Drupal\oeaw\Helper\ApiHelper;
 use Drupal\oeaw\Helper\HelperFunctions as HF;
 
 use Symfony\Component\HttpFoundation\Response;
@@ -50,13 +50,13 @@ class ApiPublicationsResource extends ResourceBase
         $spRes = array();
         $result = array();
         
-        $OeawCustomSparql = new OeawCustomSparql();
-        $OeawStorage = new OeawStorage();
+        $model = new ApiModel();
+        $helper = new ApiHelper();
         
-        $sparql = $OeawCustomSparql->createPublicationsApiSparql($data);
+        $sparql = $model->createPublicationsApiSparql($data);
 
         if ($sparql) {
-            $spRes = $OeawStorage->runUserSparql($sparql, true);
+            $spRes = $helper->runUserSparql($sparql, true);
             
             if (count($spRes) > 0) {
                 $spRes = HF::formatApiSparqlResult($spRes);

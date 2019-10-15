@@ -14,7 +14,6 @@ use Drupal\Core\Cache\CacheBackendInterface;
 class PropertyTableCache
 {
     
-    
     //\Drupal\Core\Cache\Cache::PERMANENT means cacheable forever,
     //\Drupal::cache()->set('cache_demo_posts', $posts, CacheBackendInterface::CACHE_PERMANENT);
     

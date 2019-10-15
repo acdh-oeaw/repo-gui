@@ -5,8 +5,8 @@ namespace Drupal\oeaw\Plugin\rest\resource;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 // our drupal custom libraries
-use Drupal\oeaw\Model\OeawStorage;
-use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Helper\ApiHelper;
+use Drupal\oeaw\Model\ApiModel;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 
@@ -51,13 +51,13 @@ class ApiConceptsResource extends ResourceBase
         $spRes = array();
         $result = array();
         
-        $OeawCustomSparql = new OeawCustomSparql();
-        $OeawStorage = new OeawStorage();
+        $model = new ApiModel();
+        $helper = new ApiHelper();
         
-        $sparql = $OeawCustomSparql->createBasicApiSparql($data, RC::get('drupalConcept'));
+        $sparql = $model->createBasicApiSparql($data, RC::get('drupalConcept'));
 
         if ($sparql) {
-            $spRes = $OeawStorage->runUserSparql($sparql, true);
+            $spRes = $helper->runUserSparql($sparql, true);
             
             if (count($spRes) > 0) {
                 for ($x = 0; $x < count($spRes); $x++) {

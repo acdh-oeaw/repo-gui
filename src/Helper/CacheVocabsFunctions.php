@@ -16,7 +16,8 @@ class CacheVocabsFunctions
     private $vocabs = array(
         "acdh:hasAccessRestriction" => "https://vocabs.acdh.oeaw.ac.at/download/archeaccessrestrictions.rdf",
         "acdh:hasLifeCycleStatus" => "https://vocabs.acdh.oeaw.ac.at/download/archelifecyclestatus.rdf",
-        "acdh:hasCategory" => "https://vocabs.acdh.oeaw.ac.at/download/archecategory.rdf"
+        "acdh:hasCategory" => "https://vocabs.acdh.oeaw.ac.at/download/archecategory.rdf",
+        "acdh:hasRelatedDiscipline" =>  "https://vocabs.acdh.oeaw.ac.at/oefosdisciplines/Schema&format=application/rdf+xml"
     );
     
     
@@ -25,6 +26,12 @@ class CacheVocabsFunctions
         $this->cacheVocabs = new \Drupal\oeaw\Model\CacheVocabsModel();
     }
     
+    /**
+     * Get the vocabs title
+     * 
+     * @param string $lang
+     * @return array
+     */
     public function getVocabsTitle(string $lang = "en"): array
     {
         $lang = strtolower($lang);
@@ -34,13 +41,12 @@ class CacheVocabsFunctions
             //get the actual and save them
             $this->getControlledVocabStrings($lang);
         }
-        
-        
         return $this->customCache;
     }
     
     /**
      * get the vocabs values
+     * @param string $lang
      */
     private function getControlledVocabStrings(string $lang = "en"): void
     {

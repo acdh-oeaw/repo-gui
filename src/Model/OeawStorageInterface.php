@@ -4,12 +4,10 @@ namespace Drupal\oeaw\Model;
 
 interface OeawStorageInterface
 {
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc"): array;
-        
+            
     public function getACDHIdByPid(string $pid): array;
     public function getUUIDBySpecialIdentifier(string $identifier): array;
     public function getACDHTypes(bool $count = false, bool $searchBox = false) :array;
-    public function getParentTitle(string $id): array;
     public function getResourceTitle(string $uri): array;
     public function getTitleByIdentifier(string $string): array;
     public function getTitleByIdentifierArray(array $data, bool $dissemination = false): array;
@@ -32,21 +30,14 @@ interface OeawStorageInterface
     public function getChildResourcesByProperty(string $uri, string $limit, string $offset, bool $count, array $property): array;
     public function getChildrenViewData(array $ids, string $limit, string $offset, bool $count = false): array;
     
-    public function getClassMeta(string $classURI): array;
-    
     //API sql
-    public function getClassMetaForApi(string $classURI, string $lang = "en"): array;
     public function getTypeByIdentifier(string $identifier, string $lang = "en"): array;
     
     //detail view sql
     public function getInverseViewDataByIdentifier(array $data): array;
-    public function getImageByIdentifier(string $string): string;
-    public function getImage(string $value, string $property = null): string;
-    public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false): array;
     public function getInverseViewDataByURL(string $url): array;
     public function getIsMembers(string $uri): array;
     public function getMetaInverseData(string $uri): array;
-    public function getMimeTypes(): array;
     public function getPropDataToExpertTable(array $data): array;
     public function getPropertyValueByUri(string $uri, string $property): string;
     public function getResourceModifyDateById(string $uuid): string;
@@ -55,4 +46,14 @@ interface OeawStorageInterface
     public function getOntologyForCache(string $lang = "en"): array;
     //breadcrumb
     public function createBreadcrumbData(string $identifier, string $lang = "en"): array;
+    
+    
+    //BLocks
+    public function getMimeTypes(): array;
+    
+    //general
+    public function getDataByProp(string $property, string $value, int $limit = 0, int $offset = 0, bool $count = false): array;
+    public function getImageByIdentifier(string $string): string;
+    public function getImage(string $value, string $property = null): string;
+    
 }

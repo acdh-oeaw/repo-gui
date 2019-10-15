@@ -7,15 +7,11 @@ use Drupal\rest\ResourceResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 // our drupal custom libraries
-use Drupal\oeaw\Model\OeawStorage;
-use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Model\ApiModel;
+
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
-use acdhOeaw\fedora\Fedora;
-use acdhOeaw\fedora\FedoraResource;
-use EasyRdf\Graph;
-use EasyRdf\Resource;
 
 /**
  * Provides resource and collection count for the js ckeditor plugin
@@ -51,10 +47,10 @@ class ApiGetOntologyJSPluginDataResource extends ResourceBase
         }
         
         $data = array();
-        $oeawStorage = new OeawStorage();
+        $model = new ApiModel();
         
         try {
-            $data = $oeawStorage->getDataForJSPlugin();
+            $data = $model->getDataForJSPlugin();
         } catch (Exception $ex) {
             return new JsonResponse(array($ex->getMessage()), 404, ['Content-Type'=> 'application/json']);
         } catch (\GuzzleHttp\Exception\ClientException $ex) {

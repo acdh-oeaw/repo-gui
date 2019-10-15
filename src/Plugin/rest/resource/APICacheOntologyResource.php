@@ -4,16 +4,6 @@ namespace Drupal\oeaw\Plugin\rest\resource;
 
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
-// our drupal custom libraries
-use Drupal\oeaw\Model\OeawStorage;
-use Drupal\oeaw\Model\OeawCustomSparql;
-
-//ARCHE ACDH libraries
-use acdhOeaw\util\RepoConfig as RC;
-use acdhOeaw\fedora\Fedora;
-use acdhOeaw\fedora\FedoraResource;
-use EasyRdf\Graph;
-use EasyRdf\Resource;
 
 /**
  * Provides an Publications Checker Resource

@@ -8,8 +8,8 @@ use Drupal\rest\Plugin\ResourceBase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 // our drupal custom libraries
-use Drupal\oeaw\Model\OeawStorage;
-use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Helper\ApiHelper;
+use Drupal\oeaw\Model\ApiModel;
 use Drupal\oeaw\Helper\HelperFunctions as HF;
 
 //ARCHE ACDH libraries
@@ -28,7 +28,6 @@ use acdhOeaw\util\RepoConfig as RC;
  */
 class ApiGetDataResource extends ResourceBase
 {
-    
     /*
      * Usage:
      *
@@ -61,14 +60,13 @@ class ApiGetDataResource extends ResourceBase
         $spRes = array();
         $result = array();
         
-        $OeawCustomSparql = new OeawCustomSparql();
-        $OeawStorage = new OeawStorage();
+        $model = new ApiModel();
+        $helper = new ApiHelper();
         
-        $sparql = $OeawCustomSparql->createBasicApiSparql($searchStr, $class, $filters);
-
+        $sparql = $model->createBasicApiSparql($searchStr, $class, $filters);
 
         if ($sparql) {
-            $spRes = $OeawStorage->runUserSparql($sparql, true);
+            $spRes = $helper->runUserSparql($sparql, true);
           
             if (count($spRes) > 0) {
                 $spRes = HF::formatApiSparqlResult($spRes);

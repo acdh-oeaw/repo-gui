@@ -1112,59 +1112,6 @@ class OeawFunctions
         return $ajax_response;
     }
   
-          
-    
-    /**
-     * Create array from  EasyRdf_Sparql_Result object
-     *
-     * @param \EasyRdf\Sparql\Result $result
-     * @param array $fields
-     * @param bool $multilang
-     * @return array
-     */
-    public function createSparqlResult(\EasyRdf\Sparql\Result $result, array $fields, bool $multilang = false): array
-    {
-        if (empty($result) && empty($fields)) {
-            drupal_set_message(t('Error').':'.__FUNCTION__, 'error');
-            return array();
-        }
-        $res = array();
-        $resCount = count($result)-1;
-        $val = "";
-        
-        for ($x = 0; $x <= $resCount; $x++) {
-            foreach ($fields as $f) {
-                if (!empty($result[$x]->$f)) {
-                    $objClass = get_class($result[$x]->$f);
-                    if ($objClass == "EasyRdf\Resource") {
-                        $val = $result[$x]->$f;
-                        $val = $val->getUri();
-                        $res[$x][$f] = $val;
-                    } elseif ($objClass == "EasyRdf\Literal") {
-                        $val = $result[$x]->$f;
-                        if ($multilang) {
-                            $literalVal = array();
-                            $lng = "en";
-                            if ($val-> getLang()) {
-                                $lng = $val-> getLang();
-                            }
-                            $literalVal[$lng] = $val->__toString();
-                            $res[$x][$f] = $literalVal;
-                        } else {
-                            $val = $val->__toString();
-                            $res[$x][$f] = $val;
-                        }
-                    } else {
-                        $res[$x][$f] = $result[$x]->$f->__toString();
-                    }
-                } else {
-                    $res[$x][$f] = "";
-                }
-            }
-        }
-        return $res;
-    }
-    
     
     /**
      *
@@ -1175,7 +1122,7 @@ class OeawFunctions
      *
      *
      */
-    public function createStrongFromACDHVocabs(string $string): array
+    public function createStringFromACDHVocabs(string $string): array
     {
         if (empty($string)) {
             return false;

@@ -55,12 +55,12 @@ class ComplexSearchForm extends FormBase
         
         /****  Type of Entity Box  *****/
         $typeCache = array();
+        
         if ($cache->getCachedData('acdhTypes')) {
             $typeCache = $cache->getCachedData('acdhTypes');
         } else {
             $typeCache = $cache->setCacheData('acdhTypes');
         }
-        
         
         if (count($typeCache) > 0) {
             $resData["title"] = $this->langConf->get('gui_type_of_entity') ? $this->langConf->get('gui_type_of_entity') : 'Type of Entity' ;
@@ -134,6 +134,17 @@ class ComplexSearchForm extends FormBase
                 'placeholder' => t('dd/mm/yyyy'),
             )
         ];
+        
+        if (strpos($_SERVER['HTTP_HOST'], '/arche.acdh.oeaw.ac.at/') === false) {
+            $form['bgSearch'] = [
+                '#type' => 'checkbox',
+                '#title' => 'Blazegraph Search(Beta)',
+                '#attributes' => array(
+                    'class' => array('checkbox-custom'),
+                )
+            ];
+        }
+        
         return $form;
     }
     
@@ -155,8 +166,7 @@ class ComplexSearchForm extends FormBase
                 $data["fields"]
         );
     }
-    
-    
+        
     /**
      * this function creates the search input field
      *
@@ -250,9 +260,8 @@ class ComplexSearchForm extends FormBase
             $extras["start_date"] = $startDate;
             $extras["end_date"] = $endDate;
         }
-
         $metaVal = $this->oeawFunctions->convertSearchString($metavalue, $extras);
         $metaVal = urlencode($metaVal);
-        $form_state->setRedirect('oeaw_complexsearch', ["metavalue" => $metaVal, "limit" => 10,  "page" => 1]);
+        $form_state->setRedirect('oeaw_complexsearch1', ["metavalue" => $metaVal, "limit" => 10,  "page" => 1]);
     }
 }

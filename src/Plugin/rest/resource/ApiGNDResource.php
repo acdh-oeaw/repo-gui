@@ -8,8 +8,8 @@ use Drupal\rest\Plugin\ResourceBase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 // our drupal custom libraries
-use Drupal\oeaw\Model\OeawStorage;
-use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Helper\ApiHelper;
+use Drupal\oeaw\Model\ApiModel;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
@@ -44,17 +44,17 @@ class ApiGNDResource extends ResourceBase
     {
         \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
 
-        
-
         $response = new Response();
-        $OeawCustomSparql = new OeawCustomSparql();
-        $OeawStorage = new OeawStorage();
+        $model = new ApiModel();
+        $helper = new ApiHelper();
         
-        $sparql = $OeawCustomSparql->createGNDPersonsApiSparql();
-        $spRes = $OeawStorage->runUserSparql($sparql);
+        $sparql = $model->createGNDPersonsApiSparql();
+        $spRes = $helper->runUserSparql($sparql);
         $host = \Drupal::request()->getSchemeAndHttpHost().'/browser/oeaw_detail/';
         $fileLocation = \Drupal::request()->getSchemeAndHttpHost().'/browser/sites/default/files/beacon.txt';
+        
         $result = array();
+        
         if (count($spRes) > 0) {
             $resTxt = "";
             foreach ($spRes as $key => $val) {

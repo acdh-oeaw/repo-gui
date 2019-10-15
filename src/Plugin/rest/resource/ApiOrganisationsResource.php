@@ -7,11 +7,11 @@ use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 
 // our drupal custom libraries
-use Drupal\oeaw\Model\OeawStorage;
-use Drupal\oeaw\Model\OeawCustomSparql;
+use Drupal\oeaw\Model\ApiModel;
 use Drupal\oeaw\Helper\HelperFunctions as HF;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Drupal\oeaw\Helper\ApiHelper;
 
 //ARCHE ACDH libraries
 use acdhOeaw\util\RepoConfig as RC;
@@ -39,7 +39,7 @@ class ApiOrganisationsResource extends ResourceBase
     public function get(string $data)
     {
         $response = new Response();
-        
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         if (empty($data)) {
             return new JsonResponse(array("Please provide a link"), 404, ['Content-Type'=> 'application/json']);
         }
@@ -49,17 +49,17 @@ class ApiOrganisationsResource extends ResourceBase
         $sparql = "";
         $spRes = array();
         $result = array();
+                
+        $model = new ApiModel();
+        $helper = new ApiHelper();
         
-        $OeawCustomSparql = new OeawCustomSparql();
-        $OeawStorage = new OeawStorage();
-        
-        $sparql = $OeawCustomSparql->createBasicApiSparql($data, RC::get('fedoraOrganisationClass'));
+        $sparql = $model->createBasicApiSparql($data, RC::get('fedoraOrganisationClass'));
         
         if ($sparql) {
-            $spRes = $OeawStorage->runUserSparql($sparql, true);
+            $spRes = $helper->runUserSparql($sparql, true);
             
             if (count($spRes) > 0) {
-                $spRes = HF::formatApiSparqlResult($spRes);
+                $spRes = HF::formatApiSparqlResult((array)$spRes);
                 
                 for ($x = 0; $x < count($spRes); $x++) {
                     $ids = array();
