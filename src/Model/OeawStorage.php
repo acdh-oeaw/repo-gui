@@ -1654,12 +1654,12 @@ class OeawStorage implements OeawStorageInterface
      * @param string $lang
      * @return array
      */
-    public function createBreadcrumbData(string $identifier, string $lang = ""): array
+    public function createBreadcrumbData(string $identifier, string $lang = "en"): array
     {
         (empty($lang)) ? $lang = strtolower($this->siteLang) : $lang = strtolower($lang);
         
         $result = array();
-        $select = 'SELECT ?roots ?mainIspartOf ?rootId ?rootTitle ?rootsRoot WHERE { ';
+        $select = 'SELECT DISTINCT ?roots ?mainIspartOf ?rootId ?rootTitle ?rootsRoot WHERE { ';
         $where = " ?uri <".RC::get('fedoraIdProp')."> <".$identifier."> . ";
         $where .= " ?uri <".RC::get('fedoraRelProp')."> ?mainIspartOf . ";
         $where .= " ?uri (<".RC::get('fedoraRelProp')."> / ^<".RC::get('fedoraIdProp').">)* / <".RC::get('fedoraRelProp')."> ?rootId .  ";
@@ -1668,7 +1668,7 @@ class OeawStorage implements OeawStorageInterface
         $where .= " OPTIONAL { ";
         $where .= " ?roots <".RC::get('fedoraRelProp')."> ?rootsRoot . ";
         $where .= " } ";
-        $where .= " } ";
+        $where .= " } order by ?rootsRoot ";
          
         $queryStr = $select.$where;
         
