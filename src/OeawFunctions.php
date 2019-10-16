@@ -851,7 +851,7 @@ class OeawFunctions
          * Example:
          * Mörth, Karlheinz. Dictionary Gate. ACDH, 2013, hdl.handle.net/11022/0000-0000-001B-2. Accessed 12 Oct. 2017.
          */
-        $widget["MLA"] = ["authors" => "", "creators" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => "", "hasHosting" => "", "hasEditor" => "", "accesedDate" => "", "acdhURI" => ""];
+        $widget["MLA"] = ["authors" => "", "creators" => "", "hasPrincipalInvestigator" => "", "contributors" => "", "title" => "", "isPartOf" => "", "availableDate" => "", "hasHosting" => "", "hasEditor" => "", "accesedDate" => "", "acdhURI" => ""];
 
         //Get authors(s)
         $authors = "";
@@ -865,6 +865,13 @@ class OeawFunctions
         $creators = $this->getCiteWidgetData($resourceData, "acdh:hasCreator");
         if (!empty($creators)) {
             $widget["MLA"]["creators"] = $creators;
+        }
+        
+        //Get PrincipalInvestigator(s)
+        $principalInvestigator = "";
+        $principalInvestigator = $this->getCiteWidgetData($resourceData, "acdh:hasPrincipalInvestigator");
+        if (!empty($principalInvestigator)) {
+            $widget["MLA"]["hasPrincipalInvestigator"] = $principalInvestigator;
         }
         
         //Get contributor(s)
@@ -945,6 +952,14 @@ class OeawFunctions
             $widget["MLA"]["string"] .= $widget["MLA"]["contributors"].'. ';
         }
 
+        //hasPrincipalInvestigator
+        if(
+            isset($widget["MLA"]["hasPrincipalInvestigator"]) 
+                && 
+            !empty($widget["MLA"]["hasPrincipalInvestigator"])) {
+            $widget["MLA"]["string"] .= ' '.$widget["MLA"]["hasPrincipalInvestigator"].' ';
+        }
+        
         //TITLE
         if ($widget["MLA"]["title"]) {
             $widget["MLA"]["string"] .= '<em>'.$widget["MLA"]["title"].'.</em> ';
