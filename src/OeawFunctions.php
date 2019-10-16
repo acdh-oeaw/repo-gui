@@ -867,18 +867,18 @@ class OeawFunctions
             $widget["MLA"]["creators"] = $creators;
         }
         
-        //Get PrincipalInvestigator(s)
-        $principalInvestigator = "";
-        $principalInvestigator = $this->getCiteWidgetData($resourceData, "acdh:hasPrincipalInvestigator");
-        if (!empty($principalInvestigator)) {
-            $widget["MLA"]["hasPrincipalInvestigator"] = $principalInvestigator;
-        }
-        
         //Get contributor(s)
         $contributors = "";
         $contributors = $this->getCiteWidgetData($resourceData, "acdh:hasContributor");
         if (!empty($contributors)) {
             $widget["MLA"]["contributors"] = $contributors;
+        }
+        
+        //Get PrincipalInvestigator(s)
+        $principalInvestigator = "";
+        $principalInvestigator = $this->getCiteWidgetData($resourceData, "acdh:hasPrincipalInvestigator");
+        if (!empty($principalInvestigator)) {
+            $widget["MLA"]["hasPrincipalInvestigator"] = $principalInvestigator;
         }
 
         //Get title
@@ -957,7 +957,18 @@ class OeawFunctions
             isset($widget["MLA"]["hasPrincipalInvestigator"]) 
                 && 
             !empty($widget["MLA"]["hasPrincipalInvestigator"])) {
-            $widget["MLA"]["string"] .= ' '.$widget["MLA"]["hasPrincipalInvestigator"].' ';
+            $widget["MLA"]["string"] = str_replace(".", ",", $widget["MLA"]["string"]);
+            
+            $arr = explode(",", $widget["MLA"]["string"]);
+            foreach($arr as $a) {
+                $a = ltrim($a);
+                if ( !empty($a) && strpos($widget["MLA"]["hasPrincipalInvestigator"], $a) !== false) {
+                    $widget["MLA"]["hasPrincipalInvestigator"] = str_replace($a.",", "", $widget["MLA"]["hasPrincipalInvestigator"]);
+                    $widget["MLA"]["hasPrincipalInvestigator"] = str_replace($a, "", $widget["MLA"]["hasPrincipalInvestigator"]);
+                }
+            }
+            $widget["MLA"]["hasPrincipalInvestigator"] = substr(rtrim($widget["MLA"]["hasPrincipalInvestigator"]), 0, -1);
+            $widget["MLA"]["string"] .= ' '.$widget["MLA"]["hasPrincipalInvestigator"].'. ';
         }
         
         //TITLE
