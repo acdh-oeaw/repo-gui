@@ -953,9 +953,9 @@ class OeawFunctions
         }
 
         //hasPrincipalInvestigator
-        if(
-            isset($widget["MLA"]["hasPrincipalInvestigator"]) 
-                && 
+        if (
+            isset($widget["MLA"]["hasPrincipalInvestigator"])
+                &&
             !empty($widget["MLA"]["hasPrincipalInvestigator"])) {
             $widget["MLA"]["string"] .= ' '.$widget["MLA"]["hasPrincipalInvestigator"].' ';
         }
