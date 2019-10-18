@@ -246,7 +246,7 @@ class FrontendController extends ControllerBase
         } elseif (!isset($actualCacheObj->modify_date)) {
             $needsToCache = true;
         }
-        $needsToCache = true;
+        
         //if the file with this date is exists
         if ((count((array)$actualCacheObj) > 0) && $needsToCache === false) {
             if (!empty($actualCacheObj->data)) {
@@ -273,6 +273,7 @@ class FrontendController extends ControllerBase
         if (count((array)$cachedTooltip) > 0) {
             $result->extraData["tooltip"] = unserialize($cachedTooltip->data);
         }
+        
         $datatable = array(
             '#theme' => 'oeaw_detail_dt',
             '#result' => (isset($result->mainData)) ? $result->mainData : array(),
