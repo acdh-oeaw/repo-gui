@@ -960,9 +960,9 @@ class OeawFunctions
             $widget["MLA"]["string"] = str_replace(".", ",", $widget["MLA"]["string"]);
             
             $arr = explode(",", $widget["MLA"]["string"]);
-            foreach($arr as $a) {
+            foreach ($arr as $a) {
                 $a = ltrim($a);
-                if ( !empty($a) && strpos($widget["MLA"]["hasPrincipalInvestigator"], $a) !== false) {
+                if (!empty($a) && strpos($widget["MLA"]["hasPrincipalInvestigator"], $a) !== false) {
                     $widget["MLA"]["hasPrincipalInvestigator"] = str_replace($a.",", "", $widget["MLA"]["hasPrincipalInvestigator"]);
                     $widget["MLA"]["hasPrincipalInvestigator"] = str_replace($a, "", $widget["MLA"]["hasPrincipalInvestigator"]);
                 }
