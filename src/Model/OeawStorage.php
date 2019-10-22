@@ -998,13 +998,14 @@ class OeawStorage implements OeawStorageInterface
     }
     
     /**
-     * 
+     *
      * Get all identifiers for the given resource
-     * 
+     *
      * @param string $identifier
      * @return array
      */
-    public function getResourceIdentifiers(string $identifier): array {
+    public function getResourceIdentifiers(string $identifier): array
+    {
         $result = array();
         
         $select = ' SELECT ?id where ';
@@ -1049,15 +1050,15 @@ class OeawStorage implements OeawStorageInterface
         
         
         $where =  ' ?uri ?prop ?obj . ';
-        $where .= ' FILTER regex(str(?prop),"/vocabs.acdh.oeaw.ac.at","i") .  ';        
+        $where .= ' FILTER regex(str(?prop),"/vocabs.acdh.oeaw.ac.at","i") .  ';
         $where .= ' FILTER ( ?prop NOT IN ( <'.RC::get("fedoraIdProp").'>) ) . ';
         $where .= ' FILTER ( ?prop NOT IN ( <'.RC::get("fedoraRelProp").'> ) ) . ';
         $where .= ' FILTER ( ?prop NOT IN ( <'.RC::get("epicPidProp").'> ) ) . ';
         $where .= ' FILTER ( ?obj IN ( ';
-        for($i = 0; count($identifiers) >= $i; $i++) {
-            if(isset($identifiers[$i]['id']) && !empty($identifiers[$i]['id'])) {
+        for ($i = 0; count($identifiers) >= $i; $i++) {
+            if (isset($identifiers[$i]['id']) && !empty($identifiers[$i]['id'])) {
                 $where .= ' <'.$identifiers[$i]['id'].'> ';
-                if($i != count($identifiers) - 1) {
+                if ($i != count($identifiers) - 1) {
                     $where .= ' , ';
                 }
             }
