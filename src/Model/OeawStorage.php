@@ -997,6 +997,37 @@ class OeawStorage implements OeawStorageInterface
         }
     }
     
+    /**
+     * 
+     * Get all identifiers for the given resource
+     * 
+     * @param string $identifier
+     * @return array
+     */
+    public function getResourceIdentifiers(string $identifier): array {
+        $result = array();
+        
+        $select = ' SELECT ?id where ';
+        $where =  '{ ?uri <'.RC::get("fedoraIdProp").'> <'.$identifier.'> . ';
+        $where .= ' ?uri <'.RC::get("fedoraIdProp").'> ?id . }';
+        
+        $string = $select.$where;
+        
+        try {
+            $q = new SimpleQuery($string);
+            $query = $q->getQuery();
+            $result = $this->fedora->runSparql($query);
+            
+            $fields = $result->getFields();
+            $result = $this->modelFunctions->createSparqlResult($result, $fields);
+                        
+            return $result;
+        } catch (\Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return $result;
+        }
+    }
     
     /**
      * Create the data for the InverseViews by the Resource Identifier
@@ -1004,32 +1035,50 @@ class OeawStorage implements OeawStorageInterface
      * @param array $data
      * @return array
      */
-    public function getInverseViewDataByIdentifier(array $data): array
+    public function getInverseViewDataByIdentifier(string $identifier): array
     {
         $result = array();
-        $num = count($data);
-        $string = "";
-        $where = "?uri ?prop ?obj . ";
         
-        for ($i = 0; $i <= $num -1 ; $i++) {
-            $where .= '{
-                select * where 
-                {
-                    ?uri ?prop <'.$data[$i].'> 
-                }   
-            }
-            ';
-            if ($i !== ($num - 1)) {
-                $where .= 'UNION';
-            }
+        try {
+            $identifiers = $this->getResourceIdentifiers($identifier);
+        } catch (Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return $result;
         }
         
-        $where .= 'MINUS { ?uri <'.RC::get("fedoraIdProp").'> ?obj . }';
+        
+        $where =  ' ?uri ?prop ?obj . ';
+        $where .= ' FILTER regex(str(?prop),"/vocabs.acdh.oeaw.ac.at","i") .  ';        
+        $where .= ' FILTER ( ?prop NOT IN ( <'.RC::get("fedoraIdProp").'>) ) . ';
+        $where .= ' FILTER ( ?prop NOT IN ( <'.RC::get("fedoraRelProp").'> ) ) . ';
+        $where .= ' FILTER ( ?prop NOT IN ( <'.RC::get("epicPidProp").'> ) ) . ';
+        $where .= ' FILTER ( ?obj IN ( ';
+        for($i = 0; count($identifiers) >= $i; $i++) {
+            if(isset($identifiers[$i]['id']) && !empty($identifiers[$i]['id'])) {
+                $where .= ' <'.$identifiers[$i]['id'].'> ';
+                if($i != count($identifiers) - 1) {
+                    $where .= ' , ';
+                }
+            }
+            $i++;
+        }
+        
+        $where .= ' ) ) . ';
+        
+        $where .= ' ?uri <'.RC::get("fedoraTitleProp").'> ?title . ';
+        $where .= ' ?uri <'.RC::get("fedoraIdProp").'> ?identifier . ';
+        $where .= ' FILTER regex(str(?identifier),"/id.acdh.oeaw.ac.at/uuid/","i") . ';
+  
+        
         $select = '
-            select DISTINCT ?uri ?prop ?obj where { ';
+            SELECT DISTINCT ?uri ?title ?identifier (GROUP_CONCAT(DISTINCT ?prop;separator=",") AS ?property)  where { ';
         $end = ' } ';
         
-        $string = $select.$where.$end;
+        $groupBy = ' GROUP BY ?uri ?title ?identifier ';
+        
+        $string = $select.$where.$end.$groupBy;
+        
         
         try {
             $q = new SimpleQuery($string);
@@ -1043,12 +1092,10 @@ class OeawStorage implements OeawStorageInterface
             foreach ($res as $r) {
                 foreach ($r as $k => $v) {
                     $result[$i][$k] = $v;
-                    if ($k == "uri") {
-                        $title = $this->oeawFunctions->getTitleByUri($v);
-                        $result[$i]["title"] = $title;
+                    if ($k == "identifier") {
                         $result[$i]["insideUri"] = $this->oeawFunctions->detailViewUrlDecodeEncode($v, 1);
                     }
-                    if ($k == "prop") {
+                    if ($k == "property") {
                         $shortcut = $this->oeawFunctions->createPrefixesFromString($v);
                         $result[$i]["shortcut"] = $shortcut;
                     }

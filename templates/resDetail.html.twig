@@ -52,8 +52,8 @@
     <div class="single-res-overview single-res-overview-basic">
         {% if extras['specialType']['person'] %}
             {{ include('/modules/oeaw/templates/detailView_Person.html.twig', {'result': extras['specialType']['person'] } ) }}
-        {% elseif extras['specialType']['project'] %}        
-            {{ include('/modules/oeaw/templates/detailView_Project.html.twig', {'result': extras['specialType']['project'] } ) }}
+        {% elseif extras['specialType']['project'] %}
+            {{ include('/modules/oeaw/templates/detailView_Project.html.twig', {'result': extras['specialType']['project'], 'table': result.table } ) }}
         {% elseif extras['specialType']['organisation'] %}
             {{ include('/modules/oeaw/templates/detailView_Organisation.html.twig', {'result': extras['specialType']['organisation'], 'insideUrl': result['insideUri'] } ) }}
         {% elseif extras['specialType']['place'] %}

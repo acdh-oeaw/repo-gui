@@ -378,6 +378,11 @@ class FrontendController extends ControllerBase
      */
     public function oeaw_complexsearch(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "datedesc"): array
     {
+        $time = microtime();
+        $time = explode(' ', $time);
+        $time = $time[1] + $time[0];
+        $start = $time;
+        
         drupal_get_messages('error', true);
        
         if (empty($metavalue)) {
@@ -420,6 +425,13 @@ class FrontendController extends ControllerBase
                 return array();
             }
          
+            $time = microtime();
+            $time = explode(' ', $time);
+            $time = $time[1] + $time[0];
+            $finish = $time;
+            $total_time = round(($finish - $start), 4);
+            $datatable['#pageGeneration'] = $total_time;
+            
             $datatable['#theme'] = 'oeaw_complex_search_res';
             $datatable['#userid'] = $this->userid;
             $datatable['#pagination'] = $pagination;
@@ -437,7 +449,7 @@ class FrontendController extends ControllerBase
             } else {
                 $datatable['#totalPages'] = $pageData['totalPages'];
             }
-           
+            
             return $datatable;
         }
     }
@@ -445,6 +457,10 @@ class FrontendController extends ControllerBase
     
     public function oeaw_search(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "datedesc"): array
     {
+        $time = microtime();
+        $time = explode(' ', $time);
+        $time = $time[1] + $time[0];
+        $start = $time;
         drupal_get_messages('error', true);
        
         if (empty($metavalue)) {
@@ -486,7 +502,14 @@ class FrontendController extends ControllerBase
             if (count($result) == 0) {
                 return array();
             }
-         
+            
+            $time = microtime();
+            $time = explode(' ', $time);
+            $time = $time[1] + $time[0];
+            $finish = $time;
+            $total_time = round(($finish - $start), 4);
+                        
+            $datatable['#pageGeneration'] = $total_time;
             $datatable['#theme'] = 'oeaw_complex_search_res';
             $datatable['#userid'] = $this->userid;
             $datatable['#pagination'] = $pagination;
@@ -504,6 +527,7 @@ class FrontendController extends ControllerBase
             } else {
                 $datatable['#totalPages'] = $pageData['totalPages'];
             }
+            
             return $datatable;
         }
     }
@@ -582,33 +606,15 @@ class FrontendController extends ControllerBase
         
         if (!empty($data)) {
             $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($data, 0);
-            $fdUrlArr = array();
-            $fdUrlArr = $this->oeawStorage->getTitleByIdentifier($identifier);
-            if (count($fdUrlArr) > 0) {
-                if (isset($fdUrlArr[0]['uri'])) {
-                    $uri = $fdUrlArr[0]['uri'];
-                    $res = $this->oeawStorage->getInverseViewDataByURL($uri);
+            $res = $this->oeawStorage->getInverseViewDataByIdentifier($identifier);
             
-                    if (count($res) <= 0) {
-                        $invData["data"] = array();
-                    } else {
-                        for ($index = 0; $index <= count($res) - 1; $index++) {
-                            if (!empty($res[$index]['title']) && !empty($res[$index]['inverse']) &&
-                                (isset($res[$index]['childId']) || isset($res[$index]['childUUID']) ||
-                                isset($res[$index]['externalId']))
-                            ) {
-                                $title = $res[$index]['title'];
-                                if (!empty($res[$index]['childId'])) {
-                                    $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['childId'], 1);
-                                } elseif (!empty($res[$index]['childUUID'])) {
-                                    $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['childUUID'], 1);
-                                } elseif (!empty($res[$index]['externalId'])) {
-                                    $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['externalId'], 1);
-                                }
-                                $invData["data"][$index] = array($res[$index]['inverse'], "<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
-                            }
-                        }
-                    }
+            if (count($res) == 0) {
+                $invData["data"] = array();
+            } else {
+                for ($index = 0; $index <= count($res) - 1; $index++) {
+                    $title = $res[$index]['title'];
+                    $insideUri = $res[$index]['insideUri'];
+                    $invData["data"][$index] = array($res[$index]['shortcut'], "<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
                 }
             }
         }

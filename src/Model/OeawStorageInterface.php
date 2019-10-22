@@ -33,7 +33,7 @@ interface OeawStorageInterface
     public function getTypeByIdentifier(string $identifier, string $lang = "en"): array;
     
     //detail view sql
-    public function getInverseViewDataByIdentifier(array $data): array;
+    public function getInverseViewDataByIdentifier(string $identifier): array;
     public function getInverseViewDataByURL(string $url): array;
     public function getIsMembers(string $uri): array;
     public function getMetaInverseData(string $uri): array;
