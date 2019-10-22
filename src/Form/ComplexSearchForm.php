@@ -135,12 +135,12 @@ class ComplexSearchForm extends FormBase
             )
         ];
         
-        if (strpos($_SERVER['HTTP_HOST'], '/arche.acdh.oeaw.ac.at/') === false) {
+        if (strpos($_SERVER['HTTP_HOST'], 'arche.acdh.oeaw.ac.at') === false) {
             $form['bgSearch'] = [
                 '#type' => 'checkbox',
                 '#title' => 'Blazegraph Search(Beta)',
                 '#attributes' => array(
-                    'class' => array('checkbox-custom'),
+                    'class' => array('checkbox-custom bgSearch'),
                 )
             ];
         }
