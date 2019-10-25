@@ -1036,7 +1036,7 @@ class OeawStorage implements OeawStorageInterface
      * @param array $data
      * @return array
      */
-     public function getInverseViewDataByIdentifier(string $identifier): array
+    public function getInverseViewDataByIdentifier(string $identifier): array
     {
         $result = array();
         
@@ -1058,7 +1058,7 @@ class OeawStorage implements OeawStorageInterface
         for ($i = 0; $i <= count($identifiers)-1; $i++) {
             if (isset($identifiers[$i]['id']) && !empty($identifiers[$i]['id'])) {
                 $where .= ' <'.$identifiers[$i]['id'].'> ';
-                if($i != count($identifiers)-1) {
+                if ($i != count($identifiers)-1) {
                     $where .= ' , ';
                 }
             }
