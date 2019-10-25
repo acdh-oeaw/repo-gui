@@ -4,6 +4,9 @@
     <div class="res-el res-info col-block col-lg-12">
         <div class="result-basic-info">
             <span class="results-info-bar">{{ totalResultAmount }} {{ "Result"|trans }}</span>
+            {% if pageGeneration %}
+                <span class="results-info-bar">Query time: {{ pageGeneration }} sec</span>
+            {% endif %}
             <span class="results-info-bar">{{ "Page"|trans }} {{ currentPage }} {{ "of"|trans }} {{ totalPages }}</span>
             <span class="results-info-bar results-info-bar-items">{{ "Items"|trans }}
                 <div class="pagination-dropdown dropdown">
@@ -85,16 +88,10 @@
                 </div>
             {% endif%}            
             
-            {% if item.table['authors'] %}
-                <div class="res-property">
-                    <i class="material-icons">&#xE7FB;</i>
-                    <span class="res-prop-label">{{ "Author(s)"|trans }}: </span>
-                    {% for author in item.table['authors'] %}  	
-                    	<span class="res-contributor"><a href="/browser/oeaw_detail/{{ author.insideUri }}">{{ author.title }}</a></span>
-                    {% endfor %}	
-                </div>
-            {% endif%}
-
+            {% if item.getBzResults() %}
+               
+            {% endif%}            
+            
             {% if item.getHighlighting() %}
                 <div class="res-property highlighting">
                     <i class="material-icons">highlight</i>	

@@ -489,7 +489,7 @@ class FrontendController extends ControllerBase
             $total = 0;
             
             $result = $this->complexSearchViewHelper->search($metavalue, $page, $limit, $order, true);
-            
+
             if (count((array)$result) <= 0) {
                 drupal_set_message(t("Your search yielded no results."), 'error');
                 return array();
@@ -503,13 +503,6 @@ class FrontendController extends ControllerBase
                 return array();
             }
             
-            $time = microtime();
-            $time = explode(' ', $time);
-            $time = $time[1] + $time[0];
-            $finish = $time;
-            $total_time = round(($finish - $start), 4);
-                        
-            $datatable['#pageGeneration'] = $total_time;
             $datatable['#theme'] = 'oeaw_complex_search_res';
             $datatable['#userid'] = $this->userid;
             $datatable['#pagination'] = $pagination;
@@ -527,7 +520,13 @@ class FrontendController extends ControllerBase
             } else {
                 $datatable['#totalPages'] = $pageData['totalPages'];
             }
-            
+            $time = microtime();
+            $time = explode(' ', $time);
+            $time = $time[1] + $time[0];
+            $finish = $time;
+            $total_time = round(($finish - $start), 4);
+            //"search functions time: ".$total_time = round(($finish - $start), 4);
+            $datatable['#pageGeneration'] = $total_time;
             return $datatable;
         }
     }

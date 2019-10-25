@@ -31,6 +31,7 @@ class OeawResource
     private $table = array();
     private $lng;
     public $errors = array();
+    private $bz_search = "";
     
      
     /**
@@ -66,6 +67,7 @@ class OeawResource
                 ($objIterator->key() == "availableDate") ? $this->availableDate = $objIterator->current() : null ;
                 ($objIterator->key() == "accessRestriction") ? $this->accessRestriction = $objIterator->current() : 'public' ;
                 ($objIterator->key() == "highlighting") ? $this->highlighting = $objIterator->current() : null ;
+                ($objIterator->key() == "bz_search") ? $this->bz_search = $objIterator->current() : null ;
                 ($objIterator->key() == "table") ? $this->table = $objIterator->current() : null ;
                 
                 $objIterator->next();
@@ -289,5 +291,16 @@ class OeawResource
     public function getHighlighting(): array
     {
         return $this->highlighting;
+    }
+    
+    /**
+     *
+     * Get SOLR highlight text
+     *
+     * @return array
+     */
+    public function getBzResults(): string
+    {
+        return $this->bz_search;
     }
 }

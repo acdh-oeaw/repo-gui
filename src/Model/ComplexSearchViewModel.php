@@ -62,22 +62,26 @@ class ComplexSearchViewModel
             $select = 'SELECT DISTINCT ?uri ?title ?label ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction 
                 (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
                 (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) 
-                (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
-                (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) 
                 (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
         }
         
         $conditions = "";
         
         //the main part
-        
         $query .= " ?uri <".RC::idProp()."> ?identifiers .  ";
         
-        //$query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
         $not = "";
         //check the keywords
         if (isset($data["words"])) {
-            $query .= " ?uri (<".RC::titleProp().">|<".RC::get('drupalHasDescription').">|<".RC::get('drupalHasContributor')."> ) ?label . ";
+            $query .= " ?uri ("
+                    . "<".RC::titleProp().">|<".RC::get('drupalHasAlternativeTitle').">|"
+                    . "<https://vocabs.acdh.oeaw.ac.at/schema#hasAppliedMethod>|<https://vocabs.acdh.oeaw.ac.at/schema#hasAppliedMethodDescription>|"
+                    . "<https://vocabs.acdh.oeaw.ac.at/schema#hasActor>|<https://vocabs.acdh.oeaw.ac.at/schema#hasSubject>|"
+                    . "<https://vocabs.acdh.oeaw.ac.at/schema#hasTemporalCoverage>|<https://vocabs.acdh.oeaw.ac.at/schema#hasSubject>|"
+                    . "<https://vocabs.acdh.oeaw.ac.at/schema#hasPublisher>|<https://vocabs.acdh.oeaw.ac.at/schema#hasSeriesInformation>|"
+                    . "<".RC::get('drupalHasDescription').">|<".RC::get('drupalHasSpatialCoverage')."> "
+                    . ""
+                    . ") ?label . ";
             $wd = explode('+', $data["words"]);
             $not = "";
             foreach ($wd as $k => $w) {
@@ -95,7 +99,7 @@ class ComplexSearchViewModel
                 if ($w == "and") {
                     $query .="  UNION  ";
                     continue;
-                } else {
+                } else if (!empty($w) ) {
                     $query .= " { ";
                 
                     $query .= ' SERVICE <http://www.bigdata.com/rdf/search#search> { '
@@ -105,8 +109,9 @@ class ComplexSearchViewModel
                 }
                 //filter the language
                 //$query .= " FILTER contains(lang(?label), '".$lang."') . ";
-                
-                $query .= " } ";
+                if (!empty($w) ) {
+                    $query .= " } ";
+                }
             }
         }
         
@@ -117,40 +122,44 @@ class ComplexSearchViewModel
         
         //get the title
         $query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
-        
+        $query .= "  ?uri <".RC::get('drupalRdfType')."> ?rdfType . ";
         //check the rdf types from the query
         if (isset($data["type"])) {
             $td = explode('+', $data["type"]);
+            
+            $filterIn = array();
+            $filterNot = array();
             $not = false;
-            $or = false;
-            $storage =  new OeawStorage();
-            $acdhTypes = $storage->getACDHTypes();
-        
-            if (count($acdhTypes) > 0) {
-                $query .= " { ";
-                foreach ($td as $dtype) {
-                    foreach ($acdhTypes as $t) {
-                        $val = explode(RC::get('fedoraVocabsNamespace'), $t["type"]);
-                        $val = $val[1];
+            if (count($td) > 0) {
+                if(count($td) == 1) {
+                    $query .= " ?uri <".RC::get('drupalRdfType')."> <".RC::get('fedoraVocabsNamespace').$td[0]."> . ";
+                }else {
+                    foreach ($td as $dtype) {
                         
-                        if ($dtype == "or") {
-                            $or = true;
-                            continue;
-                        }
                         
-                        if (($dtype == "not") || ($dtype == "and")) {
+                        if (($dtype == "not") ) {
+                            $not = true;
                             continue;
-                        }
-                        if ($dtype == $val) {
-                            if ($or == true) {
-                                $query .= " UNION ";
-                                $or = false;
-                            }
-                            $query .= " { SELECT * WHERE { ?uri <".RC::get('drupalRdfType')."> <".$t['type']."> . } } ";
+                        }else if($not === true) {
+                            $filterNot[] = "<".RC::get('fedoraVocabsNamespace').$dtype.">";
+                            $not = false;
+                        }else if($dtype == "and")  {
+                            continue;
+                        }else {
+                            $filterIn[] = "<".RC::get('fedoraVocabsNamespace').$dtype.">";                            
                         }
                     }
+                    if(count((array)$filterNot) > 0) {
+                        foreach($filterNot as $fn) {
+                            $query .= ' MINUS { ?uri <'.RC::get("drupalRdfType").'> '.$fn.' . } . ';
+                        }
+                    }
+                    if(count((array)$filterIn) > 0) {
+                        $query .= ' FILTER  ( ?rdfType IN ( ';
+                        $query .= implode(",", $filterIn);
+                        $query .= ' )) .';
+                    }
                 }
-                $query .= " } ";
             }
         }
         
@@ -167,13 +176,13 @@ class ComplexSearchViewModel
             }
             $maxYear = max($years);
             $minYear = min($years);
-            $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
+            $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . ";
             if (\DateTime::createFromFormat('Y', $maxYear) !== false && \DateTime::createFromFormat('Y', $minYear) !== false) {
-                $query .= "FILTER (  xsd:dateTime(?date) <= '".$maxYear."-12-31T00:00:000+01:00'^^xsd:dateTime &&  xsd:dateTime(?date) >= '".$minYear."-01-01T00:00:000+01:00'^^xsd:dateTime)  \n";
+                $query .= "FILTER (  xsd:dateTime(?date) <= '".$maxYear."-12-31T00:00:000+01:00'^^xsd:dateTime &&  xsd:dateTime(?date) >= '".$minYear."-01-01T00:00:000+01:00'^^xsd:dateTime)  ";
             } else {
                 //if we have a wrong date then we will select the actual date
                 $min = date("Y");
-                $query .= "FILTER ( (CONCAT(str(substr(?date, 0, 4)))) <= '".$min."' && (CONCAT(str(substr(?date, 0, 4)))) >= '".$min."')  \n";
+                $query .= "FILTER ( (CONCAT(str(substr(?date, 0, 4)))) <= '".$min."' && (CONCAT(str(substr(?date, 0, 4)))) >= '".$min."')  ";
             }
         } else {
             if (isset($data["mindate"]) && isset($data["maxdate"])) {
@@ -189,8 +198,8 @@ class ComplexSearchViewModel
                         throw new \ErrorException(t("Error").':'.t("Maximum").' '.t("Date"));
                     }
                     if (isset($mindate) && isset($maxdate)) {
-                        $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
-                        $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
+                        $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . ";
+                        $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  ";
                     }
                 } else {
                     throw new \ErrorException(t("Empty").':'.t("Minimum").' '.t("or").' '.t("Maximum").' '.t("Date"));
@@ -201,21 +210,23 @@ class ComplexSearchViewModel
         $query .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true);
         $query .= ' ?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
                    . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") .  ';
-        $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasAuthor')."> ?author .}	    	
-        OPTIONAL{ ?uri <".RC::get('drupalHasContributor')."> ?contrib .}	
-    	OPTIONAL{ ?uri <".RC::get('drupalRdfType')."> ?rdfType . }
+        $query .= "
         OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
         OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
         $query .= " OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
-        
-        $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?uri ?label ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
+        $groupby = "";
+        if($count === false) {
+            $groupby = "GROUP BY ?title ?uri ?label ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
+        }
+        $query = $prefix.$select." Where { ".$conditions." ".$query." } ".$groupby;
         if ($limit) {
             $query .= " LIMIT ".$limit." ";
             if ($page) {
                 $query .= " OFFSET ".$page." ";
             }
         }
-        
+        //error_log("fulltext BG: ");
+        //error_log(print_r($query, true));
         return $query;
     }
     
@@ -268,8 +279,6 @@ class ComplexSearchViewModel
             $select = 'SELECT DISTINCT ?uri ?title ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction 
                 (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
                 (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) 
-                (GROUP_CONCAT(DISTINCT ?author;separator=",") AS ?authors) 
-                (GROUP_CONCAT(DISTINCT ?contrib;separator=",") AS ?contribs) 
                 (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
         }
         
@@ -277,9 +286,9 @@ class ComplexSearchViewModel
         $query .= " ?uri ?prop ?obj . \n";
         $query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
         //$query .= " ?uri <".RC::titleProp()."> ?title . \n
-        $query .= "?uri <".RC::idProp()."> ?identifiers . \n       
+        $query .= "?uri <".RC::idProp()."> ?identifiers .        
             OPTIONAL { ?uri <".RC::get('epicPidProp')."> ?pid .  } 
-            FILTER( ?prop IN (<".RC::titleProp().">, <".RC::get('drupalHasDescription').">, <".RC::get('drupalHasContributor')."> )) .   \n";
+            FILTER( ?prop IN (<".RC::titleProp().">, <".RC::get('drupalHasDescription').">, <".RC::get('drupalHasContributor')."> )) .   ";
         
         if (isset($data["words"])) {
             $wd = explode('+', $data["words"]);
@@ -295,47 +304,52 @@ class ComplexSearchViewModel
                     continue;
                 }
                 if ($not == true) {
-                    $query .= "FILTER (!contains(lcase(?obj), lcase('".$w."' ))) .  \n";
+                    $query .= "FILTER (!contains(lcase(?obj), lcase('".$w."' ))) .  ";
                     $not = false;
                 } else {
-                    $query .= "FILTER (contains(lcase(?obj), lcase('".$w."' ))) .  \n";
+                    $query .= "FILTER (contains(lcase(?obj), lcase('".$w."' ))) .  ";
                 }
             }
         }
         
+        $query .= "  ?uri <".RC::get('drupalRdfType')."> ?rdfType . ";
         //check the rdf types from the query
         if (isset($data["type"])) {
             $td = explode('+', $data["type"]);
+            
+            $filterIn = array();
+            $filterNot = array();
             $not = false;
-            $or = false;
-            $storage =  new OeawStorage();
-            $acdhTypes = $storage->getACDHTypes();
-        
-            if (count($acdhTypes) > 0) {
-                $query .= " { ";
-                foreach ($td as $dtype) {
-                    foreach ($acdhTypes as $t) {
-                        $val = explode(RC::get('fedoraVocabsNamespace'), $t["type"]);
-                        $val = $val[1];
+            if (count($td) > 0) {
+                if(count($td) == 1) {
+                    $query .= " ?uri <".RC::get('drupalRdfType')."> <".RC::get('fedoraVocabsNamespace').$td[0]."> . ";
+                }else {
+                    foreach ($td as $dtype) {
                         
-                        if ($dtype == "or") {
-                            $or = true;
-                            continue;
-                        }
                         
-                        if (($dtype == "not") || ($dtype == "and")) {
+                        if (($dtype == "not") ) {
+                            $not = true;
                             continue;
-                        }
-                        if ($dtype == $val) {
-                            if ($or == true) {
-                                $query .= " UNION ";
-                                $or = false;
-                            }
-                            $query .= " { SELECT * WHERE { ?uri <".RC::get('drupalRdfType')."> <".$t['type']."> . } }\n";
+                        }else if($not === true) {
+                            $filterNot[] = "<".RC::get('fedoraVocabsNamespace').$dtype.">";
+                            $not = false;
+                        }else if($dtype == "and")  {
+                            continue;
+                        }else {
+                            $filterIn[] = "<".RC::get('fedoraVocabsNamespace').$dtype.">";                            
                         }
                     }
+                    if(count((array)$filterNot) > 0) {
+                        foreach($filterNot as $fn) {
+                            $query .= ' MINUS { ?uri <'.RC::get("drupalRdfType").'> '.$fn.' . } . ';
+                        }
+                    }
+                    if(count((array)$filterIn) > 0) {
+                        $query .= ' FILTER  ( ?rdfType IN ( ';
+                        $query .= implode(",", $filterIn);
+                        $query .= ' )) .';
+                    }
                 }
-                $query .= " } ";
             }
         }
         
@@ -351,13 +365,13 @@ class ComplexSearchViewModel
             }
             $maxYear = max($years);
             $minYear = min($years);
-            $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
+            $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . ";
             if (\DateTime::createFromFormat('Y', $maxYear) !== false && \DateTime::createFromFormat('Y', $minYear) !== false) {
-                $query .= "FILTER (  xsd:dateTime(?date) <= '".$maxYear."-12-31T00:00:000+01:00'^^xsd:dateTime &&  xsd:dateTime(?date) >= '".$minYear."-01-01T00:00:000+01:00'^^xsd:dateTime)  \n";
+                $query .= "FILTER (  xsd:dateTime(?date) <= '".$maxYear."-12-31T00:00:000+01:00'^^xsd:dateTime &&  xsd:dateTime(?date) >= '".$minYear."-01-01T00:00:000+01:00'^^xsd:dateTime)  ";
             } else {
                 //if we have a wrong date then we will select the actual date
                 $min = date("Y");
-                $query .= "FILTER ( (CONCAT(str(substr(?date, 0, 4)))) <= '".$min."' && (CONCAT(str(substr(?date, 0, 4)))) >= '".$min."')  \n";
+                $query .= "FILTER ( (CONCAT(str(substr(?date, 0, 4)))) <= '".$min."' && (CONCAT(str(substr(?date, 0, 4)))) >= '".$min."')  ";
             }
         } else {
             if (isset($data["mindate"]) && isset($data["maxdate"])) {
@@ -373,8 +387,8 @@ class ComplexSearchViewModel
                         throw new \ErrorException(t("Error").':'.t("Maximum").' '.t("Date"));
                     }
                     if (isset($mindate) && isset($maxdate)) {
-                        $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . \n";
-                        $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  \n";
+                        $conditions .= " ?uri <".RC::get('drupalHasAvailableDate')."> ?date . ";
+                        $query .= "FILTER (str(?date) < '".$maxdate->format('Y-m-d')."' && str(?date) > '".$mindate->format('Y-m-d')."')  ";
                     }
                 } else {
                     throw new \ErrorException(t("Empty").':'.t("Minimum").' '.t("or").' '.t("Maximum").' '.t("Date"));
@@ -385,20 +399,23 @@ class ComplexSearchViewModel
         $query .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasDescription'), "descriptions", $lang, true);
         $query .= ' ?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
                    . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") .  ';
-        $query .= "OPTIONAL{ ?uri <".RC::get('drupalHasAuthor')."> ?author .}	    	
-        OPTIONAL{ ?uri <".RC::get('drupalHasContributor')."> ?contrib .}	
-    	OPTIONAL{ ?uri <".RC::get('drupalRdfType')."> ?rdfType . }
+        $query .= "
         OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
         OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
         $query .= " OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
-        
-        $query = $prefix.$select." Where { ".$conditions." ".$query." } GROUP BY ?title ?uri ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
+        $groupby = "";
+        if($count === false) {
+            $groupby = "GROUP BY ?title ?uri ?label ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
+        }
+        $query = $prefix.$select." Where { ".$conditions." ".$query." } ".$groupby;
         if ($limit) {
             $query .= " LIMIT ".$limit." ";
             if ($page) {
                 $query .= " OFFSET ".$page." ";
             }
         }
+        //error_log("fulltext: ");
+        //error_log(print_r($query, true));
         return $query;
     }
 }

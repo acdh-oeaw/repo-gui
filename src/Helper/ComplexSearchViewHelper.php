@@ -8,7 +8,7 @@ use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\RootViewModel;
 
 /**
- * Description of ComplexSearchHelper
+ * Description of ComplexSearchViewHelper
  *
  * @author nczirjak
  */
@@ -83,13 +83,13 @@ class ComplexSearchViewHelper
      * @param int $total
      */
     public function handlePaging(int $limit, int $page, int $total)
-    {
+    { 
         //get the current page for the pagination
         $this->currentPage = $this->oeawFunctions->getCurrentPageForPagination();
         
         //create data for the pagination
         $this->pageData = $this->oeawFunctions->createPaginationData($limit, $page, $total);
-
+        
         if ($this->pageData['totalPages'] >= 1) {
             $this->pagination =  $this->oeawFunctions->createPaginationHTML($this->currentPage, $this->pageData['page'], $this->pageData['totalPages'], $limit);
         }
@@ -105,6 +105,7 @@ class ComplexSearchViewHelper
      */
     private function runSparql(int $limit, int $page, string $order, bool $blazegraph = false): array
     {
+          
         try {
             if (!$blazegraph) {
                 $sparql = $this->model->createFullTextSparql($this->searchStr, $limit, $this->pageData['end'], false, $order);
@@ -126,6 +127,7 @@ class ComplexSearchViewHelper
      */
     private function createComplexSearchObject()
     {
+        
         if (count($this->sparqlData) > 0) {
             foreach ($this->sparqlData as $r) {
                 if ((isset($r['title']) && !empty($r['title']))
@@ -151,15 +153,10 @@ class ComplexSearchViewHelper
                     if (isset($r['accessRestriction']) && !empty($r['accessRestriction'])) {
                         $arrayObject->offsetSet('accessRestriction', $r['accessRestriction']);
                     }
-                    if (isset($r['authors']) && !empty($r['authors'])) {
-                        $authArr = explode(',', $r['authors']);
-                        $tblArray['authors'] = $this->oeawFunctions->createContribAuthorData($authArr);
+                    
+                    if (isset($r['label']) && !empty($r['label'])) {
+                        $arrayObject->offsetSet('bz_search', $r['label']);
                     }
-                    if (isset($r['contribs']) && !empty($r['contribs'])) {
-                        $contrArr = explode(',', $r['contribs']);
-                        $tblArray['contributors'] = $this->oeawFunctions->createContribAuthorData($contrArr);
-                    }
-
                     if (isset($r['highlighting']) && !empty($r['highlighting'])) {
                         $arrayObject->offsetSet('highlighting', $r['highlighting']);
                     }
@@ -190,6 +187,7 @@ class ComplexSearchViewHelper
                 }
             }
         }
+        
         return $this->results;
     }
     
@@ -203,7 +201,8 @@ class ComplexSearchViewHelper
      * @return array
      */
     public function search(string $metavalue, int $page, int $limit, string $order, bool $blazegraph = false): array
-    {
+    {        
+        
         $this->setUpMetadata($metavalue);
         
         if (count((array)$this->searchStr) <= 0) {
@@ -212,22 +211,26 @@ class ComplexSearchViewHelper
         
         //get the solr data
         $this->getSolrData();
+        
         //get the total resources
-        $this->total = $this->getTotalResources();
+        $this->total = $this->getTotalResources($blazegraph);
+        
         if ($this->total < 1) {
             return array();
         }
+        
         //do the paging stuff
         $this->handlePaging($limit, $page, $this->total);
         //execute the sparql
         $this->runSparql($limit, $page, $order, $blazegraph);
+       
+
         //if we have solrdata then we will merge
         if (count((array)$this->solrData) > 0) {
             $this->sparqlData = array_merge($this->sparqlData, $this->solrData);
         }
         
         $this->createComplexSearchObject();
-        
         return $this->results;
     }
     
@@ -236,16 +239,22 @@ class ComplexSearchViewHelper
      *
      * @return int
      */
-    private function countSparqlResources(): int
+    private function countSparqlResources(bool $blazegraph = false): int
     {
         //custom sparql search
         try {
-            $countSparql = $this->model->createFullTextSparql($this->searchStr, 0, 0, true);
+            if ($blazegraph === false) {
+                $countSparql = $this->model->createFullTextSparql($this->searchStr, 0, 0, true, "datedesc", false);
+            } else {
+                $countSparql = $this->model->createBGFullTextSparql($this->searchStr, 0, 0, true, "datedesc", true);
+            }
+           
         } catch (\ErrorException $ex) {
             return 0;
         }
         $count = $this->oeawStorage->runUserSparql($countSparql);
-        return (int)count($count);
+        
+        return (int)$count[0]['count'];
     }
     
     /**
@@ -253,11 +262,13 @@ class ComplexSearchViewHelper
      *
      * @return int
      */
-    private function getTotalResources(): int
-    {
+    private function getTotalResources(bool $blazegraph = false): int
+    {         
         $solrCount = count((array)$this->solrData);
-        $count = $this->countSparqlResources();
+        $count = $this->countSparqlResources($blazegraph);
+        
         return (int)$count + (int)$solrCount;
+        
     }
     
     /**
@@ -266,7 +277,7 @@ class ComplexSearchViewHelper
      * @return type
      */
     private function getSolrData()
-    {
+    {        
         //solr search
         if (!in_array("", $this->searchStr) === false) {
             drupal_set_message(t("Your search yielded no results."), 'error');
