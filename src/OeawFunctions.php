@@ -392,7 +392,6 @@ class OeawFunctions
      */
     public function getCurrentPageForPagination(): string
     {
-        
         $currentPath = "";
         $currentPage = "";
         
@@ -536,7 +535,6 @@ class OeawFunctions
      */
     public function createPaginationHTML(string $actualPage, string $page, $tpages, $limit): string
     {
-        
         $adjacents = 2;
         $prevlabel = "<i class='material-icons'>&#xE5CB;</i>";
         $nextlabel = "<i class='material-icons'>&#xE5CC;</i>";

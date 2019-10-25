@@ -83,7 +83,7 @@ class ComplexSearchViewHelper
      * @param int $total
      */
     public function handlePaging(int $limit, int $page, int $total)
-    { 
+    {
         //get the current page for the pagination
         $this->currentPage = $this->oeawFunctions->getCurrentPageForPagination();
         
@@ -105,7 +105,6 @@ class ComplexSearchViewHelper
      */
     private function runSparql(int $limit, int $page, string $order, bool $blazegraph = false): array
     {
-          
         try {
             if (!$blazegraph) {
                 $sparql = $this->model->createFullTextSparql($this->searchStr, $limit, $this->pageData['end'], false, $order);
@@ -127,7 +126,6 @@ class ComplexSearchViewHelper
      */
     private function createComplexSearchObject()
     {
-        
         if (count($this->sparqlData) > 0) {
             foreach ($this->sparqlData as $r) {
                 if ((isset($r['title']) && !empty($r['title']))
@@ -201,8 +199,7 @@ class ComplexSearchViewHelper
      * @return array
      */
     public function search(string $metavalue, int $page, int $limit, string $order, bool $blazegraph = false): array
-    {        
-        
+    {
         $this->setUpMetadata($metavalue);
         
         if (count((array)$this->searchStr) <= 0) {
@@ -248,7 +245,6 @@ class ComplexSearchViewHelper
             } else {
                 $countSparql = $this->model->createBGFullTextSparql($this->searchStr, 0, 0, true, "datedesc", true);
             }
-           
         } catch (\ErrorException $ex) {
             return 0;
         }
@@ -263,12 +259,11 @@ class ComplexSearchViewHelper
      * @return int
      */
     private function getTotalResources(bool $blazegraph = false): int
-    {         
+    {
         $solrCount = count((array)$this->solrData);
         $count = $this->countSparqlResources($blazegraph);
         
         return (int)$count + (int)$solrCount;
-        
     }
     
     /**
@@ -277,7 +272,7 @@ class ComplexSearchViewHelper
      * @return type
      */
     private function getSolrData()
-    {        
+    {
         //solr search
         if (!in_array("", $this->searchStr) === false) {
             drupal_set_message(t("Your search yielded no results."), 'error');
