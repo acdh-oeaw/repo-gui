@@ -98,7 +98,7 @@ class ComplexSearchViewModel
                 if ($w == "and") {
                     $query .="  UNION  ";
                     continue;
-                } else if (!empty($w) ) {
+                } elseif (!empty($w)) {
                     $query .= " { ";
                 
                     $query .= ' SERVICE <http://www.bigdata.com/rdf/search#search> { '
@@ -108,7 +108,7 @@ class ComplexSearchViewModel
                 }
                 //filter the language
                 //$query .= " FILTER contains(lang(?label), '".$lang."') . ";
-                if (!empty($w) ) {
+                if (!empty($w)) {
                     $query .= " } ";
                 }
             }
@@ -131,30 +131,28 @@ class ComplexSearchViewModel
             $filterNot = array();
             $not = false;
             if (count($td) > 0) {
-                if(count($td) == 1) {
+                if (count($td) == 1) {
                     $query .= " ?uri <".RC::get('drupalRdfType')."> <".RC::get('fedoraVocabsNamespace').$td[0]."> . ";
-                }else {
+                } else {
                     foreach ($td as $dtype) {
-                        
-                        
-                        if (($dtype == "not") ) {
+                        if (($dtype == "not")) {
                             $not = true;
                             continue;
-                        }else if($not === true) {
+                        } elseif ($not === true) {
                             $filterNot[] = "<".RC::get('fedoraVocabsNamespace').$dtype.">";
                             $not = false;
-                        }else if($dtype == "and")  {
+                        } elseif ($dtype == "and") {
                             continue;
-                        }else {
-                            $filterIn[] = "<".RC::get('fedoraVocabsNamespace').$dtype.">";                            
+                        } else {
+                            $filterIn[] = "<".RC::get('fedoraVocabsNamespace').$dtype.">";
                         }
                     }
-                    if(count((array)$filterNot) > 0) {
-                        foreach($filterNot as $fn) {
+                    if (count((array)$filterNot) > 0) {
+                        foreach ($filterNot as $fn) {
                             $query .= ' MINUS { ?uri <'.RC::get("drupalRdfType").'> '.$fn.' . } . ';
                         }
                     }
-                    if(count((array)$filterIn) > 0) {
+                    if (count((array)$filterIn) > 0) {
                         $query .= ' FILTER  ( ?rdfType IN ( ';
                         $query .= implode(",", $filterIn);
                         $query .= ' )) .';
@@ -215,7 +213,7 @@ class ComplexSearchViewModel
         OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
         $query .= " OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
         $groupby = "";
-        if($count === false) {
+        if ($count === false) {
             $groupby = "GROUP BY ?title ?uri ?label ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
         }
         $query = $prefix.$select." Where { ".$conditions." ".$query." } ".$groupby;
@@ -322,30 +320,28 @@ class ComplexSearchViewModel
             $filterNot = array();
             $not = false;
             if (count($td) > 0) {
-                if(count($td) == 1) {
+                if (count($td) == 1) {
                     $query .= " ?uri <".RC::get('drupalRdfType')."> <".RC::get('fedoraVocabsNamespace').$td[0]."> . ";
-                }else {
+                } else {
                     foreach ($td as $dtype) {
-                        
-                        
-                        if (($dtype == "not") ) {
+                        if (($dtype == "not")) {
                             $not = true;
                             continue;
-                        }else if($not === true) {
+                        } elseif ($not === true) {
                             $filterNot[] = "<".RC::get('fedoraVocabsNamespace').$dtype.">";
                             $not = false;
-                        }else if($dtype == "and")  {
+                        } elseif ($dtype == "and") {
                             continue;
-                        }else {
-                            $filterIn[] = "<".RC::get('fedoraVocabsNamespace').$dtype.">";                            
+                        } else {
+                            $filterIn[] = "<".RC::get('fedoraVocabsNamespace').$dtype.">";
                         }
                     }
-                    if(count((array)$filterNot) > 0) {
-                        foreach($filterNot as $fn) {
+                    if (count((array)$filterNot) > 0) {
+                        foreach ($filterNot as $fn) {
                             $query .= ' MINUS { ?uri <'.RC::get("drupalRdfType").'> '.$fn.' . } . ';
                         }
                     }
-                    if(count((array)$filterIn) > 0) {
+                    if (count((array)$filterIn) > 0) {
                         $query .= ' FILTER  ( ?rdfType IN ( ';
                         $query .= implode(",", $filterIn);
                         $query .= ' )) .';
@@ -405,7 +401,7 @@ class ComplexSearchViewModel
         OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
         $query .= " OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
         $groupby = "";
-        if($count === false) {
+        if ($count === false) {
             $groupby = "GROUP BY ?title ?uri ?label ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
         }
         $query = $prefix.$select." Where { ".$conditions." ".$query." } ".$groupby;
