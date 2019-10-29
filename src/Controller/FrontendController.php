@@ -257,6 +257,12 @@ class FrontendController extends ControllerBase
             } else {
                 return $this->oeawFunctions->detailViewGuiErrosMsg($response, "Resource does not exist", "errmsg_resource_not_exists", $this->uuid);
             }
+            //recache the cite
+            $typesToBeCited = ["collection", "project", "resource", "publication", "metadata"];
+            if (!empty($result->mainData->getType()) && in_array(strtolower($result->mainData->getType()), $typesToBeCited)) {
+                //pass $rootMeta for rdf object
+                $result->extraData["CiteThisWidget"] = $this->oeawFunctions->createCiteThisWidget($result->mainData);
+            }
         } else {
             //run the generation scripts
             $result = $this->oeawDVFunctions->generateDetailViewMainData($this->fedora, $this->uuid, $this->siteLang);
