@@ -63,13 +63,13 @@ class ComplexSearchViewHelper
         return $this->pageData;
     }
     
-     /**
-     *
-     * Prepare the searchString for the sparql Query
-     *
-     * @param string $string
-     * @return array
-     */
+    /**
+    *
+    * Prepare the searchString for the sparql Query
+    *
+    * @param string $string
+    * @return array
+    */
     public function explodeSearchString(string $string): array
     {
         $filters = array("type", "dates", "words", "mindate", "maxdate", "years", "solrsearch");
@@ -253,7 +253,7 @@ class ComplexSearchViewHelper
         //do the paging stuff
         $this->handlePaging($limit, $page, $this->total);
         //execute the sparql
-        if(!isset($this->searchStr['solrsearch']) && empty($this->searchStr['solrsearch'])) {
+        if (!isset($this->searchStr['solrsearch']) && empty($this->searchStr['solrsearch'])) {
             $this->runSparql($limit, $page, $order, $blazegraph);
         }
 
@@ -297,9 +297,9 @@ class ComplexSearchViewHelper
     {
         $solrCount = count((array)$this->solrData);
         //if the user needs just the solr data
-        if(isset($this->searchStr['solrsearch']) && !empty($this->searchStr['solrsearch'])) {
+        if (isset($this->searchStr['solrsearch']) && !empty($this->searchStr['solrsearch'])) {
             $count = 0;
-        }else {
+        } else {
             $count = $this->countSparqlResources($blazegraph);
         }
         return (int)$count + (int)$solrCount;

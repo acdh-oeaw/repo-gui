@@ -308,7 +308,7 @@ class OeawResource
     
     /**
      * Get the Blazegraph search property
-     * 
+     *
      * @return string
      */
     public function getResultProp(): string
