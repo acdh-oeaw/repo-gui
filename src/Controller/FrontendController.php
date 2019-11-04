@@ -495,7 +495,7 @@ class FrontendController extends ControllerBase
             $total = 0;
             
             $result = $this->complexSearchViewHelper->search($metavalue, $page, $limit, $order, true);
-
+            
             if (count((array)$result) <= 0) {
                 drupal_set_message(t("Your search yielded no results."), 'error');
                 return array();

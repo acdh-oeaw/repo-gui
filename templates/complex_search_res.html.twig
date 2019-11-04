@@ -77,6 +77,14 @@
                     <span class="res-creationdate">{{ item.availableDate|date("d M Y") }}   </span>
                 </div>
             {% endif%}
+            
+            {% if item.getResultProp %}
+                <div class="res-property">
+                    <i class="material-icons">&#xE8DF;</i>
+                    <span class="res-prop-label">{{ "Search property"|trans }}: </span>
+                    <span class="res-resultProp">{{ item.getResultProp|replace({'https://vocabs.acdh.oeaw.ac.at/schema#': ''}) }}   </span>
+                </div>
+            {% endif%}
 
             {% if item.isPartOfTitle %}
                 <div class="res-property">

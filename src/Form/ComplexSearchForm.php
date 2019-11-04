@@ -262,6 +262,6 @@ class ComplexSearchForm extends FormBase
         }
         $metaVal = $this->oeawFunctions->convertSearchString($metavalue, $extras);
         $metaVal = urlencode($metaVal);
-        $form_state->setRedirect('oeaw_complexsearch1', ["metavalue" => $metaVal, "limit" => 10,  "page" => 1]);
+        $form_state->setRedirect('oeaw_complexsearch', ["metavalue" => $metaVal, "limit" => 10,  "page" => 1]);
     }
 }

@@ -59,8 +59,7 @@ class ComplexSearchViewModel
         if ($count == true) {
             $select = "SELECT (COUNT( DISTINCT ?uri) as ?count) ";
         } else {
-            $select = 'SELECT DISTINCT ?uri ?title ?label ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction 
-                (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
+            $select = 'SELECT DISTINCT ?uri ?title ?label ?resultProp ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction 
                 (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) 
                 (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
         }
@@ -109,6 +108,7 @@ class ComplexSearchViewModel
                 //filter the language
                 //$query .= " FILTER contains(lang(?label), '".$lang."') . ";
                 if (!empty($w)) {
+                    $query .= " OPTIONAL {?uri ?resultProp ?label . } ";
                     $query .= " } ";
                 }
             }
@@ -212,9 +212,11 @@ class ComplexSearchViewModel
         OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
         OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
         $query .= " OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
+        $query .= " OPTIONAL { ?uri <".RC::get('epicPidProp')."> ?pid .  }  ";
+        
         $groupby = "";
         if ($count === false) {
-            $groupby = "GROUP BY ?title ?uri ?label ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
+            $groupby = "GROUP BY ?title ?uri ?label ?resultProp ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
         }
         $query = $prefix.$select." Where { ".$conditions." ".$query." } ".$groupby;
         if ($limit) {
@@ -223,8 +225,6 @@ class ComplexSearchViewModel
                 $query .= " OFFSET ".$page." ";
             }
         }
-        error_log("fulltext BG: ");
-        error_log(print_r($query, true));
         return $query;
     }
     
@@ -411,8 +411,6 @@ class ComplexSearchViewModel
                 $query .= " OFFSET ".$page." ";
             }
         }
-        //error_log("fulltext: ");
-        //error_log(print_r($query, true));
         return $query;
     }
 }

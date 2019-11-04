@@ -63,6 +63,37 @@ class ComplexSearchViewHelper
         return $this->pageData;
     }
     
+     /**
+     *
+     * Prepare the searchString for the sparql Query
+     *
+     * @param string $string
+     * @return array
+     */
+    public function explodeSearchString(string $string): array
+    {
+        $filters = array("type", "dates", "words", "mindate", "maxdate", "years", "solrsearch");
+        //$operands = array("and" => "+", "not" => "-");
+        $positions = array();
+        
+        $res = array();
+        
+        $strArr = explode('&', $string);
+                
+        foreach ($filters as $f) {
+            foreach ($strArr as $arr) {
+                if (strpos($arr, $f) !== false) {
+                    $arr = str_replace($f.'=', '', $arr);
+                    if (($f == "mindate") || ($f == "maxdate")) {
+                        $arr = str_replace('+', '', $arr);
+                    }
+                    $res[$f] = $arr;
+                }
+            }
+        }
+        return $res;
+    }
+    
     /**
      * create the searchstring
      *
@@ -72,7 +103,7 @@ class ComplexSearchViewHelper
     {
         $this->metadata = urldecode($metadata);
         $this->metadata = str_replace(' ', '+', $this->metadata);
-        $this->searchStr = $this->oeawFunctions->explodeSearchString($this->metadata);
+        $this->searchStr = $this->explodeSearchString($this->metadata);
     }
     
     /**
@@ -155,6 +186,9 @@ class ComplexSearchViewHelper
                     if (isset($r['label']) && !empty($r['label'])) {
                         $arrayObject->offsetSet('bz_search', $r['label']);
                     }
+                    if (isset($r['resultProp']) && !empty($r['resultProp'])) {
+                        $arrayObject->offsetSet('resultProp', $r['resultProp']);
+                    }
                     if (isset($r['highlighting']) && !empty($r['highlighting'])) {
                         $arrayObject->offsetSet('highlighting', $r['highlighting']);
                     }
@@ -208,7 +242,7 @@ class ComplexSearchViewHelper
         
         //get the solr data
         $this->getSolrData();
-        
+        //var_dump($this->solrData);
         //get the total resources
         $this->total = $this->getTotalResources($blazegraph);
         
@@ -219,12 +253,13 @@ class ComplexSearchViewHelper
         //do the paging stuff
         $this->handlePaging($limit, $page, $this->total);
         //execute the sparql
-        $this->runSparql($limit, $page, $order, $blazegraph);
-       
+        if(!isset($this->searchStr['solrsearch']) && empty($this->searchStr['solrsearch'])) {
+            $this->runSparql($limit, $page, $order, $blazegraph);
+        }
 
         //if we have solrdata then we will merge
         if (count((array)$this->solrData) > 0) {
-            $this->sparqlData = array_merge($this->sparqlData, $this->solrData);
+            $this->sparqlData = array_merge((array)$this->sparqlData, (array)$this->solrData);
         }
         
         $this->createComplexSearchObject();
@@ -261,8 +296,12 @@ class ComplexSearchViewHelper
     private function getTotalResources(bool $blazegraph = false): int
     {
         $solrCount = count((array)$this->solrData);
-        $count = $this->countSparqlResources($blazegraph);
-        
+        //if the user needs just the solr data
+        if(isset($this->searchStr['solrsearch']) && !empty($this->searchStr['solrsearch'])) {
+            $count = 0;
+        }else {
+            $count = $this->countSparqlResources($blazegraph);
+        }
         return (int)$count + (int)$solrCount;
     }
     
