@@ -23,7 +23,9 @@
                     {% elseif data.uri %}
                         <a href="{{ data.uri }}">{{ data.uri }}</a>
                     {% else %}
-                        {% if 'http' in data %}
+                        {% if (dateformat)  %}
+                            {{ data|date(dateformat) }}
+                        {% elseif 'http' in data %}
                             <a href="{{ data }}">{{ data }}</a>
                         {% else %}
                             {{ data|nl2br }}
@@ -42,6 +44,8 @@
                         {% else %}
                             {% if 'http' in value %}
                                 <a href="{{ value }}">{{ value }}</a>
+                            {% elseif (dateformat)  %}
+                                {{ value|date(dateformat) }}
                             {% else %}
                                 {{ value|nl2br }}
                             {% endif%}
@@ -52,6 +56,8 @@
             {% else %}
                 {% if 'http' in data %}
                     <a href="{{ data }}">{{ data }}</a>
+                {% elseif (dateformat)  %}
+                    {{ data|date(dateformat) }}
                 {% else %}
                     {{ data }}
                 {% endif%}

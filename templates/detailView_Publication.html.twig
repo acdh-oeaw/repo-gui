@@ -43,15 +43,19 @@
     {% endif%}	
     
     {% if result.basicProperties['acdh:hasSeriesInformation'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasSeriesInformation'], 'icon': "", 'label': "Series information" } ) }}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasSeriesInformation'], 'icon': "note", 'label': "Series information" } ) }}
     {% endif%}	
     
     {% if result.basicProperties['acdh:hasPages'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasPages'], 'icon': "", 'label': "Page(s)" } ) }}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasPages'], 'icon': "note", 'label': "Page(s)" } ) }}
+    {% endif%}	
+    
+    {% if result.basicProperties['acdh:hasAvailableDate'] %}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasAvailableDate'],  'icon': "today", 'label': "Available Date",'dateformat': 'Y' } ) }}
     {% endif%}	
     
      {%  if result.basicProperties['acdh:hasRegion'] %}
-         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasRegion'], 'icon': "", 'label': "Region" } ) }}
+         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasRegion'], 'icon': "business", 'label': "Region" } ) }}
     {% endif%}
         
     {%  if result.basicProperties['acdh:hasCity'] %}
@@ -59,8 +63,10 @@
     {% endif%}
         
     {%  if result.basicProperties['acdh:hasPublisher'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasPublisher'], 'icon': "", 'label': "Publisher" } ) }}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasPublisher'], 'icon': "person", 'label': "Publisher" } ) }}
     {% endif%}
+    
+    
     
     {% if result.basicProperties['acdh:hasUrl'] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasUrl'], 'icon': "web", 'label': "Url" } ) }}
@@ -72,15 +78,15 @@
     {% endif%}
         
     {% if result.basicProperties['acdh:hasEditorialPractice'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasEditorialPractice'], 'icon': "", 'label': "Editorial Practice" } ) }}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasEditorialPractice'], 'icon': "add_comment", 'label': "Editorial Practice" } ) }}
     {% endif%}
         
     {%  if result.extendedProperties['acdh:hasNote'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasNote'], 'icon': "", 'label': "Note" } ) }}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasNote'], 'icon': "note", 'label': "Note" } ) }}
     {% endif%}
         
     {%  if result.extendedProperties['acdh:hasLanguage'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasLanguage'], 'icon': "", 'label': "Language" } ) }}
+        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasLanguage'], 'icon': "flag", 'label': "Language" } ) }}
     {% endif%}
    
     

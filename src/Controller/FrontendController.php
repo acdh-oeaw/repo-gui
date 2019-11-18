@@ -206,6 +206,7 @@ class FrontendController extends ControllerBase
         drupal_get_messages('error', true);
         $result = new \stdClass();
         $response = "html";
+        $needsToCache = false;
                 
         //we have the url and limit page data in the string
         if (empty($res_data)) {
@@ -220,7 +221,11 @@ class FrontendController extends ControllerBase
         if (strpos($res_data, 'ajax=1') !== false) {
             $response = "ajax";
         }
-                
+        //if recache is necessary
+        if (strpos($res_data, 'recache=true') !== false) {
+            $needsToCache = true;
+        }
+        
         //transform the url from the browser to readable uri
         $this->uuid = $this->oeawFunctions->detailViewUrlDecodeEncode($res_data, 0);
         
@@ -240,7 +245,7 @@ class FrontendController extends ControllerBase
         $actualCacheObj = $this->cacheModel->getCacheByUUID($this->uuid, $this->siteLang, "R");
         $fdDate = strtotime($this->fedoraGlobalModDate);
         
-        $needsToCache = false;
+        
         if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
             $needsToCache = true;
         } elseif (!isset($actualCacheObj->modify_date)) {

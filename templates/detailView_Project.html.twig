@@ -39,7 +39,7 @@
     {%  if result.basicProperties['acdh:hasContact'] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasContact'], 'icon': "person_add", 'label': "Contact(s)" } ) }}
     {% endif%}
-    
+        
     {%  if result.basicProperties['acdh:hasFunder'] %}
         {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasFunder'], 'icon': "attach_money", 'label': "Funder"  } ) }}
     {% endif%}
@@ -89,11 +89,11 @@
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasCoverageStartDate'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCoverageStartDate'], 'icon': "", 'label': "Coverage Start Date" } ) }}
+            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCoverageStartDate'], 'icon': "", 'label': "Coverage Start Date",'dateformat': 'Y' } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasCoverageEndDate'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCoverageEndDate'], 'icon': "", 'label': "Coverage End Date" } ) }}
+            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCoverageEndDate'], 'icon': "", 'label': "Coverage End Date", 'dateformat': 'Y' } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasAppliedMethod'] %}

@@ -184,6 +184,7 @@ abstract class ConfigConstants
                 "acdh:hasEditor",
                 "acdh:hasSeriesInformation",
                 "acdh:hasPages",
+                "acdh:hasAvailableDate",
                 "acdh:hasRegion",
                 "acdh:hasCity",
                 "acdh:hasPublisher",
