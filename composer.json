@@ -1,10 +1,12 @@
 {
-    "name": "drupal/oeaw",
-    "description": "This is an example composer.json for example module.",
+    "name": "acdh-oeaw/repo-gui",
+    "description": "Drupal plugin for the ACDH OEAW ARCHE GUI",
     "type": "drupal-module",
     "license": "MIT",
     "require": {
-           "acdh-oeaw/repo-php-util": ">=0.10.0"
+        "acdh-oeaw/repo-php-util": "*",
+        "acdh-oeaw/acdh-repo-lib": "*",
+        "acdh-oeaw/easyrdf": "*"
     }
 }
 
