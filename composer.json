@@ -7,6 +7,11 @@
         "acdh-oeaw/repo-php-util": "*",
         "acdh-oeaw/acdh-repo-lib": "*",
         "acdh-oeaw/easyrdf": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Drupal\\oeaw\\": "src"
+        }
     }
 }
 
