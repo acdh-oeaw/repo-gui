@@ -11,7 +11,7 @@ env:
     - MODULE_NAME='oeaw'
     - MODUL_REPO='https://github.com/acdh-oeaw/repo-gui.git'
     - DRUPAL_REPO='http://git.drupal.org/project/drupal.git'
-    - DRUPAL_VERSION='8.6.*'
+    - DRUPAL_VERSION='8.7.*'
     - PHPCS_VERSION='2.*'
     - CODER_VERSION='8.*'
 
@@ -52,13 +52,14 @@ before_install:
   
   - composer global require phpunit/phpunit ^6.5
   - composer global require acdh-oeaw/repo-php-util
-  
+     
   # Coder.
   - composer global require drupal/coder:$CODER_VERSION
   - ln -s ~/.composer/vendor/drupal/coder/coder_sniffer/Drupal ~/.composer/vendor/squizlabs/php_codesniffer/CodeSniffer/Standards/
 
   - composer global update
-  
+   
+    
   # Ensure the PHP environment is ready.
   - phpenv rehash
   
@@ -73,8 +74,12 @@ install:
   # create directory with the code for the codefixing
   - mkdir -p drupal/modules/_oeaw
   - git clone $MODUL_REPO drupal/modules/_oeaw/.
-
-  - cd drupal
+  
+  #create phpcodumentor directory
+  - mkdir -p drupal/modules/oeaw/phpdoc
+  #get phpdocumentor phar
+  - cd drupal/modules/oeaw/phpdoc
+  - wget https://github.com/phpDocumentor/phpDocumentor/releases/download/v3.0.0-alpha.4/phpDocumentor.phar
 
 before_script:  
   # Allow MySQL to finish starting.
@@ -114,6 +119,10 @@ script:
   - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/Model/OeawResourceTest.php
   - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/OeawFunctionsTest.php
   
+  ##run php documentor
+  - php $TRAVIS_BUILD_DIR/drupal/modules/oeaw/phpdoc/phpDocumentor.phar -d $TRAVIS_BUILD_DIR/drupal/modules/oeaw -t $TRAVIS_BUILD_DIR/drupal/modules/oeaw/docs/ --ignore $TRAVIS_BUILD_DIR/drupal/modules/oeaw/docs/*, $TRAVIS_BUILD_DIR/drupal/modules/oeaw/phpdocs/*
+  
+    
 after_success:
   - $HOME/.composer/vendor/bin/php-cs-fixer fix $TRAVIS_BUILD_DIR/drupal/modules/_oeaw  
 
