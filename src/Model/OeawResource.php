@@ -43,9 +43,13 @@ class OeawResource
      * @param type $cfg
      * @throws \ErrorException
      */
-    public function __construct(\ArrayObject $arrayObj, $cfg = null, string $lng = "en")
+    public function __construct(\ArrayObject $arrayObj, string $lng = "en", bool $test = false)
     {
         $this->lng = $lng;
+        
+        if($test === true) {
+            \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
+        }
         
         if (is_object($arrayObj) || !empty($arrayObj)) {
             $objIterator = $arrayObj->getIterator();

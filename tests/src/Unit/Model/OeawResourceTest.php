@@ -77,7 +77,7 @@ class OeawResourceTest extends UnitTestCase
     
     public function testInitialization() : \Drupal\oeaw\Model\OeawResource
     {
-        $obj = new \Drupal\oeaw\Model\OeawResource(self::$arrayObject, $this->cfgDir);
+        $obj = new \Drupal\oeaw\Model\OeawResource(self::$arrayObject, "en", true);
         $this->assertInstanceOf(\Drupal\oeaw\Model\OeawResource::class, $obj);
         return $obj;
     }
@@ -97,7 +97,7 @@ class OeawResourceTest extends UnitTestCase
     {
         self::$arrayObject->offsetUnset('table');
         $this->expectException(\Error::class);
-        $obj = new \Drupal\oeaw\Model\OeawResource(self::$arrayObject, $this->cfgDir);
+        $obj = new \Drupal\oeaw\Model\OeawResource(self::$arrayObject, "en", true);
     }
     
     
