@@ -22,7 +22,6 @@ class OeawCustomSparql implements OeawCustomSparqlInterface
      */
     public function __construct()
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->modelFunctions = new MF();
     }
      

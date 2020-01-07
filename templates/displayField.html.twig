@@ -33,7 +33,7 @@
                     {% endif%}
                 {% else %}
                     {% for value in data %}
-                        {% if (onlyurl)  %}
+                        {% if (onlyurl) and value['uri'] %}
                             <a href="{{ value['uri'] }}">{{ value['uri'] }}</a>
                         {% elseif (value['insideUri']) and (value['title'])  %}
                             <a href="/browser/oeaw_detail/{{ value['insideUri'] }}">{{ value['title']|nl2br }}</a>

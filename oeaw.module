@@ -1,5 +1,6 @@
 <?php
 
+
 function oeaw_theme() {
   $theme['oeaw_detail_dt'] = [
     'variables' => ['result' => NULL, 'extras' => NULL, 'childResult' => NULL, 'editResData' => NULL, 'userid' => NULL, 'hasBinary' => NULL, 'errorMSG' => null, 'query' => null],
@@ -51,7 +52,7 @@ function oeaw_theme() {
   ];
   
   $theme['oeaw_complex_search_res'] = [
-    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null, 'search' => NULL, 'pagination' => NULL, 'totalResultAmount' => NULL, 'currentPage' => NULL, 'totalPages' => NULL,],
+    'variables' => ['result' => NULL, 'searchedValues' => NULL, 'userid' => NULL, 'errorMSG' => null, 'search' => NULL, 'pagination' => NULL, 'totalResultAmount' => NULL, 'currentPage' => NULL, 'totalPages' => NULL, 'pageGeneration' => NULL,],
     'template' => 'complex_search_res',
   ];
 
@@ -114,6 +115,12 @@ function oeaw_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
     return $form;
 }
 
+function oeaw_preprocess(&$variables, $hook)
+{
+    $variables['base_path'] = base_path();
+    $_SESSION["archeCfg"] = $_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini';
+    
+}
 
 
 ?>

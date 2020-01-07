@@ -11,6 +11,7 @@ namespace Drupal\oeaw\Helper;
 use acdhOeaw\util\RepoConfig as RC;
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\Model\RootViewModel;
+use Drupal\oeaw\Helper\HelperFunctions as HF;
 
 class RootViewHelper
 {
@@ -26,7 +27,6 @@ class RootViewHelper
         \Drupal\oeaw\Model\OeawStorage $oeawStorage,
         $fedora
     ) {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->siteLang = $siteLang;
         $this->oeawFunctions = $oeawFunctions;
         $this->oeawStorage = $oeawStorage;
@@ -115,6 +115,7 @@ class RootViewHelper
             if (isset($value['image']) && !empty($value['image'])) {
                 $arrayObject->offsetSet('imageUrl', $value['image']);
             } elseif (isset($value['hasTitleImage']) && !empty($value['hasTitleImage'])) {
+                $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($value['hasTitleImage']));
                 $imageUrl = $this->oeawStorage->getImageByIdentifier($value['hasTitleImage']);
                 if ($imageUrl) {
                     $arrayObject->offsetSet('imageUrl', $imageUrl);
@@ -128,7 +129,7 @@ class RootViewHelper
             if (count($tblArray) == 0) {
                 $tblArray['title'] = $value['title'];
             }
-
+            
             $arrayObject->offsetSet('table', $tblArray);
 
             try {

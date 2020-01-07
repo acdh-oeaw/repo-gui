@@ -46,8 +46,6 @@ class ApiGetMetadataResource extends ResourceBase
      */
     public function get(string $type, string $lang)
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-        
         if (empty($type)) {
             return new JsonResponse(array("Please provide a type! For exmaple: person, collection, etc..."), 404, ['Content-Type'=> 'application/json']);
         }
@@ -98,8 +96,6 @@ class ApiGetMetadataResource extends ResourceBase
     {
         $result = array();
         $required = array();
-        
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         
         if (count($properties) > 0) {
             foreach ($properties as $prop) {

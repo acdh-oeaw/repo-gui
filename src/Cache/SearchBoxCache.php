@@ -38,7 +38,6 @@ class SearchBoxCache
      */
     public function setCacheData(string $type): array
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $oeawStorage = new OeawStorage();
         $sqlRes = array();
         $result = array();

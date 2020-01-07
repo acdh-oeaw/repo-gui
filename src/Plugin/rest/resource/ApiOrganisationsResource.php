@@ -39,7 +39,7 @@ class ApiOrganisationsResource extends ResourceBase
     public function get(string $data)
     {
         $response = new Response();
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
         if (empty($data)) {
             return new JsonResponse(array("Please provide a link"), 404, ['Content-Type'=> 'application/json']);
         }

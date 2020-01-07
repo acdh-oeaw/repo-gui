@@ -39,7 +39,6 @@ class OeawFunctions
      */
     public function __construct($cfg = null)
     {
-        ($cfg == null) ?  \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini') :  \acdhOeaw\util\RepoConfig::init($cfg);
         $this->langConf = \Drupal::config('oeaw.settings');
     }
         
@@ -354,36 +353,7 @@ class OeawFunctions
         return $res;
     }
     
-    /**
-     *
-     * Prepare the searchString for the sparql Query
-     *
-     * @param string $string
-     * @return array
-     */
-    public function explodeSearchString(string $string): array
-    {
-        $filters = array("type", "dates", "words", "mindate", "maxdate", "years");
-        //$operands = array("and" => "+", "not" => "-");
-        $positions = array();
-        
-        $res = array();
-        
-        $strArr = explode('&', $string);
-                
-        foreach ($filters as $f) {
-            foreach ($strArr as $arr) {
-                if (strpos($arr, $f) !== false) {
-                    $arr = str_replace($f.'=', '', $arr);
-                    if (($f == "mindate") || ($f == "maxdate")) {
-                        $arr = str_replace('+', '', $arr);
-                    }
-                    $res[$f] = $arr;
-                }
-            }
-        }
-        return $res;
-    }
+   
     
     /**
      * Creates a string from the currentPage For the pagination
@@ -946,7 +916,7 @@ class OeawFunctions
         $widget["MLA"]["string"] = "";
         //AUTHORS
         if (isset($widget["MLA"]["authors"]) && !empty($widget["MLA"]["authors"])) {
-            $widget["MLA"]["string"] .= $widget["MLA"]["authors"].'. ';
+            $widget["MLA"]["string"] .= $widget["MLA"]["authors"].'... ';
         } elseif (isset($widget["MLA"]["creators"]) && !empty($widget["MLA"]["creators"])) {
             $widget["MLA"]["string"] .= $widget["MLA"]["creators"].'. ';
         } elseif (isset($widget["MLA"]["contributors"]) && !empty($widget["MLA"]["contributors"])) {
@@ -957,21 +927,36 @@ class OeawFunctions
         if (
             isset($widget["MLA"]["hasPrincipalInvestigator"])
                 &&
-            !empty($widget["MLA"]["hasPrincipalInvestigator"])) {
+            !empty(trim($widget["MLA"]["hasPrincipalInvestigator"]))) {
             $widget["MLA"]["string"] = str_replace(".", ",", $widget["MLA"]["string"]);
             
             $arr = explode(",", $widget["MLA"]["string"]);
             foreach ($arr as $a) {
                 $a = ltrim($a);
+                //if the string already contains the prininv name, then we will skip it from the final result
                 if (!empty($a) && strpos($widget["MLA"]["hasPrincipalInvestigator"], $a) !== false) {
                     $widget["MLA"]["hasPrincipalInvestigator"] = str_replace($a.",", "", $widget["MLA"]["hasPrincipalInvestigator"]);
                     $widget["MLA"]["hasPrincipalInvestigator"] = str_replace($a, "", $widget["MLA"]["hasPrincipalInvestigator"]);
                 }
             }
-            $widget["MLA"]["hasPrincipalInvestigator"] = substr(rtrim($widget["MLA"]["hasPrincipalInvestigator"]), 0, -1);
-            $widget["MLA"]["string"] .= ' '.$widget["MLA"]["hasPrincipalInvestigator"].'. ';
+            
+            //$widget["MLA"]["hasPrincipalInvestigator"] = substr(rtrim($widget["MLA"]["hasPrincipalInvestigator"]), 0, -1);
+            if(isset($widget["MLA"]["hasPrincipalInvestigator"]) && !empty(trim($widget["MLA"]["hasPrincipalInvestigator"]))) {
+                //if the last char is the , then we need to remove it
+                if(substr(trim($widget["MLA"]["hasPrincipalInvestigator"]), -1) == ",") {
+                    $widget["MLA"]["hasPrincipalInvestigator"] = trim($widget["MLA"]["hasPrincipalInvestigator"]);
+                    $widget["MLA"]["hasPrincipalInvestigator"] = rtrim($widget["MLA"]["hasPrincipalInvestigator"], ",");
+                }
+                $widget["MLA"]["string"] .= ' '.$widget["MLA"]["hasPrincipalInvestigator"].'. ';
+            }
         }
         
+        if(substr(trim($widget["MLA"]["string"]), -1) == ",") {
+            $widget["MLA"]["string"] = trim($widget["MLA"]["string"]);
+            $widget["MLA"]["string"] = rtrim($widget["MLA"]["string"], ",");
+            $widget["MLA"]["string"] .= '. ';
+        }
+
         //TITLE
         if ($widget["MLA"]["title"]) {
             $widget["MLA"]["string"] .= '<em>'.$widget["MLA"]["title"].'.</em> ';

@@ -18,7 +18,6 @@ class ApiHelper
     
     public function __construct()
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->fedora = new Fedora();
         $this->modelFunctions = new ModelFunctions();
     }

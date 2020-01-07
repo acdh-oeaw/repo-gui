@@ -51,17 +51,17 @@
     
     <div class="single-res-overview single-res-overview-basic">
         {% if extras['specialType']['person'] %}
-            {{ include('/modules/oeaw/templates/detailView_Person.html.twig', {'result': extras['specialType']['person'] } ) }}
+            {{ include('/modules/custom/oeaw/templates/detailView_Person.html.twig', {'result': extras['specialType']['person'] } ) }}
         {% elseif extras['specialType']['project'] %}
-            {{ include('/modules/oeaw/templates/detailView_Project.html.twig', {'result': extras['specialType']['project'], 'table': result.table } ) }}
+            {{ include('/modules/custom/oeaw/templates/detailView_Project.html.twig', {'result': extras['specialType']['project'], 'table': result.table } ) }}
         {% elseif extras['specialType']['organisation'] %}
-            {{ include('/modules/oeaw/templates/detailView_Organisation.html.twig', {'result': extras['specialType']['organisation'], 'insideUrl': result['insideUri'] } ) }}
+            {{ include('/modules/custom/oeaw/templates/detailView_Organisation.html.twig', {'result': extras['specialType']['organisation'], 'insideUrl': result['insideUri'] } ) }}
         {% elseif extras['specialType']['place'] %}
-            {{ include('/modules/oeaw/templates/detailView_Place.html.twig', {'result': extras['specialType']['place'] } ) }}
+            {{ include('/modules/custom/oeaw/templates/detailView_Place.html.twig', {'result': extras['specialType']['place'] } ) }}
         {% elseif extras['specialType']['publication'] %}
-            {{ include('/modules/oeaw/templates/detailView_Publication.html.twig', {'result': extras['specialType']['publication'] } ) }}            
+            {{ include('/modules/custom/oeaw/templates/detailView_Publication.html.twig', {'result': extras['specialType']['publication'] } ) }}            
         {% else  %}
-            {{ include('/modules/oeaw/templates/detailView_Basic.html.twig', {'result': result } ) }}
+            {{ include('/modules/custom/oeaw/templates/detailView_Basic.html.twig', {'result': result } ) }}
         {% endif %}
     </div>
 	
@@ -72,7 +72,7 @@
             <div class="res-property">
                 <span class="res-title">
                     {%  if result.getAccessRestriction() %}
-                        {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
+                        {{ include('/modules/custom/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
                     {% endif%}
                     {{ result.title }}
                 </span>

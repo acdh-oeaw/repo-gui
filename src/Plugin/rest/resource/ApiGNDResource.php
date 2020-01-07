@@ -42,8 +42,6 @@ class ApiGNDResource extends ResourceBase
      */
     public function get()
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-
         $response = new Response();
         $model = new ApiModel();
         $helper = new ApiHelper();
@@ -84,7 +82,6 @@ class ApiGNDResource extends ResourceBase
      */
     private static function generateFilterData(string $type): array
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $filters = array();
         
         if ($type == RC::get('drupalPerson')) {

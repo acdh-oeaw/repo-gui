@@ -8,7 +8,7 @@
                 <div class="res-property">
                     <span class="res-title">
                         {%  if item.getAccessRestriction() %}
-                            {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': item.getAccessRestriction()|lower } ) }}
+                            {{ include('/modules/custom/oeaw/templates/accesRestrictionFormat.html.twig', {'data': item.getAccessRestriction()|lower } ) }}
                         {% endif%}
                         <a href="{{ url('<front>') }}oeaw_detail/{{ item.insideUri }}">{{ item.title }}</a></span>
                 </div>

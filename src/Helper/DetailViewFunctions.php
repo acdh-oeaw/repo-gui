@@ -26,7 +26,6 @@ class DetailViewFunctions
         \Drupal\oeaw\OeawFunctions $oeawFunctions,
         \Drupal\oeaw\Model\OeawStorage $oeawStorage
     ) {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->langConf = $langConf;
         $this->oeawFunctions = $oeawFunctions;
         $this->oeawStorage = $oeawStorage;
@@ -150,15 +149,13 @@ class DetailViewFunctions
      * @param string $propertyShortcut
      */
     private function formatResourceValues(array $data, string $p, string $propertyShortcut)
-    {
+    {        
         foreach ($data as $d) {
             //we will skip the title for the resource identifier
             if ($p != RC::idProp()) {
                 //this will be the proper
                 $this->searchTitle[] = $d->getUri();
             }
-            
-            //$this->dvResult['table'][$propertyShortcut][]['uri'] = $d->getUri();
             
             $classUri = $d->getUri();
             if ($p == RC::get("drupalRdfType")) {
@@ -176,6 +173,7 @@ class DetailViewFunctions
             if ($p == RC::get("drupalRdfType")) {
                 if ($d == RC::get('drupalHasTitleImage')) {
                     $this->dvResult['image'] = $d->getUri();
+                    $this->dvResult['imageID'] = $d->getUri();
                 }
                 //check that the resource has Binary or not
                 if ($d == RC::get('drupalFedoraBinary')) {
@@ -189,16 +187,21 @@ class DetailViewFunctions
                     }
                 }
             }
+            
             //simply check the acdh:hasTitleImage for the root resources too.
             if ($p == RC::get('drupalHasTitleImage')) {
-                $imgUrl = "";
+                $imgUrl = "";                
                 $imgUrl = $this->oeawStorage->getImageByIdentifier($d->getUri());
                 if ($imgUrl) {
                     $this->dvResult['image'] = $imgUrl;
+                    $this->dvResult['imageID'] = $d->getUri();
+                    (!empty(HF::createThumbnailUrl($d->getUri()))) ? $this->dvResult['imageThumbUrl'] = HF::createThumbnailUrl($d->getUri()) : "";
                 }
             }
         }
     }
+    
+    
     
     /**
      * Get the literal and resource values from the easyrdf resource object
@@ -253,7 +256,7 @@ class DetailViewFunctions
      */
     private function getVocabsForDetailViewTable(string $lang)
     {
-        $vf = new \Drupal\oeaw\Helper\CacheVocabsFunctions();
+        $vf = new \Drupal\oeaw\Helper\CacheVocabsHelper();
         $vocabs = array();
         $vocabs = $vf->getVocabsTitle($lang);
         
@@ -351,7 +354,6 @@ class DetailViewFunctions
             throw new \ErrorException(t("Empty").': ACDH RDF TYPE', 0);
         }
         
-        
         //update the data with the vocabs translated values
         $this->getVocabsForDetailViewTable($lang);
         
@@ -376,7 +378,15 @@ class DetailViewFunctions
         if (isset($this->dvResult['image'])) {
             $arrayObject->offsetSet('imageUrl', $this->dvResult['image']);
         }
-       
+        
+        if (isset($this->dvResult['imageThumbUrl'])) {
+            $arrayObject->offsetSet('imageThumbUrl', $this->dvResult['imageThumbUrl']);
+        }
+        
+        if (strpos(strtolower($this->dvResult['acdh_rdf:type']['title']), 'image') !== false) {
+            $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
+        }
+        
         try {
             $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, null, $lang);
         } catch (ErrorException $ex) {
@@ -550,7 +560,7 @@ class DetailViewFunctions
         }
         
         //Create data for cite-this widget
-        $typesToBeCited = ["collection", "project", "resource", "publication"];
+        $typesToBeCited = ["collection", "project", "resource", "publication", "metadata"];
         if (!empty($resultsObj->getType()) && in_array(strtolower($resultsObj->getType()), $typesToBeCited)) {
             //pass $rootMeta for rdf object
             $extras["CiteThisWidget"] = $this->oeawFunctions->createCiteThisWidget($resultsObj);

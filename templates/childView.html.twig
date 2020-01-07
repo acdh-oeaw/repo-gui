@@ -90,7 +90,7 @@
             </div>
             
             <div class="result-basic-info child-ajax-pagination">
-                {{ include('/modules/oeaw/templates/paging.html.twig', {'data': result['maxPageLimit'] } ) }}
+                {{ include('/modules/custom/oeaw/templates/paging.html.twig', {'data': result['maxPageLimit'] } ) }}
             </div>    
         </div>
     </div>
@@ -104,7 +104,7 @@
                     <div class="res-property">
                         <span class="res-title">
                             {%  if cItem.getAccessRestriction() %}
-                                {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': cItem.getAccessRestriction()|lower } ) }}
+                                {{ include('/modules/custom/oeaw/templates/accesRestrictionFormat.html.twig', {'data': cItem.getAccessRestriction()|lower } ) }}
                             {% endif%}
                             <a href="{{ url('<front>') }}/oeaw_detail/{{ cItem.insideUri }}">                                         
                                 {{ cItem.title }}
@@ -159,7 +159,7 @@
         
     <div id="ajax-pagination" class="child-ajax-pagination">
         <div class="result-basic-info">
-                {{ include('/modules/oeaw/templates/paging.html.twig', {'data': result['maxPageLimit'] } ) }}
+                {{ include('/modules/custom/oeaw/templates/paging.html.twig', {'data': result['maxPageLimit'] } ) }}
         </div>   
     </div> 
     <!-- .children-overview-basic -->

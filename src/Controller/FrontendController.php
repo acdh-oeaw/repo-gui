@@ -57,8 +57,7 @@ class FrontendController extends ControllerBase
      * Set up the necessary properties and config
      */
     public function __construct()
-    {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
+    {   
         $this->langConf = $this->config('oeaw.settings');
         $this->userid = \Drupal::currentUser()->id();
         $this->oeawFunctions = new OeawFunctions();

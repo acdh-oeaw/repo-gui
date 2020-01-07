@@ -23,7 +23,6 @@ class RootViewModel
     
     public function __construct($fedora)
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->modelFunctions = new ModelFunctions();
         $this->fedora = $fedora;
     }

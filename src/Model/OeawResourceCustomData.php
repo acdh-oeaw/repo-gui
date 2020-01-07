@@ -40,12 +40,6 @@ class OeawResourceCustomData
      */
     public function __construct(\ArrayObject $arrayObj, $cfg = null, string $lang = "en")
     {
-        if ($cfg == null) {
-            \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-        } else {
-            \acdhOeaw\util\RepoConfig::init($cfg);
-        }
-        
         if (is_object($arrayObj) || !empty($arrayObj)) {
             $objIterator = $arrayObj->getIterator();
             while ($objIterator->valid()) {

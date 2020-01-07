@@ -12,7 +12,6 @@ class CacheModel
     
     public function __construct()
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->db = \Drupal\Core\Database\Database::getConnection('default', 'external');
     }
     

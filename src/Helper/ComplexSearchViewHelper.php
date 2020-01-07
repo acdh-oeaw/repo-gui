@@ -6,6 +6,7 @@ use acdhOeaw\util\RepoConfig as RC;
 use Drupal\oeaw\OeawFunctions;
 use Drupal\oeaw\Model\OeawStorage;
 use Drupal\oeaw\Model\RootViewModel;
+use Drupal\oeaw\Helper\HelperFunctions as HF;
 
 /**
  * Description of ComplexSearchViewHelper
@@ -35,7 +36,6 @@ class ComplexSearchViewHelper
         \Drupal\oeaw\Model\OeawStorage $oeawStorage,
         $fedora
     ) {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
         $this->siteLang = $siteLang;
         $this->oeawFunctions = $oeawFunctions;
         $this->oeawStorage = $oeawStorage;
@@ -203,6 +203,10 @@ class ComplexSearchViewHelper
                         if ($imageUrl) {
                             $arrayObject->offsetSet('imageUrl', $imageUrl);
                         }
+                    }
+                    
+                    if (strpos(strtolower($r['acdhType']), 'image') !== false) {
+                        $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($resourceIdentifier));
                     }
 
                     if (isset($r['description']) && !empty($r['description'])) {

@@ -48,8 +48,6 @@ class ApiGetMetadataGuiResource extends ResourceBase
      */
     public function get(string $lang)
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-        
         if (empty($lang)) {
             return new JsonResponse(array("Please provide a language! For exmaple: en, de etc..."), 404, ['Content-Type'=> 'application/json']);
         }

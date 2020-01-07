@@ -5,7 +5,7 @@
         <div class="res-property">
             <span class="res-title">
                 {%  if result.getAccessRestriction() %}
-                    {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
+                    {{ include('/modules/custom/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
                 {% endif%}
                 {{ result.getTitle() }}
             </span>
@@ -14,7 +14,7 @@
     
     {%  if result.basicProperties['acdh:hasAlternativeTitle'] %}
         <div class="res-property">
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasAlternativeTitle'], 'icon': "", 'label': "Alternative Title" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasAlternativeTitle'], 'icon': "", 'label': "Alternative Title" } ) }}
         </div>
     {% endif%}
     
@@ -29,92 +29,92 @@
     {% endif%}	
     
     {%  if result.getNonAcdhIdentifiers() %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.getNonAcdhIdentifiers(), 'icon': "copyright", 'label': "Identifier(s)" } ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.getNonAcdhIdentifiers(), 'icon': "copyright", 'label': "Identifier(s)" } ) }}
     {% endif%}
   
     {%  if result.basicProperties['acdh:hasUrl'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasUrl'], 'icon': "web", 'label': "Url" } ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasUrl'], 'icon': "web", 'label': "Url" } ) }}
     {% endif%}
     
     {%  if result.basicProperties['acdh:hasContact'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasContact'], 'icon': "person_add", 'label': "Contact(s)" } ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasContact'], 'icon': "person_add", 'label': "Contact(s)" } ) }}
     {% endif%}
         
     {%  if result.basicProperties['acdh:hasFunder'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasFunder'], 'icon': "attach_money", 'label': "Funder"  } ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasFunder'], 'icon': "attach_money", 'label': "Funder"  } ) }}
     {% endif%}
     
     {%  if result.basicProperties['acdh:hasPrincipalInvestigator'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasPrincipalInvestigator'], 'icon': "perm_identity", 'label': "Principal Investigator"  } ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasPrincipalInvestigator'], 'icon': "perm_identity", 'label': "Principal Investigator"  } ) }}
     {% endif%}
     
     {%  if result.basicProperties['acdh:language'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:language'], 'icon': "flag", 'label': "Language" } ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:language'], 'icon': "flag", 'label': "Language" } ) }}
     {% endif%}
     
     {%  if result.basicProperties['acdh:hasStartDate'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasStartDate'], 'icon': "today", 'label': "Start date" } ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasStartDate'], 'icon': "today", 'label': "Start date" } ) }}
     {% endif%}
     
     {%  if result.basicProperties['acdh:hasEndDate'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasEndDate'], 'icon': "today", 'label': "End date" } ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasEndDate'], 'icon': "today", 'label': "End date" } ) }}
     {% endif%}
     
     {%  if result.basicProperties['acdh:hasLifeCycleStatus'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasLifeCycleStatus'], 'icon': "history", 'label': "Life Cycle Status" } ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasLifeCycleStatus'], 'icon': "history", 'label': "Life Cycle Status" } ) }}
     {% endif%}
 
     {% if result.extendedProperties %}
         <h3 class="single-res-heading">{{"Further Information"|trans }}</h3>
         
         {%  if result.extendedProperties['acdh:hasRelatedDiscipline'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasRelatedDiscipline'], 'icon': "", 'label': "Related Discipline" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasRelatedDiscipline'], 'icon': "", 'label': "Related Discipline" } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasSubject'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasSubject'], 'icon': "", 'label': "Subject" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasSubject'], 'icon': "", 'label': "Subject" } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasActor'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasActor'], 'icon': "", 'label': "Actor" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasActor'], 'icon': "", 'label': "Actor" } ) }}
         {% endif%}
         
         
         {%  if result.extendedProperties['acdh:hasSpatialCoverage '] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasSpatialCoverage'], 'icon': "", 'label': "Spatial Coverage" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasSpatialCoverage'], 'icon': "", 'label': "Spatial Coverage" } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasTemporalCoverage'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasTemporalCoverage'], 'icon': "", 'label': "Temporal Coverage" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasTemporalCoverage'], 'icon': "", 'label': "Temporal Coverage" } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasCoverageStartDate'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCoverageStartDate'], 'icon': "", 'label': "Coverage Start Date",'dateformat': 'Y' } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCoverageStartDate'], 'icon': "", 'label': "Coverage Start Date",'dateformat': 'Y' } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasCoverageEndDate'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCoverageEndDate'], 'icon': "", 'label': "Coverage End Date", 'dateformat': 'Y' } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCoverageEndDate'], 'icon': "", 'label': "Coverage End Date", 'dateformat': 'Y' } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasAppliedMethod'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasAppliedMethod'], 'icon': "", 'label': "Applied Method" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasAppliedMethod'], 'icon': "", 'label': "Applied Method" } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasAppliedMethodDescription'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasAppliedMethodDescription'], 'icon': "", 'label': "Applied Method Description" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasAppliedMethodDescription'], 'icon': "", 'label': "Applied Method Description" } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasTechnicalInfo'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasTechnicalInfo'], 'icon': "", 'label': "Technical Info" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasTechnicalInfo'], 'icon': "", 'label': "Technical Info" } ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasEditorialPractice'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasEditorialPractice'], 'icon': "", 'label': "Editorial Practice" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasEditorialPractice'], 'icon': "", 'label': "Editorial Practice" } ) }}
         {% endif%}
         
         
         {%  if result.extendedProperties['acdh:hasNote'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasNote'], 'icon': "", 'label': "Note" } ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasNote'], 'icon': "", 'label': "Note" } ) }}
         {% endif%}
     
         

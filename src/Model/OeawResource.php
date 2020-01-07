@@ -24,6 +24,7 @@ class OeawResource
     private $type = "";
     private $typeUri = "";
     private $imageUrl = "";
+    private $imageThumbUrl = "";
     private $availableDate = "";
     private $highlighting = array();
     private $accessRestriction = 'public';
@@ -44,12 +45,6 @@ class OeawResource
      */
     public function __construct(\ArrayObject $arrayObj, $cfg = null, string $lng = "en")
     {
-        if ($cfg == null) {
-            \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-        } else {
-            \acdhOeaw\util\RepoConfig::init($cfg);
-        }
-        
         $this->lng = $lng;
         
         if (is_object($arrayObj) || !empty($arrayObj)) {
@@ -65,6 +60,7 @@ class OeawResource
                 ($objIterator->key() == "type") ? $this->type = $objIterator->current() :  null;
                 ($objIterator->key() == "typeUri") ? $this->typeUri = $objIterator->current() :  null;
                 ($objIterator->key() == "imageUrl") ? $this->imageUrl = $objIterator->current() : null ;
+                ($objIterator->key() == "imageThumbUrl") ? $this->imageThumbUrl = $objIterator->current() : null ;
                 ($objIterator->key() == "availableDate") ? $this->availableDate = $objIterator->current() : null ;
                 ($objIterator->key() == "accessRestriction") ? $this->accessRestriction = $objIterator->current() : 'public' ;
                 ($objIterator->key() == "highlighting") ? $this->highlighting = $objIterator->current() : null ;
@@ -196,6 +192,11 @@ class OeawResource
     public function getImageUrl(): string
     {
         return $this->imageUrl;
+    }
+    
+    public function getImageThumbUrl(): string
+    {
+        return $this->imageThumbUrl;
     }
     
     public function getPID(): string

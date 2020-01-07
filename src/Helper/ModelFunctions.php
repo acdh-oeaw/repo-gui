@@ -8,9 +8,7 @@ use EasyRdf\Sparql\Result;
 class ModelFunctions
 {
     public function __construct()
-    {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-    }
+    {}
     
     //the date formats for the formatting possibilities
     private $dateFormats = array(

@@ -42,8 +42,6 @@ class OeawStorage implements OeawStorageInterface
      */
     public function __construct($cfg = null)
     {
-        \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/oeaw/config.ini');
-                
         $this->oeawFunctions = new OeawFunctions();
         $this->modelFunctions = new MF();
         $this->fedora = new Fedora();

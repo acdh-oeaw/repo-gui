@@ -5,7 +5,7 @@
         <div class="res-property">
             <span class="res-title">
                  {%  if result.getAccessRestriction() %}
-                    {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
+                    {{ include('/modules/custom/oeaw/templates/accesRestrictionFormat.html.twig', {'data': result.getAccessRestriction()|lower } ) }}
                 {% endif%}
                 {{ result.getTitle() }}
             </span>
@@ -23,48 +23,48 @@
     {% endif%}	
     
     {%  if result.getNonAcdhIdentifiers() %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.getNonAcdhIdentifiers(), 'icon': "copyright", 'label': "Identifier(s)" } ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.getNonAcdhIdentifiers(), 'icon': "copyright", 'label': "Identifier(s)" } ) }}
     {% endif%}
     
     {%  if result.basicProperties['acdh:isMemberOf'] %}
-        {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:isMemberOf'], 'icon': "account_balance", 'label': "is Member Of"} ) }}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:isMemberOf'], 'icon': "account_balance", 'label': "is Member Of"} ) }}
     {% endif%}
     
     {% if result.extendedProperties %}
         <h3 class="single-res-heading">{{ "Contact Details"|trans }}</h3>
         
         {% if result.extendedProperties['acdh:hasCountry'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCountry'], 'icon': "subtitles", 'label': "Country"} ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCountry'], 'icon': "subtitles", 'label': "Country"} ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasRegion'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasRegion'], 'icon': "subtitles", 'label': "Region"} ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasRegion'], 'icon': "subtitles", 'label': "Region"} ) }}
         {% endif%}
 
         {%  if result.extendedProperties['acdh:hasCity'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCity'], 'icon': "subtitles", 'label': "City"} ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasCity'], 'icon': "subtitles", 'label': "City"} ) }}
         {% endif%}
 
 
         {%  if result.extendedProperties['acdh:Postcode'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:Postcode'], 'icon': "subtitles", 'label': "Postcode"} ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:Postcode'], 'icon': "subtitles", 'label': "Postcode"} ) }}
         {% endif%}
 
         {%  if result.extendedProperties['acdh:hasAddressLine1'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasAddressLine1'], 'icon': "subtitles", 'label': "Address"} ) }}            
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasAddressLine1'], 'icon': "subtitles", 'label': "Address"} ) }}            
         {% endif%}
 
         {%  if result.extendedProperties['acdh:hasAddressLine2'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasAddressLine2'], 'icon': "subtitles", 'label': "Address"} ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasAddressLine2'], 'icon': "subtitles", 'label': "Address"} ) }}
         {% endif%}
         
         
         {%  if result.extendedProperties['acdh:hasEmail'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasEmail'], 'icon': "subtitles", 'label': "Email"} ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasEmail'], 'icon': "subtitles", 'label': "Email"} ) }}
         {% endif%}
         
         {%  if result.extendedProperties['acdh:hasUrl'] %}
-            {{ include('/modules/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasUrl'], 'icon': "subtitles", 'label': "Url"} ) }}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasUrl'], 'icon': "subtitles", 'label': "Url"} ) }}
         {% endif%}
     
         

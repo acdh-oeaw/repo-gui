@@ -48,13 +48,13 @@
         
         <div class="res-el col-block col-lg-12">
 		
-            {% if item.imageUrl %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  		
+            {% if item.imageUrl  or item.imageThumbUrl  %}<div class="res-inside-wrap col-lg-6 ">{% endif%}  		
 
             {% if item.title %}
                 <div class="res-property">
                     <span class="res-title">
                         {%  if item.accessRestriction %}
-                            {{ include('/modules/oeaw/templates/accesRestrictionFormat.html.twig', {'data': item.accessRestriction|lower } ) }}
+                            {{ include('/modules/custom/oeaw/templates/accesRestrictionFormat.html.twig', {'data': item.accessRestriction|lower } ) }}
                         {% endif%}
                         <a href="/browser/oeaw_detail/{{ item.insideUri }}">{{ item.title }}</a>
                     </span>
@@ -138,12 +138,16 @@
                 
             </div>	
 
-            {% if item.imageUrl %}</div>{% endif%}
+            {% if item.imageUrl  or item.imageThumbUrl  %}</div>{% endif%}
 
-            {% if item.imageUrl %}	
+            {% if item.imageUrl  or item.imageThumbUrl %}	
                 <div class="res-inside-wrap col-lg-6 ">	
                     <div class="single-res-thumb">
-                        <a href="/browser/oeaw_detail/{{ item.insideUri }}"><img src="{{ item.imageUrl }}"></a>
+                        {% if item.imageThumbUrl %}
+                            <a href="/browser/oeaw_detail/{{ item.insideUri }}"><img src="{{ item.imageThumbUrl }}"></a>
+                        {% else %}
+                            <a href="/browser/oeaw_detail/{{ item.insideUri }}"><img src="{{ item.imageUrl }}"></a>
+                        {% endif %}      
                     </div>
                 </div>
             {% endif%}            

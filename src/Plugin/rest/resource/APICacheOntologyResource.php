@@ -18,8 +18,6 @@ use Drupal\rest\ResourceResponse;
  */
 class APICacheOntologyResource extends ResourceBase
 {
-    
-    
     /**
     * Responds to entity GET requests.
      *
