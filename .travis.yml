@@ -84,7 +84,7 @@ install:
 before_script:  
   # Allow MySQL to finish starting.
   - sleep 3
-  #- cd $HOME/build/devility11/commit-remove/ && ls
+  
   # This fixes a fail when install Drupal.
   - echo 'sendmail_path = /bin/true' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
 
@@ -115,9 +115,9 @@ script:
 
   # PHP Unit Tests  
   - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/Model/OeawResourceChildrenTest.php
-  - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/Model/OeawResourceCustomDataTest.php
-  - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/Model/OeawResourceTest.php
-  - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/OeawFunctionsTest.php
+#  - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/Model/OeawResourceCustomDataTest.php
+#  - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/Model/OeawResourceTest.php
+#  - $HOME/.composer/vendor/bin/phpunit -c core/phpunit.xml.dist modules/oeaw/tests/src/Unit/OeawFunctionsTest.php
   
   ##run php documentor
   - php $TRAVIS_BUILD_DIR/drupal/modules/oeaw/phpdoc/phpDocumentor.phar -d $TRAVIS_BUILD_DIR/drupal/modules/oeaw -t $TRAVIS_BUILD_DIR/drupal/modules/oeaw/docs/ --ignore $TRAVIS_BUILD_DIR/drupal/modules/oeaw/docs/*, $TRAVIS_BUILD_DIR/drupal/modules/oeaw/phpdocs/*
