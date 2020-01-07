@@ -214,7 +214,7 @@ class ComplexSearchViewHelper
                     }
                     $arrayObject->offsetSet('table', $tblArray);
                     try {
-                        $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, null, $this->siteLang);
+                        $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, $this->siteLang);
                         $this->results[] = $obj;
                     } catch (ErrorException $ex) {
                         //throw new \ErrorException(t('Error').':'.__FUNCTION__, 'error');

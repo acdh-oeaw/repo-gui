@@ -133,7 +133,7 @@ class RootViewHelper
             $arrayObject->offsetSet('table', $tblArray);
 
             try {
-                $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, null, $this->siteLang);
+                $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, $this->siteLang);
                 $result[] = $obj;
             } catch (\ErrorException $ex) {
                 throw new \ErrorException(t('Error message').':  FrontendController -> OeawResource Exception ');
