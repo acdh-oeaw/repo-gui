@@ -40,7 +40,7 @@ class OeawFunctions
     public function __construct($cfg = null)
     {
         $this->langConf = \Drupal::config('oeaw.settings');
-        if(!$cfg) {
+        if (!$cfg) {
             \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
         }
     }
@@ -944,9 +944,9 @@ class OeawFunctions
             }
             
             //$widget["MLA"]["hasPrincipalInvestigator"] = substr(rtrim($widget["MLA"]["hasPrincipalInvestigator"]), 0, -1);
-            if(isset($widget["MLA"]["hasPrincipalInvestigator"]) && !empty(trim($widget["MLA"]["hasPrincipalInvestigator"]))) {
+            if (isset($widget["MLA"]["hasPrincipalInvestigator"]) && !empty(trim($widget["MLA"]["hasPrincipalInvestigator"]))) {
                 //if the last char is the , then we need to remove it
-                if(substr(trim($widget["MLA"]["hasPrincipalInvestigator"]), -1) == ",") {
+                if (substr(trim($widget["MLA"]["hasPrincipalInvestigator"]), -1) == ",") {
                     $widget["MLA"]["hasPrincipalInvestigator"] = trim($widget["MLA"]["hasPrincipalInvestigator"]);
                     $widget["MLA"]["hasPrincipalInvestigator"] = rtrim($widget["MLA"]["hasPrincipalInvestigator"], ",");
                 }
@@ -954,7 +954,7 @@ class OeawFunctions
             }
         }
         
-        if(substr(trim($widget["MLA"]["string"]), -1) == ",") {
+        if (substr(trim($widget["MLA"]["string"]), -1) == ",") {
             $widget["MLA"]["string"] = trim($widget["MLA"]["string"]);
             $widget["MLA"]["string"] = rtrim($widget["MLA"]["string"], ",");
             $widget["MLA"]["string"] .= '. ';

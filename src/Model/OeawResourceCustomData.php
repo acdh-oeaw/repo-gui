@@ -40,7 +40,7 @@ class OeawResourceCustomData
      */
     public function __construct(\ArrayObject $arrayObj, string $lang = "en", bool $test = false)
     {
-        if($test === true) {
+        if ($test === true) {
             \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
         }
         if (is_object($arrayObj) || !empty($arrayObj)) {

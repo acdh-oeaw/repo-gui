@@ -10,7 +10,8 @@ use acdhOeaw\util\RepoConfig as RC;
 class HelperFunctions
 {
     public function __construct()
-    {}
+    {
+    }
     
     public static function getAcdhIdentifier(array $identifiers): string
     {
@@ -365,18 +366,19 @@ class HelperFunctions
     
     /**
      * Create the thumbnail url based on the acdh uuid
-     * 
+     *
      * @param string $data
      * @param int $width
      * @param int $height
      * @return string
      */
-    public static function createThumbnailUrl(string $data, int $width = 150, int $height = 0): string {
+    public static function createThumbnailUrl(string $data, int $width = 150, int $height = 0): string
+    {
         $result = "";
         if (strpos($data, '/uuid/') !== false) {
             $baseurl = str_replace('/browser', '/services/thumbnails/', RC::get('guiBaseUrl'));
             $thumbOptions = '?width='.$width;
-            if($height > 0) {
+            if ($height > 0) {
                 $thumbOptions .= '&height='.$height;
             }
             $thumbID = str_replace(RC::get('fedoraUuidNamespace'), 'uuid/', $data);

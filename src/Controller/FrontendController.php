@@ -57,7 +57,7 @@ class FrontendController extends ControllerBase
      * Set up the necessary properties and config
      */
     public function __construct()
-    {   
+    {
         $this->langConf = $this->config('oeaw.settings');
         $this->userid = \Drupal::currentUser()->id();
         $this->oeawFunctions = new OeawFunctions();

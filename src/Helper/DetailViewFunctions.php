@@ -149,7 +149,7 @@ class DetailViewFunctions
      * @param string $propertyShortcut
      */
     private function formatResourceValues(array $data, string $p, string $propertyShortcut)
-    {        
+    {
         foreach ($data as $d) {
             //we will skip the title for the resource identifier
             if ($p != RC::idProp()) {
@@ -190,7 +190,7 @@ class DetailViewFunctions
             
             //simply check the acdh:hasTitleImage for the root resources too.
             if ($p == RC::get('drupalHasTitleImage')) {
-                $imgUrl = "";                
+                $imgUrl = "";
                 $imgUrl = $this->oeawStorage->getImageByIdentifier($d->getUri());
                 if ($imgUrl) {
                     $this->dvResult['image'] = $imgUrl;

@@ -47,7 +47,7 @@ class OeawResource
     {
         $this->lng = $lng;
         
-        if($test === true) {
+        if ($test === true) {
             \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
         }
         

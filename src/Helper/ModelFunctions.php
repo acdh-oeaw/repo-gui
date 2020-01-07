@@ -8,7 +8,8 @@ use EasyRdf\Sparql\Result;
 class ModelFunctions
 {
     public function __construct()
-    {}
+    {
+    }
     
     //the date formats for the formatting possibilities
     private $dateFormats = array(
