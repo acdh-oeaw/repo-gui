@@ -45,7 +45,7 @@ class OeawFunctionsTest extends UnitTestCase
         $this->container->set('config.factory', $this->configFactory);
         \Drupal::setContainer($this->container);
         \Drupal::config('oeaw.settings');
-        $this->oeawFunctions = new \Drupal\oeaw\OeawFunctions($this->cfgDir);
+        $this->oeawFunctions = new \Drupal\oeaw\OeawFunctions();
     }
     
     
