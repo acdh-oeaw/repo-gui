@@ -27,7 +27,8 @@ class OeawResourceChildren
      * @throws \ErrorException
      */
     public function __construct(\ArrayObject $arrayObj)
-    {
+    {        
+        
         if (is_object($arrayObj) || !empty($arrayObj)) {
             $objIterator = $arrayObj->getIterator();
             
