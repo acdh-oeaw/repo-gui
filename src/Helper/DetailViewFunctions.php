@@ -430,7 +430,7 @@ class DetailViewFunctions
             
             try {
                 //get the obj
-                $obj = new \Drupal\oeaw\Model\OeawResourceCustomData($arrayObject, null, $lang);
+                $obj = new \Drupal\oeaw\Model\OeawResourceCustomData($arrayObject, $lang);
                 $obj->setupBasicExtendedData($data);
             } catch (\ErrorException $ex) {
                 throw new \ErrorException($ex->getMessage());

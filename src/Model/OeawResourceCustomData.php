@@ -41,8 +41,14 @@ class OeawResourceCustomData
     public function __construct(\ArrayObject $arrayObj, $cfg = null, string $lang = "en")
     {
         if (!$cfg) {
-            \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
+            if(file_exists($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini')) {
+                \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
+            }
+            if(file_exists( $_SERVER['TRAVIS_BUILD_DIR']."/drupal/modules/oeaw/config.unittest.ini")) {
+                \acdhOeaw\util\RepoConfig::init( $_SERVER['TRAVIS_BUILD_DIR']."/drupal/modules/oeaw/config.unittest.ini");
+            }
         }
+        
         if (is_object($arrayObj) || !empty($arrayObj)) {
             $objIterator = $arrayObj->getIterator();
             while ($objIterator->valid()) {
