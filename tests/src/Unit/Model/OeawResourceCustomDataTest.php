@@ -71,7 +71,7 @@ class OeawResourceCustomDataTest extends UnitTestCase
     
     public function testInitialization() : \Drupal\oeaw\Model\OeawResourceCustomData
     {
-        $obj = new \Drupal\oeaw\Model\OeawResourceCustomData(self::$arrayObject, "en", true);
+        $obj = new \Drupal\oeaw\Model\OeawResourceCustomData(self::$arrayObject, null, "en");
         $this->assertInstanceOf(\Drupal\oeaw\Model\OeawResourceCustomData::class, $obj);
         return $obj;
     }

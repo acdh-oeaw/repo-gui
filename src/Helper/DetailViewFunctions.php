@@ -388,7 +388,7 @@ class DetailViewFunctions
         }
         
         try {
-            $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, $lang);
+            $obj = new \Drupal\oeaw\Model\OeawResource($arrayObject, null, $lang);
         } catch (ErrorException $ex) {
             throw new \ErrorException(t('Init').' '.t('Error').' : OeawResource', 0);
         }
@@ -430,7 +430,7 @@ class DetailViewFunctions
             
             try {
                 //get the obj
-                $obj = new \Drupal\oeaw\Model\OeawResourceCustomData($arrayObject, $lang);
+                $obj = new \Drupal\oeaw\Model\OeawResourceCustomData($arrayObject, null, $lang);
                 $obj->setupBasicExtendedData($data);
             } catch (\ErrorException $ex) {
                 throw new \ErrorException($ex->getMessage());
