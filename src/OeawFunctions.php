@@ -40,11 +40,11 @@ class OeawFunctions
     public function __construct($cfg = null)
     {
         $this->langConf = \Drupal::config('oeaw.settings');
-        if (!$cfg) {
-            if(file_exists($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini')) {
-                \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
-            }else if(isset($_SERVER['TRAVIS_BUILD_DIR']) && file_exists( $_SERVER['TRAVIS_BUILD_DIR']."/drupal/modules/oeaw/config.unittest.ini")) {
+        if ($cfg === null) {
+            if(isset($_SERVER['TRAVIS_BUILD_DIR']) && file_exists( $_SERVER['TRAVIS_BUILD_DIR']."/drupal/modules/oeaw/config.unittest.ini")) {
                 \acdhOeaw\util\RepoConfig::init( $_SERVER['TRAVIS_BUILD_DIR']."/drupal/modules/oeaw/config.unittest.ini");
+            }else if(file_exists($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini')) {
+                \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
             }
         }
     }

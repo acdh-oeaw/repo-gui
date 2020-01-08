@@ -73,17 +73,6 @@ class OeawFunctionsTest extends UnitTestCase
         $this->assertArrayHasKey('identifier', $data);
         $this->assertEmpty($data['identifier'], 'this is empty!');
     }
-    /*
-    public function testInitFedora()
-    {
-     //   $fd = $this->oeawFunctions->initFedora();
-    }
-     *
-     */
 }
-    
-
-
-
 
 //$this->expectException(\ErrorException::class);
