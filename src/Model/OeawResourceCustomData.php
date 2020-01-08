@@ -41,7 +41,7 @@ class OeawResourceCustomData
     public function __construct(\ArrayObject $arrayObj, $cfg = null, string $lang = "en")
     {
         if (!$cfg) {
-            if(file_exists($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini')) {
+            if (file_exists($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini')) {
                 \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
             }
             if(isset($_SERVER['TRAVIS_BUILD_DIR']) && file_exists( $_SERVER['TRAVIS_BUILD_DIR']."/drupal/modules/oeaw/config.unittest.ini")) {
