@@ -258,7 +258,7 @@ class OeawFunctions
                             $service->getId();
                             //the url dissemination return shortname (raw/gui), to we can identify them
                             $sUri = $service->getFormats();
-                            $key = strtolower(substr( $service->getUri(), strrpos( $service->getUri(), '/') + 1));
+                            $key = strtolower(substr($service->getUri(), strrpos($service->getUri(), '/') + 1));
                             $servUri = "";
                             //make a nice url to remove the https:// tags from the url
                             //because of the acdh identifier should appears there
@@ -295,10 +295,10 @@ class OeawFunctions
                             //merge the available diss.serv and the guiUrls
                             foreach ($titles as $key => $val) {
                                 //get the fedora dissemination service key from the database
-                                $fedoraDKey = strtolower(substr( $val['uri'], strrpos( $val['uri'], '/') + 1)) ? strtolower(substr( $val['uri'], strrpos( $val['uri'], '/') + 1)) : "";
+                                $fedoraDKey = strtolower(substr($val['uri'], strrpos($val['uri'], '/') + 1)) ? strtolower(substr($val['uri'], strrpos($val['uri'], '/') + 1)) : "";
                                 if (!empty($guiUrls[$fedoraDKey])) {
                                     //compare/merge dissemination and fedora data
-                                    if(isset($guiUrls[$fedoraDKey]['guiUrl']) && !empty($guiUrls[$fedoraDKey]['guiUrl'])){
+                                    if (isset($guiUrls[$fedoraDKey]['guiUrl']) && !empty($guiUrls[$fedoraDKey]['guiUrl'])) {
                                         $result[$key] = $val;
                                         $result[$key]['guiUrl'] = $guiUrls[$fedoraDKey]['guiUrl'];
                                         if ($val['returnType'] == "rdf") {
