@@ -181,6 +181,30 @@ class ComplexSearchViewHelper
                     }
                     if (isset($r['accessRestriction']) && !empty($r['accessRestriction'])) {
                         $arrayObject->offsetSet('accessRestriction', $r['accessRestriction']);
+                        
+                        if (strpos($r['accessRestriction'], '/public') !== false) {
+                            //check the title or normal image
+                            
+                            if (isset($r['image']) && !empty($r['image'])) {
+                                $arrayObject->offsetSet('imageUrl', $r['image']);
+                            } elseif (isset($r['hasTitleImage']) && !empty($r['hasTitleImage'])) {
+                                $imageUrl = $this->oeawStorage->getImageByIdentifier($r['hasTitleImage']);
+                                if ($imageUrl) {
+                                    $arrayObject->offsetSet('imageUrl', $imageUrl);
+                                    //setup the thumbnail services
+                                    (!empty(HF::createThumbnailUrl($r['hasTitleImage']))) ? $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($r['hasTitleImage'])) : "";
+                                }
+                            }
+                            //if the thumbnail is available
+                            if (strpos(strtolower($r['acdhType']), 'image') !== false) {
+                                $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($resourceIdentifier));
+                            }else if (
+                                isset($r['category']) 
+                                    &&
+                                strpos(strtolower($r['category']), 'image') !== false) {
+                                $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($resourceIdentifier));
+                            }
+                        }
                     }
                     
                     if (isset($r['label']) && !empty($r['label'])) {
@@ -196,18 +220,7 @@ class ComplexSearchViewHelper
                     if (count($tblArray) == 0) {
                         $tblArray['title'] = $r['title'];
                     }
-                    if (isset($r['image']) && !empty($r['image'])) {
-                        $arrayObject->offsetSet('imageUrl', $r['image']);
-                    } elseif (isset($r['hasTitleImage']) && !empty($r['hasTitleImage'])) {
-                        $imageUrl = $this->oeawStorage->getImageByIdentifier($r['hasTitleImage']);
-                        if ($imageUrl) {
-                            $arrayObject->offsetSet('imageUrl', $imageUrl);
-                        }
-                    }
                     
-                    if (strpos(strtolower($r['acdhType']), 'image') !== false) {
-                        $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($resourceIdentifier));
-                    }
 
                     if (isset($r['description']) && !empty($r['description'])) {
                         $tblArray['description'] = $r['description'];

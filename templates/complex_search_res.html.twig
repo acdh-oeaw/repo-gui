@@ -144,15 +144,14 @@
                 <div class="res-inside-wrap col-lg-6 ">	
                     <div class="single-res-thumb">
                         {% if item.imageThumbUrl %}
-                            <a href="/browser/oeaw_detail/{{ item.insideUri }}"><img src="{{ item.imageThumbUrl }}"></a>
+                            <a data-lightbox="{{ item.title }}" href="{{ item.imageThumbUrl }}"><img src="{{ item.imageThumbUrl }}"></a>
                         {% else %}
                             <a href="/browser/oeaw_detail/{{ item.insideUri }}"><img src="{{ item.imageUrl }}"></a>
                         {% endif %}      
                     </div>
                 </div>
-            {% endif%}            
-  
-            	                                        
+            {% endif%}
+            
         </div>
     {% endfor %} 
 

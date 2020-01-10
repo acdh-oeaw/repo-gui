@@ -150,13 +150,14 @@ class DetailViewFunctions
      */
     private function formatResourceValues(array $data, string $p, string $propertyShortcut)
     {
+        
         foreach ($data as $d) {
             //we will skip the title for the resource identifier
             if ($p != RC::idProp()) {
                 //this will be the proper
                 $this->searchTitle[] = $d->getUri();
             }
-            
+          
             $classUri = $d->getUri();
             if ($p == RC::get("drupalRdfType")) {
                 if ((strpos($d->__toString(), 'vocabs.acdh.oeaw.ac.at') !== false)
@@ -190,6 +191,7 @@ class DetailViewFunctions
             
             //simply check the acdh:hasTitleImage for the root resources too.
             if ($p == RC::get('drupalHasTitleImage')) {
+                echo "here title";
                 $imgUrl = "";
                 $imgUrl = $this->oeawStorage->getImageByIdentifier($d->getUri());
                 if ($imgUrl) {
@@ -373,18 +375,25 @@ class DetailViewFunctions
         $arrayObject->offsetSet('identifiers', $rsId);
         if (isset($this->dvResult['table']['acdh:hasAccessRestriction']) && !empty($this->dvResult['table']['acdh:hasAccessRestriction'][0])) {
             $arrayObject->offsetSet('accessRestriction', $this->dvResult['table']['acdh:hasAccessRestriction'][0]);
+            
+            if (strpos( $this->dvResult['table']['acdh:hasAccessRestriction'][0]['uri'], '/public') !== false) {
+                if (isset($this->dvResult['imageThumbUrl'])) {
+                    $arrayObject->offsetSet('imageThumbUrl', $this->dvResult['imageThumbUrl']);
+                }
+
+                if (strpos(strtolower($this->dvResult['acdh_rdf:type']['title']), 'image') !== false) {
+                    $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
+                }else if (
+                    isset($this->dvResult['table']['acdh:hasCategory'][0]['title']) 
+                        &&
+                    strpos(strtolower($this->dvResult['table']['acdh:hasCategory'][0]['title']), 'image') !== false) {
+                    $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
+                }
+            }
         }
         $arrayObject->offsetSet('insideUri', $this->oeawFunctions->detailViewUrlDecodeEncode($this->dvResult['uuid'], 1));
         if (isset($this->dvResult['image'])) {
             $arrayObject->offsetSet('imageUrl', $this->dvResult['image']);
-        }
-        
-        if (isset($this->dvResult['imageThumbUrl'])) {
-            $arrayObject->offsetSet('imageThumbUrl', $this->dvResult['imageThumbUrl']);
-        }
-        
-        if (strpos(strtolower($this->dvResult['acdh_rdf:type']['title']), 'image') !== false) {
-            $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
         }
         
         try {
@@ -551,7 +560,7 @@ class DetailViewFunctions
                 }
             }
         }
-        
+       
         //generate the NiceUri to the detail View
         $niceUri = "";
         $niceUri = HF::generateNiceUri($resultsObj);

@@ -101,7 +101,21 @@ class RootViewHelper
             $arrayObject->offsetSet('type', str_replace(RC::get('fedoraVocabsNamespace'), '', $value['acdhType']));
             $arrayObject->offsetSet('typeUri', $value['acdhType']);
             $arrayObject->offsetSet('availableDate', $value['availableDate']);
-            $arrayObject->offsetSet('accessRestriction', $value['accessRestriction']);
+            
+            if (isset($value['accessRestriction']) && !empty($value['accessRestriction'])) {
+                $arrayObject->offsetSet('accessRestriction', $value['accessRestriction']);
+                if (strpos($value['accessRestriction'], '/public') !== false) {
+                    if (isset($value['image']) && !empty($value['image'])) {
+                        $arrayObject->offsetSet('imageUrl', $value['image']);
+                    } elseif (isset($value['hasTitleImage']) && !empty($value['hasTitleImage'])) {
+                        $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($value['hasTitleImage']));
+                        $imageUrl = $this->oeawStorage->getImageByIdentifier($value['hasTitleImage']);
+                        if ($imageUrl) {
+                            $arrayObject->offsetSet('imageUrl', $imageUrl);
+                        }
+                    }
+                }
+            }
 
             if (isset($value['contributor']) && !empty($value['contributor'])) {
                 $contrArr = explode(',', $value['contributor']);
@@ -112,15 +126,7 @@ class RootViewHelper
                 $tblArray['authors'] = $this->oeawFunctions->createContribAuthorData($authArr);
             }
 
-            if (isset($value['image']) && !empty($value['image'])) {
-                $arrayObject->offsetSet('imageUrl', $value['image']);
-            } elseif (isset($value['hasTitleImage']) && !empty($value['hasTitleImage'])) {
-                $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($value['hasTitleImage']));
-                $imageUrl = $this->oeawStorage->getImageByIdentifier($value['hasTitleImage']);
-                if ($imageUrl) {
-                    $arrayObject->offsetSet('imageUrl', $imageUrl);
-                }
-            }
+            
 
             if (isset($value['description']) && !empty($value['description'])) {
                 $tblArray['description'] = $value['description'];

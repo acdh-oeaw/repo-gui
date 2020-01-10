@@ -273,7 +273,7 @@ class ComplexSearchViewModel
         if ($count == true) {
             $select = "SELECT (COUNT( DISTINCT ?uri) as ?count) ";
         } else {
-            $select = 'SELECT DISTINCT ?uri ?title ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction 
+            $select = 'SELECT DISTINCT ?uri ?title ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction ?category
                 (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
                 (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) 
                 (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
@@ -308,7 +308,6 @@ class ComplexSearchViewModel
                 }
             }
         }
-        
         
         //check the rdf types from the query
         if (isset($data["type"])) {
@@ -397,11 +396,13 @@ class ComplexSearchViewModel
                    . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") .  ';
         $query .= "
         OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
-        OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
+        OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . } 
+        OPTIONAL{ ?uri <".RC::get('fedoraVocabsNamespace')."hasCategory> ?category . } ";
+        
         $query .= " OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
         $groupby = "";
         if ($count === false) {
-            $groupby = "GROUP BY ?title ?uri ?label ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
+            $groupby = "GROUP BY ?title ?uri ?label ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ?category ORDER BY " . $order;
         }
         $query = $prefix.$select." Where { ".$conditions." ".$query." } ".$groupby;
         if ($limit) {
