@@ -198,8 +198,8 @@ class ComplexSearchViewHelper
                             //if the thumbnail is available
                             if (strpos(strtolower($r['acdhType']), 'image') !== false) {
                                 $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($resourceIdentifier));
-                            }else if (
-                                isset($r['category']) 
+                            } elseif (
+                                isset($r['category'])
                                     &&
                                 strpos(strtolower($r['category']), 'image') !== false) {
                                 $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($resourceIdentifier));

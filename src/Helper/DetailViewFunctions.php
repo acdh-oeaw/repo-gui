@@ -150,7 +150,6 @@ class DetailViewFunctions
      */
     private function formatResourceValues(array $data, string $p, string $propertyShortcut)
     {
-        
         foreach ($data as $d) {
             //we will skip the title for the resource identifier
             if ($p != RC::idProp()) {
@@ -376,15 +375,15 @@ class DetailViewFunctions
         if (isset($this->dvResult['table']['acdh:hasAccessRestriction']) && !empty($this->dvResult['table']['acdh:hasAccessRestriction'][0])) {
             $arrayObject->offsetSet('accessRestriction', $this->dvResult['table']['acdh:hasAccessRestriction'][0]);
             
-            if (strpos( $this->dvResult['table']['acdh:hasAccessRestriction'][0]['uri'], '/public') !== false) {
+            if (strpos($this->dvResult['table']['acdh:hasAccessRestriction'][0]['uri'], '/public') !== false) {
                 if (isset($this->dvResult['imageThumbUrl'])) {
                     $arrayObject->offsetSet('imageThumbUrl', $this->dvResult['imageThumbUrl']);
                 }
 
                 if (strpos(strtolower($this->dvResult['acdh_rdf:type']['title']), 'image') !== false) {
                     $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
-                }else if (
-                    isset($this->dvResult['table']['acdh:hasCategory'][0]['title']) 
+                } elseif (
+                    isset($this->dvResult['table']['acdh:hasCategory'][0]['title'])
                         &&
                     strpos(strtolower($this->dvResult['table']['acdh:hasCategory'][0]['title']), 'image') !== false) {
                     $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
