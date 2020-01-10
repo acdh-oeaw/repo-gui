@@ -248,6 +248,7 @@ class OeawFunctions
                     $i = 0;
                     $fedora = $this->initFedora();
                     foreach ($dissServ as $service) {
+                        
                         //get the acdh identifiers for the dissemination services
                         if (!in_array($id, $processed)) {
                             $key = "";
@@ -257,7 +258,7 @@ class OeawFunctions
                             $service->getId();
                             //the url dissemination return shortname (raw/gui), to we can identify them
                             $sUri = $service->getFormats();
-                            $key = $sUri[0]->format;
+                            $key = strtolower(substr( $service->getUri(), strrpos( $service->getUri(), '/') + 1));
                             $servUri = "";
                             //make a nice url to remove the https:// tags from the url
                             //because of the acdh identifier should appears there
@@ -273,11 +274,14 @@ class OeawFunctions
                                     $servUri = str_replace('/fcr:metadata', '', $servUri);
                                 }
                                 //add to the guiurl array
-                                $guiUrls[$key] = $servUri;
+                                $guiUrls[$key]['guiUrl'] = $servUri;
+                                $guiUrls[$key]['id'] = $service->getId();
+                                $guiUrls[$key]['url'] = $service->getUri();
                             }
                             $i++;
                         }
                     }
+
                     if (count($processed) > 0) {
                         $oeawStorage = new OeawStorage();
                         //get the titles
@@ -286,15 +290,20 @@ class OeawFunctions
                         $titles = $oeawStorage->getTitleByIdentifierArray($processed, true);
                         //remove the duplicates
                         $titles = HF::removeDuplicateValuesFromMultiArrayByKey($titles, "title");
+                        
                         if (count($titles) > 0) {
                             //merge the available diss.serv and the guiUrls
                             foreach ($titles as $key => $val) {
-                                if (!empty($guiUrls[$val['returnType']])) {
-                                    $result[$key] = $val;
-                                    if ($val['returnType'] == "rdf") {
-                                        $result[$key]['guiUrl'] = $guiUrls[$val['returnType']].'/fcr:metadata';
-                                    } else {
-                                        $result[$key]['guiUrl'] = $guiUrls[$val['returnType']];
+                                //get the fedora dissemination service key from the database
+                                $fedoraDKey = strtolower(substr( $val['uri'], strrpos( $val['uri'], '/') + 1)) ? strtolower(substr( $val['uri'], strrpos( $val['uri'], '/') + 1)) : "";
+                                if (!empty($guiUrls[$fedoraDKey])) {
+                                    //compare/merge dissemination and fedora data
+                                    if(isset($guiUrls[$fedoraDKey]['guiUrl']) && !empty($guiUrls[$fedoraDKey]['guiUrl'])){
+                                        $result[$key] = $val;
+                                        $result[$key]['guiUrl'] = $guiUrls[$fedoraDKey]['guiUrl'];
+                                        if ($val['returnType'] == "rdf") {
+                                            $result[$key]['guiUrl'] =  $guiUrls[$fedoraDKey]['guiUrl'].'/fcr:metadata';
+                                        }
                                     }
                                 }
                             }
