@@ -190,7 +190,6 @@ class DetailViewFunctions
             
             //simply check the acdh:hasTitleImage for the root resources too.
             if ($p == RC::get('drupalHasTitleImage')) {
-                echo "here title";
                 $imgUrl = "";
                 $imgUrl = $this->oeawStorage->getImageByIdentifier($d->getUri());
                 if ($imgUrl) {
