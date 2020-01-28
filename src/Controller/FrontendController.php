@@ -113,7 +113,7 @@ class FrontendController extends ControllerBase
         
         //count the root elements
         $countRes = $this->rootViewHelper->countRoots();
-        if(isset($countRes[0]["count"])) {
+        if (isset($countRes[0]["count"])) {
             $countRes = $countRes[0]["count"];
         } else {
             $countRes = 0;
