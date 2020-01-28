@@ -1754,12 +1754,14 @@ class OeawStorage implements OeawStorageInterface
 
             $fields = $res->getFields();
             $result = $this->modelFunctions->createSparqlResult($res, $fields);
-            return $result[0]["time"];
+            if(isset($result[0]["time"])) {
+                return $result[0]["time"];
+            }
         } catch (\Exception $ex) {
-            return $result;
+            return "";
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            return $result;
+            return "";
         }
-        return $result;
+        return "";
     }
 }

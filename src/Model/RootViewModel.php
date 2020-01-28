@@ -99,10 +99,8 @@ class RootViewModel
             }
 
             $where .=" 
-                    filter not exists{ 
-                        SELECT  * WHERE {
-                            ?uri <https://vocabs.acdh.oeaw.ac.at/schema#isPartOf> ?y .
-                        }
+                    filter not exists { 
+                        ?uri <https://vocabs.acdh.oeaw.ac.at/schema#isPartOf> ?y .
                     }
                     ";
 

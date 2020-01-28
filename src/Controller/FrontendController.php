@@ -113,8 +113,12 @@ class FrontendController extends ControllerBase
         
         //count the root elements
         $countRes = $this->rootViewHelper->countRoots();
+        if(isset($countRes[0]["count"])) {
+            $countRes = $countRes[0]["count"];
+        } else {
+            $countRes = 0;
+        }
         
-        $countRes = $countRes[0]["count"];
         if ($countRes == 0) {
             drupal_set_message(
                 $this->langConf->get('errmsg_no_root_resources') ? $this->langConf->get('errmsg_no_root_resources') : 'You have no Root resources',
