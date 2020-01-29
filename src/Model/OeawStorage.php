@@ -612,11 +612,12 @@ class OeawStorage implements OeawStorageInterface
     
     /**
      * get the titleimage url and format
-     * 
+     *
      * @param string $string
      * @return array
      */
-    public function getTitleImageByidentifier(string $string): array {
+    public function getTitleImageByidentifier(string $string): array
+    {
         if (empty($string)) {
             return array();
         }
@@ -636,9 +637,8 @@ class OeawStorage implements OeawStorageInterface
             $fields = $res->getFields();
             $data = $this->modelFunctions->createSparqlResult($res, $fields);
             if (count($data) > 0) {
-                if(isset($data[0]['uri']) && !empty($data[0]['uri'])) {
-                    if(isset($data[0]['format']) && !empty($data[0]['format'])) {
-                        
+                if (isset($data[0]['uri']) && !empty($data[0]['uri'])) {
+                    if (isset($data[0]['format']) && !empty($data[0]['format'])) {
                         return array(
                             "uri" => $data[0]['uri'],
                             "format" => $data[0]['format']
