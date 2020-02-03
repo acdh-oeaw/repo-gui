@@ -354,4 +354,86 @@ class ApiModel
             return array();
         }
     }
+    
+    /**
+     * Count the actual main (root) collections
+     * 
+     * @return string
+     */
+    private function countMainCollections(): string {
+        $string = "";
+                
+        $select = 'SELECT (count(distinct ?uri) as ?collections) ';
+        $where = "WHERE { ";
+        $where .= "?uri rdf:type <".RC::get('drupalCollection')."> . ";
+        $where .= " FILTER NOT EXISTS  { ";
+            $where .= "?uri <".RC::get('fedoraRelProp')."> ?root . ";
+        $where .= " }";
+        $where .= " }";
+        
+        $string = $select.$where;
+        try {
+            $q = new SimpleQuery($string);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields();
+            $result = $this->modelFunctions->createSparqlResult($res, $fields);
+            if(isset($result[0]['collections'])) {
+                return $result[0]['collections'];
+            }             
+            return "";
+        } catch (\Exception $ex) {
+            return "";
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return "";
+        }
+    }
+    
+    /**
+     * Count the actual binaries in the fedora db
+     * 
+     * @return string
+     */
+    private function countBinaries(): string {
+        $string = "";
+                
+        $select = 'SELECT (count(distinct ?uri) as ?binaries) ';
+        $where = "WHERE { ";
+        $where .= "?uri rdf:type <".RC::get('fedoraVocabsNamespace')."Resource> . ";
+        $where .= " } "; 
+        
+        $string = $select.$where;
+        
+        try {
+            $q = new SimpleQuery($string);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            $fields = $res->getFields();
+            $result = $this->modelFunctions->createSparqlResult($res, $fields);
+            
+            if(isset($result[0]['binaries'])) {
+                return $result[0]['binaries'];
+            }             
+            return "";
+        } catch (\Exception $ex) {
+            return "";
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return "";
+        }
+    }
+    
+    /**
+     * return the collection and binaries text for the ckeditor plugin
+     * 
+     * @return string
+     */
+    public function getDataForJSPlugin(string $lng = "en"): array {
+        $binaries = "";
+        $collections = "";
+        
+        $binaries = $this->countBinaries();
+        $collections = $this->countMainCollections();
+        return array("collections" => $collections, "resources" => $binaries);
+    }
 }

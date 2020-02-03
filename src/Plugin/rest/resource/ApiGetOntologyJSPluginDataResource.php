@@ -61,14 +61,13 @@ class ApiGetOntologyJSPluginDataResource extends ResourceBase
         if (count($data) > 0) {
             $files = "";
             $collections = "";
-            foreach ($data as $d) {
-                if (isset($d['collections']) && !empty($d['collections'])) {
-                    $collections = $d['collections']." ".t("collections");
-                }
-                if (isset($d['resources']) && !empty($d['resources'])) {
-                    $files = $d['resources']." ".t("files");
-                }
+            if (isset($data['collections']) && !empty($data['collections'])) {
+                $collections = $data['collections']." ".t("collections");
             }
+            if (isset($data['resources']) && !empty($data['resources'])) {
+                $files = $data['resources']." ".t("files");
+            }
+            
             if (empty($files)) {
                 $files = "0";
             }
