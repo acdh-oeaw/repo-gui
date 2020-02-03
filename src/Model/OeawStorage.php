@@ -611,6 +611,51 @@ class OeawStorage implements OeawStorageInterface
     }
     
     /**
+     * get the titleimage url and format
+     *
+     * @param string $string
+     * @return array
+     */
+    public function getTitleImageByidentifier(string $string): array
+    {
+        if (empty($string)) {
+            return array();
+        }
+        $result = array();
+        
+        $string = "select ?uri ?format where { "
+                . "?uri <".RC::get('fedoraIdProp')."> <".$string."> . "
+                . "?uri <".RC::get('drupalRdfType')."> <".RC::get('drupalImage')."> . "
+                . " ?uri <".RC::get('fedoraFormatProp')."> ?format ."
+                . " } ";
+        
+        try {
+            $q = new SimpleQuery($string);
+            $query = $q->getQuery();
+            $res = $this->fedora->runSparql($query);
+            
+            $fields = $res->getFields();
+            $data = $this->modelFunctions->createSparqlResult($res, $fields);
+            if (count($data) > 0) {
+                if (isset($data[0]['uri']) && !empty($data[0]['uri'])) {
+                    if (isset($data[0]['format']) && !empty($data[0]['format'])) {
+                        return array(
+                            "uri" => $data[0]['uri'],
+                            "format" => $data[0]['format']
+                        );
+                    }
+                    return array("uri" => $data[0]['uri']);
+                }
+            }
+            return $result;
+        } catch (\Exception $ex) {
+            return $result;
+        } catch (\GuzzleHttp\Exception\ClientException $ex) {
+            return $result;
+        }
+    }
+    
+    /**
      * Get the resource thumbnail image
      *
      * @param string $value -> the property value
@@ -1754,12 +1799,14 @@ class OeawStorage implements OeawStorageInterface
 
             $fields = $res->getFields();
             $result = $this->modelFunctions->createSparqlResult($res, $fields);
-            return $result[0]["time"];
+            if (isset($result[0]["time"])) {
+                return $result[0]["time"];
+            }
         } catch (\Exception $ex) {
-            return $result;
+            return "";
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            return $result;
+            return "";
         }
-        return $result;
+        return "";
     }
 }
