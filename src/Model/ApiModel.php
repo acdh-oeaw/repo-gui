@@ -357,17 +357,18 @@ class ApiModel
     
     /**
      * Count the actual main (root) collections
-     * 
+     *
      * @return string
      */
-    private function countMainCollections(): string {
+    private function countMainCollections(): string
+    {
         $string = "";
                 
         $select = 'SELECT (count(distinct ?uri) as ?collections) ';
         $where = "WHERE { ";
         $where .= "?uri rdf:type <".RC::get('drupalCollection')."> . ";
         $where .= " FILTER NOT EXISTS  { ";
-            $where .= "?uri <".RC::get('fedoraRelProp')."> ?root . ";
+        $where .= "?uri <".RC::get('fedoraRelProp')."> ?root . ";
         $where .= " }";
         $where .= " }";
         
@@ -379,9 +380,9 @@ class ApiModel
             
             $fields = $res->getFields();
             $result = $this->modelFunctions->createSparqlResult($res, $fields);
-            if(isset($result[0]['collections'])) {
+            if (isset($result[0]['collections'])) {
                 return $result[0]['collections'];
-            }             
+            }
             return "";
         } catch (\Exception $ex) {
             return "";
@@ -392,16 +393,17 @@ class ApiModel
     
     /**
      * Count the actual binaries in the fedora db
-     * 
+     *
      * @return string
      */
-    private function countBinaries(): string {
+    private function countBinaries(): string
+    {
         $string = "";
                 
         $select = 'SELECT (count(distinct ?uri) as ?binaries) ';
         $where = "WHERE { ";
         $where .= "?uri rdf:type <".RC::get('fedoraVocabsNamespace')."Resource> . ";
-        $where .= " } "; 
+        $where .= " } ";
         
         $string = $select.$where;
         
@@ -412,9 +414,9 @@ class ApiModel
             $fields = $res->getFields();
             $result = $this->modelFunctions->createSparqlResult($res, $fields);
             
-            if(isset($result[0]['binaries'])) {
+            if (isset($result[0]['binaries'])) {
                 return $result[0]['binaries'];
-            }             
+            }
             return "";
         } catch (\Exception $ex) {
             return "";
@@ -425,10 +427,11 @@ class ApiModel
     
     /**
      * return the collection and binaries text for the ckeditor plugin
-     * 
+     *
      * @return string
      */
-    public function getDataForJSPlugin(string $lng = "en"): array {
+    public function getDataForJSPlugin(string $lng = "en"): array
+    {
         $binaries = "";
         $collections = "";
         
