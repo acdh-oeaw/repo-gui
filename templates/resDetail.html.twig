@@ -130,7 +130,11 @@
                                     
                                     {% if ( (key == "acdh:hasPid") or (key == "acdh:hasAccessRestriction") 
                                         or (key == "acdh:hasLifeCycleStatus") or (key == "acdh:hasCategory")  )  %}
-                                        <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> {{ separator|raw }}
+                                        {% if (val['uri']) %}
+                                            <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> {{ separator|raw }}
+                                        {% else %}
+                                            {{  val }}
+                                        {% endif %}  
                                     {% elseif (val['title']) and (val['insideUri']) %}
                                         <a href="/browser/oeaw_detail/{{ val['insideUri'] }}">{{ val['title'] }} </a>  {{ separator|raw }}
                                     {% elseif val['title'] %}
