@@ -100,11 +100,11 @@ class OeawStorage implements OeawStorageInterface
             $getResult = $this->modelFunctions->createSparqlResult($result, $fields);
             return $getResult;
         } catch (\Exception $ex) {
-            throw new Exception($ex->getMessage());
+            throw new \Exception($ex->getMessage());
         } catch (\InvalidArgumentException $ex) {
             throw new \InvalidArgumentException($ex->getMessage());
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            throw new Exception($ex->getMessage());
+            throw new \Exception($ex->getMessage());
         }
     }
     
@@ -138,11 +138,11 @@ class OeawStorage implements OeawStorageInterface
             $getResult = $this->modelFunctions->createSparqlResult($result, $fields);
             return $getResult;
         } catch (\Exception $ex) {
-            throw new Exception($ex->getMessage());
+            throw new \Exception($ex->getMessage());
         } catch (\InvalidArgumentException $ex) {
             throw new \InvalidArgumentException($ex->getMessage());
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
-            throw new Exception($ex->getMessage());
+            throw new \Exception($ex->getMessage());
         }
     }
     
@@ -337,7 +337,7 @@ class OeawStorage implements OeawStorageInterface
 
             return $getResult;
         } catch (\Exception $ex) {
-            throw new Exception($ex->getMessage());
+            throw new \Exception($ex->getMessage());
         } catch (\GuzzleHttp\Exception\ClientException $ex) {
             throw new \GuzzleHttp\Exception\ClientException($ex->getMessage());
         }
