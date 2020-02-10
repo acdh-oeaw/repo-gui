@@ -663,7 +663,7 @@ class FrontendController extends ControllerBase
                 } else {
                     for ($index = 0; $index <= count($res) - 1; $index++) {
                         if (!empty($res[$index]['title']) &&
-                                (isset($res[$index]['childId']) || isset($res[$index]['childUUID']) )) {
+                                (isset($res[$index]['childId']) || isset($res[$index]['childUUID']))) {
                             $title = $res[$index]['title'];
                             if (!empty($res[$index]['childId'])) {
                                 $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['childId'], 1);
