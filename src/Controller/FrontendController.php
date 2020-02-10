@@ -663,17 +663,13 @@ class FrontendController extends ControllerBase
                 } else {
                     for ($index = 0; $index <= count($res) - 1; $index++) {
                         if (!empty($res[$index]['title']) &&
-                                (isset($res[$index]['childId']) || isset($res[$index]['childUUID']) ||
-                                isset($res[$index]['externalId']))) {
+                                (isset($res[$index]['childId']) || isset($res[$index]['childUUID']) )) {
                             $title = $res[$index]['title'];
                             if (!empty($res[$index]['childId'])) {
                                 $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['childId'], 1);
                             } elseif (!empty($res[$index]['childUUID'])) {
                                 $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['childUUID'], 1);
-                            } elseif (!empty($res[$index]['externalId'])) {
-                                $insideUri = $this->oeawFunctions->detailViewUrlDecodeEncode($res[$index]['externalId'], 1);
                             }
-                            
                             $memberData["data"][$index] = array("<a href='/browser/oeaw_detail/$insideUri'>$title</a>");
                         }
                     }

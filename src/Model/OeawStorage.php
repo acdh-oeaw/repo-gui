@@ -723,10 +723,9 @@ class OeawStorage implements OeawStorageInterface
         
         $prefix = 'PREFIX fn: <http://www.w3.org/2005/xpath-functions#> ';
         
-        $select = 'SELECT ?uri ?title  ?childId ?childUUID ?externalId WHERE { ';
+        $select = 'SELECT ?uri ?title  ?childId ?childUUID WHERE { ';
         $where = '<'.$uri.'> <'.RC::get("fedoraIdProp").'> ?id . ';
         $where .= '?uri <'.RC::get('drupalIsMember').'> ?id . ';
-        //$where .= '?uri <'.RC::get('fedoraTitleProp').'> ?title . ';
         $where .= $this->modelFunctions->filterLanguage("uri", RC::get('fedoraTitleProp'), "title", $lang, false);
         $where .= ' OPTIONAL { '
                 . ' ?uri  <'.RC::get("fedoraIdProp").'> ?childId . '
@@ -739,14 +738,9 @@ class OeawStorage implements OeawStorageInterface
                 . ' FILTER regex(str(?childUUID),"id.acdh.oeaw.ac.at/uuid","i") . '
                 . ' } ';
         
-        $where .= ' OPTIONAL { '
-                . ' ?uri  <'.RC::get("fedoraIdProp").'> ?externalId . '
-                . ' FILTER (!regex(str(?externalId),"id.acdh.oeaw.ac.at","i")) .'
-                . ' } ';
-        
         $where .= ' } ';
         
-        $groupBy = ' GROUP BY ?uri ?title ?childId ?childUUID ?externalId  ORDER BY ASC( fn:lower-case(?title)) ';
+        $groupBy = ' GROUP BY ?uri ?title ?childId ?childUUID  ORDER BY ASC( fn:lower-case(?title)) ';
         
         $queryStr = $prefix.$select.$where.$groupBy;
         
