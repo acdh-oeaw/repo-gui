@@ -28,11 +28,11 @@ class ApiControlledVocabulariesResource extends ResourceBase
         $response = array();
                  
         $helper = new \Drupal\oeaw\Helper\CacheVocabsHelper($lng);
-        if($helper->getControlledVocabStrings() === false) {
+        if ($helper->getControlledVocabStrings() === false) {
             $response = json_encode("Update failed!");
-        }else {
+        } else {
             $response = json_encode("Update is ready!");
-        }        
+        }
         return new ResourceResponse($response);
     }
 }

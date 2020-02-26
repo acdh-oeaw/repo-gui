@@ -266,9 +266,9 @@ class DetailViewFunctions
             foreach ($vocabs[$lang] as $k => $v) {
                 //if we have the property inside our table results
                 if (isset($this->dvResult['table'][$k]) && count($this->dvResult['table'][$k]) > 0) {
-                    foreach($this->dvResult['table'][$k] as $tk => $tv) {
-                        foreach($vocabs[$lang][$k] as $vocab) {
-                            if($vocab->uri == $tv['uri']) {
+                    foreach ($this->dvResult['table'][$k] as $tk => $tv) {
+                        foreach ($vocabs[$lang][$k] as $vocab) {
+                            if ($vocab->uri == $tv['uri']) {
                                 $this->dvResult['table'][$k][$tk]['uri'] = $vocab->uri;
                                 $this->dvResult['table'][$k][$tk]['title'] = $vocab->label;
                                 $this->dvResult['table'][$k][$tk]['lang'] = $vocab->language;
@@ -277,7 +277,7 @@ class DetailViewFunctions
                     }
                 }
             }
-        }   
+        }
     }
     
     /**
