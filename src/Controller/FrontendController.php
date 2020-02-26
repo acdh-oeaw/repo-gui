@@ -700,10 +700,11 @@ class FrontendController extends ControllerBase
             drupal_set_message(t('No').' '.t('Data'), 'error', false);
             return array();
         }
-        $templateData["insideUri"] = $data;
+        
         $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($data, 0);
         
         $templateData = array();
+        $templateData["insideUri"] = $this->oeawFunctions->detailViewUrlDecodeEncode($data, 1);
         //get the title and the fedora url
         $fdUrlArr = array();
         $fdUrlArr = $this->oeawStorage->getTitleByIdentifier($identifier);
