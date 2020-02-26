@@ -129,7 +129,9 @@
                                     {% endif %}
                                     
                                     {% if ( (key == "acdh:hasPid") or (key == "acdh:hasAccessRestriction") 
-                                        or (key == "acdh:hasLifeCycleStatus") or (key == "acdh:hasCategory")  )  %}
+                                        or (key == "acdh:hasLifeCycleStatus") or (key == "acdh:hasCategory") 
+                                        or (key == "acdh:hasRelatedDiscipline") 
+                                    )  %}
                                         {% if (val['uri']) %}
                                             <a href="{{ val['uri'] }}">{{ val['uri'] }}</a> {{ separator|raw }}
                                         {% else %}

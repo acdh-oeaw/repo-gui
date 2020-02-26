@@ -136,7 +136,7 @@ class OeawResourceCustomData
                 //if we have the basic prop tin our object then we will add it to the new arrobj
                 if ((($data->getTableData($eP) !== null)) && (count($data->getTableData($eP)) > 0)) {
                     foreach ($data->getTableData($eP) as $val) {
-                        $this->extendedProperties[$eP] =  $val;
+                        $this->extendedProperties[$eP][] =  $val;
                     }
                 }
             }
@@ -271,7 +271,7 @@ class OeawResourceCustomData
     
     /**
      * Resource type URL
-     * @return type
+     * @return type string
      */
     public function getTypeUri(): string
     {
@@ -289,7 +289,7 @@ class OeawResourceCustomData
     
     /**
      * Resource Extended properties array for the special views
-     * @return type
+     * @return array
      */
     public function getExtendedProperties(): array
     {
