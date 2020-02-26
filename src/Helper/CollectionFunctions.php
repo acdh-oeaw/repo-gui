@@ -144,9 +144,9 @@ class CollectionFunctions
                     if (isset($v['accessRestriction'])) {
                         if (empty($v['accessRestriction'])) {
                             $v['accessRestriction'] = "public";
-                        }else {
+                        } else {
                             if (strpos($v['accessRestriction'], 'https://vocabs.acdh.oeaw.ac.at/archeaccessrestrictions/') !== false) {
-                                $v['accessRestriction'] = str_replace('https://vocabs.acdh.oeaw.ac.at/archeaccessrestrictions/' , '', $v['accessRestriction']);
+                                $v['accessRestriction'] = str_replace('https://vocabs.acdh.oeaw.ac.at/archeaccessrestrictions/', '', $v['accessRestriction']);
                             }
                         }
                         $cacheData[$k]['accessRestriction'] = $v['accessRestriction'];
