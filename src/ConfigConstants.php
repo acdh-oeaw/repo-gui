@@ -6,6 +6,7 @@ use acdhOeaw\util\RepoConfig as RC;
 
 abstract class ConfigConstants
 {
+    
     /**
      * sparql prefixes
      * @var type
@@ -84,6 +85,8 @@ abstract class ConfigConstants
         if ($property == "person") {
             $result['basicProperties'] = array(
                 "acdh:hasTitle",
+                "acdh:hasPersonalTitle",
+                "acdh:hasAlternativeTitle",
                 "acdh:hasIdentifier",
                 "acdh:isMemberOf"
             );

@@ -10,7 +10,11 @@
                 {{ result.getTitle() }}
             </span>
         </div>
-    {% endif%} 
+    {% endif%}
+    
+    {%  if result.basicProperties['acdh:hasPersonalTitle'] %}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasPersonalTitle'], 'icon': "label", 'label': "Personal Title"} ) }}
+    {% endif%}
     
     {% if result.getType() %}
         <div class="res-property">
@@ -21,6 +25,10 @@
             </span>
         </div>
     {% endif%}	
+    
+    {%  if result.basicProperties['acdh:hasAlternativeTitle'] %}
+        {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.basicProperties['acdh:hasAlternativeTitle'], 'icon': "label", 'label': "Alternative Title"} ) }}
+    {% endif%}
     
     {%  if result.getNonAcdhIdentifiers() %}
         {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.getNonAcdhIdentifiers(), 'icon': "copyright", 'label': "Identifier(s)" } ) }}
