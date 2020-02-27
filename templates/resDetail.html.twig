@@ -283,12 +283,30 @@
     {% if (
         result.table['acdh:hasDescription'] or result.table['acdh:hasSpatialCoverage'] or result.table['acdh:hasNote'] 
         or result.table['acdh:hasRelatedDiscipline'] or result.table['acdh:hasSubject']
+        or result.table['acdh:hasCoverageStartDate'] or result.table['acdh:hasCoverageEndDate']
     ) %}
         <h3 class="single-res-heading">{{ "Summary"|trans }}</h3>
            
+        
+        {% if result.table['acdh:hasRelatedDiscipline'] %}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasRelatedDiscipline'], 'icon': "info_outline", 'label': "Related Discipline" } ) }}
+        {% endif%}
+        
+        {% if result.table['acdh:hasSubject'] %}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasSubject'], 'icon': "info_outline", 'label': "Subject" } ) }}
+        {% endif%}
+        
         {% if result.table['acdh:hasSpatialCoverage'] %}
             {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasSpatialCoverage'], 'icon': "info_outline", 'label': "Spatial Coverage" } ) }}
         {% endif%}
+        
+        {% if result.table['acdh:hasCoverageStartDate'] %}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasCoverageStartDate'], 'icon': "info_outline", 'label': "Coverage StartDate",'dateformat': 'Y' } ) }}
+        {% endif %}
+        
+        {% if result.table['acdh:hasCoverageEndDate'] %}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasCoverageEndDate'], 'icon': "info_outline", 'label': "Coverage EndDate",'dateformat': 'Y' } ) }}
+        {% endif %}
         
         {% if result.table['acdh:hasDescription'][0] %}
             <div class="res-property">
@@ -306,13 +324,7 @@
             </div>
         {% endif %}
         
-        {% if result.table['acdh:hasRelatedDiscipline'] %}
-            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasRelatedDiscipline'], 'icon': "info_outline", 'label': "Related Discipline" } ) }}
-        {% endif%}
         
-        {% if result.table['acdh:hasSubject'] %}
-            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasSubject'], 'icon': "info_outline", 'label': "Subject" } ) }}
-        {% endif%}
         
     {% endif%}
 
