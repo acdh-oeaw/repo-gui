@@ -310,6 +310,10 @@
             {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasRelatedDiscipline'], 'icon': "info_outline", 'label': "Related Discipline" } ) }}
         {% endif%}
         
+        {% if result.table['acdh:hasSubject'] %}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasSubject'], 'icon': "info_outline", 'label': "Subject" } ) }}
+        {% endif%}
+        
     {% endif%}
 
     {% if extras.CiteThisWidget %}
