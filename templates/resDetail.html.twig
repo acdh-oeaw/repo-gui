@@ -280,38 +280,15 @@
         <!-- DISS LOGIN FORM END  -->
     {% endif %}    	
     
-    {% if (result.table['acdh:hasDescription'] or result.table['acdh:hasSpatialCoverage'] or result.table['acdh:hasNote']) %}
+    {% if (
+        result.table['acdh:hasDescription'] or result.table['acdh:hasSpatialCoverage'] or result.table['acdh:hasNote'] 
+        or result.table['acdh:hasRelatedDiscipline'] or result.table['acdh:hasSubject']
+    ) %}
         <h3 class="single-res-heading">{{ "Summary"|trans }}</h3>
-        
+           
         {% if result.table['acdh:hasSpatialCoverage'] %}
-            <div class="res-property">
-                <i class="material-icons">info_outline</i>
-                <span class="res-prop-label">{{ "Spatial Coverage"|trans }}:&nbsp;&nbsp;</span>
-                {% if result.table['acdh:hasSpatialCoverage'] is iterable and result.table['acdh:hasSpatialCoverage']|length > 1 %}
-                    {% for spatial in result.table['acdh:hasSpatialCoverage'] %}
-                        {% if spatial['insideUri'] and spatial['title'] %}
-                            {% if (loop.length <= loop.index)  %}
-                                {% set separator = '' %}
-                            {% else %}    
-                                {% set separator = ',' %}
-                            {% endif %}
-                                <span class="res-prop-value"><a href="/browser/oeaw_detail/{{spatial['insideUri'] }}">{{ spatial['title'] }}</a></span> {{ separator|raw }}
-                        {% endif %}
-                    {% endfor %}
-                {% else %}
-                    {% if result.table['acdh:hasSpatialCoverage'][0]['insideUri'] %}
-                        <span class="res-prop-value"><a href="/browser/oeaw_detail/{{ result.table['acdh:hasSpatialCoverage'][0]['insideUri'] }}">{{ result.table['acdh:hasSpatialCoverage'][0]['title'] }}</a></span>
-                    {% else %}
-                        {% if result.table['acdh:hasSpatialCoverage'][0]['uri']  %}
-                            <span class="res-prop-value"><a href="{{ result.table['acdh:hasSpatialCoverage'][0]['uri'] }}">{{ result.table['acdh:hasSpatialCoverage'][0]['uri'] }}</a></span>
-                        {% else %}
-                            <span class="res-prop-value">{{ result.table['acdh:hasSpatialCoverage'][0] }}</span>
-                        {% endif %}
-                    {% endif %}
-                    
-                {% endif %}
-            </div>
-        {% endif %}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasSpatialCoverage'], 'icon': "info_outline", 'label': "Spatial Coverage" } ) }}
+        {% endif%}
         
         {% if result.table['acdh:hasDescription'][0] %}
             <div class="res-property">
@@ -328,6 +305,11 @@
                 <span class="res-prop-value">{{ result.table['acdh:hasNote'][0] }}</span>
             </div>
         {% endif %}
+        
+        {% if result.table['acdh:hasRelatedDiscipline'] %}
+            {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.table['acdh:hasRelatedDiscipline'], 'icon': "info_outline", 'label': "Related Discipline" } ) }}
+        {% endif%}
+        
     {% endif%}
 
     {% if extras.CiteThisWidget %}

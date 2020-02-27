@@ -100,7 +100,7 @@ class FrontendController extends ControllerBase
      * @return array
      */
     public function roots_list(string $limit = "10", string $page = "1", string $order = "datedesc"): array
-    {
+    {        
         drupal_get_messages('error', true);
         // get the root resources
         // sparql result fields - uri, title
@@ -142,7 +142,7 @@ class FrontendController extends ControllerBase
             $offsetRoot = 0;
         }
         
-        $result = $this->rootViewHelper->getRoots($limit, $offsetRoot, false, $order);
+        $result = $this->rootViewHelper->getRoots($limit, $offsetRoot, $order);
      
         $rootResources = array();
         if (count($result) > 0) {
