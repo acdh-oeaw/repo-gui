@@ -118,7 +118,7 @@ function oeaw_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_stat
 function oeaw_preprocess(&$variables, $hook)
 {
     $variables['base_path'] = base_path();
-    $_SESSION["archeCfg"] = $_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini';
+    //$_SESSION["archeCfg"] = $_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini';
     
 }
 

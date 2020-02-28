@@ -12,8 +12,8 @@ class OeawConfigSubscriber implements EventSubscriberInterface
 {
     public function initArcheCfg(GetResponseEvent $event)
     {
-        global $archeCfg;
-        $archeCfg = \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
+        //global $archeCfg;
+        //$archeCfg = \acdhOeaw\util\RepoConfig::init($_SERVER["DOCUMENT_ROOT"].'/modules/custom/oeaw/config.ini');
     }
     
     /**
