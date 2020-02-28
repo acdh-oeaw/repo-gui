@@ -13,9 +13,7 @@
     {% endif%} 
     
     {%  if result.basicProperties['acdh:hasAlternativeTitle'] %}
-        
         {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data':result.basicProperties['acdh:hasAlternativeTitle'] , 'icon': "title", 'label': "Alternative Title" } ) }}
-        
     {% endif%}
     
     {% if result.getType() %}
@@ -84,19 +82,19 @@
             {{ include('/modules/custom/oeaw/templates/displayField.html.twig', {'data': result.extendedProperties['acdh:hasWKT'], 'icon': "", 'label': "WKT" } ) }}
         {% endif%}
         
-        {% if result.extendedProperties['acdh:hasLongitude'] and  result.extendedProperties['acdh:hasLatitude'] %}
+        {% if result.extendedProperties['acdh:hasLongitude'][0] and  result.extendedProperties['acdh:hasLatitude'][0] %}
             <div class="res-property">
                 <span class="res-prop-label">{{"Map"|trans }}: </span>
                  <span class="res-prop-value">
                     <iframe 
                         width="425" height="350" frameborder="0" 
                         scrolling="no" marginheight="0" marginwidth="0" 
-                        src="https://www.openstreetmap.org/export/embed.html?bbox={{ result.extendedProperties['acdh:hasLongitude'] }}%2C{{ result.extendedProperties['acdh:hasLatitude'] }}%2C{{ result.extendedProperties['acdh:hasLongitude'] }}%2C{{ result.extendedProperties['acdh:hasLatitude'] }}&amp;layer=mapnik&amp;marker={{ result.extendedProperties['acdh:hasLatitude'] }}%2C{{ result.extendedProperties['acdh:hasLongitude'] }}" 
+                        src="https://www.openstreetmap.org/export/embed.html?bbox={{ result.extendedProperties['acdh:hasLongitude'][0] }}%2C{{ result.extendedProperties['acdh:hasLatitude'][0] }}%2C{{ result.extendedProperties['acdh:hasLongitude'][0] }}%2C{{ result.extendedProperties['acdh:hasLatitude'][0] }}&amp;layer=mapnik&amp;marker={{ result.extendedProperties['acdh:hasLatitude'][0] }}%2C{{ result.extendedProperties['acdh:hasLongitude'][0] }}" 
                         style="border: 1px solid black"
                         >
                             
                     </iframe>
-                     <br/><small><a href="https://www.openstreetmap.org/?mlat=48.2082&amp;mlon=16.3288#map=12/{{ result.extendedProperties['acdh:hasLatitude'] }}/{{ result.extendedProperties['acdh:hasLongitude'] }}">View Larger Map</a></small>
+                     <br/><small><a href="https://www.openstreetmap.org/?mlat=48.2082&amp;mlon=16.3288#map=12/{{ result.extendedProperties['acdh:hasLatitude'][0] }}/{{ result.extendedProperties['acdh:hasLongitude'][0] }}">View Larger Map</a></small>
                         
                 </span>
             </div>
