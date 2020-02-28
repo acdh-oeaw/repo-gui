@@ -36,10 +36,10 @@ class ComplexSearchViewModel
         //Let's process the order argument
         switch ($order) {
             case "titleasc":
-                $order = "ASC( fn:lower-case(?title))";
+                $order = "(!bound(?title)) ASC( fn:lower-case(str(?title)))";
                 break;
             case "titledesc":
-                $order = "DESC( fn:lower-case(?title))";
+                $order = "(!bound(?title)) DESC( fn:lower-case(str(?title)))";
                 break;
             case "dateasc":
                 $order = "ASC(?availableDate)";
@@ -47,8 +47,14 @@ class ComplexSearchViewModel
             case "datedesc":
                 $order = "DESC(?availableDate)";
                 break;
+            case "lastnameasc":
+                $order = "(!bound(?lastName)) ASC( fn:lower-case(str(?lastName)))";
+                break;
+            case "lastnamedesc":
+                $order = "(!bound(?lastName)) DESC( fn:lower-case(str(?lastName)))";
+                break;
             default:
-                $order = "ASC( fn:lower-case(?title))";
+                $order = "(!bound(?title)) ASC( fn:lower-case(str(?title)))";
         }
 
         
@@ -58,7 +64,7 @@ class ComplexSearchViewModel
         if ($count == true) {
             $select = "SELECT (COUNT( DISTINCT ?uri) as ?count) ";
         } else {
-            $select = 'SELECT DISTINCT ?uri ?title ?label ?resultProp ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction 
+            $select = 'SELECT DISTINCT ?uri ?title ?label ?resultProp ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction ?lastName
                 (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) 
                 (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
         }
@@ -208,14 +214,14 @@ class ComplexSearchViewModel
         $query .= ' ?uri  <'.RC::get("drupalRdfType").'> ?acdhType . '
                    . 'FILTER regex(str(?acdhType),"vocabs.acdh","i") .  ';
         $query .= "
-        OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .}                
+        OPTIONAL{ ?uri <".RC::get('drupalHasTitleImage')."> ?hasTitleImage .} 
         OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . }";
         $query .= " OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
         $query .= " OPTIONAL { ?uri <".RC::get('epicPidProp')."> ?pid .  }  ";
-        
+        $query .= $this->modelFunctions->filterLanguage("uri", RC::get('drupalHasLastName'), "lastName", $lang, true);
         $groupby = "";
         if ($count === false) {
-            $groupby = "GROUP BY ?title ?uri ?label ?resultProp ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ORDER BY " . $order;
+            $groupby = "GROUP BY ?title ?uri ?label ?resultProp ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ?lastName ORDER BY  " . $order;
         }
         $query = $prefix.$select." Where { ".$conditions." ".$query." } ".$groupby;
         if ($limit) {
@@ -253,10 +259,10 @@ class ComplexSearchViewModel
         //Let's process the order argument
         switch ($order) {
             case "titleasc":
-                $order = "ASC( fn:lower-case(?title))";
+                $order = "(!bound(?title)) ASC( fn:lower-case(str(?title)))";
                 break;
             case "titledesc":
-                $order = "DESC( fn:lower-case(?title))";
+                $order = "(!bound(?title)) DESC( fn:lower-case(str(?title)))";
                 break;
             case "dateasc":
                 $order = "ASC(?availableDate)";
@@ -264,8 +270,14 @@ class ComplexSearchViewModel
             case "datedesc":
                 $order = "DESC(?availableDate)";
                 break;
+            case "lastnameasc":
+                $order = "(!bound(?lastName)) ASC( fn:lower-case(str(?lastName)))";
+                break;
+            case "lastnamedesc":
+                $order = "(!bound(?lastName)) DESC( fn:lower-case(str(?lastName)))";
+                break;
             default:
-                $order = "ASC( fn:lower-case(?title))";
+                $order = "(!bound(?title)) ASC( fn:lower-case(str(?title)))";
         }
 
         
@@ -273,14 +285,14 @@ class ComplexSearchViewModel
         if ($count == true) {
             $select = "SELECT (COUNT( DISTINCT ?uri) as ?count) ";
         } else {
-            $select = 'SELECT DISTINCT ?uri ?title ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction ?category
+            $select = 'SELECT DISTINCT ?uri ?title ?pid ?availableDate ?hasTitleImage ?acdhType ?accessRestriction ?category ?lastName
                 (GROUP_CONCAT(DISTINCT ?rdfType;separator=",") AS ?rdfTypes) 
                 (GROUP_CONCAT(DISTINCT ?descriptions;separator=",") AS ?description) 
                 (GROUP_CONCAT(DISTINCT ?identifiers;separator=",") AS ?identifier) ';
         }
         
         $conditions = "";
-        $query .= " ?uri ?prop ?obj . \n";
+        $query .= " ?uri ?prop ?obj . ";
         $query .= $this->modelFunctions->filterLanguage("uri", RC::titleProp(), "title", $lang);
         //$query .= " ?uri <".RC::titleProp()."> ?title . \n
         $query .= "?uri <".RC::idProp()."> ?identifiers .        
@@ -399,10 +411,20 @@ class ComplexSearchViewModel
         OPTIONAL{ ?uri <".RC::get('drupalHasAvailableDate')."> ?availableDate . } 
         OPTIONAL{ ?uri <".RC::get('fedoraVocabsNamespace')."hasCategory> ?category . } ";
         
+        $query .= "
+                OPTIONAL { 
+                    ?uri <https://vocabs.acdh.oeaw.ac.at/schema#hasLastName> ?defaultValueLN .  
+                    OPTIONAL { 
+                        ?uri <https://vocabs.acdh.oeaw.ac.at/schema#hasLastName> ?langValueLN . 
+                        FILTER regex(lang(?langValueLN), 'en','i') . 
+                    }  
+                    BIND( IF( !bound(?langValueLN) , ?defaultValueLN, ?langValueLN) as ?lastName ) .   
+                }
+                ";
         $query .= " OPTIONAL {?uri <".RC::get('fedoraAccessRestrictionProp')."> ?accessRestriction . } ";
         $groupby = "";
         if ($count === false) {
-            $groupby = "GROUP BY ?title ?uri ?label ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ?category ORDER BY " . $order;
+            $groupby = "GROUP BY ?title ?uri ?label ?pid ?hasTitleImage ?availableDate ?acdhType ?accessRestriction ?category ?lastName ORDER BY " . $order;
         }
         $query = $prefix.$select." Where { ".$conditions." ".$query." } ".$groupby;
         if ($limit) {
