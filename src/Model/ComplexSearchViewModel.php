@@ -23,7 +23,7 @@ class ComplexSearchViewModel
         
     //createFullTextSparql
     //createBGFullTextSparql
-    public function createBGFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "datedesc", $lang = "en"): string
+    public function createBGFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "titleasc", $lang = "en"): string
     {
         $wordsQuery = "";
         $query = "";
@@ -246,7 +246,7 @@ class ComplexSearchViewModel
      * @return string
      * @throws \ErrorException
      */
-    public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "datedesc", $lang = "en"): string
+    public function createFullTextSparql(array $data, string $limit, string $page, bool $count = false, string $order = "titleasc", $lang = "en"): string
     {
         $wordsQuery = "";
         $query = "";

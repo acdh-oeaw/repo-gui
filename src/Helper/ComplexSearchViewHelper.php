@@ -293,9 +293,9 @@ class ComplexSearchViewHelper
         //custom sparql search
         try {
             if ($blazegraph === false) {
-                $countSparql = $this->model->createFullTextSparql($this->searchStr, 0, 0, true, "datedesc", false);
+                $countSparql = $this->model->createFullTextSparql($this->searchStr, 0, 0, true, "titleasc", false);
             } else {
-                $countSparql = $this->model->createBGFullTextSparql($this->searchStr, 0, 0, true, "datedesc", true);
+                $countSparql = $this->model->createBGFullTextSparql($this->searchStr, 0, 0, true, "titleasc", true);
             }
         } catch (\ErrorException $ex) {
             return 0;

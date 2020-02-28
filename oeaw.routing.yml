@@ -21,7 +21,7 @@ oeaw_complexsearch:
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_complexsearch'
     metavalue: ""
-    order: "datedesc"
+    order: "titleasc"
     limit: "10"
     page: "1"
   requirements:
@@ -33,7 +33,7 @@ oeaw_bgsearch:
   defaults:
     _controller: '\Drupal\oeaw\Controller\FrontendController::oeaw_search'
     metavalue: ""
-    order: "datedesc"
+    order: "titleasc"
     limit: "10"
     page: "1"
   requirements:

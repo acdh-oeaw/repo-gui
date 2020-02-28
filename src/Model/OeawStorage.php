@@ -1265,7 +1265,7 @@ class OeawStorage implements OeawStorageInterface
                 . ' ?uri <'.RC::get('fedoraAvailableDateProp').'> ?date . '
                 . ' values ?duration { "P0DT1H0M0.000S"^^xsd:duration } . '
                 . ' BIND( (?date + ?duration) as ?end) . '
-                . ' BIND( (CONCAT(STR(substr(?end, 0, 4)))) as ?year) . '
+                . ' BIND( (CONCAT(STR(substr(?end, 0, 5)))) as ?year) . '
                 . ' } '
                 . ' GROUP BY ?year '
                 . ' ORDER BY DESC(?year) ';

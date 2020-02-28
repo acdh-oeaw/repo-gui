@@ -99,8 +99,8 @@ class FrontendController extends ControllerBase
      *
      * @return array
      */
-    public function roots_list(string $limit = "10", string $page = "1", string $order = "datedesc"): array
-    {
+    public function roots_list(string $limit = "10", string $page = "1", string $order = "titleasc"): array
+    {        
         drupal_get_messages('error', true);
         // get the root resources
         // sparql result fields - uri, title
@@ -390,7 +390,7 @@ class FrontendController extends ControllerBase
      * @return array
      * @throws \ErrorException
      */
-    public function oeaw_complexsearch(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "datedesc"): array
+    public function oeaw_complexsearch(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "titleasc"): array
     {
         $time = microtime();
         $time = explode(' ', $time);
@@ -469,7 +469,7 @@ class FrontendController extends ControllerBase
     }
     
     
-    public function oeaw_search(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "datedesc"): array
+    public function oeaw_search(string $metavalue = "root", string $limit = "10", string $page = "1", string $order = "titleasc"): array
     {
         $time = microtime();
         $time = explode(' ', $time);
@@ -700,10 +700,11 @@ class FrontendController extends ControllerBase
             drupal_set_message(t('No').' '.t('Data'), 'error', false);
             return array();
         }
-        $templateData["insideUri"] = $data;
+        
         $identifier = $this->oeawFunctions->detailViewUrlDecodeEncode($data, 0);
         
         $templateData = array();
+        $templateData["insideUri"] = $this->oeawFunctions->detailViewUrlDecodeEncode($data, 1);
         //get the title and the fedora url
         $fdUrlArr = array();
         $fdUrlArr = $this->oeawStorage->getTitleByIdentifier($identifier);

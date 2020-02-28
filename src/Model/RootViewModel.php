@@ -39,7 +39,7 @@ class RootViewModel
     * @throws \Exception
     * @throws \InvalidArgumentException
     */
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc", string $lang = ""): array
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "titleasc", string $lang = ""): array
     {
         //Let's process the order argument
         switch ($order) {
