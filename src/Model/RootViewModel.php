@@ -39,7 +39,7 @@ class RootViewModel
     * @throws \Exception
     * @throws \InvalidArgumentException
     */
-    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "titleasc", string $lang = ""): array
+    public function getRootFromDB(int $limit = 0, int $offset = 0, bool $count = false, string $order = "datedesc", string $lang = ""): array
     {
         //Let's process the order argument
         switch ($order) {
@@ -85,7 +85,6 @@ class RootViewModel
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasAuthor')."> ?authors . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreatedDate')."> ?creationdate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasAvailableDate')."> ?avDate . }";
-            //. " BIND( (CONCAT(STR(substr(?avDate, 0, 10)))) as ?availableDate) . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationStartDate')."> ?hasCreationStartDate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('drupalHasCreationEndDate')."> ?hasCreationEndDate . } ";
             $where .= "OPTIONAL {?uri <".RC::get('fedoraRelProp')."> ?isPartOf . } ";

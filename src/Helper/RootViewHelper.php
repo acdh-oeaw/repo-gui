@@ -44,7 +44,7 @@ class RootViewHelper
     {
         //count all root resource for the pagination
         try {
-            return $this->model->getRootFromDB(0, 0, true, "titleasc", $this->siteLang);
+            return $this->model->getRootFromDB(0, 0, true, "datedesc", $this->siteLang);
         } catch (\Exception $ex) {
             drupal_set_message($ex->getMessage(), 'error');
             return array();
