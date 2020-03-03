@@ -17,7 +17,10 @@ class CacheVocabsHelper
         "acdh:hasAccessRestriction" => "https://vocabs.acdh.oeaw.ac.at/download/archeaccessrestrictions.rdf",
         "acdh:hasLifeCycleStatus" => "https://vocabs.acdh.oeaw.ac.at/download/archelifecyclestatus.rdf",
         "acdh:hasCategory" => "https://vocabs.acdh.oeaw.ac.at/download/archecategory.rdf",
-        "acdh:hasRelatedDiscipline" =>  "https://vocabs.acdh.oeaw.ac.at/oefosdisciplines/Schema&format=application/rdf+xml"
+        "acdh:hasRelatedDiscipline" =>  "https://vocabs.acdh.oeaw.ac.at/rest/v1/oefos/data?format=application/rdf%2Bxml",
+        "acdh:hasOaiSet" => "https://vocabs.acdh.oeaw.ac.at/rest/v1/arche_oaiphmsets/data?format=application/rdf%2Bxml",
+        "acdh:hasLanguage" => "https://vocabs.acdh.oeaw.ac.at/rest/v1/iso639_3/data?format=application/rdf%2Bxml",
+        "acdh:hasLicense" => "https://vocabs.acdh.oeaw.ac.at/rest/v1/arche_licenses/data?format=application/rdf%2Bxml"
     );
     
     
@@ -43,18 +46,20 @@ class CacheVocabsHelper
         }
         return $this->customCache;
     }
-    
+        
     /**
      * get the vocabs values
+     * 
      * @param string $lang
+     * @return array
      */
-    private function getControlledVocabStrings(string $lang = "en"): void
+    public function getControlledVocabStrings(string $lang = "en"): array
     {
         $result = array();
         
         try {
-            $graph = new \EasyRdf\Graph();
             foreach ($this->vocabs as $k => $v) {
+                $graph = new \EasyRdf\Graph();
                 if ($graph->parse(file_get_contents($v))) {
                     foreach ($graph->allOfType('http://www.w3.org/2004/02/skos/core#Concept') as $i) {
                         $uri = $i->getUri();
@@ -64,6 +69,7 @@ class CacheVocabsHelper
                             (isset($uri) && !empty($uri))) {
                             $label = (string)$label;
                             $uri = (string)$uri;
+                            
                             $obj = new \stdClass();
                             $obj->label = $label;
                             $obj->uri = $uri;
@@ -72,13 +78,15 @@ class CacheVocabsHelper
                             $this->customCache[$lang][$k][] = $obj;
                         }
                     }
+                    $result['success'][] = $k;
                 }
             }
         } catch (Exception $ex) {
-            $this->customCache = array();
+            $result['error'][] = $k;
         } catch (\EasyRdf\Exception $ex) {
-            $this->customCache = array();
+            $result['error'][] = $k;
         }
+        return $result;
     }
     
     /**

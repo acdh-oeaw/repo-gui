@@ -25,11 +25,16 @@ class ApiControlledVocabulariesResource extends ResourceBase
     */
     public function get(string $lng)
     {
+        ini_set('max_execution_time', 3600);
+        ini_set('max_input_time', 360);
         $response = array();
                  
         $helper = new \Drupal\oeaw\Helper\CacheVocabsHelper($lng);
-        if ($helper->getControlledVocabStrings() === false) {
-            $response = json_encode("Update failed!");
+        $vocabs = array();
+        $vocabs = $helper->getControlledVocabStrings();
+       
+        if (isset($vocabs['error'])) {
+            $response = json_encode($vocabs['error'], true)." not cached/generated";
         } else {
             $response = json_encode("Update is ready!");
         }
