@@ -100,7 +100,7 @@ class FrontendController extends ControllerBase
      * @return array
      */
     public function roots_list(string $limit = "10", string $page = "1", string $order = "titleasc"): array
-    {
+    {        
         drupal_get_messages('error', true);
         // get the root resources
         // sparql result fields - uri, title
