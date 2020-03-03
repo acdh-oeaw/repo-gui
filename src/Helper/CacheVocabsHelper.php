@@ -49,7 +49,7 @@ class CacheVocabsHelper
         
     /**
      * get the vocabs values
-     * 
+     *
      * @param string $lang
      * @return array
      */
