@@ -268,10 +268,12 @@ class DetailViewFunctions
                 if (isset($this->dvResult['table'][$k]) && count($this->dvResult['table'][$k]) > 0) {
                     foreach ($this->dvResult['table'][$k] as $tk => $tv) {
                         foreach ($vocabs[$lang][$k] as $vocab) {
-                            if ($vocab->uri == $tv['uri']) {
-                                $this->dvResult['table'][$k][$tk]['uri'] = $vocab->uri;
-                                $this->dvResult['table'][$k][$tk]['title'] = $vocab->label;
-                                $this->dvResult['table'][$k][$tk]['lang'] = $vocab->language;
+                            if (isset($vocab->uri) && !empty($vocab->uri) && isset($tv['uri'])) {
+                                if($vocab->uri == $tv['uri']) {
+                                    $this->dvResult['table'][$k][$tk]['uri'] = $vocab->uri;
+                                    $this->dvResult['table'][$k][$tk]['title'] = $vocab->label;
+                                    $this->dvResult['table'][$k][$tk]['lang'] = $vocab->language;
+                                }
                             }
                         }
                     }
@@ -303,6 +305,9 @@ class DetailViewFunctions
         
         //get the resource Title
         $resourceTitle = $this->getLiteralValuesByLangFromResource($data, RC::get('fedoraTitleProp'), $lang)[0];
+        //get the titleimage url/identifier
+        $titleImageUri = (!empty($data->getResource(RC::get('drupalHasTitleImage')))) ? $data->getResource(RC::get('drupalHasTitleImage'))->getUri() : "" ;
+        
         $resourceUri = $data->getUri();
         $resourceIdentifiers = $data->all(RC::get('fedoraIdProp'));
         $resourceIdentifier = HF::getAcdhIdentifier($resourceIdentifiers);
@@ -380,12 +385,28 @@ class DetailViewFunctions
             $arrayObject->offsetSet('accessRestriction', $this->dvResult['table']['acdh:hasAccessRestriction'][0]);
             
             if (strpos($this->dvResult['table']['acdh:hasAccessRestriction'][0]['uri'], '/public') !== false) {
-                if (isset($this->dvResult['imageThumbUrl'])) {
-                    $arrayObject->offsetSet('imageThumbUrl', $this->dvResult['imageThumbUrl']);
+                
+                //if we have titleimage then we will show that one
+                if(!empty($titleImageUri)) {
+                    $imageUrl = $this->oeawStorage->getTitleImageByidentifier($titleImageUri);
+                    //thumbnail service is not supporting svg, so thatsh will be a normal image
+                    if(count($imageUrl) < 1) {
+                        $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($titleImageUri));
+                    }else if ( isset($imageUrl['format']) && strpos($imageUrl['format'], 'svg') === false)  {
+                        $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($titleImageUri));
+                    }else {
+                        $arrayObject->offsetSet('imageUrl', $titleImageUri);
+                    }
                 }
 
+                //if the actual resource is a image then we will display it by its own uuid
                 if (strpos(strtolower($this->dvResult['acdh_rdf:type']['title']), 'image') !== false) {
+                    if (isset($this->dvResult['table']['ebucore:hasMimeType']) && strpos($this->dvResult['table']['ebucore:hasMimeType'][0], 'svg') !== false) {
+                        $arrayObject->offsetSet('imageThumbUrl', $this->dvResult['uuid']);
+                    }else {
                     $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
+                    }
+                    
                 } elseif (
                     isset($this->dvResult['table']['acdh:hasCategory'][0]['title'])
                         &&

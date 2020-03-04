@@ -352,11 +352,13 @@
 
     {% endif%}
     
-    <div class="res-actions" style="padding: 20px;">
-        <div class="res-act-button" style="display: table; margin: 0 auto;">
-            <a href="#" id="getChildView" class="getChildView"><i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;<b>{{ "Show More"|trans }}</b>&nbsp; <i class="fa fa-angle-down" aria-hidden="true"></i></a>
+    {% if result.getType == "Person" or  result.getType == "Collection" or result.getType == "Place" or 
+      result.getType == "Project" or result.getType == "Organisation" or result.getType == "Publication" %}
+        <div class="res-actions" style="padding: 20px;">
+            <div class="res-act-button" style="display: table; margin: 0 auto;">
+                <a href="#" id="getChildView" class="getChildView"><i class="fa fa-angle-down" aria-hidden="true"></i> &nbsp;<b>{{ "Show More"|trans }}</b>&nbsp; <i class="fa fa-angle-down" aria-hidden="true"></i></a>
+            </div>
         </div>
-    </div>
-   
+   {% endif%}
    <div id="child-div-content"></div>
 
