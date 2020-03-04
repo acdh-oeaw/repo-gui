@@ -2,7 +2,7 @@
     {% for item in result %}
         <div class="res-el col-block col-lg-12">
 		
-        {% if item.imageUrl %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
+        {% if item.imageUrl or item.imageThumbUrl %}<div class="res-inside-wrap col-lg-8 ">{% endif%}
    
             {% if item.title %}
                 <div class="res-property">
@@ -97,9 +97,15 @@
                 </div>
                     
             </div>           
-            {% if item.imageUrl %}</div>{% endif%}
-
-            {% if item.imageUrl %}	
+            {% if item.imageUrl or item.imageThumbUrl %}</div>{% endif%}
+            
+            {% if item.imageThumbUrl %}	
+                <div class="res-inside-wrap col-lg-4 ">	
+                    <div class="single-res-thumb">
+                        <a href="{{ url('<front>') }}oeaw_detail/{{ item.insideUri }}"><img src="{{ item.imageThumbUrl }}"></a>
+                    </div>
+                </div>
+            {% elseif item.imageUrl %}	
                 <div class="res-inside-wrap col-lg-4 ">	
                     <div class="single-res-thumb">
                         <a href="{{ url('<front>') }}oeaw_detail/{{ item.insideUri }}"><img src="{{ item.imageUrl }}"></a>
