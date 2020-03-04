@@ -400,16 +400,16 @@ class DetailViewFunctions
                 }
 
                 //if the actual resource is a image then we will display it by its own uuid
-                if (strpos(strtolower($this->dvResult['acdh_rdf:type']['uri']), 'https://vocabs.acdh.oeaw.ac.at/schema#Resource') !== false) {
+                if (strpos(strtolower($this->dvResult['acdh_rdf:type']['title']), 'image') !== false) {
                     if (isset($this->dvResult['table']['ebucore:hasMimeType']) && strpos($this->dvResult['table']['ebucore:hasMimeType'][0], 'svg') !== false) {
                         $arrayObject->offsetSet('imageThumbUrl', $this->dvResult['uuid']);
                     } else {
                         $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
                     }
                 } elseif (
-                    isset($this->dvResult['table']['acdh:hasCategory'][0]['uri'])
+                    isset($this->dvResult['table']['acdh:hasCategory'][0]['title'])
                         &&
-                    strpos(strtolower($this->dvResult['table']['acdh:hasCategory'][0]['uri']), 'https://vocabs.acdh.oeaw.ac.at/archecategory/image') !== false) {
+                    strpos(strtolower($this->dvResult['table']['acdh:hasCategory'][0]['title']), 'image') !== false) {
                     $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
                 }
             }
