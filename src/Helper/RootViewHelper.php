@@ -105,15 +105,14 @@ class RootViewHelper
             if (isset($value['accessRestriction']) && !empty($value['accessRestriction'])) {
                 $arrayObject->offsetSet('accessRestriction', $value['accessRestriction']);
                 if (strpos($value['accessRestriction'], '/public') !== false) {
-                    
                     if (isset($value['image']) && !empty($value['image'])) {
                         $arrayObject->offsetSet('imageUrl', $value['image']);
                     } elseif (isset($value['hasTitleImage']) && !empty($value['hasTitleImage'])) {
                         $imageUrl = $this->oeawStorage->getTitleImageByidentifier($value['hasTitleImage']);
                         //thumbnail service is not supporting svg, so thatsh will be a normal image
-                        if(count($imageUrl) < 1) {
+                        if (count($imageUrl) < 1) {
                             $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($value['hasTitleImage']));
-                        }else if ( isset($imageUrl['format']) && strpos($imageUrl['format'], 'svg') === false)  {
+                        } elseif (isset($imageUrl['format']) && strpos($imageUrl['format'], 'svg') === false) {
                             $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($value['hasTitleImage']));
                         }
                         

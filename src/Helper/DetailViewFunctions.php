@@ -269,7 +269,7 @@ class DetailViewFunctions
                     foreach ($this->dvResult['table'][$k] as $tk => $tv) {
                         foreach ($vocabs[$lang][$k] as $vocab) {
                             if (isset($vocab->uri) && !empty($vocab->uri) && isset($tv['uri'])) {
-                                if($vocab->uri == $tv['uri']) {
+                                if ($vocab->uri == $tv['uri']) {
                                     $this->dvResult['table'][$k][$tk]['uri'] = $vocab->uri;
                                     $this->dvResult['table'][$k][$tk]['title'] = $vocab->label;
                                     $this->dvResult['table'][$k][$tk]['lang'] = $vocab->language;
@@ -387,14 +387,14 @@ class DetailViewFunctions
             if (strpos($this->dvResult['table']['acdh:hasAccessRestriction'][0]['uri'], '/public') !== false) {
                 
                 //if we have titleimage then we will show that one
-                if(!empty($titleImageUri)) {
+                if (!empty($titleImageUri)) {
                     $imageUrl = $this->oeawStorage->getTitleImageByidentifier($titleImageUri);
                     //thumbnail service is not supporting svg, so thatsh will be a normal image
-                    if(count($imageUrl) < 1) {
+                    if (count($imageUrl) < 1) {
                         $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($titleImageUri));
-                    }else if ( isset($imageUrl['format']) && strpos($imageUrl['format'], 'svg') === false)  {
+                    } elseif (isset($imageUrl['format']) && strpos($imageUrl['format'], 'svg') === false) {
                         $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($titleImageUri));
-                    }else {
+                    } else {
                         $arrayObject->offsetSet('imageUrl', $titleImageUri);
                     }
                 }
@@ -403,10 +403,9 @@ class DetailViewFunctions
                 if (strpos(strtolower($this->dvResult['acdh_rdf:type']['title']), 'image') !== false) {
                     if (isset($this->dvResult['table']['ebucore:hasMimeType']) && strpos($this->dvResult['table']['ebucore:hasMimeType'][0], 'svg') !== false) {
                         $arrayObject->offsetSet('imageThumbUrl', $this->dvResult['uuid']);
-                    }else {
-                    $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
+                    } else {
+                        $arrayObject->offsetSet('imageThumbUrl', HF::createThumbnailUrl($this->dvResult['uuid']));
                     }
-                    
                 } elseif (
                     isset($this->dvResult['table']['acdh:hasCategory'][0]['title'])
                         &&
