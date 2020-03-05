@@ -62,7 +62,7 @@ class CacheVocabsHelper
                 $graph = new \EasyRdf\Graph();
                 $content = @file_get_contents($v);
                 //if we have a content without any error
-                if ($content) { 
+                if ($content) {
                     if ($graph->parse($content)) {
                         foreach ($graph->allOfType('http://www.w3.org/2004/02/skos/core#Concept') as $i) {
                             $uri = $i->getUri();
