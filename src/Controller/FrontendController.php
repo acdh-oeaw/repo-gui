@@ -99,8 +99,8 @@ class FrontendController extends ControllerBase
      *
      * @return array
      */
-    public function roots_list(string $limit = "10", string $page = "1", string $order = "titleasc"): array
-    {
+    public function roots_list(string $limit = "10", string $page = "1", string $order = "datedesc"): array
+    {        
         drupal_get_messages('error', true);
         // get the root resources
         // sparql result fields - uri, title
@@ -254,7 +254,7 @@ class FrontendController extends ControllerBase
         } elseif (!isset($actualCacheObj->modify_date)) {
             $needsToCache = true;
         }
-        
+        $needsToCache = true;
         //if the file with this date is exists
         if ((count((array)$actualCacheObj) > 0) && $needsToCache === false) {
             if (!empty($actualCacheObj->data)) {
