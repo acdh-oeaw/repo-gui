@@ -60,25 +60,29 @@ class CacheVocabsHelper
         try {
             foreach ($this->vocabs as $k => $v) {
                 $graph = new \EasyRdf\Graph();
-                if ($graph->parse(file_get_contents($v))) {
-                    foreach ($graph->allOfType('http://www.w3.org/2004/02/skos/core#Concept') as $i) {
-                        $uri = $i->getUri();
-                        $label = $i->getLiteral('http://www.w3.org/2004/02/skos/core#prefLabel', $lang);
-                        if ((isset($label) && !empty($label))
-                                &&
-                            (isset($uri) && !empty($uri))) {
-                            $label = (string)$label;
-                            $uri = (string)$uri;
-                            
-                            $obj = new \stdClass();
-                            $obj->label = $label;
-                            $obj->uri = $uri;
-                            $obj->lng = $lang;
-                            $this->cacheVocabs->addCacheToDB($k, $label, $uri, $lang);
-                            $this->customCache[$lang][$k][] = $obj;
+                $content = @file_get_contents($v);
+                //if we have a content without any error
+                if ($content) { 
+                    if ($graph->parse($content)) {
+                        foreach ($graph->allOfType('http://www.w3.org/2004/02/skos/core#Concept') as $i) {
+                            $uri = $i->getUri();
+                            $label = $i->getLiteral('http://www.w3.org/2004/02/skos/core#prefLabel', $lang);
+                            if ((isset($label) && !empty($label))
+                                    &&
+                                (isset($uri) && !empty($uri))) {
+                                $label = (string)$label;
+                                $uri = (string)$uri;
+
+                                $obj = new \stdClass();
+                                $obj->label = $label;
+                                $obj->uri = $uri;
+                                $obj->lng = $lang;
+                                $this->cacheVocabs->addCacheToDB($k, $label, $uri, $lang);
+                                $this->customCache[$lang][$k][] = $obj;
+                            }
                         }
+                        $result['success'][] = $k;
                     }
-                    $result['success'][] = $k;
                 }
             }
         } catch (Exception $ex) {
