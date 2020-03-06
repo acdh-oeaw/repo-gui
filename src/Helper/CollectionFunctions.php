@@ -54,7 +54,7 @@ class CollectionFunctions
      * @param bool $binaries
      * @return array
      */
-    public function getCollectionData(string $id, bool $binaries = false): array
+    public function getCollectionData(string $id, bool $binaries = false, bool $needsToCache = false): array
     {
         if (empty($id)) {
             return array();
@@ -83,7 +83,7 @@ class CollectionFunctions
         
         $fdDate = strtotime($this->fedoraGlobalModDate);
         
-        $needsToCache = false;
+        
         if (isset($actualCacheObj->modify_date) && ($fdDate >  $actualCacheObj->modify_date)) {
             $needsToCache = true;
         } elseif (count((array)$actualCacheObj) == 0) {

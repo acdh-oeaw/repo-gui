@@ -916,12 +916,18 @@ class FrontendController extends ControllerBase
         $resData['dl'] = false;
         $resData['insideUri'] = $uri;
         $encIdentifier = $uri;
+        $needsToCache = false;
+        //if recache is necessary
+        if (strpos($uri, 'recache=true') !== false) {
+            $needsToCache = true;
+        }
+        
         $uri = $this->oeawFunctions->detailViewUrlDecodeEncode($uri, 0);
         
         if (empty($uri)) {
             $errorMSG = "There is no valid URL";
         } else {
-            $resData = $this->oeawCollectionFunc->getCollectionData($uri, true);
+            $resData = $this->oeawCollectionFunc->getCollectionData($uri, true, $needsToCache);
         
             if (count($resData) == 0) {
                 drupal_set_message(
